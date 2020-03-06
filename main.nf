@@ -7,8 +7,7 @@ OUTDIR = params.outdir+'/'+params.subdir
 Channel
     .fromPath(params.csv).splitCsv(header:true)
     .map{ row-> tuple(row.id, row.species, row.platform, file(row.read1), file(row.read2)) }
-    .into { fastq_bwa; fastq_spades }
-
+    .into { fastq_bwa; fastq_spades, fastq_kraken }
 
 
 process bwa_align {
@@ -26,13 +25,13 @@ process bwa_align {
 		fasta_ref = params.refpath+'/species/'+species+'/ref.fasta'
 		read2 = fastq_r2.name == 'SINGLE_END' ? '' : "$fastq_r2"
 
-		"""
-		bwa mem -R '@RG\\tID:${id}\\tSM:${id}\\tPL:illumina' -M -t ${task.cpus} $fasta_ref $fastq_r1 $read2 \\
+	"""
+	bwa mem -R '@RG\\tID:${id}\\tSM:${id}\\tPL:illumina' -M -t ${task.cpus} $fasta_ref $fastq_r1 $read2 \\
 		| samtools view -Sb - \\
 		| samtools sort -o ${id}.bwa.sort.bam -
 
-		samtools index ${id}.bwa.sort.bam
-		"""
+	samtools index ${id}.bwa.sort.bam
+	"""
 }
 
 
@@ -53,6 +52,36 @@ process bam_markdup {
 	"""
 }
 
+process kraken {
+	publishDir "${OUTDIR}/kraken", mode: 'copy', overwrite: true
+	cpu params.cpu_some
+	memory '48 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
+
+	output:
+		set id, species, platform, file("{id}.kraken")
+
+	script:
+		read_params = fastq_r2.name == 'SINGLE_END' ? 
+			"$fastq_r1" :
+			"--paired $fastq_r1 $fastq_r2"
+
+	"""
+	kraken --fastq-input --check-names --preload \\
+		--gzip-compressed \\
+		--db ${params.krakendb} \\
+		--threads ${task.cpus} \\
+		--output kraken.out \\
+		$read_params 
+
+	kraken-report --db ${params.krakendb} kraken.out > kraken.rep
+
+	est_abundance.py -k ${params.brakkendb} -i kraken.rep -o ${id}.kraken
+	"""
+}
 
 process spades_assembly {
 	publishDir "${OUTDIR}/assembly", mode: 'copy', overwrite: true
@@ -64,19 +93,86 @@ process spades_assembly {
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
 
 	output:
-		set id, species, platform, file("${id}.spades.fasta")
+		set id, species, platform, file("${id}.spades.fasta") into asm_quast
 
 	script:
 
 		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful' : '--only-assembler'
 		opt_reads = fastq_r2.name != 'SINGLE_END' ? "-1 $fastq_r1 -2 $fastq_r2" : "-s $fastq_r1"
 
-		"""
-		spades.py -k 21,33,55,77 -t ${task.cpus} \\
-			$opt_platform \\
-			$opt_reads \\
-			-o ${id}.spades.fasta
-		"""
+	"""
+	spades.py -k 21,33,55,77 -t ${task.cpus} \\
+		$opt_platform \\
+		$opt_reads \\
+		-o ${id}.spades.fasta
+	"""
 }
 
 
+process quast {
+	publishDir "${OUTDIR}/qc", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(asm_fasta) into asm_quast
+
+	output:
+		set id, species, platform, file("${id}.quast.tsv")
+
+	script:
+		fasta_ref = params.refpath+'/species/'+species+'/ref.fasta'
+
+	"""
+	quast.py $asm_fasta -R $fasta_ref -o quast_outdir
+	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
+	"""
+}
+
+
+process mlst {
+	publishDir "${OUTDIR}/mlst", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(asm_fasta) into asm_mlst
+
+	output:
+		set id, species, platform, file("${id}.mlst.json"), file("${id}.mlst.novel")
+	
+
+	"""
+	mlst --scheme ${species} \\
+		--json ${id}.mlst.json --novel ${id}.mlst.novel \\
+		${asm_fasta}
+	"""
+}
+
+sub ariba {
+	publishDir "${OUTDIR}/ariba", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
+
+	output:
+		set id, species, platform, file("${id}.ariba.json") 
+
+	when:
+		fastq_r2 != "SINGLE_END"
+
+	"""
+	ariba run --force --threads 8 /data/bnf/ref/microbiology/vfdb_saureus \\
+		$fastq_r1 $fastq_r2 ariba.outdir
+
+	ariba summary --col_filter n --row_filter n ariba.summary ariba.outdir/report.tsv
+
+	ariba2json.pl /data/bnf/ref/microbiology/vfdb_saureus/02.cdhit.all.fa \\
+		 ariba.summary.csv ariba.folder/report.tsv > ${id}.ariba.json
+	"""
+}
