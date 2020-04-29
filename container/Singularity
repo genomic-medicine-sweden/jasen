@@ -25,5 +25,3 @@ From:nfcore/base
 
 	/opt/conda/envs/CMD-microwgs/bin/cpanm JSON
 
-
-		

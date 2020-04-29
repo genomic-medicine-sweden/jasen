@@ -7,14 +7,14 @@ OUTDIR = params.outdir+'/'+params.subdir
 Channel
     .fromPath(params.csv).splitCsv(header:true)
     .map{ row-> tuple(row.id, row.species, row.platform, file(row.read1), file(row.read2)) }
-    .into { fastq_bwa; fastq_spades, fastq_kraken }
+    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba }
 
 
 process bwa_align {
 	cpus params.cpu_bwa
 	memory '32 GB'
 	time '1h'
-	    
+
 	input: 
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_bwa
 
@@ -40,7 +40,7 @@ process bam_markdup {
 	cpus params.cpu_many
 	memory '32 GB'
 	time '1h'
-    
+
 	input:
 		set id, species, platform, file(bam), file(bai) from bam_markdup
 
@@ -48,21 +48,21 @@ process bam_markdup {
 		set id, species, platform, file("${id}.dedup.bam"), file("${id}.dedup.bam.bai") into bam_qc
 
 	"""
-	sambamba markdup -t ${task.cpu} $bam ${id}.dedup.bam
+	sambamba markdup -t ${task.cpus} $bam ${id}.dedup.bam
 	"""
 }
 
 process kraken {
 	publishDir "${OUTDIR}/kraken", mode: 'copy', overwrite: true
-	cpu params.cpu_some
+	cpus params.cpu_many
 	memory '48 GB'
 	time '1h'
 
 	input:
-		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
+		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_kraken
 
 	output:
-		set id, species, platform, file("{id}.kraken")
+		set id, species, platform, file("${id}.kraken")
 
 	script:
 		read_params = fastq_r2.name == 'SINGLE_END' ? 
@@ -79,7 +79,7 @@ process kraken {
 
 	kraken-report --db ${params.krakendb} kraken.out > kraken.rep
 
-	est_abundance.py -k ${params.brakkendb} -i kraken.rep -o ${id}.kraken
+	est_abundance.py -k ${params.brackendb} -i kraken.rep -o ${id}.kraken
 	"""
 }
 
@@ -93,7 +93,7 @@ process spades_assembly {
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
 
 	output:
-		set id, species, platform, file("${id}.spades.fasta") into asm_quast
+		set id, species, platform, file("${id}.spades.fasta") into asm_quast, asm_mlst, asm_chewbbaca
 
 	script:
 
@@ -116,7 +116,7 @@ process quast {
 	time '1h'
 
 	input:
-		set id, species, platform, file(asm_fasta) into asm_quast
+		set id, species, platform, file(asm_fasta) from asm_quast
 
 	output:
 		set id, species, platform, file("${id}.quast.tsv")
@@ -126,7 +126,7 @@ process quast {
 
 	"""
 	quast.py $asm_fasta -R $fasta_ref -o quast_outdir
-	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
+ 	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
 	"""
 }
 
@@ -138,11 +138,11 @@ process mlst {
 	time '1h'
 
 	input:
-		set id, species, platform, file(asm_fasta) into asm_mlst
+		set id, species, platform, file(asm_fasta) from asm_mlst
 
 	output:
 		set id, species, platform, file("${id}.mlst.json"), file("${id}.mlst.novel")
-	
+
 
 	"""
 	mlst --scheme ${species} \\
@@ -151,28 +151,52 @@ process mlst {
 	"""
 }
 
-sub ariba {
+process ariba {
 	publishDir "${OUTDIR}/ariba", mode: 'copy', overwrite: true
 	cpus 1
 	memory '8 GB'
 	time '1h'
 
 	input:
-		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
+		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_ariba
 
 	output:
-		set id, species, platform, file("${id}.ariba.json") 
+		set id, species, platform, file("${id}.ariba.json")
 
 	when:
 		fastq_r2 != "SINGLE_END"
 
 	"""
-	ariba run --force --threads 8 /data/bnf/ref/microbiology/vfdb_saureus \\
+	ariba run --force --threads ${task.cpus} ${params.refpath}/species/${species}/ariba \\
 		$fastq_r1 $fastq_r2 ariba.outdir
 
 	ariba summary --col_filter n --row_filter n ariba.summary ariba.outdir/report.tsv
 
-	ariba2json.pl /data/bnf/ref/microbiology/vfdb_saureus/02.cdhit.all.fa \\
-		 ariba.summary.csv ariba.folder/report.tsv > ${id}.ariba.json
+	ariba2json.pl ${params.refpath}/species/${species}/ariba/02.cdhit.all.fa \\
+		 ariba.summary.csv ariba.outdir/report.tsv > ${id}.ariba.json
+	"""
+}
+
+process chewbbaca {
+	publishDir "${OUTDIR}/chewbbaca", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(asm_fasta) from asm_chewbbaca
+
+	output:
+		set id, species, platform, file("${id}.chewbbaca")
+
+	script:
+		cgmlst_db = params.refpath+'/species/'+species+'/cgmlst'
+
+	"""
+	chewBBACA.py AlleleCall -i ${asm_fasta} -g $cgmlst_db --ptf Staphylococcus_aureus.trn --cpu ${task.cpus} -fr \\
+	    -o chewbbaca.folder
+
+	sed -e "s/NIPHEM/-/g" -e "s/NIPH/-/g" -e "s/LNF/-/g" -e "s/INF-*//g" -e "s/PLOT[^\t]*/-/g" -e "s/ALM/-/g" -e "s/ASM/-/g" \\
+	    chewbbaca.folder/results_alleles.tsv > ${id}.chewbbaca
 	"""
 }
