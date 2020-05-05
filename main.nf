@@ -330,7 +330,7 @@ process tomiddleman {
 	missing=\$(tail -1 $chewbbaca | fmt -w 1 | tail -n +2 | grep '-' | wc -l)
 
 
-	echo "import_cgmlst.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missing" > ${id}.cgviz
+	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missing" > ${id}.cgviz
 
 
 	"""
