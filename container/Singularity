@@ -10,6 +10,7 @@ From:nfcore/base
 	PATH=/opt/conda/envs/CMD-microwgs/bin/:$PATH
 	PICARD_HOME=/opt/conda/envs/CMD-microwgs/share/picard-2.18.26-0/
 	PERL5LIB=$PERL5LIB:/opt/conda/envs/CMD-microwgs/lib/site_perl/5.26.2/
+	umask 0002
 
 %files
         environment.yml /

@@ -3,7 +3,9 @@ use warnings;
 use strict;
 use JSON;
 use Data::Dumper;
-use CMD::tsv qw(read_tsv);
+use File::Basename;
+use lib dirname (__FILE__);
+use tsv qw(read_tsv);
 
 my $db_fn = $ARGV[0];
 my $summary_fn = $ARGV[1];

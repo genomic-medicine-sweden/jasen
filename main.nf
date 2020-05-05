@@ -7,7 +7,7 @@ OUTDIR = params.outdir+'/'+params.subdir
 Channel
     .fromPath(params.csv).splitCsv(header:true)
     .map{ row-> tuple(row.id, row.species, row.platform, file(row.read1), file(row.read2)) }
-    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba }
+    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba; fastq_maskpolymorph; fastq_register }
 
 
 process bwa_align {
@@ -15,11 +15,11 @@ process bwa_align {
 	memory '32 GB'
 	time '1h'
 
-	input: 
+	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_bwa
 
 	output:
-		set id, species, platform, file("${id}.bwa.sort.bam"), file("${id}.bwa.sort.bam.bai") into bam_markdup
+		set id, species, platform, file("${id}.bwa.sort.bam"), file("${id}.bwa.sort.bam.bai") into bam_markdup, bam_postalignqc
 
 	script:
 		fasta_ref = params.refpath+'/species/'+species+'/ref.fasta'
@@ -62,10 +62,10 @@ process kraken {
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_kraken
 
 	output:
-		set id, species, platform, file("${id}.kraken")
+		set id, species, platform, file("${id}.kraken") into kraken_export
 
 	script:
-		read_params = fastq_r2.name == 'SINGLE_END' ? 
+		read_params = fastq_r2.name == 'SINGLE_END' ?
 			"$fastq_r1" :
 			"--paired $fastq_r1 $fastq_r2"
 
@@ -75,7 +75,7 @@ process kraken {
 		--db ${params.krakendb} \\
 		--threads ${task.cpus} \\
 		--output kraken.out \\
-		$read_params 
+		$read_params
 
 	kraken-report --db ${params.krakendb} kraken.out > kraken.rep
 
@@ -93,7 +93,7 @@ process spades_assembly {
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
 
 	output:
-		set id, species, platform, file("${id}.spades.fasta") into asm_quast, asm_mlst, asm_chewbbaca
+		set id, species, platform, file("${id}.fasta") into asm_quast, asm_mlst, asm_chewbbaca, asm_maskpolymorph
 
 	script:
 
@@ -104,7 +104,8 @@ process spades_assembly {
 	spades.py -k 21,33,55,77 -t ${task.cpus} \\
 		$opt_platform \\
 		$opt_reads \\
-		-o ${id}.spades.fasta
+		-o spades
+	mv spades/contigs.fasta ${id}.fasta
 	"""
 }
 
@@ -119,7 +120,7 @@ process quast {
 		set id, species, platform, file(asm_fasta) from asm_quast
 
 	output:
-		set id, species, platform, file("${id}.quast.tsv")
+		set id, species, platform, file("${id}.quast.tsv") into quast_register, quast_export
 
 	script:
 		fasta_ref = params.refpath+'/species/'+species+'/ref.fasta'
@@ -141,7 +142,8 @@ process mlst {
 		set id, species, platform, file(asm_fasta) from asm_mlst
 
 	output:
-		set id, species, platform, file("${id}.mlst.json"), file("${id}.mlst.novel")
+		set id, species, platform, file("${id}.mlst.json") into mlst_export
+		file("${id}.mlst.novel") optional true
 
 
 	"""
@@ -151,17 +153,19 @@ process mlst {
 	"""
 }
 
+
 process ariba {
 	publishDir "${OUTDIR}/ariba", mode: 'copy', overwrite: true
-	cpus 1
-	memory '8 GB'
+	// cache 'deep'
+    cpus params.cpu_many
+	memory '16 GB'
 	time '1h'
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_ariba
 
 	output:
-		set id, species, platform, file("${id}.ariba.json")
+		set id, species, platform, file("${id}.ariba.json") into ariba_export
 
 	when:
 		fastq_r2 != "SINGLE_END"
@@ -174,29 +178,160 @@ process ariba {
 
 	ariba2json.pl ${params.refpath}/species/${species}/ariba/02.cdhit.all.fa \\
 		 ariba.summary.csv ariba.outdir/report.tsv > ${id}.ariba.json
+	#echo foo > ${id}.ariba.json
 	"""
 }
 
-process chewbbaca {
-	publishDir "${OUTDIR}/chewbbaca", mode: 'copy', overwrite: true
-	cpus 1
-	memory '8 GB'
+
+process maskpolymorph {
+	publishDir "${OUTDIR}/maskepolymorph", mode: 'copy', overwrite: true
+    cpus params.cpu_bwa
+    memory '32 GB'
 	time '1h'
+	// cache 'deep'
 
 	input:
-		set id, species, platform, file(asm_fasta) from asm_chewbbaca
+		set id, species, platform, file(asm_fasta), file(fastq_r1), file(fastq_r2) from asm_maskpolymorph.join(fastq_maskpolymorph, by:[0,1,2])
 
 	output:
-		set id, species, platform, file("${id}.chewbbaca")
+		set id, species, platform, file("${id}.spades.masked") into maskpoly_chewbbaca
+
+	script:
+		read2 = fastq_r2.name == 'SINGLE_END' ? '' : "$fastq_r2"
+
+	"""
+	bwa index $asm_fasta
+	bwa mem -t ${task.cpus} -R '@RG\\tID:${id}\\tSM:${id}\\tPL:${platform}' $asm_fasta $fastq_r1 $read2 \\
+		| samtools view -b - -@ ${task.cpus} \\
+		| samtools sort -@ ${task.cpus} - -o contigs.fasta.sort.bam
+	samtools index contigs.fasta.sort.bam
+
+	freebayes -f $asm_fasta contigs.fasta.sort.bam -C 2 -F 0.2 --pooled-continuous > contigs.fasta.vcf
+
+	error_corr_assembly.pl $asm_fasta contigs.fasta.vcf > ${id}.spades.masked
+	"""
+}
+
+
+process chewbbaca {
+	publishDir "${OUTDIR}/chewbbaca", mode: 'copy', overwrite: true
+	cpus 7
+	memory '8 GB'
+	time '1h'
+	// cache 'deep'
+	queue='rs-fs1'
+
+	input:
+		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
+
+	output:
+		set id, species, platform, file("${id}.chewbbaca") into chewbbaca_export
 
 	script:
 		cgmlst_db = params.refpath+'/species/'+species+'/cgmlst'
 
 	"""
-	chewBBACA.py AlleleCall -i ${asm_fasta} -g $cgmlst_db --ptf Staphylococcus_aureus.trn --cpu ${task.cpus} -fr \\
-	    -o chewbbaca.folder
+	flock -e /local/chewbbaca.lock \\
+		  chewBBACA.py AlleleCall --fr -i ${asm_fasta} -g $cgmlst_db --ptf Staphylococcus_aureus.trn --cpu ${task.cpus} \\
+		  -o chewbbaca.folder
 
 	sed -e "s/NIPHEM/-/g" -e "s/NIPH/-/g" -e "s/LNF/-/g" -e "s/INF-*//g" -e "s/PLOT[^\t]*/-/g" -e "s/ALM/-/g" -e "s/ASM/-/g" \\
-	    chewbbaca.folder/results_alleles.tsv > ${id}.chewbbaca
+	    chewbbaca.folder/results_*/results_alleles.tsv > ${id}.chewbbaca
+
+	"""
+}
+
+
+process postalignqc {
+	publishDir "${OUTDIR}/postalignqc", mode: 'copy', overwrite: true
+	cpus 4
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(bam), file(bai) from bam_postalignqc
+
+	output:
+		set id, species, platform, file("${id}.bwa.QC") into postqc_register
+
+	script:
+		cgmlst_bed = params.refpath+'/species/'+species+'/cgmlst.bed'
+
+	"""
+	postaln_qc.pl $bam $cgmlst_bed ${id} ${task.cpus} > ${id}.bwa.QC
+
+	"""
+
+}
+
+process register {
+	publishDir "${params.crondir}/qc", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, fastq_r1, fastq_r2, file(quast), file(postalignqc) \
+			from fastq_register.join(quast_register,by:[0,1,2]).join(postqc_register,by:[0,1,2])
+
+	output:
+		set id, species, platform, file("${id}.cdm")
+		set id, species, platform, rundir into register_export
+
+	script:
+		parts = fastq_r1.toString().split('/')
+		parts.println()
+		idx =  parts.findIndexOf {it ==~ /\d{6}_.{6,8}_.{4}_.{10}/}
+		rundir = parts[0..idx].join("/")
+		postalignqc = params.outdir+'/'+params.subdir+'/postalignqc/'+postalignqc
+		quast  = params.outdir+'/'+params.subdir+'/qc/'+quast
+
+
+	"""
+
+	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast" > ${id}.cdm
+
+	"""
+}
+
+
+process tomiddleman {
+	publishDir "${params.crondir}/cgviz", mode: 'copy', overwrite: true
+	cpus 1
+	memory '8 GB'
+	time '1h'
+
+	input:
+		set id, species, platform, file(chewbbaca), \
+			rundir, \
+			file(quast), \
+			file(mlst), \
+			file(kraken), \
+			file(ariba) \
+		from chewbbaca_export\
+			.join(register_export,by:[0,1,2])\
+			.join(quast_export,by:[0,1,2])\
+			.join(mlst_export,by:[0,1,2])\
+			.join(kraken_export,by:[0,1,2])\
+			.join(ariba_export,by:[0,1,2])
+
+	output:
+		set id, species, platform, file("${id}.cgviz")
+
+	script:
+		chewbbaca = params.outdir+'/'+params.subdir+'/chewbbaca/'+chewbbaca
+		quast = params.outdir+'/'+params.subdir+'/qc/'+quast
+		mlst = params.outdir+'/'+params.subdir+'/mlst/'+mlst
+		kraken = params.outdir+'/'+params.subdir+'/kraken/'+kraken
+		ariba = params.outdir+'/'+params.subdir+'/ariba/'+ariba
+
+	"""
+
+	missing=\$(tail -1 $chewbbaca | fmt -w 1 | tail -n +2 | grep '-' | wc -l)
+
+
+	echo "import_cgmlst.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missing" > ${id}.cgviz
+
+
 	"""
 }
