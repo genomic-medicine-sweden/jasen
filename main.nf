@@ -214,7 +214,7 @@ process maskpolymorph {
 
 
 process chewbbaca {
-	publishDir "${OUTDIR}/chewbbaca", mode: 'copy', overwrite: true
+	publishDir "${OUTDIR}/chewbbaca", mode: 'copy', overwrite: true, pattern: '*.chewbbaca'
 	cpus 7
 	memory '8 GB'
 	time '1h'
@@ -225,7 +225,8 @@ process chewbbaca {
 		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
 
 	output:
-		set id, species, platform, file("${id}.chewbbaca") into chewbbaca_export
+		set id, species, platform, file("${id}.chewbbaca"), file("${id}.missingloci") into chewbbaca_export
+		set id, species, platform, file("${id}.missingloci") into chewbbaca_register
 
 	script:
 		cgmlst_db = params.refpath+'/species/'+species+'/cgmlst'
@@ -238,7 +239,11 @@ process chewbbaca {
 	sed -e "s/NIPHEM/-/g" -e "s/NIPH/-/g" -e "s/LNF/-/g" -e "s/INF-*//g" -e "s/PLOT[^\t]*/-/g" -e "s/ALM/-/g" -e "s/ASM/-/g" \\
 	    chewbbaca.folder/results_*/results_alleles.tsv > ${id}.chewbbaca
 
+
+	tail -1 ${id}.chewbbaca | fmt -w 1 | tail -n +2 | grep '-' | wc -l > ${id}.missingloci
+
 	"""
+
 }
 
 
@@ -271,9 +276,14 @@ process register {
 	time '1h'
 
 	input:
-		set id, species, platform, fastq_r1, fastq_r2, file(quast), file(postalignqc) \
-			from fastq_register.join(quast_register,by:[0,1,2]).join(postqc_register,by:[0,1,2])
-
+		set id, species, platform, fastq_r1, fastq_r2, \
+			file(quast), \
+			file(postalignqc), \
+			file(missingloci) \
+		from fastq_register\
+			 .join(quast_register,by:[0,1,2])\
+			 .join(postqc_register,by:[0,1,2])\
+			 .join(chewbbaca_register,by:[0,1,2])
 	output:
 		set id, species, platform, file("${id}.cdm")
 		set id, species, platform, rundir into register_export
@@ -289,7 +299,8 @@ process register {
 
 	"""
 
-	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast" > ${id}.cdm
+	read missingloci < $missingloci
+	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast" --micmisloc \$missingloci > ${id}.cdm
 
 	"""
 }
@@ -303,6 +314,7 @@ process tomiddleman {
 
 	input:
 		set id, species, platform, file(chewbbaca), \
+			file('missingloci'), \
 			rundir, \
 			file(quast), \
 			file(mlst), \
@@ -327,10 +339,9 @@ process tomiddleman {
 
 	"""
 
-	missing=\$(tail -1 $chewbbaca | fmt -w 1 | tail -n +2 | grep '-' | wc -l)
+	read missingloci < $missingloci
 
-
-	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missing" > ${id}.cgviz
+	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missingloci" > ${id}.cgviz
 
 
 	"""
