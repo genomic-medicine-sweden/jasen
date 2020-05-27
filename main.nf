@@ -225,7 +225,7 @@ process chewbbaca {
 		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
 
 	output:
-		set id, species, platform, file("${id}.chewbbaca"), file("${id}.missingloci") into chewbbaca_export
+		set id, species, platform, file("${id}.chewbbaca") into chewbbaca_export
 		set id, species, platform, file("${id}.missingloci") into chewbbaca_register
 
 	script:
@@ -306,7 +306,7 @@ process register {
 }
 
 
-process tomiddleman {
+process to_cgviz {
 	publishDir "${params.crondir}/cgviz", mode: 'copy', overwrite: true
 	cpus 1
 	memory '8 GB'
@@ -314,7 +314,6 @@ process tomiddleman {
 
 	input:
 		set id, species, platform, file(chewbbaca), \
-			file('missingloci'), \
 			rundir, \
 			file(quast), \
 			file(mlst), \
@@ -338,11 +337,6 @@ process tomiddleman {
 		ariba = params.outdir+'/'+params.subdir+'/ariba/'+ariba
 
 	"""
-
-	read missingloci < $missingloci
-
-	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba --missingloci \$missingloci" > ${id}.cgviz
-
-
+	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba" > ${id}.cgviz
 	"""
 }
