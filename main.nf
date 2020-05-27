@@ -127,7 +127,7 @@ process quast {
 
 	"""
 	quast.py $asm_fasta -R $fasta_ref -o quast_outdir
- 	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
+	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
 	"""
 }
 
@@ -157,7 +157,7 @@ process mlst {
 process ariba {
 	publishDir "${OUTDIR}/ariba", mode: 'copy', overwrite: true
 	// cache 'deep'
-    cpus params.cpu_many
+	cpus params.cpu_many
 	memory '16 GB'
 	time '1h'
 
@@ -185,8 +185,8 @@ process ariba {
 
 process maskpolymorph {
 	publishDir "${OUTDIR}/maskepolymorph", mode: 'copy', overwrite: true
-    cpus params.cpu_bwa
-    memory '32 GB'
+	cpus params.cpu_bwa
+	memory '32 GB'
 	time '1h'
 	// cache 'deep'
 
