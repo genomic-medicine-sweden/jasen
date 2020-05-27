@@ -269,7 +269,7 @@ process postalignqc {
 
 }
 
-process register {
+process to_cdm {
 	publishDir "${params.crondir}/qc", mode: 'copy', overwrite: true
 	cpus 1
 	memory '8 GB'
@@ -300,7 +300,7 @@ process register {
 	"""
 
 	read missingloci < $missingloci
-	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast" --micmisloc \$missingloci > ${id}.cdm
+	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast --micmisloc \$missingloci" > ${id}.cdm
 
 	"""
 }
