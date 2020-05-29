@@ -7,7 +7,7 @@ OUTDIR = params.outdir+'/'+params.subdir
 Channel
     .fromPath(params.csv).splitCsv(header:true)
     .map{ row-> tuple(row.id, row.species, row.platform, file(row.read1), file(row.read2)) }
-    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba; fastq_maskpolymorph; fastq_register }
+    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba; fastq_maskpolymorph; fastq_register; fastq_cgviz }
 
 
 process bwa_align {
@@ -288,6 +288,9 @@ process to_cdm {
 		set id, species, platform, file("${id}.cdm")
 		set id, species, platform, rundir into register_export
 
+	when:
+		!params.test
+
 	script:
 		parts = fastq_r1.toString().split('/')
 		parts.println()
@@ -296,12 +299,9 @@ process to_cdm {
 		postalignqc = params.outdir+'/'+params.subdir+'/postalignqc/'+postalignqc
 		quast  = params.outdir+'/'+params.subdir+'/qc/'+quast
 
-
 	"""
-
 	read missingloci < $missingloci
 	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast --micmisloc \$missingloci" > ${id}.cdm
-
 	"""
 }
 
@@ -314,13 +314,13 @@ process to_cgviz {
 
 	input:
 		set id, species, platform, file(chewbbaca), \
-			rundir, \
+			fastq_r1, fastq_r2, \
 			file(quast), \
 			file(mlst), \
 			file(kraken), \
 			file(ariba) \
 		from chewbbaca_export\
-			.join(register_export,by:[0,1,2])\
+			.join(fastq_cgviz,by:[0,1,2])\
 			.join(quast_export,by:[0,1,2])\
 			.join(mlst_export,by:[0,1,2])\
 			.join(kraken_export,by:[0,1,2])\
@@ -329,12 +329,23 @@ process to_cgviz {
 	output:
 		set id, species, platform, file("${id}.cgviz")
 
+	when:
+		params.cgviz
+
 	script:
+		parts = fastq_r1.toString().split('/')
+		idx =  parts.findIndexOf {it ==~ /\d{6}_.{6,8}_.{4}_.{10}/}
+		rundir = parts[0..idx].join("/")
+
 		chewbbaca = params.outdir+'/'+params.subdir+'/chewbbaca/'+chewbbaca
 		quast = params.outdir+'/'+params.subdir+'/qc/'+quast
 		mlst = params.outdir+'/'+params.subdir+'/mlst/'+mlst
 		kraken = params.outdir+'/'+params.subdir+'/kraken/'+kraken
 		ariba = params.outdir+'/'+params.subdir+'/ariba/'+ariba
+
+		if( params.test ) {
+			species = "test"
+		}
 
 	"""
 	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba" > ${id}.cgviz
