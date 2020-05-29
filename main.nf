@@ -348,6 +348,6 @@ process to_cgviz {
 		}
 
 	"""
-	echo "import_cgviz.pl --in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba" > ${id}.cgviz
+	echo "--in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba" > ${id}.cgviz
 	"""
 }
