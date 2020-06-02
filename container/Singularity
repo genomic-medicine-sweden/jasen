@@ -1,5 +1,5 @@
 Bootstrap:docker
-From:nfcore/base
+From:nfcore/base:1.9
 
 %labels
 	MAINTAINER Björn Hallström <bjorn.hallstrom@skane.se>
