@@ -7,7 +7,7 @@ OUTDIR = params.outdir+'/'+params.subdir
 Channel
     .fromPath(params.csv).splitCsv(header:true)
     .map{ row-> tuple(row.id, row.species, row.platform, file(row.read1), file(row.read2)) }
-    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba; fastq_maskpolymorph; fastq_register }
+    .into { fastq_bwa; fastq_spades; fastq_kraken; fastq_ariba; fastq_maskpolymorph; fastq_register; fastq_cgviz }
 
 
 process bwa_align {
@@ -125,7 +125,7 @@ process quast {
 
 	"""
 	quast.py $asm_fasta -R $fasta_ref -o quast_outdir
- 	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
+	cp quast_outdir/transposed_report.tsv ${id}.quast.tsv
 	"""
 }
 
@@ -155,7 +155,7 @@ process mlst {
 process ariba {
 	publishDir "${OUTDIR}/ariba", mode: 'copy', overwrite: true
 	// cache 'deep'
-    cpus params.cpu_many
+	cpus params.cpu_many
 	memory '16 GB'
 	time '1h'
 
@@ -183,8 +183,8 @@ process ariba {
 
 process maskpolymorph {
 	publishDir "${OUTDIR}/maskepolymorph", mode: 'copy', overwrite: true
-    cpus params.cpu_bwa
-    memory '32 GB'
+	cpus params.cpu_bwa
+	memory '32 GB'
 	time '1h'
 	// cache 'deep'
 
@@ -223,7 +223,7 @@ process chewbbaca {
 		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
 
 	output:
-		set id, species, platform, file("${id}.chewbbaca"), file("${id}.missingloci") into chewbbaca_export
+		set id, species, platform, file("${id}.chewbbaca") into chewbbaca_export
 		set id, species, platform, file("${id}.missingloci") into chewbbaca_register
 
 	script:
@@ -267,7 +267,7 @@ process postalignqc {
 
 }
 
-process register {
+process to_cdm {
 	publishDir "${params.crondir}/qc", mode: 'copy', overwrite: true
 	cpus 1
 	memory '8 GB'
@@ -287,6 +287,9 @@ process register {
 		set id, species, platform, file("${id}.cdm")
 		set id, species, platform, rundir into register_export
 
+	when:
+		!params.test
+
 	script:
 		parts = fastq_r1.toString().split('/')
 		parts.println()
@@ -294,7 +297,6 @@ process register {
 		rundir = parts[0..idx].join("/")
 		postalignqc = params.outdir+'/'+params.subdir+'/postalignqc/'+postalignqc
 		quast  = params.outdir+'/'+params.subdir+'/qc/'+quast
-
 
 	"""
 	read missingloci < $missingloci
@@ -308,7 +310,7 @@ process register {
 }
 
 
-process tomiddleman {
+process to_cgviz {
 	publishDir "${params.crondir}/cgviz", mode: 'copy', overwrite: true
 	cpus 1
 	memory '8 GB'
@@ -316,14 +318,13 @@ process tomiddleman {
 
 	input:
 		set id, species, platform, file(chewbbaca), \
-			file('missingloci'), \
-			rundir, \
+			fastq_r1, fastq_r2, \
 			file(quast), \
 			file(mlst), \
 			file(kraken), \
 			file(ariba) \
 		from chewbbaca_export\
-			.join(register_export,by:[0,1,2])\
+			.join(fastq_cgviz,by:[0,1,2])\
 			.join(quast_export,by:[0,1,2])\
 			.join(mlst_export,by:[0,1,2])\
 			.join(kraken_export,by:[0,1,2])\
@@ -332,12 +333,22 @@ process tomiddleman {
 	output:
 		set id, species, platform, file("${id}.cgviz")
 
+	when:
+		params.cgviz
+
 	script:
+		parts = fastq_r1.toString().split('/')
+		idx =  parts.findIndexOf {it ==~ /\d{6}_.{6,8}_.{4}_.{10}/}
+		rundir = parts[0..idx].join("/")
+
 		chewbbaca = params.outdir+'/'+params.subdir+'/chewbbaca/'+chewbbaca
 		quast = params.outdir+'/'+params.subdir+'/qc/'+quast
 		mlst = params.outdir+'/'+params.subdir+'/mlst/'+mlst
 		kraken = params.outdir+'/'+params.subdir+'/kraken/'+kraken
 		ariba = params.outdir+'/'+params.subdir+'/ariba/'+ariba
+		if( params.test ) {
+			species = "test"
+		}
 
 	"""
 	read missingloci < $missingloci
