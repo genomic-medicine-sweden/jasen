@@ -230,7 +230,7 @@ process chewbbaca {
 		cgmlst_db = params.refpath+'/species/'+species+'/cgmlst'
 
 	"""
-	flock -e /local/chewbbaca.lock \\
+	flock -e ${params.local_tmp}/chewbbaca.lock \\
 		  chewBBACA.py AlleleCall --fr -i ${asm_fasta} -g $cgmlst_db --ptf Staphylococcus_aureus.trn --cpu ${task.cpus} \\
 		  -o chewbbaca.folder
 
