@@ -78,7 +78,7 @@ process kraken {
             --report ${id}.kraken.report \\
             $read_params
 
-    bracken -d /fs1/jonas/krakendb/krakenstd -r 150 -i ${id}.kraken.report -o ${id}.bracken
+    bracken -d ${params.krakendb} -r 150 -i ${id}.kraken.report -o ${id}.bracken
 	"""
 }
 
