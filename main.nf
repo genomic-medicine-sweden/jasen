@@ -62,7 +62,7 @@ process kraken {
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_kraken
 
 	output:
-		set id, species, platform, file("${id}.kraken") into kraken_export
+		set id, species, platform, file("${id}.bracken") into kraken_export
 
 	script:
 		read_params = fastq_r2.name == 'SINGLE_END' ?
@@ -70,16 +70,15 @@ process kraken {
 			"--paired $fastq_r1 $fastq_r2"
 
 	"""
-	kraken --fastq-input --check-names --preload \\
-		--gzip-compressed \\
-		--db ${params.krakendb} \\
-		--threads ${task.cpus} \\
-		--output kraken.out \\
-		$read_params
+    kraken2 \\
+			--gzip-compressed \\
+            --db ${params.krakendb} \\
+            --threads ${task.cpus} \\
+            --output ${id}.kraken.out \\
+            --report ${id}.kraken.report \\
+            $read_params
 
-	kraken-report --db ${params.krakendb} kraken.out > kraken.rep
-
-	est_abundance.py -k ${params.brackendb} -i kraken.rep -o ${id}.kraken
+    bracken -d ${params.krakendb} -r 150 -i ${id}.kraken.report -o ${id}.bracken
 	"""
 }
 
@@ -96,7 +95,6 @@ process spades_assembly {
 		set id, species, platform, file("${id}.fasta") into asm_quast, asm_mlst, asm_chewbbaca, asm_maskpolymorph
 
 	script:
-
 		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful' : '--only-assembler'
 		opt_reads = fastq_r2.name != 'SINGLE_END' ? "-1 $fastq_r1 -2 $fastq_r2" : "-s $fastq_r1"
 
@@ -284,6 +282,7 @@ process to_cdm {
 			 .join(quast_register,by:[0,1,2])\
 			 .join(postqc_register,by:[0,1,2])\
 			 .join(chewbbaca_register,by:[0,1,2])
+
 	output:
 		set id, species, platform, file("${id}.cdm")
 		set id, species, platform, rundir into register_export
@@ -301,7 +300,12 @@ process to_cdm {
 
 	"""
 	read missingloci < $missingloci
-	echo "--run-folder ${rundir} --sample-id ${id} --assay microbiology --qc ${postalignqc} --asmqc $quast --micmisloc \$missingloci" > ${id}.cdm
+	echo --run-folder ${rundir} \\
+         --sample-id ${id} \\
+         --assay microbiology \\
+         --qc ${postalignqc} \\
+         --asmqc $quast \\
+         --micmisloc \$missingloci > ${id}.cdm
 	"""
 }
 
@@ -342,12 +346,22 @@ process to_cgviz {
 		mlst = params.outdir+'/'+params.subdir+'/mlst/'+mlst
 		kraken = params.outdir+'/'+params.subdir+'/kraken/'+kraken
 		ariba = params.outdir+'/'+params.subdir+'/ariba/'+ariba
-
 		if( params.test ) {
 			species = "test"
 		}
 
 	"""
-	echo "--in $chewbbaca --overwrite --id $id --species $species --run $rundir --quast $quast --mlst $mlst --kraken $kraken --aribavir $ariba" > ${id}.cgviz
+	read missingloci < $missingloci
+
+	echo "--overwrite \\
+		 --in $chewbbaca  \\
+		 --id $id \\
+		 --species $species \\
+		 --run $rundir \\
+		 --quast $quast \\
+		 --mlst $mlst \\
+		 --kraken $kraken \\
+		 --aribavir $ariba \\
+		 --missingloci \$missingloci" > ${id}.cgviz
 	"""
 }
