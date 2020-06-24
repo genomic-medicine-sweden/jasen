@@ -10,11 +10,11 @@ process kraken_indexdb {
   """
 }
 
-samples_ch = Channel.fromPath("${params.fastq_folder}/*.fastq.gz")
+samples_ch = Channel.fromPath("${params.input}/*.fastq.gz")
 
 process fastqc_readqc{
   input:
-  file "lane1dir" from samples_ch
+  file lane1dir from samples_ch
 
   output:
   file "*_fastqc.{zip,html}" into fastqc_results
@@ -24,8 +24,8 @@ process fastqc_readqc{
   """
 }
 
-forward_ch = Channel.fromPath("${params.fastq_folder}/*1*.fastq.gz")
-reverse_ch = Channel.fromPath("${params.fastq_folder}/*2*.fastq.gz") 
+forward_ch = Channel.fromPath("${params.input}/*1*.fastq.gz")
+reverse_ch = Channel.fromPath("${params.input}/*2*.fastq.gz") 
 
 process lane_concatination{
   input:
@@ -42,15 +42,14 @@ process lane_concatination{
 
 process trimmomatic_trimming{
   input:
-  set 'forward', 'reverse' from lane_concat_ch
+  set forward, reverse from lane_concat_ch
 
   output:
   file "trim_{front_pair, rev_pair, unpair}.fastq.gz" into trimmed_fastq_assembly
   tuple val("trams"), "trim_{front_pair, rev_pair}.fastq.gz" into trimmed_fastq_ref, trimmed_fastq_cont
   
   """
-  #trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:/home/proj/bin/conda/envs/P_microSALT/share/trimmomatic-0.39-1/adapters/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
-  trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${baseDir}/assets/NexteraPE-PE.fa:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+  trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${baseDir}/assets/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
   cat trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz >> trim_unpair.fastq.gz
   """
 
@@ -83,16 +82,17 @@ process kraken2_decontamination{
     }
 }
 
+
 process spades_assembly{
   input:
-  file(trimmed) from trimmed_fastq_assembly
+  set val(name), file(trimmed) from trimmed_fastq_ass
 
   output:
-  file 'contigs.fasta' into assembled_ch
+  file 'spades/contigs.fasta' into assembled_ch
 
+  script:
   """
-  touch contigs.fasta
-  #spades.py --threads 8 --careful --memory 64 -o /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/assembly -1 /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/trimmed/ACC6417A161_trim_front_pair.fastq.gz -2 /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/trimmed/ACC6417A161_trim_rev_pair.fastq.gz -s /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/trimmed/ACC6417A161_trim_unpair.fastq.gz
+  spades.py --threads ${task.cpus} --careful -o spades -1 trimmed[0] -2 trimmed[1] -s trimmed[2]
   """
 }
 
