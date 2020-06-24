@@ -1,8 +1,6 @@
 #!/usr/bin/env nextflow
 
-samples_ch = Channel.fromFilePairs("${params.fastq_folder}/*{1,2}.fastq.gz")
-
-process krakenBuild {
+process kraken_indexdb {
   publishDir "${params.outdir}/databases", mode: 'copy'
   when: params.kraken2_build
 
@@ -12,7 +10,8 @@ process krakenBuild {
   """
 }
 
-// Could be applied to concat. Uncertain
+samples_ch = Channel.fromPath("${params.fastq_folder}/*.fastq.gz")
+
 process fastqc_readqc{
   input:
   file "lane1dir" from samples_ch
@@ -21,14 +20,12 @@ process fastqc_readqc{
   file "*_fastqc.{zip,html}" into fastqc_results
 
   """
-  touch trams_fastqc.zip
-  #fastqc ${lane1dir} --format fastq --threads ${task.cpus}
-  #// See manual for: nano, adapters, contaminants
+  fastqc ${lane1dir} --format fastq --threads ${task.cpus}
   """
 }
 
-forward_ch = Channel.fromPath("${params.fastq_folder}/*1.fastq.gz")
-reverse_ch = Channel.fromPath("${params.fastq_folder}/*2.fastq.gz") 
+forward_ch = Channel.fromPath("${params.fastq_folder}/*1*.fastq.gz")
+reverse_ch = Channel.fromPath("${params.fastq_folder}/*2*.fastq.gz") 
 
 process lane_concatination{
   input:
@@ -39,21 +36,22 @@ process lane_concatination{
   set 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat_ch
 
   """
+  #Concatination is done via process flow
   """
 }
 
 process trimmomatic_trimming{
   input:
-  file 'sample_master' from lane_concat_ch
+  set 'forward', 'reverse' from lane_concat_ch
 
   output:
   file "trim_{front_pair, rev_pair, unpair}.fastq.gz" into trimmed_fastq_assembly
   tuple val("trams"), "trim_{front_pair, rev_pair}.fastq.gz" into trimmed_fastq_ref, trimmed_fastq_cont
   
   """
-  touch trim_front_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz
+  #trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:/home/proj/bin/conda/envs/P_microSALT/share/trimmomatic-0.39-1/adapters/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+  trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${baseDir}/assets/NexteraPE-PE.fa:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
   cat trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz >> trim_unpair.fastq.gz
-  #trimmomatic PE -threads ${task.cpus} -phred33 $baseDir/${sample_master} $baseDir/ACC6542A4_trim_front_pair.fastq.gz $baseDir/ACC6542A4_trim_front_unpair.fastq.gz $baseDir/ACC6542A4_trim_rev_pair.fastq.gz $baseDir/ACC6542A4_trim_rev_unpair.fastq.gz      ILLUMINACLIP:/home/proj/bin/conda/envs/P_microSALT/share/trimmomatic-0.39-1/adapters/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
   """
 
 }
