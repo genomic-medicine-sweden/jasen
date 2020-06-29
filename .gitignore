@@ -1,3 +1,11 @@
+#Nextflow
+work/
+.nextflow/
+.nextflow*
+
+#Index-files
+*.fasta.*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
