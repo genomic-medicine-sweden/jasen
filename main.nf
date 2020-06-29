@@ -1,16 +1,6 @@
 #!/usr/bin/env nextflow
 
-process kraken_indexdb {
-  publishDir "${params.outdir}/databases", mode: 'copy'
-  when: params.kraken2_build
-
-  """
-  mkdir -p ${params.outdir}/databases
-  UpdateKrakenDatabases.py ${params.outdir}/databases
-  """
-}
-
-process index_reference{
+process bwa_index_reference{
 
   output:
   file "bypass" into bwa_indexes_ch
@@ -22,6 +12,17 @@ process index_reference{
   touch bypass
   """
 }
+
+process kraken_db_download {
+  when: params.kraken_db_download
+
+  """
+  export PATH=$PATH:$baseDir/bin/
+  mkdir -p ${params.outdir}/databases
+  kraken_update_db.py ${params.outdir}/databases
+  """
+}
+
 
 samples_ch = Channel.fromPath("${params.input}/*.fastq.gz")
 
@@ -67,37 +68,19 @@ process trimmomatic_trimming{
   """
 
 }
-
-/*
-// Channel going from trimmomatic doesnt contain files? Much weird, evaluate
 process kraken2_decontamination{
-  publishDir "${params.outdir}/kraken2", mode: 'copy'
-
   input:
     set val(name), file(reads) from trimmed_fastq_cont
 
   output:
-    set val(name), file("*.kraken.out") into kraken_out
-    set val(name), file("*.kraken.report") into kraken_report 
+    set val(name), file("kraken.out") into kraken_out
+    set val(name), file("kraken.report") into kraken_report 
 
 
-  script:
-    out = name+".kraken.out"
-    kreport = name+".kraken.report"
-    if (params.pairedEnd){
-      """
-      touch ${out} ${kreport}
-      #kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport --paired ${reads[0]} ${reads[1]}
-      """    
-    } else {
-      """
-      touch ${out} ${kreport}
-      #kraken2 --db ${params.krakendb} --threads ${task.cpus} --output $out --report $kreport ${reads[0]}
-      """
-    }
+  """
+  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${reads[0]} ${reads[1]}
+  """    
 }
-*/
-
 process spades_assembly{
   input:
   file(reads) from trimmed_fastq_assembly
