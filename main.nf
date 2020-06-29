@@ -103,11 +103,21 @@ process spades_assembly{
   file(reads) from trimmed_fastq_assembly
 
   output:
-  file 'spades/contigs.fasta' into assembled_ch
+  file 'spades/contigs.fasta' into (assembled_ch, mlst_ch)
 
   script:
   """
   spades.py --threads ${task.cpus} --careful -o spades -1 ${reads[0]} -2 ${reads[1]} -s ${reads[2]}
+  """
+}
+
+process mlst_lookup{
+  input:
+  file contig from mlst_ch
+
+
+  """
+  mlst $contig --threads ${task.cpus} --json mlst.json --novel novel.fasta --minid 99.5 --mincov 95
   """
 }
 
