@@ -10,6 +10,19 @@ process kraken_indexdb {
   """
 }
 
+process index_reference{
+
+  output:
+  file "bypass" into bwa_indexes_ch
+
+  """
+  if [ ! -f "${params.reference}.sa" ]; then
+    bwa index ${params.reference}
+  fi
+  touch bypass
+  """
+}
+
 samples_ch = Channel.fromPath("${params.input}/*.fastq.gz")
 
 process fastqc_readqc{
@@ -20,7 +33,7 @@ process fastqc_readqc{
   file "*_fastqc.{zip,html}" into fastqc_results
 
   """
-  fastqc ${lane1dir} --format fastq --threads ${task.cpus}
+  fastqc ${params.input}/${lane1dir} --format fastq --threads ${task.cpus} -o .
   """
 }
 
@@ -45,16 +58,18 @@ process trimmomatic_trimming{
   set forward, reverse from lane_concat_ch
 
   output:
-  file "trim_{front_pair, rev_pair, unpair}.fastq.gz" into trimmed_fastq_assembly
-  tuple val("trams"), "trim_{front_pair, rev_pair}.fastq.gz" into trimmed_fastq_ref, trimmed_fastq_cont
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref)
+  tuple val("trams"), "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz" into trimmed_fastq_cont
   
   """
-  trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_rev_pair.fastq.gz trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${baseDir}/assets/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+  trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
   cat trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz >> trim_unpair.fastq.gz
   """
 
 }
 
+/*
+// Channel going from trimmomatic doesnt contain files? Much weird, evaluate
 process kraken2_decontamination{
   publishDir "${params.outdir}/kraken2", mode: 'copy'
 
@@ -81,18 +96,18 @@ process kraken2_decontamination{
       """
     }
 }
-
+*/
 
 process spades_assembly{
   input:
-  set val(name), file(trimmed) from trimmed_fastq_ass
+  file(reads) from trimmed_fastq_assembly
 
   output:
   file 'spades/contigs.fasta' into assembled_ch
 
   script:
   """
-  spades.py --threads ${task.cpus} --careful -o spades -1 trimmed[0] -2 trimmed[1] -s trimmed[2]
+  spades.py --threads ${task.cpus} --careful -o spades -1 ${reads[0]} -2 ${reads[1]} -s ${reads[2]}
   """
 }
 
@@ -100,16 +115,23 @@ process quast_assembly_qc{
   input:
   file contig from assembled_ch 
 
+  output:
+  file 'report.tsv' into quast_result_ch
+
   """
-  #quast.py /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/assembly/contigs.fasta -o /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/assembly/quast
+  quast.py $contig -o .
  """
 }
 
 process bwa_read_mapping{
   input:
   file(trimmed) from trimmed_fastq_ref
+  file(bypass) from bwa_indexes_ch
+
+  output:
+  file 'alignment.sam' into bwa_mapping_ch
 
   """
-  #bwa mem -M -t 8 /home/proj/production/microbial/references/genomes/NC_000913.fasta /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/trimmed/ACC6417A161_trim_front_pair.fastq.gz /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/trimmed/ACC6417A161_trim_rev_pair.fastq.gz > /home/proj/production/microbial/results//ACC6417_2020.2.24_11.28.10/ACC6417A161/alignment/ACC6417A161_NC_000913.sam
+  bwa mem -M -t ${task.cpus} ${params.reference} ${trimmed[0]} ${trimmed[1]} > alignment.sam
   """
 }
