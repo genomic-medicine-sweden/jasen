@@ -1,12 +1,12 @@
 # JASEN
 _Just Another Swedish Epitypificatinon workflow in Nextflow_
 
-#Installation
+## Installation
 * Install Conda
 * Install Nextflow ( curl -s https://get.nextflow.io | bash )
-* Run dependency script ( bash setup.sh )
+* Run dependency installation script ( bash setup.sh )
 
-##Dependencies
+### Dependencies
 NextFlow ( curl -s https://get.nextflow.io | bash )
 Conda ( https://www.anaconda.com/distribution/ ) 
 
