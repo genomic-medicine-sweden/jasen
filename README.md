@@ -1,5 +1,5 @@
 # JASEN
-_Just Another Swedish Epitypificatinon workflow in Nextflow_
+_Just Another Swedish Epitypification workflow in Nextflow_
 
 ## Installation
 * Install Conda
