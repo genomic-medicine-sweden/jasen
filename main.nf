@@ -18,8 +18,9 @@ process kraken_db_download {
 
   """
   export PATH=$PATH:$baseDir/bin/
-  mkdir -p ${params.outdir}/databases
-  kraken_update_db.py ${params.outdir}/databases
+  kpath=dirname ${params.krakendb}
+  mkdir -p ${kpath}
+  cd ${kpath} && wget ${krakendb_url}
   """
 }
 
