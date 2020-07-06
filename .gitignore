@@ -2,6 +2,7 @@
 work/
 .nextflow/
 .nextflow*
+assets/references
 
 #Index-files
 *.fasta.*
