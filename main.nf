@@ -18,14 +18,20 @@ process kraken_db_download {
 
   """
   export PATH=$PATH:$baseDir/bin/
-  kpath=dirname ${params.krakendb}
-  mkdir -p ${kpath}
-  cd ${kpath} && wget ${krakendb_url}
+  mkdir -p ${params.krakendb}
+  cd ${params.krakendb} && wget ${krakendb_url} -O krakendb.tgz
+  dlsuf =  tar -tf krakendb.tgz | head -n 1 | tail -c 2
+  if [ -f "${params.reference}.sa" ]; then
+    tar -xvzf krakendb.tgz --strip 1
+  else
+    tar -xvzf krakendb.tgz
+  fi
+  rm krakendb.tgz
   """
 }
 
 
-samples_ch = Channel.fromPath("${params.input}/*.fastq.gz")
+samples_ch = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
   input:
@@ -39,8 +45,9 @@ process fastqc_readqc{
   """
 }
 
-forward_ch = Channel.fromPath("${params.input}/*1*.fastq.gz")
-reverse_ch = Channel.fromPath("${params.input}/*2*.fastq.gz") 
+forward_ch = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+reverse_ch = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+ 
 
 process lane_concatination{
   input:
