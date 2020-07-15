@@ -1,5 +1,5 @@
 # JASEN
-_Just Another Swedish Epitypification workflow in Nextflow_
+_Just Another Swedish microbial pipeline to support Epitypification and Normalize classification decisions_
 
 ## Installation
 * Install Conda
