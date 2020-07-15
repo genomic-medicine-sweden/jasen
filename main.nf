@@ -19,7 +19,7 @@ process kraken_db_download {
   """
   export PATH=$PATH:$baseDir/bin/
   mkdir -p ${params.krakendb}
-  cd ${params.krakendb} && wget ${krakendb_url} -O krakendb.tgz
+  cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
   dlsuf =  tar -tf krakendb.tgz | head -n 1 | tail -c 2
   if [ -f "${params.reference}.sa" ]; then
     tar -xvzf krakendb.tgz --strip 1
@@ -55,7 +55,7 @@ process lane_concatination{
   file 'reverse_concat.fastq.gz' from reverse_ch.collectFile()
 
   output:
-  set 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat_ch
+  tuple 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat_ch
 
   """
   #Concatination is done via process flow
@@ -64,11 +64,10 @@ process lane_concatination{
 
 process trimmomatic_trimming{
   input:
-  set forward, reverse from lane_concat_ch
+  tuple forward, reverse from lane_concat_ch
 
   output:
-  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref)
-  tuple val("trams"), "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz" into trimmed_fastq_cont
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont)
   
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
@@ -78,15 +77,15 @@ process trimmomatic_trimming{
 }
 process kraken2_decontamination{
   input:
-    set val(name), file(reads) from trimmed_fastq_cont
+    tuple forward, reverse, unpaired from trimmed_fastq_cont
 
   output:
-    set val(name), file("kraken.out") into kraken_out
-    set val(name), file("kraken.report") into kraken_report 
+    file "kraken.out" into kraken_out
+    file "kraken.report" into kraken_report 
 
 
   """
-  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${reads[0]} ${reads[1]}
+  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${forward} ${reverse}
   """    
 }
 process spades_assembly{
