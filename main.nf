@@ -14,24 +14,51 @@ process bwa_index_reference{
   """
 }
 
-process kraken_db_download {
-  when: params.kraken_db_download
+process kraken2_db_download{
   cpus 1
 
+  output:
+  file 'database.rdy' into kraken_init_ch
+
   """
-  export PATH=$PATH:$baseDir/bin/
-  mkdir -p ${params.krakendb}
-  cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
-  dlsuf =  tar -tf krakendb.tgz | head -n 1 | tail -c 2
-  if [ -f "${params.reference}.sa" ]; then
-    tar -xvzf krakendb.tgz --strip 1
+  if ${params.kraken_db_download} ; then
+    wd=\$(pwd)
+    export PATH=$PATH:$baseDir/bin/
+    mkdir -p ${params.krakendb}
+    cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
+    dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
+    if [ -f "${params.reference}.sa" ]; then
+      tar -xvzf krakendb.tgz --strip 1
+    else
+      tar -xvzf krakendb.tgz
+    fi
+    rm krakendb.tgz
+    cd \${wd} && touch database.rdy
   else
-    tar -xvzf krakendb.tgz
+    cd \${wd} && touch database.rdy
   fi
-  rm krakendb.tgz
+  
   """
 }
 
+process ariba_db_download{
+
+  output:
+  file 'database.rdy' into ariba_init_ch
+
+  """
+  if  ${params.ariba_db_download} ; then
+    ariba getref resfinder resfinder
+    ariba prepareref --force -f ./resfinder.fa -m ./resfinder.tsv --threads ${task.cpus} ${params.aribadb}
+    mv resfinder.fa ${params.aribadb}
+    mv resfinder.tsv ${params.aribadb}
+    touch database.rdy
+  else
+    touch database.rdy
+  fi
+  """
+
+}
 
 samples_ch = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
@@ -76,7 +103,7 @@ process trimmomatic_trimming{
   tuple forward, reverse from lane_concat_ch
 
   output:
-  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont)
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont, trimmed_ariba_cont)
   
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
@@ -84,15 +111,49 @@ process trimmomatic_trimming{
   """
 
 }
+
+process ariba_resistancefind{
+  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
+
+  input:
+  tuple forward, reverse, unpaired from trimmed_ariba_cont 
+  file(database_initalization) from ariba_init_ch 
+
+  output:
+  file 'resistance.summary' into ariba_output
+  
+
+  """
+  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} ${params.outdir}/ariba
+  """
+}
+
+process ariba_stats{
+  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(aribasummary) from ariba_output
+
+  output:
+  file 'report.tsv' into ariba_summary_output 
+
+  """
+  ariba summary --col_filter n --row_filter n resistance.summary ${params.outdir}/ariba/report.tsv
+  """
+}
+
 process kraken2_decontamination{
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
   input:
-    tuple forward, reverse, unpaired from trimmed_fastq_cont
+  tuple forward, reverse, unpaired from trimmed_fastq_cont
+  file(db_initialized) from kraken_init_ch
+
 
   output:
-    file "kraken.out" into kraken_out
-    file "kraken.report" into kraken_report 
+  file "kraken.out" into kraken_out
+  file "kraken.report" into kraken_report 
 
 
   """
@@ -239,7 +300,6 @@ process samtools_deduplicated_stats{
   """
 
 }
-
 
 process multiqc_report{
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
