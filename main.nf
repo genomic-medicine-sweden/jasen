@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 process bwa_index_reference{
+  cpus 1
 
   output:
   file "bypass" into bwa_indexes_ch
@@ -15,6 +16,7 @@ process bwa_index_reference{
 
 process kraken_db_download {
   when: params.kraken_db_download
+  cpus 1
 
   """
   export PATH=$PATH:$baseDir/bin/
@@ -53,6 +55,7 @@ reverse_ch = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,
 
 process lane_concatination{
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
+  cpus 1
 
   input:
   file 'forward_concat.fastq.gz' from forward_ch.collectFile() 
@@ -125,6 +128,7 @@ process mlst_lookup{
 
 process quast_assembly_qc{
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
+  cpus 1
 
   input:
   file contig from assembled_ch 
@@ -154,6 +158,7 @@ process bwa_read_mapping{
 
 process multiqc_report{
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
+  cpus 1
 
   //More inputs as tracks are added
   input:
