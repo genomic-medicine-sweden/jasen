@@ -156,6 +156,91 @@ process bwa_read_mapping{
   """
 }
 
+process samtools_bam_conversion{
+  publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
+
+  input:
+  file(aligned_sam) from bwa_mapping_ch
+
+  output:
+  file 'alignment_sorted.bam' into bwa_sorted_ch, bwa_sorted_ch2
+
+  """
+  samtools view --threads ${task.cpus} -b -o alignment.bam -T ${params.reference} ${aligned_sam}
+  samtools sort --threads ${task.cpus} -o alignment_sorted.bam alignment.bam
+  
+
+  """
+}
+
+process samtools_duplicates_stats{
+  publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
+
+  input:
+  file(align_sorted) from bwa_sorted_ch2
+
+  output:
+  tuple 'samtools_map.txt', 'samtools_raw.txt' into samtools_dup_results
+
+  """
+  samtools flagstat ${align_sorted} &> samtools_map.txt
+  samtools view -c ${align_sorted} &> samtools_raw.txt
+  """
+}
+
+process picard_markduplicates{
+  publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(align_sorted) from bwa_sorted_ch
+
+  output:
+  file 'alignment_sorted_rmdup.bam' into bam_rmdup_ch, bam_rmdup_ch2
+  file 'picard_dupstats.txt' into picard_stats_hist_ch
+
+  """
+  picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_dupstats.txt REMOVE_DUPLICATES=true
+  """
+}
+
+
+
+process picard_qcstats{
+  publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(alignment_sorted_rmdup) from bam_rmdup_ch
+  
+  output:
+  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_stats_ch
+
+  """
+  picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insstats.txt
+
+  """
+}
+
+process samtools_deduplicated_stats{
+  publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
+
+  input:  
+  file(alignment_sorted_rmdup) from bam_rmdup_ch2
+
+  output:
+  tuple 'samtools_ref.txt', 'samtools_cov.txt' into samtools_dedup_results
+
+  """
+  samtools index ${alignment_sorted_rmdup}
+  samtools idxstats ${alignment_sorted_rmdup} &> samtools_ref.txt
+  samtools stats --coverage 1,10000,1 ${alignment_sorted_rmdup} |grep ^COV | cut -f 2- &> samtools_cov.txt
+
+  """
+
+}
+
+
 process multiqc_report{
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
   cpus 1

@@ -28,7 +28,8 @@ conda remove -y -n $cname --all || :
 
 conda create -y -n $cname python=3.6
 source activate $cname
-conda config --add channels bioconda
+conda config --add channels bioconda conda-forge
+conda install -y -c conda-forge r-base
 conda install -y -c bioconda blast=2.9.0 bwa=0.7.17 fastqc mlst kraken2 picard=2.20.3 pigz=2.4 quast=5.0.2 samtools=1.9=h8571acd_11 spades=3.13.1 trimmomatic=0.39
 pip install biopython multiqc pandas
 echo "Dependency Setup Complete!"
