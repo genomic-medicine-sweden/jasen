@@ -257,7 +257,7 @@ process picard_markduplicates{
 
   output:
   file 'alignment_sorted_rmdup.bam' into deduplicated_sample, deduplicated_sample_2, deduplicated_sample_3
-  file 'picard_dupstats.txt' into picard_histogram_stats
+  file 'picard_dupstats.txt' into picard_histogram_output
 
   """
   picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_dupstats.txt REMOVE_DUPLICATES=true
@@ -312,7 +312,7 @@ process picard_qcstats{
   file(alignment_sorted_rmdup) from deduplicated_sample_2
   
   output:
-  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_stats
+  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_output
 
   """
   picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insstats.txt
@@ -344,8 +344,11 @@ process multiqc_report{
 
   //More inputs as tracks are added
   input:
-  file(qreport) from quast_result
-  file(freport) from fastqc_results 
+  file(quast_report) from quast_result
+  file(fastqc_report) from fastqc_results
+  tuple picard_stats, picard_insert_stats from picard_output
+  tuple kraken_output, kraken_report from kraken2_output 
+  tuple samtools_map, samtools_raw from samtools_duplicated_results
   
   output:
   file 'multiqc/multiqc_report.html' into multiqc_output
