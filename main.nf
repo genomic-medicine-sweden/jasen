@@ -4,13 +4,13 @@ process bwa_index_reference{
   cpus 1
 
   output:
-  file "bypass" into bwa_indexes_ch
+  file "database.rdy" into bwa_indexes
 
   """
   if [ ! -f "${params.reference}.sa" ]; then
     bwa index ${params.reference}
   fi
-  touch bypass
+  touch database.rdy
   """
 }
 
@@ -18,7 +18,7 @@ process kraken2_db_download{
   cpus 1
 
   output:
-  file 'database.rdy' into kraken_init_ch
+  file 'database.rdy' into kraken2_init
 
   """
   if ${params.kraken_db_download} ; then
@@ -44,7 +44,7 @@ process kraken2_db_download{
 process ariba_db_download{
 
   output:
-  file 'database.rdy' into ariba_init_ch
+  file 'database.rdy' into ariba_init
 
   """
   if  ${params.ariba_db_download} ; then
@@ -60,13 +60,13 @@ process ariba_db_download{
 
 }
 
-samples_ch = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
   input:
-  file lane1dir from samples_ch
+  file lane1dir from samples
 
   output:
   file "*_fastqc.html" into fastqc_results
@@ -76,8 +76,8 @@ process fastqc_readqc{
   """
 }
 
-forward_ch = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
-reverse_ch = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+forward = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
  
 
 process lane_concatination{
@@ -85,11 +85,11 @@ process lane_concatination{
   cpus 1
 
   input:
-  file 'forward_concat.fastq.gz' from forward_ch.collectFile() 
-  file 'reverse_concat.fastq.gz' from reverse_ch.collectFile()
+  file 'forward_concat.fastq.gz' from forward.collectFile() 
+  file 'reverse_concat.fastq.gz' from reverse.collectFile()
 
   output:
-  tuple 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat_ch
+  tuple 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat
 
   """
   #Concatination is done via process flow
@@ -100,10 +100,10 @@ process trimmomatic_trimming{
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
   input:
-  tuple forward, reverse from lane_concat_ch
+  tuple forward, reverse from lane_concat
 
   output:
-  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont, trimmed_ariba_cont, trimmed_fastq)
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_sample_1, trimmed_sample_2, trimmed_sample_3, trimmed_sample_4)
   
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
@@ -116,8 +116,8 @@ process ariba_resistancefind{
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
 
   input:
-  tuple forward, reverse, unpaired from trimmed_ariba_cont 
-  file(database_initalization) from ariba_init_ch 
+  tuple forward, reverse, unpaired from trimmed_sample_4 
+  file(database_initalization) from ariba_init 
 
   output:
   file 'ariba/report.tsv' into ariba_output
@@ -147,13 +147,12 @@ process kraken2_decontamination{
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
   input:
-  tuple forward, reverse, unpaired from trimmed_fastq_cont
-  file(db_initialized) from kraken_init_ch
+  tuple forward, reverse, unpaired from trimmed_sample_3
+  file(db_initialized) from kraken2_init
 
 
   output:
-  file "kraken.out" into kraken_out
-  file "kraken.report" into kraken_report 
+  tuple "kraken.out", "kraken.report" into kraken2_output
 
 
   """
@@ -164,10 +163,10 @@ process spades_assembly{
   publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
 
   input:
-  file(reads) from trimmed_fastq_assembly
+  file(reads) from trimmed_sample_1
 
   output:
-  file 'contigs.fasta' into (assembled_ch, mlst_ch)
+  file 'contigs.fasta' into (assembled_sample_1, assembled_sample_2)
 
   script:
   """
@@ -179,7 +178,7 @@ process mlst_lookup{
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
   input:
-  file contig from mlst_ch
+  file contig from assembled_sample_1
 
 
   """
@@ -192,10 +191,10 @@ process quast_assembly_qc{
   cpus 1
 
   input:
-  file contig from assembled_ch 
+  file contig from assembled_sample_2
 
   output:
-  file 'report.tsv' into quast_result_ch
+  file 'report.tsv' into quast_result
 
   """
   quast.py $contig -o .
@@ -206,11 +205,11 @@ process bwa_read_mapping{
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
   input:
-  file(trimmed) from trimmed_fastq_ref
-  file(bypass) from bwa_indexes_ch
+  file(trimmed) from trimmed_sample_2
+  file(database_initalization) from bwa_indexes
 
   output:
-  file 'alignment.sam' into bwa_mapping_ch
+  file 'alignment.sam' into mapped_sample
 
   """
   bwa mem -M -t ${task.cpus} ${params.reference} ${trimmed[0]} ${trimmed[1]} > alignment.sam
@@ -221,10 +220,10 @@ process samtools_bam_conversion{
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
   input:
-  file(aligned_sam) from bwa_mapping_ch
+  file(aligned_sam) from mapped_sample
 
   output:
-  file 'alignment_sorted.bam' into bwa_sorted_ch, bwa_sorted_ch2, bwa_sorted_ch3
+  file 'alignment_sorted.bam' into sorted_sample_1, sorted_sample_2
 
   """
   samtools view --threads ${task.cpus} -b -o alignment.bam -T ${params.reference} ${aligned_sam}
@@ -238,10 +237,10 @@ process samtools_duplicates_stats{
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
   input:
-  file(align_sorted) from bwa_sorted_ch2
+  file(align_sorted) from sorted_sample_1
 
   output:
-  tuple 'samtools_map.txt', 'samtools_raw.txt' into samtools_dup_results
+  tuple 'samtools_map.txt', 'samtools_raw.txt' into samtools_duplicated_results
 
   """
   samtools flagstat ${align_sorted} &> samtools_map.txt
@@ -254,11 +253,11 @@ process picard_markduplicates{
   cpus 1
 
   input:
-  file(align_sorted) from bwa_sorted_ch
+  file(align_sorted) from sorted_sample_2
 
   output:
-  file 'alignment_sorted_rmdup.bam' into bam_rmdup_ch, bam_rmdup_ch2, bam_rmdup_ch3
-  file 'picard_dupstats.txt' into picard_stats_hist_ch
+  file 'alignment_sorted_rmdup.bam' into deduplicated_sample, deduplicated_sample_2, deduplicated_sample_3
+  file 'picard_dupstats.txt' into picard_histogram_stats
 
   """
   picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_dupstats.txt REMOVE_DUPLICATES=true
@@ -269,13 +268,13 @@ process samtools_calling{
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
   input:
-  file(align_sorted_rmdup) from bam_rmdup_ch3
+  file(align_sorted_rmdup) from deduplicated_sample
 
   output:
-  file 'samhits.unique' into sam_calls
+  file 'samtools_calls.bam' into called_sample
 
   """
-  samtools view -@ ${task.cpus} -h -q 1 -F 4 -F 256 ${align_sorted_rmdup} | grep -v XA:Z | grep -v SA:Z| samtools view -b - > samhits.unique
+  samtools view -@ ${task.cpus} -h -q 1 -F 4 -F 256 ${align_sorted_rmdup} | grep -v XA:Z | grep -v SA:Z| samtools view -b - > samtools_calls.bam
   """
 }
 
@@ -285,10 +284,10 @@ process vcftools_snpcalling{
   cpus 1
 
   input:
-  file(samhits) from sam_calls
+  file(samhits) from called_sample
 
   output:
-  file 'vcftools.recode.bcf' into snpcall_output
+  file 'vcftools.recode.bcf' into snpcalling_output
 
   """
   vcffilter="--minQ 30 --thin 50 --minDP 3 --min-meanDP 20"
@@ -310,10 +309,10 @@ process picard_qcstats{
   cpus 1
 
   input:
-  file(alignment_sorted_rmdup) from bam_rmdup_ch
+  file(alignment_sorted_rmdup) from deduplicated_sample_2
   
   output:
-  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_stats_ch
+  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_stats
 
   """
   picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insstats.txt
@@ -325,10 +324,10 @@ process samtools_deduplicated_stats{
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
   input:  
-  file(alignment_sorted_rmdup) from bam_rmdup_ch2
+  file(alignment_sorted_rmdup) from deduplicated_sample_3
 
   output:
-  tuple 'samtools_ref.txt', 'samtools_cov.txt' into samtools_dedup_results
+  tuple 'samtools_ref.txt', 'samtools_cov.txt' into samtools_deduplicated_output
 
   """
   samtools index ${alignment_sorted_rmdup}
@@ -345,10 +344,13 @@ process multiqc_report{
 
   //More inputs as tracks are added
   input:
-  file(qreport) from quast_result_ch
+  file(qreport) from quast_result
   file(freport) from fastqc_results 
+  
+  output:
+  file 'multiqc/multiqc_report.html' into multiqc_output
 
   """
-  multiqc ${params.outdir} -o ${params.outdir}/multiqc 
+  multiqc ${params.outdir} -f -o \$(pwd)/multiqc
   """
 }
