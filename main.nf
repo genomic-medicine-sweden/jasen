@@ -1,61 +1,95 @@
 #!/usr/bin/env nextflow
 
 process bwa_index_reference{
+  cpus 1
 
   output:
-  file "bypass" into bwa_indexes_ch
+  file "database.rdy" into bwa_indexes
 
   """
   if [ ! -f "${params.reference}.sa" ]; then
     bwa index ${params.reference}
   fi
-  touch bypass
+  touch database.rdy
   """
 }
 
-process kraken_db_download {
-  when: params.kraken_db_download
-
-  """
-  export PATH=$PATH:$baseDir/bin/
-  mkdir -p ${params.krakendb}
-  cd ${params.krakendb} && wget ${krakendb_url} -O krakendb.tgz
-  dlsuf =  tar -tf krakendb.tgz | head -n 1 | tail -c 2
-  if [ -f "${params.reference}.sa" ]; then
-    tar -xvzf krakendb.tgz --strip 1
-  else
-    tar -xvzf krakendb.tgz
-  fi
-  rm krakendb.tgz
-  """
-}
-
-
-samples_ch = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
-
-process fastqc_readqc{
-  input:
-  file lane1dir from samples_ch
+process kraken2_db_download{
+  cpus 1
 
   output:
-  file "*_fastqc.{zip,html}" into fastqc_results
+  file 'database.rdy' into kraken2_init
+
+  """
+  if ${params.kraken_db_download} ; then
+    wd=\$(pwd)
+    export PATH=$PATH:$baseDir/bin/
+    mkdir -p ${params.krakendb}
+    cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
+    dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
+    if [ -f "${params.reference}.sa" ]; then
+      tar -xvzf krakendb.tgz --strip 1
+    else
+      tar -xvzf krakendb.tgz
+    fi
+    rm krakendb.tgz
+    cd \${wd} && touch database.rdy
+  else
+    cd \${wd} && touch database.rdy
+  fi
+  
+  """
+}
+
+process ariba_db_download{
+
+  output:
+  file 'database.rdy' into ariba_init
+
+  """
+  if  ${params.ariba_db_download} ; then
+    ariba getref resfinder resfinder
+    ariba prepareref --force -f ./resfinder.fa -m ./resfinder.tsv --threads ${task.cpus} ${params.aribadb}
+    mv resfinder.fa ${params.aribadb}
+    mv resfinder.tsv ${params.aribadb}
+    touch database.rdy
+  else
+    touch database.rdy
+  fi
+  """
+
+}
+
+samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+
+process fastqc_readqc{
+  publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
+
+  input:
+  file lane1dir from samples
+
+  output:
+  file "*_fastqc.html" into fastqc_results
 
   """
   fastqc ${params.input}/${lane1dir} --format fastq --threads ${task.cpus} -o .
   """
 }
 
-forward_ch = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
-reverse_ch = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+forward = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
  
 
 process lane_concatination{
+  publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
+  cpus 1
+
   input:
-  file 'forward_concat.fastq.gz' from forward_ch.collectFile() 
-  file 'reverse_concat.fastq.gz' from reverse_ch.collectFile()
+  file 'forward_concat.fastq.gz' from forward.collectFile() 
+  file 'reverse_concat.fastq.gz' from reverse.collectFile()
 
   output:
-  set 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat_ch
+  tuple 'forward_concat.fastq.gz', 'reverse_concat.fastq.gz' into lane_concat
 
   """
   #Concatination is done via process flow
@@ -63,12 +97,13 @@ process lane_concatination{
 }
 
 process trimmomatic_trimming{
+  publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
+
   input:
-  set forward, reverse from lane_concat_ch
+  tuple forward, reverse from lane_concat
 
   output:
-  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref)
-  tuple val("trams"), "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz" into trimmed_fastq_cont
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_sample_1, trimmed_sample_2, trimmed_sample_3, trimmed_sample_4)
   
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
@@ -76,35 +111,74 @@ process trimmomatic_trimming{
   """
 
 }
-process kraken2_decontamination{
+
+process ariba_resistancefind{
+  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
+
   input:
-    set val(name), file(reads) from trimmed_fastq_cont
+  tuple forward, reverse, unpaired from trimmed_sample_4 
+  file(database_initalization) from ariba_init 
 
   output:
-    set val(name), file("kraken.out") into kraken_out
-    set val(name), file("kraken.report") into kraken_report 
+  file 'ariba/report.tsv' into ariba_output
+  
+
+  """
+  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} \$(pwd)/ariba
+  """
+}
+
+process ariba_stats{
+  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(report) from ariba_output
+
+  output:
+  file 'summary.csv' into ariba_summary_output 
+
+  """
+  ariba summary --col_filter n --row_filter n summary ${report}
+  """
+}
+
+process kraken2_decontamination{
+  publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
+
+  input:
+  tuple forward, reverse, unpaired from trimmed_sample_3
+  file(db_initialized) from kraken2_init
+
+
+  output:
+  tuple "kraken.out", "kraken.report" into kraken2_output
 
 
   """
-  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${reads[0]} ${reads[1]}
+  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${forward} ${reverse}
   """    
 }
 process spades_assembly{
+  publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
+
   input:
-  file(reads) from trimmed_fastq_assembly
+  file(reads) from trimmed_sample_1
 
   output:
-  file 'spades/contigs.fasta' into (assembled_ch, mlst_ch)
+  file 'contigs.fasta' into (assembled_sample_1, assembled_sample_2)
 
   script:
   """
-  spades.py --threads ${task.cpus} --careful -o spades -1 ${reads[0]} -2 ${reads[1]} -s ${reads[2]}
+  spades.py --threads ${task.cpus} --careful -o . -1 ${reads[0]} -2 ${reads[1]} -s ${reads[2]}
   """
 }
 
 process mlst_lookup{
+  publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
+
   input:
-  file contig from mlst_ch
+  file contig from assembled_sample_1
 
 
   """
@@ -113,11 +187,14 @@ process mlst_lookup{
 }
 
 process quast_assembly_qc{
+  publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
+  cpus 1
+
   input:
-  file contig from assembled_ch 
+  file contig from assembled_sample_2
 
   output:
-  file 'report.tsv' into quast_result_ch
+  file 'report.tsv' into quast_result
 
   """
   quast.py $contig -o .
@@ -125,14 +202,158 @@ process quast_assembly_qc{
 }
 
 process bwa_read_mapping{
+  publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
+
   input:
-  file(trimmed) from trimmed_fastq_ref
-  file(bypass) from bwa_indexes_ch
+  file(trimmed) from trimmed_sample_2
+  file(database_initalization) from bwa_indexes
 
   output:
-  file 'alignment.sam' into bwa_mapping_ch
+  file 'alignment.sam' into mapped_sample
 
   """
   bwa mem -M -t ${task.cpus} ${params.reference} ${trimmed[0]} ${trimmed[1]} > alignment.sam
+  """
+}
+
+process samtools_bam_conversion{
+  publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
+
+  input:
+  file(aligned_sam) from mapped_sample
+
+  output:
+  file 'alignment_sorted.bam' into sorted_sample_1, sorted_sample_2
+
+  """
+  samtools view --threads ${task.cpus} -b -o alignment.bam -T ${params.reference} ${aligned_sam}
+  samtools sort --threads ${task.cpus} -o alignment_sorted.bam alignment.bam
+  
+
+  """
+}
+
+process samtools_duplicates_stats{
+  publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
+
+  input:
+  file(align_sorted) from sorted_sample_1
+
+  output:
+  tuple 'samtools_map.txt', 'samtools_raw.txt' into samtools_duplicated_results
+
+  """
+  samtools flagstat ${align_sorted} &> samtools_map.txt
+  samtools view -c ${align_sorted} &> samtools_raw.txt
+  """
+}
+
+process picard_markduplicates{
+  publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(align_sorted) from sorted_sample_2
+
+  output:
+  file 'alignment_sorted_rmdup.bam' into deduplicated_sample, deduplicated_sample_2, deduplicated_sample_3
+  file 'picard_dupstats.txt' into picard_histogram_output
+
+  """
+  picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_dupstats.txt REMOVE_DUPLICATES=true
+  """
+}
+
+process samtools_calling{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
+
+  input:
+  file(align_sorted_rmdup) from deduplicated_sample
+
+  output:
+  file 'samtools_calls.bam' into called_sample
+
+  """
+  samtools view -@ ${task.cpus} -h -q 1 -F 4 -F 256 ${align_sorted_rmdup} | grep -v XA:Z | grep -v SA:Z| samtools view -b - > samtools_calls.bam
+  """
+}
+
+
+process vcftools_snpcalling{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(samhits) from called_sample
+
+  output:
+  file 'vcftools.recode.bcf' into snpcalling_output
+
+  """
+  vcffilter="--minQ 30 --thin 50 --minDP 3 --min-meanDP 20"
+  bcffilter="GL[0]<-500 & GL[1]=0 & QR/RO>30 & QA/AO>30 & QUAL>5000 & ODDS>1100 & GQ>140 & DP>100 & MQM>59 & SAP<15 & PAIRED>0.9 & EPP>3"
+ 
+  
+  freebayes -= --pvar 0.7 -j -J --standard-filters -C 6 --min-coverage 30 --ploidy 1 -f ${params.reference} -b ${samhits} -v freebayes.vcf
+  bcftools view freebayes.vcf -o unfiltered_bcftools.bcf.gz -O b --exclude-uncalled --types snps
+  bcftools index unfiltered_bcftools.bcf.gz
+  bcftools view unfiltered_bcftools.bcf.gz -i \${bcffilter} -o bcftools.bcf.gz -O b
+  vcftools --bcf bcftools.bcf.gz \${vcffilter} --remove-filtered-all --recode-INFO-all --recode-bcf --out vcftools
+
+  """
+}
+                   	
+
+process picard_qcstats{
+  publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(alignment_sorted_rmdup) from deduplicated_sample_2
+  
+  output:
+  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_output
+
+  """
+  picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insstats.txt
+
+  """
+}
+
+process samtools_deduplicated_stats{
+  publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
+
+  input:  
+  file(alignment_sorted_rmdup) from deduplicated_sample_3
+
+  output:
+  tuple 'samtools_ref.txt', 'samtools_cov.txt' into samtools_deduplicated_output
+
+  """
+  samtools index ${alignment_sorted_rmdup}
+  samtools idxstats ${alignment_sorted_rmdup} &> samtools_ref.txt
+  samtools stats --coverage 1,10000,1 ${alignment_sorted_rmdup} |grep ^COV | cut -f 2- &> samtools_cov.txt
+
+  """
+
+}
+
+process multiqc_report{
+  publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
+  cpus 1
+
+  //More inputs as tracks are added
+  input:
+  file(quast_report) from quast_result
+  file(fastqc_report) from fastqc_results
+  tuple picard_stats, picard_insert_stats from picard_output
+  tuple kraken_output, kraken_report from kraken2_output 
+  tuple samtools_map, samtools_raw from samtools_duplicated_results
+  
+  output:
+  file 'multiqc/multiqc_report.html' into multiqc_output
+
+  """
+  multiqc ${params.outdir} -f -o \$(pwd)/multiqc
   """
 }
