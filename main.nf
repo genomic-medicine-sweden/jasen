@@ -194,12 +194,28 @@ process quast_assembly_qc{
   file contig from assembled_sample_2
 
   output:
-  file 'report.tsv' into quast_result
+  file 'report.tsv' into quast_result, quast_result_2
 
   """
   quast.py $contig -o .
  """
 }
+
+process quast_json_conversion{
+  publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(quastreport) from quast_result_2
+
+  output:
+  file 'report.json' into quast_result_json
+
+  """
+  python $baseDir/bin/quast_report_to_json.py $quastreport report.json
+  """
+}
+
 
 process bwa_read_mapping{
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
