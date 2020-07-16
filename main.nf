@@ -103,7 +103,7 @@ process trimmomatic_trimming{
   tuple forward, reverse from lane_concat_ch
 
   output:
-  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont, trimmed_ariba_cont)
+  tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_fastq_assembly, trimmed_fastq_ref, trimmed_fastq_cont, trimmed_ariba_cont, trimmed_fastq)
   
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
@@ -224,7 +224,7 @@ process samtools_bam_conversion{
   file(aligned_sam) from bwa_mapping_ch
 
   output:
-  file 'alignment_sorted.bam' into bwa_sorted_ch, bwa_sorted_ch2
+  file 'alignment_sorted.bam' into bwa_sorted_ch, bwa_sorted_ch2, bwa_sorted_ch3
 
   """
   samtools view --threads ${task.cpus} -b -o alignment.bam -T ${params.reference} ${aligned_sam}
@@ -257,7 +257,7 @@ process picard_markduplicates{
   file(align_sorted) from bwa_sorted_ch
 
   output:
-  file 'alignment_sorted_rmdup.bam' into bam_rmdup_ch, bam_rmdup_ch2
+  file 'alignment_sorted_rmdup.bam' into bam_rmdup_ch, bam_rmdup_ch2, bam_rmdup_ch3
   file 'picard_dupstats.txt' into picard_stats_hist_ch
 
   """
@@ -265,7 +265,45 @@ process picard_markduplicates{
   """
 }
 
+process samtools_calling{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
+  input:
+  file(align_sorted_rmdup) from bam_rmdup_ch3
+
+  output:
+  file 'samhits.unique' into sam_calls
+
+  """
+  samtools view -@ ${task.cpus} -h -q 1 -F 4 -F 256 ${align_sorted_rmdup} | grep -v XA:Z | grep -v SA:Z| samtools view -b - > samhits.unique
+  """
+}
+
+
+process vcftools_snpcalling{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(samhits) from sam_calls
+
+  output:
+  file 'vcftools.recode.bcf' into snpcall_output
+
+  """
+  vcffilter="--minQ 30 --thin 50 --minDP 3 --min-meanDP 20"
+  bcffilter="GL[0]<-500 & GL[1]=0 & QR/RO>30 & QA/AO>30 & QUAL>5000 & ODDS>1100 & GQ>140 & DP>100 & MQM>59 & SAP<15 & PAIRED>0.9 & EPP>3"
+ 
+  
+  freebayes -= --pvar 0.7 -j -J --standard-filters -C 6 --min-coverage 30 --ploidy 1 -f ${params.reference} -b ${samhits} -v freebayes.vcf
+  bcftools view freebayes.vcf -o unfiltered_bcftools.bcf.gz -O b --exclude-uncalled --types snps
+  bcftools index unfiltered_bcftools.bcf.gz
+  bcftools view unfiltered_bcftools.bcf.gz -i \${bcffilter} -o bcftools.bcf.gz -O b
+  vcftools --bcf bcftools.bcf.gz \${vcffilter} --remove-filtered-all --recode-INFO-all --recode-bcf --out vcftools
+
+  """
+}
+                   	
 
 process picard_qcstats{
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
