@@ -120,11 +120,11 @@ process ariba_resistancefind{
   file(database_initalization) from ariba_init_ch 
 
   output:
-  file 'resistance.summary' into ariba_output
+  file 'ariba/report.tsv' into ariba_output
   
 
   """
-  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} ${params.outdir}/ariba
+  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} \$(pwd)/ariba
   """
 }
 
@@ -133,13 +133,13 @@ process ariba_stats{
   cpus 1
 
   input:
-  file(aribasummary) from ariba_output
+  file(report) from ariba_output
 
   output:
-  file 'report.tsv' into ariba_summary_output 
+  file 'summary.csv' into ariba_summary_output 
 
   """
-  ariba summary --col_filter n --row_filter n resistance.summary ${params.outdir}/ariba/report.tsv
+  ariba summary --col_filter n --row_filter n summary ${report}
   """
 }
 
