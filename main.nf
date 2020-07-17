@@ -152,11 +152,11 @@ process kraken2_decontamination{
 
 
   output:
-  tuple "kraken.out", "kraken.report" into kraken2_output
+  tuple "kraken_out.tsv", "kraken_report.tsv" into kraken2_output
 
 
   """
-  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken.out --report kraken.report --paired ${forward} ${reverse}
+  kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken_out.tsv --report kraken_report.tsv --paired ${forward} ${reverse}
   """    
 }
 process spades_assembly{
@@ -166,7 +166,7 @@ process spades_assembly{
   file(reads) from trimmed_sample_1
 
   output:
-  file 'contigs.fasta' into (assembled_sample_1, assembled_sample_2)
+  file 'scaffolds.fasta' into (assembled_sample_1, assembled_sample_2)
 
   script:
   """
@@ -182,24 +182,41 @@ process mlst_lookup{
 
 
   """
-  mlst $contig --threads ${task.cpus} --json mlst.json --novel novel.fasta --minid 99.5 --mincov 95
+  mlst $contig --threads ${task.cpus} --json mlst.json --novel novel_mlst.fasta --minid 99.5 --mincov 95
   """
 }
 
 process quast_assembly_qc{
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
-  cpus 1
 
   input:
   file contig from assembled_sample_2
 
   output:
-  file 'report.tsv' into quast_result
+  file 'quast_report.tsv' into quast_result, quast_result_2
 
   """
-  quast.py $contig -o .
- """
+  quast.py $contig -o . -r ${params.reference} -t ${task.cpus}
+  cp report.tsv quast_report.tsv
+  
+  """
 }
+
+process quast_json_conversion{
+  publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
+  cpus 1
+
+  input:
+  file(quastreport) from quast_result_2
+
+  output:
+  file 'quast_report.json' into quast_result_json
+
+  """
+  python $baseDir/bin/quast_report_to_json.py $quastreport quast_report.json
+  """
+}
+
 
 process bwa_read_mapping{
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
@@ -240,11 +257,11 @@ process samtools_duplicates_stats{
   file(align_sorted) from sorted_sample_1
 
   output:
-  tuple 'samtools_map.txt', 'samtools_raw.txt' into samtools_duplicated_results
+  tuple 'samtools_flagstats.txt', 'samtools_total_reads.txt' into samtools_duplicated_results
 
   """
-  samtools flagstat ${align_sorted} &> samtools_map.txt
-  samtools view -c ${align_sorted} &> samtools_raw.txt
+  samtools flagstat ${align_sorted} &> samtools_flagstats.txt
+  samtools view -c ${align_sorted} &> samtools_total_reads.txt
   """
 }
 
@@ -257,10 +274,10 @@ process picard_markduplicates{
 
   output:
   file 'alignment_sorted_rmdup.bam' into deduplicated_sample, deduplicated_sample_2, deduplicated_sample_3
-  file 'picard_dupstats.txt' into picard_histogram_output
+  file 'picard_duplication_stats.txt' into picard_histogram_output
 
   """
-  picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_dupstats.txt REMOVE_DUPLICATES=true
+  picard MarkDuplicates I=${align_sorted} O=alignment_sorted_rmdup.bam M=picard_duplication_stats.txt REMOVE_DUPLICATES=true
   """
 }
 
@@ -312,10 +329,10 @@ process picard_qcstats{
   file(alignment_sorted_rmdup) from deduplicated_sample_2
   
   output:
-  tuple 'picard_stats.txt', 'picard_insstats.txt' into picard_output
+  tuple 'picard_stats.txt', 'picard_insert_distribution.pdf' into picard_output
 
   """
-  picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insstats.txt
+  picard CollectInsertSizeMetrics I=${alignment_sorted_rmdup} O=picard_stats.txt H=picard_insert_distribution.pdf
 
   """
 }
@@ -327,17 +344,34 @@ process samtools_deduplicated_stats{
   file(alignment_sorted_rmdup) from deduplicated_sample_3
 
   output:
-  tuple 'samtools_ref.txt', 'samtools_cov.txt' into samtools_deduplicated_output
+  tuple 'samtools_idxstats.tsv', 'samtools_coverage_distribution.tsv' into samtools_deduplicated_output
 
   """
   samtools index ${alignment_sorted_rmdup}
-  samtools idxstats ${alignment_sorted_rmdup} &> samtools_ref.txt
-  samtools stats --coverage 1,10000,1 ${alignment_sorted_rmdup} |grep ^COV | cut -f 2- &> samtools_cov.txt
+  samtools idxstats ${alignment_sorted_rmdup} &> samtools_idxstats.tsv
+  samtools stats --coverage 1,10000,1 ${alignment_sorted_rmdup} |grep ^COV | cut -f 2- &> samtools_coverage_distribution.tsv
 
   """
 
 }
 
+/*
+The following reports are generated ( * = Supported in multiqc):
+
+Ariba summary
+* Kraken report
+MLST report, MLST novel
+* Picard Insert Size
+* Picard MarkDuplicates
+* Quast report
+Quast json
+* Samtools flagstat
+* Samtools idxstats
+Samtools coverage distribution
+Samtools total reads
+SNPcalling
+
+*/
 process multiqc_report{
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
   cpus 1
