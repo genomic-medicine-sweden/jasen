@@ -8,7 +8,7 @@ _Just Another Swedish microbial pipeline to support Epitypification and Normaliz
 ## Installation
 * Install Conda ( https://www.anaconda.com/distribution/ )
 * Install Nextflow ( `curl -s https://get.nextflow.io | bash` )
-* Run dependency installation script ( `bash setup.sh` )
+* Run installation script ( `bash setup.sh` )
 
 ### Dependencies
 * Conda
