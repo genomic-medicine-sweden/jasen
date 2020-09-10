@@ -119,11 +119,12 @@ process ariba_resistancefind{
   file(database_initalization) from ariba_init 
 
   output:
-  file 'ariba/report.tsv' into ariba_output
+  file 'ariba/motif_report.tsv' into ariba_output
   
 
   """
   ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} \$(pwd)/ariba
+  mv \$(pwd)/ariba/report.tsv \$(pwd)/ariba/motif_report.tsv
   """
 }
 

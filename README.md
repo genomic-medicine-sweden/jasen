@@ -1,5 +1,5 @@
 # JASEN
-_Just Another Swedish microbial pipeline to support Epitypification and Normalize classification decisions_
+_Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
 ## Usage
 * Edit `nextflow.config`
