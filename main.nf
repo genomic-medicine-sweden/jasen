@@ -23,7 +23,7 @@ process kraken2_db_download{
   """
   if ${params.kraken_db_download} ; then
     wd=\$(pwd)
-    export PATH=$PATH:$baseDir/bin/
+    export PATH=\$PATH:$baseDir/bin/
     mkdir -p ${params.krakendb}
     cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
     dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
@@ -37,7 +37,6 @@ process kraken2_db_download{
   else
     cd \${wd} && touch database.rdy
   fi
-  
   """
 }
 

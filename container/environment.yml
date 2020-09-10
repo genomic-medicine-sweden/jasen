@@ -10,7 +10,7 @@ dependencies:
     - fastqc=0.11.9
     - freebayes
     - mlst=2.19.0
-    - mummer
+    - mummer=3.23=pl526he1b5a44_11
     - kraken2=2.0.9beta
     - pandas=0.24.2
     - picard=2.20.3
@@ -21,9 +21,10 @@ dependencies:
     - spades=3.13.1
     - trimmomatic=0.39
     - vcftools
+    - ariba
+    - bowtie2
     - pip=19.1.1
     - pip:
-      - ariba
       - biopython==1.77
       - multiqc==1.9
       - pandas
