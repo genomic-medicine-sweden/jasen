@@ -13,3 +13,4 @@ _Json producing Assembly driven microbial Sequence analysis pipeline to support 
 ### Dependencies
 * Conda
 * NextFlow
+
