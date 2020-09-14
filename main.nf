@@ -3,7 +3,7 @@
 process bwa_index_reference{
   cpus 1
   memory '4 GB'
-  time '0.1h'
+  time '10m'
 
   output:
   file "database.rdy" into bwa_indexes
@@ -45,9 +45,9 @@ process kraken2_db_download{
 }
 
 process ariba_db_download{
-  cpus 1
-  memory '4 GB'
-  time '0.25h'
+  cpus 2
+  memory '8 GB'
+  time '15m  '
 
   output:
   file 'database.rdy' into ariba_init
@@ -71,7 +71,7 @@ samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,f
 process fastqc_readqc{
   cpus 2
   memory '8 GB'
-  time '0.25h'
+  time '15m  '
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
   input:
@@ -87,16 +87,16 @@ process fastqc_readqc{
 
 forward = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
- 
+
 
 process lane_concatination{
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
   cpus 1
   memory '4 GB'
-  time '0.25h'
+  time '15m  '
 
   input:
-  file 'forward_concat.fastq.gz' from forward.collectFile() 
+  file 'forward_concat.fastq.gz' from forward.collectFile()
   file 'reverse_concat.fastq.gz' from reverse.collectFile()
 
   output:
@@ -110,7 +110,7 @@ process lane_concatination{
 process trimmomatic_trimming{
   cpus 1
   memory '8 GB'
-  time '0.25h'
+  time '15m  '
 
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
@@ -119,7 +119,7 @@ process trimmomatic_trimming{
 
   output:
   tuple "trim_front_pair.fastq.gz", "trim_rev_pair.fastq.gz", "trim_unpair.fastq.gz" into (trimmed_sample_1, trimmed_sample_2, trimmed_sample_3, trimmed_sample_4)
-  
+
   """
   trimmomatic PE -threads ${task.cpus} -phred33 ${forward} ${reverse} trim_front_pair.fastq.gz trim_front_unpair.fastq.gz  trim_rev_pair.fastq.gz trim_rev_unpair.fastq.gz ILLUMINACLIP:${params.adapters}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
   cat trim_front_unpair.fastq.gz trim_rev_unpair.fastq.gz >> trim_unpair.fastq.gz
@@ -128,19 +128,19 @@ process trimmomatic_trimming{
 }
 
 process ariba_resistancefind{
-  cpus 8
+  cpus 4
   memory '16 GB'
   time '1h'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true, pattern: 'motif_report.tsv'
 
   input:
-  tuple forward, reverse, unpaired from trimmed_sample_4 
-  file(database_initalization) from ariba_init 
+  tuple forward, reverse, unpaired from trimmed_sample_4
+  file(database_initalization) from ariba_init
 
   output:
   file 'motif_report.tsv' into ariba_output
-  
+
 
   """
   ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} outdir
@@ -151,7 +151,7 @@ process ariba_resistancefind{
 process ariba_stats{
   cpus 1
   memory '8 GB'
-  time '0.1h'
+  time '10m '
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
   cpus 1
@@ -160,7 +160,7 @@ process ariba_stats{
   file(report) from ariba_output
 
   output:
-  file 'summary.csv' into ariba_summary_output 
+  file 'summary.csv' into ariba_summary_output
 
   """
   ariba summary --col_filter n --row_filter n summary ${report}
@@ -168,7 +168,7 @@ process ariba_stats{
 }
 
 process kraken2_decontamination{
-  cpus 16
+  cpus 8
   memory '48 GB'
   time '1h'
 
@@ -186,7 +186,7 @@ process kraken2_decontamination{
 
   """
   kraken2 --db ${params.krakendb} --threads ${task.cpus} --output kraken_out.tsv --report kraken_report.tsv --paired ${forward} ${reverse}
-  """    
+  """
 }
 process spades_assembly{
   cpus 8
@@ -209,7 +209,7 @@ process spades_assembly{
 process mlst_lookup{
   cpus 1
   memory '4 GB'
-  time '0.1h'
+  time '5m  '
 
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
@@ -225,7 +225,7 @@ process mlst_lookup{
 process quast_assembly_qc{
   cpus 1
   memory '4 GB'
-  time '0.1h'
+  time '5m'
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
 
@@ -238,14 +238,13 @@ process quast_assembly_qc{
   """
   quast.py $contig -o . -r ${params.reference} -t ${task.cpus}
   cp report.tsv quast_report.tsv
-  
   """
 }
 
 process quast_json_conversion{
   cpus 1
   memory '4 GB'
-  time '0.1h'
+  time '5m  '
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
   cpus 1
@@ -265,7 +264,7 @@ process quast_json_conversion{
 process bwa_read_mapping{
   cpus 16
   memory '32 GB'
-  time '0.1h'
+  time '1h  '
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -282,6 +281,10 @@ process bwa_read_mapping{
 }
 
 process samtools_bam_conversion{
+  cpus 1
+  memory '2 GB'
+  time '10m '
+
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
   input:
@@ -293,12 +296,14 @@ process samtools_bam_conversion{
   """
   samtools view --threads ${task.cpus} -b -o alignment.bam -T ${params.reference} ${aligned_sam}
   samtools sort --threads ${task.cpus} -o alignment_sorted.bam alignment.bam
-  
-
   """
 }
 
 process samtools_duplicates_stats{
+  cpus 1
+  memory '2 GB'
+  time '15m  '
+
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
   input:
@@ -314,6 +319,10 @@ process samtools_duplicates_stats{
 }
 
 process picard_markduplicates{
+  cpus 1
+  memory '8 GB'
+  time '1h'
+
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
   cpus 1
 
@@ -357,8 +366,8 @@ process vcftools_snpcalling{
   """
   vcffilter="--minQ 30 --thin 50 --minDP 3 --min-meanDP 20"
   bcffilter="GL[0]<-500 & GL[1]=0 & QR/RO>30 & QA/AO>30 & QUAL>5000 & ODDS>1100 & GQ>140 & DP>100 & MQM>59 & SAP<15 & PAIRED>0.9 & EPP>3"
- 
-  
+
+
   freebayes -= --pvar 0.7 -j -J --standard-filters -C 6 --min-coverage 30 --ploidy 1 -f ${params.reference} -b ${samhits} -v freebayes.vcf
   bcftools view freebayes.vcf -o unfiltered_bcftools.bcf.gz -O b --exclude-uncalled --types snps
   bcftools index unfiltered_bcftools.bcf.gz
@@ -367,7 +376,7 @@ process vcftools_snpcalling{
 
   """
 }
-                   	
+
 
 process picard_qcstats{
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
@@ -375,7 +384,7 @@ process picard_qcstats{
 
   input:
   file(alignment_sorted_rmdup) from deduplicated_sample_2
-  
+
   output:
   tuple 'picard_stats.txt', 'picard_insert_distribution.pdf' into picard_output
 
@@ -388,7 +397,7 @@ process picard_qcstats{
 process samtools_deduplicated_stats{
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
-  input:  
+  input:
   file(alignment_sorted_rmdup) from deduplicated_sample_3
 
   output:
@@ -429,9 +438,9 @@ process multiqc_report{
   file(quast_report) from quast_result
   file(fastqc_report) from fastqc_results
   tuple picard_stats, picard_insert_stats from picard_output
-  tuple kraken_output, kraken_report from kraken2_output 
+  tuple kraken_output, kraken_report from kraken2_output
   tuple samtools_map, samtools_raw from samtools_duplicated_results
-  
+
   output:
   file 'multiqc/multiqc_report.html' into multiqc_output
 
