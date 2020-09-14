@@ -2,6 +2,8 @@
 
 process bwa_index_reference{
   cpus 1
+  memory '4 GB'
+  time '0.1h'
 
   output:
   file "database.rdy" into bwa_indexes
@@ -16,6 +18,8 @@ process bwa_index_reference{
 
 process kraken2_db_download{
   cpus 1
+  memory '4 GB'
+  time '1h'
 
   output:
   file 'database.rdy' into kraken2_init
@@ -41,6 +45,9 @@ process kraken2_db_download{
 }
 
 process ariba_db_download{
+  cpus 1
+  memory '4 GB'
+  time '0.25h'
 
   output:
   file 'database.rdy' into ariba_init
@@ -62,6 +69,9 @@ process ariba_db_download{
 samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
+  cpus 2
+  memory '8 GB'
+  time '0.25h'
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
   input:
@@ -82,6 +92,8 @@ reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa
 process lane_concatination{
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
   cpus 1
+  memory '4 GB'
+  time '0.25h'
 
   input:
   file 'forward_concat.fastq.gz' from forward.collectFile() 
@@ -96,6 +108,10 @@ process lane_concatination{
 }
 
 process trimmomatic_trimming{
+  cpus 1
+  memory '8 GB'
+  time '0.25h'
+
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
   input:
@@ -112,23 +128,31 @@ process trimmomatic_trimming{
 }
 
 process ariba_resistancefind{
-  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
+  cpus 8
+  memory '16 GB'
+  time '1h'
+
+  publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true, pattern: 'motif_report.tsv'
 
   input:
   tuple forward, reverse, unpaired from trimmed_sample_4 
   file(database_initalization) from ariba_init 
 
   output:
-  file 'ariba/motif_report.tsv' into ariba_output
+  file 'motif_report.tsv' into ariba_output
   
 
   """
-  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} \$(pwd)/ariba
-  mv \$(pwd)/ariba/report.tsv \$(pwd)/ariba/motif_report.tsv
+  ariba run --spades_options careful --force --threads ${task.cpus} ${params.aribadb} ${forward} ${reverse} outdir
+  mv outdir/report.tsv motif_report.tsv
   """
 }
 
 process ariba_stats{
+  cpus 1
+  memory '8 GB'
+  time '0.1h'
+
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
   cpus 1
 
@@ -144,6 +168,11 @@ process ariba_stats{
 }
 
 process kraken2_decontamination{
+  cpus 16
+  memory '48 GB'
+  time '1h'
+
+
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
   input:
@@ -160,6 +189,9 @@ process kraken2_decontamination{
   """    
 }
 process spades_assembly{
+  cpus 8
+  memory '16 GB'
+  time '2h'
   publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
 
   input:
@@ -175,6 +207,10 @@ process spades_assembly{
 }
 
 process mlst_lookup{
+  cpus 1
+  memory '4 GB'
+  time '0.1h'
+
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
   input:
@@ -187,6 +223,10 @@ process mlst_lookup{
 }
 
 process quast_assembly_qc{
+  cpus 1
+  memory '4 GB'
+  time '0.1h'
+
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
 
   input:
@@ -203,6 +243,10 @@ process quast_assembly_qc{
 }
 
 process quast_json_conversion{
+  cpus 1
+  memory '4 GB'
+  time '0.1h'
+
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
   cpus 1
 
@@ -219,6 +263,10 @@ process quast_json_conversion{
 
 
 process bwa_read_mapping{
+  cpus 16
+  memory '32 GB'
+  time '0.1h'
+
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
   input:

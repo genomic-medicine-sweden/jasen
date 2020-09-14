@@ -24,5 +24,5 @@ From:nfcore/base:1.9
 	/opt/conda/bin/conda env create -f /environment.yml
 	/opt/conda/bin/conda clean -a
 
-#	/opt/conda/envs/jasen/bin/cpanm JSON
+	/opt/conda/envs/jasen/bin/cpanm JSON
 
