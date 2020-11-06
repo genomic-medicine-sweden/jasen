@@ -1,0 +1,30 @@
+name: jasen
+channels:
+    - bioconda
+    - conda-forge
+dependencies:
+    - bcftools=1.3.1
+    - blast=2.9.0
+    - bwa=0.7.17
+    - cd-hit=4.8.1
+    - fastqc=0.11.9
+    - freebayes=1.3.2
+    - mlst=2.19.0
+    - mummer=3.23=pl526he1b5a44_11
+    - kraken2=2.0.9beta
+    - pandas=0.24.2
+    - picard=2.20.3
+    - pigz=2.4
+    - r-base=4.0.2
+    - quast=5.0.2
+    - samtools=1.9
+    - spades=3.13.1
+    - trimmomatic=0.39
+    - vcftools=0.1.16
+    - ariba=2.14.6
+    - bowtie2=2.3.5.1
+    - pip=19.1.1
+    - pip:
+      - biopython==1.77
+      - multiqc==1.9
+      - pandas==1.1.2
