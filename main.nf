@@ -6,7 +6,7 @@ if (!(params.pkm && params.location)) {
 }
 
 process bwa_index_reference{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   output:
   file "database.rdy" into bwa_indexes
@@ -20,33 +20,33 @@ process bwa_index_reference{
 }
 
 process kraken2_db_download{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   output:
   file 'database.rdy' into kraken2_init
+  file 'krakendb.tgz' into kraken2_source
 
   """
   if ${params.kraken_db_download} ; then
-    wd=\$(pwd)
     export PATH=\$PATH:$baseDir/bin/
     mkdir -p ${params.krakendb}
-    cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
-    dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
+    wget ${params.krakendb_url} -O krakendb.tgz
+    # dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
     if [ -f "${params.reference}.sa" ]; then
-      tar -xvzf krakendb.tgz --strip 1
+      tar -xvzf krakendb.tgz -C ${params.krakendb} --strip 1
     else
-      tar -xvzf krakendb.tgz
+      tar -xvzf krakendb.tgz -C ${params.krakendb}
     fi
-    rm krakendb.tgz
-    cd \${wd} && touch database.rdy
+    # rm krakendb.tgz
+    touch database.rdy
   else
-    cd \${wd} && touch database.rdy
+    touch database.rdy
   fi
   """
 }
 
 process ariba_db_download{
-  label: 'modest_allocation'
+  label 'modest_allocation'
  
   output:
   file 'database.rdy' into ariba_init
@@ -68,7 +68,7 @@ process ariba_db_download{
 samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
-  label: 'modest_allocation'
+  label 'modest_allocation'
 
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
@@ -88,7 +88,7 @@ reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa
 
 
 process lane_concatination{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
 
@@ -105,7 +105,7 @@ process lane_concatination{
 }
 
 process trimmomatic_trimming{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
@@ -123,7 +123,7 @@ process trimmomatic_trimming{
 }
 
 process ariba_resistancefind{
-  label: 'modest_allocation'
+  label 'modest_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true, pattern: 'motif_report.tsv'
 
@@ -142,7 +142,7 @@ process ariba_resistancefind{
 }
 
 process ariba_stats{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
   cpus 1
@@ -159,7 +159,7 @@ process ariba_stats{
 }
 
 process kraken2_decontamination{
-  label: 'max_allocation'
+  label 'max_allocation'
 
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
@@ -177,7 +177,7 @@ process kraken2_decontamination{
   """
 }
 process spades_assembly{
-  label: 'max_allocation'
+  label 'max_allocation'
 
   publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
 
@@ -194,7 +194,7 @@ process spades_assembly{
 }
 
 process mlst_lookup{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
@@ -208,7 +208,7 @@ process mlst_lookup{
 }
 
 process quast_assembly_qc{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
 
@@ -225,7 +225,7 @@ process quast_assembly_qc{
 }
 
 process quast_json_conversion{
-  label: 'min_allocation'  
+  label 'min_allocation'  
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
   cpus 1
@@ -243,7 +243,7 @@ process quast_json_conversion{
 
 
 process bwa_read_mapping{
-  label: 'max_allocation'
+  label 'max_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -260,7 +260,7 @@ process bwa_read_mapping{
 }
 
 process samtools_bam_conversion{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -277,7 +277,7 @@ process samtools_bam_conversion{
 }
 
 process samtools_duplicates_stats{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
@@ -294,7 +294,7 @@ process samtools_duplicates_stats{
 }
 
 process picard_markduplicates{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
   cpus 1
@@ -312,7 +312,7 @@ process picard_markduplicates{
 }
 
 process samtools_calling{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
@@ -329,7 +329,7 @@ process samtools_calling{
 
 
 process vcftools_snpcalling{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
@@ -355,7 +355,7 @@ process vcftools_snpcalling{
 
 
 process picard_qcstats{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
 
@@ -372,7 +372,7 @@ process picard_qcstats{
 }
 
 process samtools_deduplicated_stats{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
@@ -410,7 +410,7 @@ SNPcalling
 */
 
 process multiqc_report{
-  label: 'min_allocation'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
 
