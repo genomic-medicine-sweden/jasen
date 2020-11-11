@@ -151,10 +151,11 @@ process ariba_stats{
   file(report) from ariba_output
 
   output:
-  file 'summary.csv' into ariba_summary_output
+  tuple 'summary.csv', 'motif_report.json' into ariba_summary_output
 
   """
   ariba summary --col_filter n --row_filter n summary ${report}
+  python $baseDir/snpcalling/tsv_to_json.py ${report} motif_report.json > /dev/null
   """
 }
 
@@ -201,6 +202,8 @@ process mlst_lookup{
   input:
   file contig from assembled_sample_1
 
+  output:
+  file 'mlst.json' into mlst_output
 
   """
   mlst $contig --threads ${task.cpus} --json mlst.json --novel novel_mlst.fasta --minid 99.5 --mincov 95
@@ -353,6 +356,26 @@ process vcftools_snpcalling{
   """
 }
 
+process snp_translation{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
+
+  label 'min_allocation'
+
+  input:
+  file bcf_file from snpcalling_output
+
+  output:
+  tuple 'vcftools.recode.vcf', 'snp_report.tsv', 'snp_report.json' into snp_translated_output
+
+  script:
+  """
+  bcftools view ${bcf_file} > vcftools.recode.vcf
+  gatk VariantsToTable -V vcftools.recode.vcf -F CHROM -F POS -F ID -F REF -F ALT -F QUAL -F FILTER -F DP -F I16 -F QS -F MQ0F -GF PL -O snp_report.tsv
+  python $baseDir/snpcalling/tsv_to_json.py snp_report.tsv snp_report.json
+  """
+
+}
+
 
 process picard_qcstats{
   label 'min_allocation'
@@ -418,14 +441,24 @@ process multiqc_report{
   input:
   file(quast_report) from quast_result
   file(fastqc_report) from fastqc_results
+  file(mlst_file) from mlst_output
+  tuple snp_vcf, snp_tsv, snp_json from snp_translated_output
   tuple picard_stats, picard_insert_stats from picard_output
   tuple kraken_output, kraken_report from kraken2_output
   tuple samtools_map, samtools_raw from samtools_duplicated_results
 
   output:
-  file 'multiqc/multiqc_report.html' into multiqc_output
+  tuple 'multiqc/multiqc_report.html', 'multiqc/multiqc_data/multiqc*' into multiqc_output
+  
 
   """
-  multiqc ${params.outdir} -f -o \$(pwd)/multiqc
+  multiqc ${params.outdir} -f -k json -o \$(pwd)/multiqc 
   """
 }
+
+process output_collection{
+  label 'min_allocation'
+"""
+"""
+}
+
