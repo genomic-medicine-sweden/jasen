@@ -1,9 +1,12 @@
 #!/usr/bin/env nextflow
 
+
+if (!(params.pkm && params.location)) {
+  exit 1, "YOU HAVE TO PROVIDE A LOCATION AND PACKAGE MANAGER PROFILE E.g. 'nextflow run main.nf -profile local,conda'"
+}
+
 process bwa_index_reference{
-  cpus 1
-  memory '4 GB'
-  time '10m'
+  label: 'min_allocation'
 
   output:
   file "database.rdy" into bwa_indexes
@@ -17,9 +20,7 @@ process bwa_index_reference{
 }
 
 process kraken2_db_download{
-  cpus 1
-  memory '4 GB'
-  time '1h'
+  label: 'min_allocation'
 
   output:
   file 'database.rdy' into kraken2_init
@@ -45,10 +46,8 @@ process kraken2_db_download{
 }
 
 process ariba_db_download{
-  cpus 2
-  memory '8 GB'
-  time '15m  '
-
+  label: 'modest_allocation'
+ 
   output:
   file 'database.rdy' into ariba_init
 
@@ -69,9 +68,8 @@ process ariba_db_download{
 samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
-  cpus 2
-  memory '8 GB'
-  time '15m  '
+  label: 'modest_allocation'
+
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
   input:
@@ -90,10 +88,9 @@ reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa
 
 
 process lane_concatination{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
-  cpus 1
-  memory '4 GB'
-  time '15m  '
 
   input:
   file 'forward_concat.fastq.gz' from forward.collectFile()
@@ -108,9 +105,7 @@ process lane_concatination{
 }
 
 process trimmomatic_trimming{
-  cpus 1
-  memory '8 GB'
-  time '15m  '
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
@@ -128,9 +123,7 @@ process trimmomatic_trimming{
 }
 
 process ariba_resistancefind{
-  cpus 4
-  memory '16 GB'
-  time '1h'
+  label: 'modest_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true, pattern: 'motif_report.tsv'
 
@@ -149,9 +142,7 @@ process ariba_resistancefind{
 }
 
 process ariba_stats{
-  cpus 1
-  memory '8 GB'
-  time '10m '
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
   cpus 1
@@ -168,10 +159,7 @@ process ariba_stats{
 }
 
 process kraken2_decontamination{
-  cpus 8
-  memory '48 GB'
-  time '1h'
-
+  label: 'max_allocation'
 
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
@@ -189,9 +177,8 @@ process kraken2_decontamination{
   """
 }
 process spades_assembly{
-  cpus 8
-  memory '16 GB'
-  time '2h'
+  label: 'max_allocation'
+
   publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
 
   input:
@@ -207,9 +194,7 @@ process spades_assembly{
 }
 
 process mlst_lookup{
-  cpus 1
-  memory '4 GB'
-  time '5m  '
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
@@ -223,9 +208,7 @@ process mlst_lookup{
 }
 
 process quast_assembly_qc{
-  cpus 1
-  memory '4 GB'
-  time '5m'
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
 
@@ -242,9 +225,7 @@ process quast_assembly_qc{
 }
 
 process quast_json_conversion{
-  cpus 1
-  memory '4 GB'
-  time '5m  '
+  label: 'min_allocation'  
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
   cpus 1
@@ -262,9 +243,7 @@ process quast_json_conversion{
 
 
 process bwa_read_mapping{
-  cpus 16
-  memory '32 GB'
-  time '1h  '
+  label: 'max_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -281,9 +260,7 @@ process bwa_read_mapping{
 }
 
 process samtools_bam_conversion{
-  cpus 1
-  memory '2 GB'
-  time '10m '
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -300,9 +277,7 @@ process samtools_bam_conversion{
 }
 
 process samtools_duplicates_stats{
-  cpus 1
-  memory '2 GB'
-  time '15m  '
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
@@ -319,9 +294,7 @@ process samtools_duplicates_stats{
 }
 
 process picard_markduplicates{
-  cpus 1
-  memory '8 GB'
-  time '1h'
+  label: 'min_allocation'
 
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
   cpus 1
@@ -339,6 +312,8 @@ process picard_markduplicates{
 }
 
 process samtools_calling{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
   input:
@@ -354,8 +329,9 @@ process samtools_calling{
 
 
 process vcftools_snpcalling{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
-  cpus 1
 
   input:
   file(samhits) from called_sample
@@ -379,8 +355,9 @@ process vcftools_snpcalling{
 
 
 process picard_qcstats{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
-  cpus 1
 
   input:
   file(alignment_sorted_rmdup) from deduplicated_sample_2
@@ -395,6 +372,8 @@ process picard_qcstats{
 }
 
 process samtools_deduplicated_stats{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
   input:
@@ -429,9 +408,11 @@ Samtools total reads
 SNPcalling
 
 */
+
 process multiqc_report{
+  label: 'min_allocation'
+
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
-  cpus 1
 
   //More inputs as tracks are added
   input:
