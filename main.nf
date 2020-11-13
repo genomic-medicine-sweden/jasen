@@ -365,7 +365,8 @@ process snp_translation{
   file bcf_file from snpcalling_output
 
   output:
-  tuple 'vcftools.recode.vcf', 'snp_report.tsv', 'snp_report.json' into snp_translated_output
+  tuple 'vcftools.recode.vcf', 'snp_report.tsv' into snp_translated_output
+  file 'snp_report.json' into snp_json_output
 
   script:
   """
@@ -441,18 +442,18 @@ process multiqc_report{
   input:
   file(quast_report) from quast_result
   file(fastqc_report) from fastqc_results
-  file(mlst_file) from mlst_output
-  tuple snp_vcf, snp_tsv, snp_json from snp_translated_output
+  tuple snp_vcf, snp_tsv from snp_translated_output
   tuple picard_stats, picard_insert_stats from picard_output
   tuple kraken_output, kraken_report from kraken2_output
   tuple samtools_map, samtools_raw from samtools_duplicated_results
 
   output:
-  tuple 'multiqc/multiqc_report.html', 'multiqc/multiqc_data/multiqc*' into multiqc_output
-  
+  file 'multiqc_report.html' into multiqc_output
+  file 'multiqc_data/multiqc_data.json' into multiqc_json
+  // MultiQC_data contains a lot delimited files. May be useful later
 
   """
-  multiqc ${params.outdir} -f -k json -o \$(pwd)/multiqc 
+  multiqc ${params.outdir} -f -k json -o \$(pwd)
   """
 }
 
@@ -461,4 +462,30 @@ process output_collection{
 """
 """
 }
+
+process json_collection{
+  label 'min_allocation'
+
+  publishDir "${params.outdir}/jsoncollection", mode: 'copy', overwrite: true
+
+  input:
+  file (mlstjson) from mlst_output
+  file (multiqcjson) from multiqc_json
+  file (aribajson) from ariba_summary_output
+  file (quastjson) from quast_result_json
+  file (snpreport) from snp_json_output
+  
+  output:
+
+
+  """
+  touch merged_reports.json
+  cat ${mlstjson} >> merged_report.json
+  cat ${aribajson} >> merged_report.json
+  cat ${quastjson} >> merged_report.json
+  cat ${snpreport} >> merged_report.json
+  cat ${multiqcjson} >> merged_report.json
+  """
+}
+
 
