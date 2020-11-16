@@ -186,7 +186,7 @@ process spades_assembly{
   file(reads) from trimmed_sample_1
 
   output:
-  file 'scaffolds.fasta' into (assembled_sample_1, assembled_sample_2)
+  file 'scaffolds.fasta' into (assembled_sample_1, assembled_sample_2, assembled_sample_3)
 
   script:
   """
@@ -209,6 +209,21 @@ process mlst_lookup{
   mlst $contig --threads ${task.cpus} --json mlst.json --novel novel_mlst.fasta --minid 99.5 --mincov 95
   """
 }
+
+process chewbbaca_cgmlst{
+  label 'max_allocation'
+
+  publishDir "${params.outdir}/cgmlst", mode: 'copy', overwrite: true
+
+  input:
+  file contig from assembled_sample_3
+
+  """
+  chewBBACA.py AlleleCall --fr -i ${assembled_sample_3} -g ${params.chewbbacadb} --json --cpu ${task.cpus} -o .
+
+  """
+}
+
 
 process quast_assembly_qc{
   label 'min_allocation'
