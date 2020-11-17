@@ -5,6 +5,7 @@ if (!(params.pkm && params.location)) {
   exit 1, "YOU HAVE TO PROVIDE A LOCATION AND PACKAGE MANAGER PROFILE E.g. 'nextflow run main.nf -profile local,conda'"
 }
 
+
 process bwa_index_reference{
   label 'min_allocation'
 
@@ -16,6 +17,27 @@ process bwa_index_reference{
     bwa index ${params.reference}
   fi
   touch database.rdy
+  """
+}
+
+process cgmlst_db_init{
+  label 'min_allocation'
+
+  output:
+  file 'database.rdy' into chewie_init
+  file 'chewiedb.zip' into chewie_source
+
+  """
+  if ${params.chewbbaca_db_download} ; then
+    export PATH=\$PATH:$baseDir/bin/
+    mkdir -p ${params.chewbbacadb} 
+    wget ${params.chewbbacadb_url} -O chewiedb.zip
+    unzip chewiedb.zip -d ${params.chewbbacadb}
+    chewBBACA.py PrepExternalSchema -i ${params.chewbbacadb} -o ${params.chewbbacadb}/schema --cpu ${task.cpus}
+    touch database.rdy
+  else
+    touch database.rdy
+  fi
   """
 }
 
@@ -212,15 +234,20 @@ process mlst_lookup{
 
 process chewbbaca_cgmlst{
   label 'max_allocation'
-
   publishDir "${params.outdir}/cgmlst", mode: 'copy', overwrite: true
 
   input:
   file contig from assembled_sample_3
+  file 'database.dry' from chewie_init
+
+  output:
+  tuple 'cgmlst_alleles.json', 'cgmlst_stats.json' into cgmlst_results
 
   """
-  chewBBACA.py AlleleCall --fr -i ${assembled_sample_3} -g ${params.chewbbacadb} --json --cpu ${task.cpus} -o .
-
+  yes | chewBBACA.py AlleleCall --fr -i \${PWD} -g ${params.chewbbacadb}/schema --json --cpu ${task.cpus} -o \${PWD} --ptf ${params.prodigal_file}
+  mv results_*/* .
+  mv results_alleles.json cgmlst_alleles.json
+  mv results_statistics.json cgmlst_stats.json
   """
 }
 
@@ -489,9 +516,10 @@ process json_collection{
   file (aribajson) from ariba_summary_output
   file (quastjson) from quast_result_json
   file (snpreport) from snp_json_output
+  tuple (cgmlst_res, cgmlst_stats) from cgmlst_results
   
   output:
-
+  tuple 'merged_report.json', mlstjson, multiqcjson, aribajson, quastjson, snpreport, cgmlst_res into json_collection
 
   """
   touch merged_reports.json
@@ -500,6 +528,7 @@ process json_collection{
   cat ${quastjson} >> merged_report.json
   cat ${snpreport} >> merged_report.json
   cat ${multiqcjson} >> merged_report.json
+  cat ${cgmlst_res} >> merged_report.json
   """
 }
 
