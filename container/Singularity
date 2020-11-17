@@ -2,7 +2,7 @@ Bootstrap:docker
 From:nfcore/base:1.9
 
 %labels
-	MAINTAINER Jonas Bjorkman <jonas.bjorkman@skane.se>
+	MAINTAINER Isak Sylvin <isak.sylvin@scilifelab.se>
 	DESCRIPTION Singularity container for JASEN microbiology WGS pipeline
 	VERSION 0.0.1
 
@@ -13,7 +13,7 @@ From:nfcore/base:1.9
 	umask 0002
 
 %files
-        environment.yml /
+        environment.yaml /
 
 %post
         rm -rf /var/lib/apt/lists/*
@@ -21,7 +21,7 @@ From:nfcore/base:1.9
         apt -y update
 	apt -y install build-essential make
 
-	/opt/conda/bin/conda env create -f /environment.yml
+	/opt/conda/bin/conda env create -f /environment.yaml
 	/opt/conda/bin/conda clean -a
 
 	/opt/conda/envs/jasen/bin/cpanm JSON
