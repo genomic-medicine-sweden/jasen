@@ -1,5 +1,7 @@
 #!/bin/bash
 
-echo export SINGULARITY_LOCALCACHEDIR="/tmp/"
-echo export SINGULARITY_CACHEDIR="/tmp/"
-echo export SINGULARITY_TMPDIR="/tmp/"
+mkdir -p ~/singu
+echo export SINGULARITY_LOCALCACHEDIR="~/singu"
+echo export SINGULARITY_CACHEDIR="~/singu"
+echo export SINGULARITY_TMPDIR="~/singu"
+

@@ -1,5 +1,5 @@
 Bootstrap:docker
-From:nfcore/base:1.9
+From:nfcore/base:latest
 
 %labels
 	MAINTAINER Isak Sylvin <isak.sylvin@scilifelab.se>
@@ -8,21 +8,13 @@ From:nfcore/base:1.9
 
 %environment
 	PATH=/opt/conda/envs/jasen/bin/:$PATH
-	PICARD_HOME=/opt/conda/envs/jasen/share/picard-2.20.3-0/
-	PERL5LIB=$PERL5LIB:/opt/conda/envs/jasen/lib/site_perl/5.26.2/
 	umask 0002
 
 %files
-        environment.yaml /
+        environment.yml /
 
 %post
-        rm -rf /var/lib/apt/lists/*
-        apt -y clean
-        apt -y update
-	apt -y install build-essential make
+	/opt/conda/bin/conda env create -f /environment.yml
 
-	/opt/conda/bin/conda env create -f /environment.yaml
-	/opt/conda/bin/conda clean -a
-
-	/opt/conda/envs/jasen/bin/cpanm JSON
-
+%runscript
+	exec "$@"`
