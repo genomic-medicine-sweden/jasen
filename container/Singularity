@@ -4,10 +4,9 @@ From:nfcore/base:latest
 %labels
 	MAINTAINER Isak Sylvin <isak.sylvin@scilifelab.se>
 	DESCRIPTION Singularity container for JASEN microbiology WGS pipeline
-	VERSION 0.0.1
+	VERSION 0.1.0
 
 %environment
-	PATH=/opt/conda/envs/jasen/bin/:$PATH
 	umask 0002
 
 %files
@@ -15,6 +14,12 @@ From:nfcore/base:latest
 
 %post
 	/opt/conda/bin/conda env create -f /environment.yml
+        curl -s https://get.nextflow.io | /bin/bash
+        mv nextflow /bin/ 
+        git clone https://github.com/genomic-medicine-sweden/JASEN.git 
+
 
 %runscript
+        /opt/conda/bin/conda activate jasen
 	exec "$@"`
+        /opt/conda/bin/conda deactivate

@@ -5,9 +5,23 @@ if (!(params.pkm && params.location)) {
   exit 1, "YOU HAVE TO PROVIDE A LOCATION AND PACKAGE MANAGER PROFILE E.g. 'nextflow run main.nf -profile local,conda'"
 }
 
+process clone_assets{
+  label 'min_allocation'
+
+  output:
+  file "assets.rdy" into assets_done
+
+  """
+  cp -r ${baseDir}/assets ${params.assets}
+  touch assets.rdy
+  """
+}
 
 process bwa_index_reference{
   label 'min_allocation'
+
+  input:
+  file assets_rdy from assets_done
 
   output:
   file "database.rdy" into bwa_indexes
