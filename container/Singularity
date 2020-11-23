@@ -1,5 +1,5 @@
 Bootstrap:docker
-From:nfcore/base:latest
+From:ubuntu
 
 %labels
 	MAINTAINER Isak Sylvin <isak.sylvin@scilifelab.se>
@@ -13,9 +13,13 @@ From:nfcore/base:latest
         environment.yml /
 
 %post
+        apt -y update
+        apt -y install build-essential make curl 
+        #apt -y install openjdk-11-jre:amd64
+        mkdir /scratch/
 	/opt/conda/bin/conda env create -f /environment.yml
-        curl -s https://get.nextflow.io | /bin/bash
-        mv nextflow /bin/ 
+        #curl -s https://get.nextflow.io | /bin/bash
+        #mv nextflow /bin/ 
         git clone https://github.com/genomic-medicine-sweden/JASEN.git 
 
 
