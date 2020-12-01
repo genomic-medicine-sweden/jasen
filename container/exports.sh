@@ -9,5 +9,6 @@ echo export SINGULARITY_CACHEDIR="~/scratch/"
 echo export SINGULARITY_TMPDIR="~/scratch/"
 echo export TMPDIR="~/scratch/"
 echo export TEMPDIR="~/scratch/"
+echo export SINGULARITY_ROOTFS="~/scratch/"
 echo export SINGULARITY_DISABLE_CACHE=false
 
