@@ -1,9 +1,11 @@
-name: D_jasen
+name: jasen
 channels:
+  - anaconda
   - bioconda
   - conda-forge
   - defaults
 dependencies:
+  - openjdk
   - python=3.7.1
   - ariba
   - bcftools=1.5

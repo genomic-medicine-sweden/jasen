@@ -5,14 +5,16 @@ if (!(params.pkm && params.location)) {
   exit 1, "YOU HAVE TO PROVIDE A LOCATION AND PACKAGE MANAGER PROFILE E.g. 'nextflow run main.nf -profile local,conda'"
 }
 
-process clone_assets{
+process setup_workdirectories{
   label 'min_allocation'
 
   output:
   file "assets.rdy" into assets_done
 
   """
-  cp -r ${baseDir}/assets ${params.assets}
+  cp -r ${baseDir}/assets/* ${params.assets}
+  mkdir -p ${params.rootdir} 
+  mkdir -p ${params.work}
   touch assets.rdy
   """
 }
