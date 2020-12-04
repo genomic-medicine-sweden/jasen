@@ -23,7 +23,7 @@ From:nfcore/base:latest
 %post
         apt -y update
         apt -y install build-essential make curl unzip 
-        apt -y install libssl1.0.0 libssl-dev
+        ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
         #apt -y install default-jdk default-jre
         mkdir /scratch/
 
