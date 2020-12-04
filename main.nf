@@ -48,7 +48,7 @@ process cgmlst_db_init{
     export PATH=\$PATH:$baseDir/bin/
     mkdir -p ${params.chewbbacadb} 
     wget ${params.chewbbacadb_url} -O chewiedb.zip
-    unzip chewiedb.zip -d ${params.chewbbacadb}
+    unzip -o chewiedb.zip -d ${params.chewbbacadb} 
     chewBBACA.py PrepExternalSchema -i ${params.chewbbacadb} -o ${params.chewbbacadb}/schema --cpu ${task.cpus}
     touch database.rdy
   else

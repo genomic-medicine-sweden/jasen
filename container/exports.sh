@@ -1,24 +1,25 @@
 #!/bin/bash
 
+PREF="/mnt/scratch/jasen"
 
+sudo mkdir -p $PREF
+sudo mkdir -p $PREF/nxf
+sudo mkdir -p $PREF/sing
+sudo mkdir -p $PREF/tmp
+sudo chown -R is $PREF
+sudo chgrp -R is $PREF
 
-sudo mkdir -p /scratch/
-sudo chown is /scratch/
-mkdir -p /scratch/nxf
-mkdir -p /scratch/sing
-mkdir -p /scratch/tmp
+echo export NXF_SINGULARITY_LOCALCACHEDIR="$PREF/nxf"
+echo export NXF_SINGULARITY_CACHEDIR="$PREF/nxf"
+echo export NXF_SINGULARITY_TMPDIR="$PREF/nxf"
 
-echo export NXF_SINGULARITY_LOCALCACHEDIR="/scratch/nxf"
-echo export NXF_SINGULARITY_CACHEDIR="/scratch/nxf"
-echo export NXF_SINGULARITY_TMPDIR="/scratch/nxf"
+echo export SINGULARITY_LOCALCACHEDIR="$PREF/sing"
+echo export SINGULARITY_CACHEDIR="$PREF/sing"
+echo export SINGULARITY_TMPDIR="$PREF/sing"
 
-echo export SINGULARITY_LOCALCACHEDIR="/scratch/sing"
-echo export SINGULARITY_CACHEDIR="/scratch/sing"
-echo export SINGULARITY_TMPDIR="/scratch/sing"
+echo export TMPDIR="$PREF/tmp"
+echo export TEMPDIR="$PREF/tmp"
 
-echo export TMPDIR="/scratch/tmp"
-echo export TEMPDIR="/scratch/tmp"
-
-echo export SINGULARITY_ROOTFS="/scratch/sing"
+echo export SINGULARITY_ROOTFS="$PREF/sing"
 echo export SINGULARITY_DISABLE_CACHE=false
 
