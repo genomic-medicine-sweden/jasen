@@ -192,7 +192,7 @@ process ariba_stats{
   tuple 'summary.csv', 'motif_report.json' into ariba_summary_output
 
   """
-  ariba summary --col_filter n --row_filter n summary ${report}
+  ariba summary --col_filter n --row_filter n summary ${report} > /dev/null
   python $baseDir/snpcalling/tsv_to_json.py ${report} motif_report.json > /dev/null
   """
 }
