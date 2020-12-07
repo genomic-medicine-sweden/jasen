@@ -17,6 +17,7 @@ dependencies:
   - fastqc
   - freebayes
   - gatk4
+  - libiconv
   - kraken2
   - mlst
   - picard
@@ -25,7 +26,6 @@ dependencies:
   - pysam
   - quast
   - r-base
-  - R=3.5.1
   - samtools
   - spades
   - trimmomatic

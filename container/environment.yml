@@ -76,6 +76,7 @@ dependencies:
   - libgd=2.2.5=h0db58fd_3
   - libgfortran-ng=7.3.0=hdf63c60_0
   - libgomp=9.3.0=h5dbcf3e_17
+  - libiconv=1.15
   - liblapack=3.8.0=11_openblas
   - liblapacke=3.8.0=11_openblas
   - libopenblas=0.3.6=h5a2b251_2
@@ -348,7 +349,6 @@ dependencies:
   - python_abi=3.7=1_cp37m
   - pytz=2020.1=py_0
   - quast=5.0.2=py37pl526hb5aa323_2
-  - R=3.5.1
   - r-base=3.5.1=hea2b9be_1007
   - readline=7.0=h7b6447c_5
   - requests=2.24.0=py_0
