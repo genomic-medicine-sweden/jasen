@@ -7,6 +7,7 @@ From:nfcore/base:latest
 	VERSION 0.1.0
 
 %environment
+        export PYTHONNOUSERSITE=True
         export PATH="/opt/conda/bin:$PATH"
         export PATH="/opt/conda/envs/jasen/bin:$PATH"
         export PATH="/usr/bin:$PATH"
@@ -28,7 +29,7 @@ From:nfcore/base:latest
         #apt -y install default-jdk default-jre
         mkdir /scratch/
 
-        /usr/bin/git clone --recurse-submodules --single-branch --branch polishing  https://github.com/genomic-medicine-sweden/JASEN.git
+        /usr/bin/git clone --recurse-submodules --single-branch --branch trash  https://github.com/genomic-medicine-sweden/JASEN.git
         /opt/conda/bin/conda env create -f JASEN/container/environment.yml
         ln -s /opt/conda/envs/jasen/lib/libcrypto.so.1.1 /opt/conda/envs/jasen/lib/libcrypto.so.1.0.0
 
