@@ -193,7 +193,7 @@ process ariba_stats{
 
   """
   ariba summary --col_filter n --row_filter n summary ${report} 
-  python $baseDir/snpcalling/tsv_to_json.py ${report} motif_report.json 
+  python3 $baseDir/snpcalling/tsv_to_json.py ${report} motif_report.json 
   """
 }
 
@@ -298,7 +298,7 @@ process quast_json_conversion{
   file 'quast_report.json' into quast_result_json
 
   """
-  python $baseDir/bin/quast_report_to_json.py $quastreport quast_report.json
+  python3 $baseDir/bin/quast_report_to_json.py $quastreport quast_report.json
   """
 }
 
@@ -430,7 +430,7 @@ process snp_translation{
   """
   bcftools view ${bcf_file} > vcftools.recode.vcf
   gatk VariantsToTable -V vcftools.recode.vcf -F CHROM -F POS -F ID -F REF -F ALT -F QUAL -F FILTER -F DP -F I16 -F QS -F MQ0F -GF PL -O snp_report.tsv
-  python $baseDir/snpcalling/tsv_to_json.py snp_report.tsv snp_report.json
+  python3 $baseDir/snpcalling/tsv_to_json.py snp_report.tsv snp_report.json
   """
 
 }
