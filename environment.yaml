@@ -17,6 +17,7 @@ dependencies:
   - fastqc
   - freebayes
   - gatk4
+  - libiconv
   - kraken2
   - mlst
   - picard
