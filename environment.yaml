@@ -25,6 +25,7 @@ dependencies:
   - pysam
   - quast
   - r-base
+  - R=3.5.1
   - samtools
   - spades
   - trimmomatic

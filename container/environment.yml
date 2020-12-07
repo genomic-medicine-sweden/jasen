@@ -348,6 +348,7 @@ dependencies:
   - python_abi=3.7=1_cp37m
   - pytz=2020.1=py_0
   - quast=5.0.2=py37pl526hb5aa323_2
+  - R=3.5.1
   - r-base=3.5.1=hea2b9be_1007
   - readline=7.0=h7b6447c_5
   - requests=2.24.0=py_0
