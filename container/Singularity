@@ -28,13 +28,11 @@ From:nfcore/base:latest
         ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
         locale-gen en_US.UTF-8
         localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-        #apt -y install default-jdk default-jre
         mkdir /scratch/
 
-        /usr/bin/git clone --recurse-submodules --single-branch --branch trash  https://github.com/genomic-medicine-sweden/JASEN.git
+        /usr/bin/git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git
         /opt/conda/bin/conda env create -f JASEN/container/environment.yml
         ln -s /opt/conda/envs/jasen/lib/libcrypto.so.1.1 /opt/conda/envs/jasen/lib/libcrypto.so.1.0.0
-
 
         # Conda setup attempts
         /bin/cat conda_init.sh >> ~/.bashrc
@@ -42,9 +40,10 @@ From:nfcore/base:latest
         . /opt/conda/etc/profile.d/conda.sh
         conda config --set auto_activate_base true
 
-
+        # Installation of nextFlow
         ##Requires activate to work (term reload) and JAVA.
         #. /opt/conda/bin/activate jasen
+        #apt -y install default-jdk default-jre
         #/usr/bin/yes | /opt/conda/bin/conda install -c anaconda openjdk
         #/usr/bin/curl -s https://get.nextflow.io | /bin/bash
         #. /opt/conda/bin/deactivate
@@ -53,7 +52,6 @@ From:nfcore/base:latest
 
 %runscript
         . /opt/conda/etc/profile.d/conda.sh
-
         . /opt/conda/bin/activate jasen
 	exec "$@"`
         . /opt/conda/bin/deactivate

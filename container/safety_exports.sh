@@ -1,13 +1,14 @@
 #!/bin/bash
 
-PREF="/mnt/scratch/jasen"
+PREF=$2
+USER=$1
 
 sudo mkdir -p $PREF
 sudo mkdir -p $PREF/nxf
 sudo mkdir -p $PREF/sing
 sudo mkdir -p $PREF/tmp
-sudo chown -R is $PREF
-sudo chgrp -R is $PREF
+sudo chown -R $USER $PREF
+sudo chgrp -R $USER $PREF
 
 echo export NXF_SINGULARITY_LOCALCACHEDIR="$PREF/nxf"
 echo export NXF_SINGULARITY_CACHEDIR="$PREF/nxf"
