@@ -1,9 +1,29 @@
 #!/usr/bin/env nextflow
 
+
+if (!(params.pkm && params.location)) {
+  exit 1, "YOU HAVE TO PROVIDE A LOCATION AND PACKAGE MANAGER PROFILE E.g. 'nextflow run main.nf -profile local,conda'"
+}
+
+process setup_workdirectories{
+  label 'min_allocation'
+
+  output:
+  file "assets.rdy" into assets_done
+
+  """
+  cp -r ${baseDir}/assets/* ${params.assets}
+  mkdir -p ${params.rootdir} 
+  mkdir -p ${params.work}
+  touch assets.rdy
+  """
+}
+
 process bwa_index_reference{
-  cpus 1
-  memory '4 GB'
-  time '10m'
+  label 'min_allocation'
+
+  input:
+  file assets_rdy from assets_done
 
   output:
   file "database.rdy" into bwa_indexes
@@ -16,39 +36,56 @@ process bwa_index_reference{
   """
 }
 
+process cgmlst_db_init{
+  label 'min_allocation'
+
+  output:
+  file 'database.rdy' into chewie_init
+  file 'chewiedb.zip' into chewie_source
+
+  """
+  if ${params.chewbbaca_db_download} ; then
+    export PATH=\$PATH:$baseDir/bin/
+    mkdir -p ${params.chewbbacadb} 
+    wget ${params.chewbbacadb_url} -O chewiedb.zip
+    unzip -o chewiedb.zip -d ${params.chewbbacadb} 
+    chewBBACA.py PrepExternalSchema -i ${params.chewbbacadb} -o ${params.chewbbacadb}/schema --cpu ${task.cpus}
+    touch database.rdy
+  else
+    touch database.rdy
+  fi
+  """
+}
+
 process kraken2_db_download{
-  cpus 1
-  memory '4 GB'
-  time '1h'
+  label 'min_allocation'
 
   output:
   file 'database.rdy' into kraken2_init
+  file 'krakendb.tgz' into kraken2_source
 
   """
   if ${params.kraken_db_download} ; then
-    wd=\$(pwd)
     export PATH=\$PATH:$baseDir/bin/
     mkdir -p ${params.krakendb}
-    cd ${params.krakendb} && wget ${params.krakendb_url} -O krakendb.tgz
-    dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
+    wget ${params.krakendb_url} -O krakendb.tgz
+    # dlsuf=`tar -tf krakendb.tgz | head -n 1 | tail -c 2`
     if [ -f "${params.reference}.sa" ]; then
-      tar -xvzf krakendb.tgz --strip 1
+      tar -xvzf krakendb.tgz -C ${params.krakendb} --strip 1
     else
-      tar -xvzf krakendb.tgz
+      tar -xvzf krakendb.tgz -C ${params.krakendb}
     fi
-    rm krakendb.tgz
-    cd \${wd} && touch database.rdy
+    # rm krakendb.tgz
+    touch database.rdy
   else
-    cd \${wd} && touch database.rdy
+    touch database.rdy
   fi
   """
 }
 
 process ariba_db_download{
-  cpus 2
-  memory '8 GB'
-  time '15m  '
-
+  label 'modest_allocation'
+ 
   output:
   file 'database.rdy' into ariba_init
 
@@ -69,9 +106,8 @@ process ariba_db_download{
 samples = Channel.fromPath("${params.input}/*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 process fastqc_readqc{
-  cpus 2
-  memory '8 GB'
-  time '15m  '
+  label 'modest_allocation'
+
   publishDir "${params.outdir}/fastqc", mode: 'copy', overwrite: true
 
   input:
@@ -90,10 +126,9 @@ reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa
 
 
 process lane_concatination{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/concatinated", mode: 'copy', overwrite: true
-  cpus 1
-  memory '4 GB'
-  time '15m  '
 
   input:
   file 'forward_concat.fastq.gz' from forward.collectFile()
@@ -108,9 +143,7 @@ process lane_concatination{
 }
 
 process trimmomatic_trimming{
-  cpus 1
-  memory '8 GB'
-  time '15m  '
+  label 'min_allocation'
 
   publishDir "${params.outdir}/trimmomatic", mode: 'copy', overwrite: true
 
@@ -128,9 +161,7 @@ process trimmomatic_trimming{
 }
 
 process ariba_resistancefind{
-  cpus 4
-  memory '16 GB'
-  time '1h'
+  label 'modest_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true, pattern: 'motif_report.tsv'
 
@@ -149,9 +180,7 @@ process ariba_resistancefind{
 }
 
 process ariba_stats{
-  cpus 1
-  memory '8 GB'
-  time '10m '
+  label 'min_allocation'
 
   publishDir "${params.outdir}/ariba", mode: 'copy', overwrite: true
   cpus 1
@@ -160,18 +189,16 @@ process ariba_stats{
   file(report) from ariba_output
 
   output:
-  file 'summary.csv' into ariba_summary_output
+  tuple 'summary.csv', 'motif_report.json' into ariba_summary_output
 
   """
-  ariba summary --col_filter n --row_filter n summary ${report}
+  ariba summary --col_filter n --row_filter n summary ${report} 
+  python3 $baseDir/bin/tsv_to_json.py ${report} motif_report.json 
   """
 }
 
 process kraken2_decontamination{
-  cpus 8
-  memory '48 GB'
-  time '1h'
-
+  label 'max_allocation'
 
   publishDir "${params.outdir}/kraken2", mode: 'copy', overwrite: true
 
@@ -189,16 +216,15 @@ process kraken2_decontamination{
   """
 }
 process spades_assembly{
-  cpus 8
-  memory '16 GB'
-  time '2h'
+  label 'max_allocation'
+
   publishDir "${params.outdir}/spades", mode: 'copy', overwrite: true
 
   input:
   file(reads) from trimmed_sample_1
 
   output:
-  file 'scaffolds.fasta' into (assembled_sample_1, assembled_sample_2)
+  file 'scaffolds.fasta' into (assembled_sample_1, assembled_sample_2, assembled_sample_3)
 
   script:
   """
@@ -207,25 +233,43 @@ process spades_assembly{
 }
 
 process mlst_lookup{
-  cpus 1
-  memory '4 GB'
-  time '5m  '
+  label 'min_allocation'
 
   publishDir "${params.outdir}/mlst", mode: 'copy', overwrite: true
 
   input:
   file contig from assembled_sample_1
 
+  output:
+  file 'mlst.json' into mlst_output
 
   """
   mlst $contig --threads ${task.cpus} --json mlst.json --novel novel_mlst.fasta --minid 99.5 --mincov 95
   """
 }
 
+process chewbbaca_cgmlst{
+  label 'max_allocation'
+  publishDir "${params.outdir}/cgmlst", mode: 'copy', overwrite: true
+
+  input:
+  file contig from assembled_sample_3
+  file 'database.dry' from chewie_init
+
+  output:
+  tuple 'cgmlst_alleles.json', 'cgmlst_stats.json' into cgmlst_results
+
+  """
+  yes | chewBBACA.py AlleleCall --fr -i \${PWD} -g ${params.chewbbacadb}/schema --json --cpu ${task.cpus} -o \${PWD} --ptf ${params.prodigal_file}
+  mv results_*/* .
+  mv results_alleles.json cgmlst_alleles.json
+  mv results_statistics.json cgmlst_stats.json
+  """
+}
+
+
 process quast_assembly_qc{
-  cpus 1
-  memory '4 GB'
-  time '5m'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
 
@@ -242,9 +286,7 @@ process quast_assembly_qc{
 }
 
 process quast_json_conversion{
-  cpus 1
-  memory '4 GB'
-  time '5m  '
+  label 'min_allocation'  
 
   publishDir "${params.outdir}/quast", mode: 'copy', overwrite: true
   cpus 1
@@ -256,15 +298,13 @@ process quast_json_conversion{
   file 'quast_report.json' into quast_result_json
 
   """
-  python $baseDir/bin/quast_report_to_json.py $quastreport quast_report.json
+  python3 $baseDir/bin/quast_to_json.py $quastreport quast_report.json
   """
 }
 
 
 process bwa_read_mapping{
-  cpus 16
-  memory '32 GB'
-  time '1h  '
+  label 'max_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -281,9 +321,7 @@ process bwa_read_mapping{
 }
 
 process samtools_bam_conversion{
-  cpus 1
-  memory '2 GB'
-  time '10m '
+  label 'min_allocation'
 
   publishDir "${params.outdir}/bwa", mode: 'copy', overwrite: true
 
@@ -300,9 +338,7 @@ process samtools_bam_conversion{
 }
 
 process samtools_duplicates_stats{
-  cpus 1
-  memory '2 GB'
-  time '15m  '
+  label 'min_allocation'
 
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
@@ -319,9 +355,7 @@ process samtools_duplicates_stats{
 }
 
 process picard_markduplicates{
-  cpus 1
-  memory '8 GB'
-  time '1h'
+  label 'min_allocation'
 
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
   cpus 1
@@ -339,6 +373,8 @@ process picard_markduplicates{
 }
 
 process samtools_calling{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
 
   input:
@@ -354,8 +390,9 @@ process samtools_calling{
 
 
 process vcftools_snpcalling{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
-  cpus 1
 
   input:
   file(samhits) from called_sample
@@ -377,10 +414,32 @@ process vcftools_snpcalling{
   """
 }
 
+process snp_translation{
+  publishDir "${params.outdir}/snpcalling", mode: 'copy', overwrite: true
+
+  label 'min_allocation'
+
+  input:
+  file bcf_file from snpcalling_output
+
+  output:
+  tuple 'vcftools.recode.vcf', 'snp_report.tsv' into snp_translated_output
+  file 'snp_report.json' into snp_json_output
+
+  script:
+  """
+  bcftools view ${bcf_file} > vcftools.recode.vcf
+  gatk VariantsToTable -V vcftools.recode.vcf -F CHROM -F POS -F ID -F REF -F ALT -F QUAL -F FILTER -F DP -F I16 -F QS -F MQ0F -GF PL -O snp_report.tsv
+  python3 $baseDir/bin/tsv_to_json.py snp_report.tsv snp_report.json
+  """
+
+}
+
 
 process picard_qcstats{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/picard", mode: 'copy', overwrite: true
-  cpus 1
 
   input:
   file(alignment_sorted_rmdup) from deduplicated_sample_2
@@ -395,6 +454,8 @@ process picard_qcstats{
 }
 
 process samtools_deduplicated_stats{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/samtools", mode: 'copy', overwrite: true
 
   input:
@@ -429,22 +490,62 @@ Samtools total reads
 SNPcalling
 
 */
+
 process multiqc_report{
+  label 'min_allocation'
+
   publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
-  cpus 1
 
   //More inputs as tracks are added
   input:
   file(quast_report) from quast_result
   file(fastqc_report) from fastqc_results
+  tuple snp_vcf, snp_tsv from snp_translated_output
   tuple picard_stats, picard_insert_stats from picard_output
   tuple kraken_output, kraken_report from kraken2_output
   tuple samtools_map, samtools_raw from samtools_duplicated_results
 
   output:
-  file 'multiqc/multiqc_report.html' into multiqc_output
+  file 'multiqc_report.html' into multiqc_output
+  file 'multiqc_data/multiqc_data.json' into multiqc_json
+  // MultiQC_data contains a lot delimited files. May be useful later
 
   """
-  multiqc ${params.outdir} -f -o \$(pwd)/multiqc
+  multiqc ${params.outdir} -f -k json -o \$(pwd)
   """
 }
+
+process output_collection{
+  label 'min_allocation'
+"""
+"""
+}
+
+process json_collection{
+  label 'min_allocation'
+
+  publishDir "${params.outdir}/jsoncollection", mode: 'copy', overwrite: true
+
+  input:
+  file (mlstjson) from mlst_output
+  file (multiqcjson) from multiqc_json
+  file (aribajson) from ariba_summary_output
+  file (quastjson) from quast_result_json
+  file (snpreport) from snp_json_output
+  tuple (cgmlst_res, cgmlst_stats) from cgmlst_results
+  
+  output:
+  tuple 'merged_report.json', mlstjson, multiqcjson, aribajson, quastjson, snpreport, cgmlst_res into json_collection
+
+  """
+  touch merged_reports.json
+  cat ${mlstjson} >> merged_report.json
+  cat ${aribajson} >> merged_report.json
+  cat ${quastjson} >> merged_report.json
+  cat ${snpreport} >> merged_report.json
+  cat ${multiqcjson} >> merged_report.json
+  cat ${cgmlst_res} >> merged_report.json
+  """
+}
+
+
