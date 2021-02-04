@@ -173,7 +173,7 @@ process ariba {
 		set id, species, platform, file("${id}.ariba.json") into ariba_export
 
 	when:
-		fastq_r2 != "SINGLE_END"
+		fastq_r2.toString() != "SINGLE_END"
 
 	"""
 	ariba run --force --threads ${task.cpus} ${params.refpath}/species/${species}/ariba \\
