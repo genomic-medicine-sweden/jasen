@@ -14,6 +14,7 @@ process bwa_align {
 	cpus params.cpu_bwa
 	memory '32 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_bwa
@@ -40,6 +41,7 @@ process bam_markdup {
 	cpus params.cpu_many
 	memory '32 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(bam), file(bai) from bam_markdup
@@ -57,6 +59,7 @@ process kraken {
 	cpus params.cpu_many
 	memory '48 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_kraken
@@ -87,6 +90,7 @@ process spades_assembly {
 	cpus params.cpu_spades
 	memory '16 GB'
 	time '2h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
@@ -113,6 +117,7 @@ process quast {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from asm_quast
@@ -135,6 +140,7 @@ process mlst {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from asm_mlst
@@ -158,6 +164,7 @@ process ariba {
 	cpus params.cpu_many
 	memory '16 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_ariba
@@ -187,6 +194,7 @@ process maskpolymorph {
 	memory '32 GB'
 	time '1h'
 	// cache 'deep'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta), file(fastq_r1), file(fastq_r2) from asm_maskpolymorph.join(fastq_maskpolymorph, by:[0,1,2])
@@ -218,6 +226,7 @@ process chewbbaca {
 	time '1h'
 	// cache 'deep'
 	queue='rs-fs1'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
@@ -250,6 +259,7 @@ process postalignqc {
 	cpus 4
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(bam), file(bai) from bam_postalignqc
@@ -272,6 +282,7 @@ process to_cdm {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, fastq_r1, fastq_r2, \
@@ -315,6 +326,7 @@ process to_cgviz {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(chewbbaca), \
