@@ -99,7 +99,7 @@ process spades_assembly {
 		set id, species, platform, file("${id}.fasta") into asm_quast, asm_mlst, asm_chewbbaca, asm_maskpolymorph
 
 	script:
-		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful' : '--only-assembler'
+		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful --sc' : '--only-assembler'
 		opt_reads = fastq_r2.name != 'SINGLE_END' ? "-1 $fastq_r1 -2 $fastq_r2" : "-s $fastq_r1"
 
 	"""
