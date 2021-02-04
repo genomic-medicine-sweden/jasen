@@ -351,8 +351,6 @@ process to_cgviz {
 		}
 
 	"""
-	read missingloci < $missingloci
-
 	echo "--overwrite \\
 		 --in $chewbbaca  \\
 		 --id $id \\
@@ -361,7 +359,6 @@ process to_cgviz {
 		 --quast $quast \\
 		 --mlst $mlst \\
 		 --kraken $kraken \\
-		 --aribavir $ariba \\
-		 --missingloci \$missingloci" > ${id}.cgviz
+		 --aribavir $ariba" > ${id}.cgviz
 	"""
 }
