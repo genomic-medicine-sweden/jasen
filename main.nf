@@ -88,7 +88,7 @@ process kraken {
 process spades_assembly {
 	publishDir "${OUTDIR}/assembly", mode: 'copy', overwrite: true
 	cpus params.cpu_spades
-	memory '16 GB'
+	memory '64 GB'
 	time '2h'
 	tag "$id"
 
