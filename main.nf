@@ -14,6 +14,7 @@ process bwa_align {
 	cpus params.cpu_bwa
 	memory '32 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_bwa
@@ -40,6 +41,7 @@ process bam_markdup {
 	cpus params.cpu_many
 	memory '32 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(bam), file(bai) from bam_markdup
@@ -57,6 +59,7 @@ process kraken {
 	cpus params.cpu_many
 	memory '48 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_kraken
@@ -85,8 +88,9 @@ process kraken {
 process spades_assembly {
 	publishDir "${OUTDIR}/assembly", mode: 'copy', overwrite: true
 	cpus params.cpu_spades
-	memory '16 GB'
+	memory '64 GB'
 	time '2h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_spades
@@ -95,7 +99,7 @@ process spades_assembly {
 		set id, species, platform, file("${id}.fasta") into asm_quast, asm_mlst, asm_chewbbaca, asm_maskpolymorph
 
 	script:
-		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful' : '--only-assembler'
+		opt_platform = platform == 'iontorrent' ? '--iontorrent --careful --sc' : '--only-assembler'
 		opt_reads = fastq_r2.name != 'SINGLE_END' ? "-1 $fastq_r1 -2 $fastq_r2" : "-s $fastq_r1"
 
 	"""
@@ -113,6 +117,7 @@ process quast {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from asm_quast
@@ -135,6 +140,7 @@ process mlst {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from asm_mlst
@@ -158,6 +164,7 @@ process ariba {
 	cpus params.cpu_many
 	memory '16 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(fastq_r1), file(fastq_r2) from fastq_ariba
@@ -166,7 +173,7 @@ process ariba {
 		set id, species, platform, file("${id}.ariba.json") into ariba_export
 
 	when:
-		fastq_r2 != "SINGLE_END"
+		fastq_r2.toString() != "SINGLE_END"
 
 	"""
 	ariba run --force --threads ${task.cpus} ${params.refpath}/species/${species}/ariba \\
@@ -187,6 +194,7 @@ process maskpolymorph {
 	memory '32 GB'
 	time '1h'
 	// cache 'deep'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta), file(fastq_r1), file(fastq_r2) from asm_maskpolymorph.join(fastq_maskpolymorph, by:[0,1,2])
@@ -218,6 +226,7 @@ process chewbbaca {
 	time '1h'
 	// cache 'deep'
 	queue='rs-fs1'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(asm_fasta) from maskpoly_chewbbaca
@@ -250,6 +259,7 @@ process postalignqc {
 	cpus 4
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(bam), file(bai) from bam_postalignqc
@@ -272,6 +282,7 @@ process to_cdm {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, fastq_r1, fastq_r2, \
@@ -315,6 +326,7 @@ process to_cgviz {
 	cpus 1
 	memory '8 GB'
 	time '1h'
+	tag "$id"
 
 	input:
 		set id, species, platform, file(chewbbaca), \
@@ -351,8 +363,6 @@ process to_cgviz {
 		}
 
 	"""
-	read missingloci < $missingloci
-
 	echo "--overwrite \\
 		 --in $chewbbaca  \\
 		 --id $id \\
@@ -361,7 +371,6 @@ process to_cgviz {
 		 --quast $quast \\
 		 --mlst $mlst \\
 		 --kraken $kraken \\
-		 --aribavir $ariba \\
-		 --missingloci \$missingloci" > ${id}.cgviz
+		 --aribavir $ariba" > ${id}.cgviz
 	"""
 }
