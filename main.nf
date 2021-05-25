@@ -121,8 +121,8 @@ process fastqc_readqc{
   """
 }
 
-forward = Channel.fromPath("${params.input}/*1*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
-reverse = Channel.fromPath("${params.input}/*2*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+forward = Channel.fromPath("${params.input}/*_R1_*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
+reverse = Channel.fromPath("${params.input}/*_R2_*.{fastq.gz,fsa.gz,fa.gz,fastq,fsa,fa}")
 
 
 process lane_concatination{
