@@ -3,7 +3,7 @@
    "date":"11-03-2020",
    "samples":{
       "ecoli_1K":[
-         "ecoli_1K_1.fastq.gz,ecoli_1K_2.fastq.gz"
+         "ecoli_1K_R1_001.fastq.gz,ecoli_1K_R2_001.fastq.gz"
       ]
    }
 }
