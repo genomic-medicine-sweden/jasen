@@ -6,11 +6,45 @@ The pipeline is aimed at producing data useful for epidemiological and surveilla
 In v1 the pipeline is only tested using MRSA, but it should work well with
 any bacteria having a good cgMLST scheme.
 
+## Installation
+
+Clone the pipeline repository with [nextflow-modules](https://github.com/Clinical-Genomics-Lund/nextflow-modules) submodule.
+
+``` bash
+git clone --recursive git@github.com:Clinical-Genomics-Lund/nextflow-modules.git
+```
+
+Install the database components required by the pipeline.
+
+## How to use
+
+Input files are defined in a csv file with the following format. All samples need to be of the same "type", meaning that they can be analyzed with the same analysis profile, defined in the nextflow config.
+
+``` csv
+id,read1,read2
+p1,ALL504A259_122-78386_S1_R1_001.fastq.gz,ALL504A259_122-78386_S1_R2_001.fastq.gz
+p2,ALL504A260_122-78386_S2_R1_001.fastq.gz,ALL504A260_122-78386_S2_R2_001.fastq.gz
+p3,ALL504A261_122-78386_S3_R1_001.fastq.gz,ALL504A261_122-78386_S3_R2_001.fastq.gz
+p4,ALL504A262_122-78386_S4_R1_001.fastq.gz,ALL504A262_122-78386_S4_R2_001.fastq.gz
+p5,ALL504A263_122-78386_S5_R1_001.fastq.gz,ALL504A263_122-78386_S5_R2_001.fastq.gz
+```
+
+Start a new analsis with samples defined in `test.csv` using the staphylococcus_aureus profile.
+
+``` bash
+nextflow run -bg -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=test.csv
+```
+
 ## Components
+
 ### QC
 
 Species detection is performed using [Kraken2](https://ccb.jhu.edu/software/kraken2/) together with [Bracken](https://ccb.jhu.edu/software/bracken/). 
-The database used is a standard Kraken database built with ```kraken2-build --standard --db $DBNAME```
+The database used is a standard Kraken database built with 
+
+``` bash
+kraken2-build --standard --db $DBNAME
+```
 
 Low levels of Intra-species contamination or erronous mapping is removed using bwa and filtering away 
 the heterozygous mapped bases. 
