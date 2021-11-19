@@ -1,0 +1,3 @@
+[submodule "nextflow-modules"]
+	path = nextflow-modules
+	url = git@github.com:Clinical-Genomics-Lund/nextflow-modules.git
