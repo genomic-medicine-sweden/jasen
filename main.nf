@@ -67,7 +67,7 @@ process post_align_qc {
     """
 }
 
-workflow bacterial_pipeline {
+workflow bacterial_default {
   reads = Channel .fromPath(params.csv)
     .splitCsv(header:true)
     .map{ row -> tuple(row.id, tuple(file(row.read1), file(row.read2))) }
