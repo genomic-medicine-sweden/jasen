@@ -32,7 +32,7 @@ p5,ALL504A263_122-78386_S5_R1_001.fastq.gz,ALL504A263_122-78386_S5_R2_001.fastq.
 Start a new analsis with samples defined in `test.csv` using the staphylococcus_aureus profile.
 
 ``` bash
-nextflow run -bg -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=test.csv
+nextflow run -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=test.csv
 ```
 
 ## Components
