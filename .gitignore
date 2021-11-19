@@ -1,3 +1,10 @@
-container/*.sif
+.nextflow*
+work/
+results
+container/*
 *~
 \#*
+
+# WGS files
+*.fastq.gz
+temp
