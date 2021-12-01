@@ -3,39 +3,34 @@
 // Example of an bacterial analysis pipeline
 nextflow.enable.dsl=2
 
-// define workflow parameters
-params.outdir = 'test_output'
-params.specie = 'saureus'
-
 include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two; samtools_index as samtools_index_one; samtools_index as samtools_index_two } from './nextflow-modules/modules/samtools/main.nf'
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
-include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--iontorrent', '--only-assembler'] )
+include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
 include { mask_polymorph_assembly; export_to_cdm; export_to_cgviz } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
-include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( outdir: 'ariba_test_outdir', args: ['--force'] )
+include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
 include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--col_filter', 'n', '--row_filter', 'n'] )
 include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
 include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
 include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf' addParams( args: ['-M'] )
-include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci } from './nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci } from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: ['--fr'] )
 
 
 process ariba_summary_to_json {
-  tag "${summary.simpleName}"
+  tag "${sampleName}"
   label "process_low"
   publishDir "${params.outdir}", 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
   input:
-    path summary
-    path report
+    tuple val(sampleName), path(report), path(summary) 
     path reference
 
   output:
-    path("${output}"), emit: output
+    tuple val(sampleName), path("${output}"), emit: output
 
   script:
     output = "${summary.simpleName}_export.json"
@@ -45,25 +40,24 @@ process ariba_summary_to_json {
 }
 
 process post_align_qc {
-  tag "${bam.simpleName}"
+  tag "${sampleName}"
   label "process_low"
   publishDir "${params.outdir}", 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
   input:
-    path bam
-    path index
-    path cgmlst
+    tuple val(sampleName), path(bam)
+    path bai
+    path reference
 
   output:
-    path report
+    tuple val(sampleName), path(output)
 
   script:
-    id = "${bam.simpleName}"
-    output = "${id}_bwa.qc"
+    output = "${sampleName}_bwa.qc"
     """
-    postaln_qc.pl ${bam} ${reference} ${id} ${task.cpus} > ${output}
+    postaln_qc.pl ${bam} ${reference} ${sampleName} ${task.cpus} > ${output}
     """
 }
 
@@ -80,6 +74,7 @@ workflow bacterial_default {
   // databases
   krakenDb = file(params.krakenDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
+  cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
 
 
@@ -89,37 +84,75 @@ workflow bacterial_default {
     sortedReferenceMapping = samtools_sort_one(referenceMapping, [])
     sortedReferenceMappingIdx = samtools_index_one(sortedReferenceMapping.bam)
 
-    sambamba_markdup(sortedReferenceMapping.bam, sortedReferenceMappingIdx)
-    postQc = post_align_qc(sortedReferenceMapping, sortedReferenceMappingIdx)
+    //sambamba_markdup(sortedReferenceMapping.bam, sortedReferenceMappingIdx)
+    sortedReferenceMapping.bam
+      .join(sortedReferenceMappingIdx)
+      .multiMap { id, bam, bai -> 
+          bam: tuple(id, bam)
+          bai: bai
+       }
+      .set{ post_align_qc_ch }
+    postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
 
     assembly = spades(reads)
 
     // mask polymorph regions
     assemblyBwaIdx = bwa_index(assembly)
-    assemblyMapping = bwa_mem_dedup(reads, assemblyBwaIdx)
+    reads
+      .join(assemblyBwaIdx)
+      .multiMap { id, reads, bai -> 
+          reads: tuple(id, reads)
+          bai: bai
+       }
+      .set { bwa_mem_dedup_ch }
+    assemblyMapping = bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
     sortedAssemblyMapping = samtools_sort_two(assemblyMapping, [])
     sortedAssemblyMappingIdx = samtools_index_two(sortedAssemblyMapping.bam)
-    maskedRegionsVcf = freebayes(assembly, sortedAssemblyMappingIdx, sortedAssemblyMapping.bam)
-    maskedAssembly = mask_polymorph_assembly(assembly, maskedRegionsVcf)
+    // construct freebayes input channels
+    assembly
+      .join(sortedAssemblyMapping.bam)
+      .join(sortedAssemblyMappingIdx)
+      .multiMap { id, fasta, bam, bai -> 
+          assembly: tuple(id, fasta)
+          mapping: tuple(bam, bai)
+       }
+      .set { freebayes_ch }
+    maskedRegionsVcf = freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
+    //maskedRegionsVcf = freebayes(assembly.join(sortedAssemblyMappingIdx).join(sortedAssemblyMapping.bam))
+    maskedAssembly = mask_polymorph_assembly(assembly.join(maskedRegionsVcf))
 
     // typing path
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie)
+    // split assemblies and id into two seperate channels to enable re-pairing
+    // of results and id at a later stage. This to allow batch cgmlst analysis 
+    // maskedAssembly
+    //   .multiMap { id, fasta -> 
+    //       idx: id
+    //       fasta: fasta
+    //   }
+    //   .set{ chewbbaca_fasta_ch }
+    // chewbbaca_fasta_ch.idx.collect().view()
+    // chewbbaca_fasta_ch.fasta.collect().view()
     chewbbacaResult = chewbbaca_allelecall(maskedAssembly, cgmlstDb, trainingFile)
-    chewbbaca_split_results(chewbbacaResult.results)
-    chewbbaca_split_missing_loci(chewbbacaResult.missing)
+    //chewbbaca_split_results(chewbbacaResult.results)
+    //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
     // end point
-    export_to_cdm(chewbbacaResult.missing, assemblyQc, postQc)
+    export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
     aribaReport = ariba_run(reads, aribaReferenceDir)
     aribaSummary = ariba_summary(aribaReport)
-    aribaJson = ariba_summary_to_json(aribaReport, aribaSummary, aribaReference)
+    aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
 
     // kraken path
-    krakenReport  = kraken(reads, krakenDb).report
-    brackenOutput = bracken(krakenReport, krakenDb).output
+    //krakenReport  = kraken(reads, krakenDb).report
+    //brackenOutput = bracken(krakenReport, krakenDb).output
+    //export_to_cgviz(assemblyQc, mlstResult.json, chewbbacaResult.results, krakenReport, aribaJson)
+    export_to_cgviz(assemblyQc.join(mlstResult.json).join(chewbbacaResult).join(aribaJson))
 
-    export_to_cgviz(assemblyQc, mlstResult.json, chewbbacaResult.results, krakenReport, aribaJson)
+  emit: 
+    cgviz_import = export_to_cgviz.output
+    cdm_import = export_to_cdm.output
 }
