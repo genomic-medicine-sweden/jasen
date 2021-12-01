@@ -1,0 +1,31 @@
+Bootstrap:docker
+From:python:3.7.11
+
+
+%labels
+	MAINTAINER Björn Hallström <bjorn.hallstrom@skane.se>
+	DESCRIPTION Singularity container for CMD microbiology WGS pipeline
+	VERSION 2.8.5
+
+%post
+     CHEWBBACA_VERSION=2.8.5
+     BLAST_VERSION=2.9.0
+     PRODIGAL_VERSION=2.6.3
+     MAFT_VERSION=7.480-1
+
+	 cd $HOME
+	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz"
+	 tar -xzf blast.tar.gz
+	 cd "ncbi-blast-${BLAST_VERSION}+/bin/"
+	 chmod +x *
+	 cp * /usr/bin
+	 cd $HOME
+
+	 wget -O prodigal "https://github.com/hyattpd/Prodigal/releases/download/v${PRODIGAL_VERSION}/prodigal.linux"
+	 chmod +x prodigal
+	 cp prodigal /usr/bin
+
+	 wget -O maft.deb "https://mafft.cbrc.jp/alignment/software/mafft_${MAFT_VERSION}_amd64.deb"
+	 dpkg -i maft.deb
+
+	 pip install chewbbaca=="${CHEWBBACA_VERSION}"
