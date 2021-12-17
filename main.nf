@@ -16,6 +16,8 @@ include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( a
 include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
 include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf' addParams( args: ['-M'] )
 include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci } from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: ['--fr'] )
+include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addParams( args: [] )
+include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 
 
 process ariba_summary_to_json {
@@ -76,6 +78,9 @@ workflow bacterial_default {
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
   cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
+  resfinderDb = file(params.resfinderDb, checkIfExists: true)
+  pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
+  virulenceDb = file(params.virulencefinderDb, checkIfExists: true)
 
 
   main:
@@ -146,11 +151,21 @@ workflow bacterial_default {
     aribaSummary = ariba_summary(aribaReport)
     aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
 
+    // perform resistance prediction
+    resfinderOutput = resfinder(reads, params.specie, resfinderDb, pointfinderDb)
+
     // kraken path
     //krakenReport  = kraken(reads, krakenDb).report
     //brackenOutput = bracken(krakenReport, krakenDb).output
     //export_to_cgviz(assemblyQc, mlstResult.json, chewbbacaResult.results, krakenReport, aribaJson)
-    export_to_cgviz(assemblyQc.join(mlstResult.json).join(chewbbacaResult).join(aribaJson))
+    
+    export_to_cgviz(
+      assemblyQc
+        .join(mlstResult.json)
+        .join(chewbbacaResult)
+        .join(aribaJson)
+        .join(resfinderOutput.json)
+    )
 
   emit: 
     cgviz_import = export_to_cgviz.output
