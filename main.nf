@@ -7,7 +7,7 @@ include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
 include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
-include { mask_polymorph_assembly; export_to_cdm; export_to_cgviz } from './nextflow-modules/modules/cmd/main.nf'
+include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm; export_to_cgviz } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
 include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
@@ -75,15 +75,17 @@ workflow bacterial_default {
   aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
   // databases
   krakenDb = file(params.krakenDb, checkIfExists: true)
+  mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
   cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
   resfinderDb = file(params.resfinderDb, checkIfExists: true)
   pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
-  virulenceDb = file(params.virulencefinderDb, checkIfExists: true)
+  virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
 
   main:
+    runInfo = save_analysis_metadata()
     // assembly and qc processing
     referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
     sortedReferenceMapping = samtools_sort_one(referenceMapping, [])
@@ -128,7 +130,7 @@ workflow bacterial_default {
 
     // typing path
     assemblyQc = quast(assembly, genomeReference)
-    mlstResult = mlst(assembly, params.specie)
+    mlstResult = mlst(assembly, params.specie, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
     // of results and id at a later stage. This to allow batch cgmlst analysis 
     // maskedAssembly
@@ -153,18 +155,22 @@ workflow bacterial_default {
 
     // perform resistance prediction
     resfinderOutput = resfinder(reads, params.specie, resfinderDb, pointfinderDb)
+    virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
 
     // kraken path
     //krakenReport  = kraken(reads, krakenDb).report
     //brackenOutput = bracken(krakenReport, krakenDb).output
     //export_to_cgviz(assemblyQc, mlstResult.json, chewbbacaResult.results, krakenReport, aribaJson)
     
-    export_to_cgviz(
-      assemblyQc
+    export_to_cgviz(runInfo, 
+        resfinderOutput.meta
+        .join(virulencefinderOutput.meta),
+        assemblyQc
         .join(mlstResult.json)
         .join(chewbbacaResult)
         .join(aribaJson)
         .join(resfinderOutput.json)
+        .join(virulencefinderOutput.json)
     )
 
   emit: 
