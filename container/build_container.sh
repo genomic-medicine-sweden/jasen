@@ -13,6 +13,7 @@ declare -A containers=(
     [spades]=https://depot.galaxyproject.org/singularity/spades:3.15.2--h95f258a_1
     [quast]=https://depot.galaxyproject.org/singularity/quast:5.0.2--py37pl5262h190e900_4
     [freebayes]=https://depot.galaxyproject.org/singularity/freebayes:1.3.5--py39hba5d119_3
+    [perl_json]=https://depot.galaxyproject.org/singularity/perl-json%3A4.02--pl526_0
 )
 
 for tool in "${definitions[@]}"; do

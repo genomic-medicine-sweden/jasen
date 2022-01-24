@@ -23,7 +23,7 @@ include { virulencefinder } from './nextflow-modules/modules/virulencefinder/mai
 process ariba_summary_to_json {
   tag "${sampleName}"
   label "process_low"
-  publishDir "${params.outdir}", 
+  publishDir params.outdir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -44,7 +44,7 @@ process ariba_summary_to_json {
 process post_align_qc {
   tag "${sampleName}"
   label "process_low"
-  publishDir "${params.outdir}", 
+  publishDir params.outdir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -74,7 +74,6 @@ workflow bacterial_default {
   aribaReference = file(params.aribaReference, checkIfExists: true)
   aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
   // databases
-  krakenDb = file(params.krakenDb, checkIfExists: true)
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
   cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
@@ -128,7 +127,6 @@ workflow bacterial_default {
     //maskedRegionsVcf = freebayes(assembly.join(sortedAssemblyMappingIdx).join(sortedAssemblyMapping.bam))
     maskedAssembly = mask_polymorph_assembly(assembly.join(maskedRegionsVcf))
 
-    // typing path
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
@@ -157,20 +155,26 @@ workflow bacterial_default {
     resfinderOutput = resfinder(reads, params.specie, resfinderDb, pointfinderDb)
     virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
 
-    // kraken path
-    //krakenReport  = kraken(reads, krakenDb).report
-    //brackenOutput = bracken(krakenReport, krakenDb).output
-    //export_to_cgviz(assemblyQc, mlstResult.json, chewbbacaResult.results, krakenReport, aribaJson)
-    
-    export_to_cgviz(runInfo, 
-        resfinderOutput.meta
-        .join(virulencefinderOutput.meta),
-        assemblyQc
+    // combine results for export
+    combinedOutput = assemblyQc
         .join(mlstResult.json)
         .join(chewbbacaResult)
         .join(aribaJson)
         .join(resfinderOutput.json)
         .join(virulencefinderOutput.json)
+
+    // Using kraken for species identificaiton
+    if( params.useKraken ) {
+      krakenDb = file(params.krakenDb, checkIfExists: true)
+      krakenReport = kraken(reads, krakenDb).report
+      brackenOutput = bracken(krakenReport, krakenDb).output
+      combinedOutput = combinedOutput.join(brackenOutput)
+    }
+    
+    export_to_cgviz(
+      runInfo, 
+      resfinderOutput.meta.join(virulencefinderOutput.meta),
+      combinedOutput
     )
 
   emit: 
