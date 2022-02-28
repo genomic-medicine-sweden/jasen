@@ -1,3 +1,6 @@
 [submodule "assets/prodigal_training_files"]
 	path = assets/prodigal_training_files
 	url = https://github.com/mickaelsilva/prodigal_training_files.git
+[submodule "nextflow-modules"]
+	path = nextflow-modules
+	url = git@github.com:Clinical-Genomics-Lund/nextflow-modules.git
