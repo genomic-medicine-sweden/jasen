@@ -2,8 +2,8 @@ FROM continuumio/miniconda3:latest AS condabuild
 LABEL authors="Jyotirmoy Das" \
       description="Docker image containing all requirements for the JASEN pipeline"
 
-COPY ./environment.yml /environment.yml
-COPY ./environment.yaml /env.yml
+COPY environment.yml /environment.yml
+COPY environment.yaml /env.yml
 RUN /opt/conda/bin/conda update conda && \
 /opt/conda/bin/conda install mamba -c conda-forge && \
 /opt/conda/bin/mamba env create -f /environment.yml && \
