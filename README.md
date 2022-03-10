@@ -1,4 +1,5 @@
 # JASEN
+[![Docker Image CI](https://github.com/JD2112/JASEN/actions/workflows/docker-image.yml/badge.svg)](https://github.com/JD2112/JASEN/actions/workflows/docker-image.yml)
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
 ## Setup
