@@ -18,8 +18,8 @@ ENV PATH="/miniconda/bin:$PATH"
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
-COPY main.yml /environment.yml
-COPY reporting.yml /env.yml
+COPY container/main.yml /environment.yml
+COPY container/reporting.yml /env.yml
 RUN conda update conda && \
 conda env create -f /environment.yml && \
 conda env update -f /env.yml && \
