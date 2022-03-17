@@ -1,0 +1,13 @@
+name: jasen
+channels:
+  - conda-forge
+  - r
+dependencies:
+  - r-dt=0.18
+  # Error in dyn.load(file, DLLpath = DLLpath, ...) :unable to load shared object 'stringi.so':libicui18n.so.64
+  # when using conda-forge versions of stringi and stringr, fixed with installing r-channel versions
+  # https://discourse.aicrowd.com/t/how-to-use-conda-forge-or-cran-for-packages-in-evaluation/2327/8
+  - r::r-stringi=1.4.3
+  - r::r-stringr=1.4.0
+  - r-tidyverse=1.3.1
+  - r-bookdown=0.22
