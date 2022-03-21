@@ -3,6 +3,15 @@ work/
 .nextflow/
 .nextflow*
 assets/references
+work/
+results
+container/*.sif
+*~
+\#*
+
+# WGS files
+*.fastq.gz
+temp
 
 #Index-files
 *.fasta.*
