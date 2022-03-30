@@ -20,7 +20,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ## Usage
 
 ``` bash
-./ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=assets/test_data/samplelist.csv
+./ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
 ```
 
 Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
