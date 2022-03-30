@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/genomic-medicine-sweden/JASEN">
-    <img align="left" src="artwork/logo.png"/>
+    <img src="artwork/logo.png"/>
   </a>
 </p>
 
