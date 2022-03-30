@@ -9,6 +9,11 @@ _Json producing Assembly driven microbial Sequence analysis pipeline to support 
 The pipeline is aimed at producing data useful for epidemiological and surveillance purposes. 
 The pipeline is only tested using MRSA, but it should work well with any bacteria with a stable cgMLST scheme.
 
+## Requirements
+
+* Install Conda ( https://www.anaconda.com/distribution )
+* Install nextFlow ( `curl -s https://get.nextflow.io | bash` )
+
 ## Setup
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git`
 * Install the database components required by the pipeline.
@@ -16,7 +21,7 @@ The pipeline is only tested using MRSA, but it should work well with any bacteri
 ## Usage
 
 ``` bash
-nextflow run -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=assets/test_data/samplelist.csv
+nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=assets/test_data/samplelist.csv
 ```
 
 Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
@@ -32,7 +37,7 @@ p4,ALL504A262_122-78386_S4_R1_001.fastq.gz,ALL504A262_122-78386_S4_R2_001.fastq.
 p5,ALL504A263_122-78386_S5_R1_001.fastq.gz,ALL504A263_122-78386_S5_R2_001.fastq.gz
 ```
 
-## Components
+## Component Breakdown
 
 ### QC
 
