@@ -6,12 +6,11 @@
 
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
-The pipeline is aimed at producing data useful for epidemiological and surveillance purposes. 
-The pipeline is only tested using MRSA, but it should work well with any bacteria with a stable cgMLST scheme.
+JASEN produces results for epidemiological and surveillance purposes. 
+JASEN has been tested using MRSA, but should work well with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
-* Install Conda ( https://www.anaconda.com/distribution )
 * Install nextFlow ( `curl -s https://get.nextflow.io | bash` )
 
 ## Setup
@@ -21,7 +20,7 @@ The pipeline is only tested using MRSA, but it should work well with any bacteri
 ## Usage
 
 ``` bash
-nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=assets/test_data/samplelist.csv
+./ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=assets/test_data/samplelist.csv
 ```
 
 Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
