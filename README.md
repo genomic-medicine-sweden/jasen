@@ -1,4 +1,8 @@
-# JASEN
+<p align="center">
+  <a href="https://github.com/genomic-medicine-sweden/JASEN">
+    <img src="artwork/logo.png"/>
+  </a>
+</p>
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
 The pipeline is aimed at producing data useful for epidemiological and surveillance purposes. 
