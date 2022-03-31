@@ -1,48 +1,29 @@
-# JASEN
-[![Docker Image CI](https://github.com/JD2112/JASEN/actions/workflows/docker-image.yml/badge.svg)](https://github.com/JD2112/JASEN/actions/workflows/docker-image.yml) 
+<p align="center">
+  <a href="https://github.com/genomic-medicine-sweden/JASEN">
+    <img src="artwork/logo.png"/>
+  </a>
+</p>
 
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
+JASEN produces results for epidemiological and surveillance purposes. 
+JASEN has been tested using MRSA, but should work well with any bacteria with a stable cgMLST scheme.
+
+## Requirements
+
+* Install nextFlow ( `curl -s https://get.nextflow.io | bash` )
+
 ## Setup
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git`
-* Edit `JASEN/nextflow.config`
-* _`Optionally run: bash JASEN/container/safety_exports.sh USER PREFIX`_
+* Install the database components required by the pipeline.
 
-
-## Singularity implementation
-### Image creation
-* Install Singularity (through conda or whatever)
-* `cd JASEN/container && bash build_container.sh`
-
-### Image execution
-* `singularity exec -B JASEN_INSTALL_DIR:/external -B WORKDIR:/out IMAGE nextflow -C /external/nextflow.config run /JASEN/main.nf -profile local,singularity`
-
-
-## Conda implementation
-* Install Conda ( https://www.anaconda.com/distribution )
-* Install nextFlow ( `curl -s https://get.nextflow.io | bash` )
-* `bash JASEN/setup.sh`
-* `nextflow run JASEN/main.nf -profile -local,conda`
-
-# nextflow pipeline for typing and marker detection of bacteria
-
-## Purpose
-
-The pipeline is aimed at producing data useful for epidemiological and surveillance purposes. 
-In v1 the pipeline is only tested using MRSA, but it should work well with
-any bacteria having a good cgMLST scheme.
-
-## Installation
-
-Clone the pipeline repository with [nextflow-modules](https://github.com/Clinical-Genomics-Lund/nextflow-modules) submodule.
+## Usage
 
 ``` bash
-git clone --recursive git@github.com:Clinical-Genomics-Lund/nextflow-modules.git
+./ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
 ```
 
-Install the database components required by the pipeline.
-
-## How to use
+Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
 
 Input files are defined in a csv file with the following format. All samples need to be of the same "type", meaning that they can be analyzed with the same analysis profile, defined in the nextflow config.
 
@@ -55,13 +36,7 @@ p4,ALL504A262_122-78386_S4_R1_001.fastq.gz,ALL504A262_122-78386_S4_R2_001.fastq.
 p5,ALL504A263_122-78386_S5_R1_001.fastq.gz,ALL504A263_122-78386_S5_R2_001.fastq.gz
 ```
 
-Start a new analsis with samples defined in `test.csv` using the staphylococcus_aureus profile.
-
-``` bash
-nextflow run -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.trannel.config --csv=test.csv
-```
-
-## Components
+## Component Breakdown
 
 ### QC
 
