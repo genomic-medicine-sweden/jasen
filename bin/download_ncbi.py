@@ -15,14 +15,6 @@ import zipfile
 from Bio import Entrez
 import xml.etree.ElementTree as ET
 
-parser = argparse.ArgumentParser()
-parser.add_argument('reference')
-args = parser.parse_args()
-
-reffolder = "/tmp/"
-download_ncbi(args.reference)
-
-
 def download_ncbi(reference):
 	""" Checks available references, downloads from NCBI if not present """
 	try:
@@ -54,3 +46,10 @@ def download_ncbi(reference):
 	    print(f"Downloaded reference {reference}")
 	except Exception as e:
 	    print(f"Unable to download genome '{reference}' from NCBI")
+
+parser = argparse.ArgumentParser()
+parser.add_argument('reference')
+args = parser.parse_args()
+
+reffolder = "/tmp/"
+download_ncbi(args.reference)
