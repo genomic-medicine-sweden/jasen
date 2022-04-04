@@ -15,7 +15,7 @@ import zipfile
 from Bio import Entrez
 import xml.etree.ElementTree as ET
 
-def download_ncbi(reference):
+def download_ncbi(reference, reffolder):
 	""" Checks available references, downloads from NCBI if not present """
 	try:
 	    DEVNULL = open(os.devnull, "wb")
@@ -49,7 +49,6 @@ def download_ncbi(reference):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('reference')
+parser.add_argument('download_folder')
 args = parser.parse_args()
-
-reffolder = "/tmp/"
-download_ncbi(args.reference)
+download_ncbi(args.reference, args.download_folder)
