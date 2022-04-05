@@ -11,14 +11,20 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 
 ## Requirements
 
-* Install nextFlow ( `curl -s https://get.nextflow.io | bash` )
+* Singularity
+* Nextflow
+* (Optional): Conda
 
-## Setup
+## Conda deployment (self-contained)
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git`
-* Install the database components required by the pipeline.
+* `cd JASEN`
+* `curl -s https://get.nextflow.io | bash`
+* `bash deploy/deploy_conda/setup.sh`
+* `bash deploy/deploy_references.sh` 
 
 ## Usage
 
+### Simple self-test
 ``` bash
 ./nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
 ```
