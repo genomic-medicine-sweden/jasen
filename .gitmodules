@@ -10,6 +10,6 @@
 [submodule "assets/pointfinder_db"]
         path = assets/pointfinder_db
         url = https://bitbucket.org/genomicepidemiology/pointfinder_db.git
-[submodule "assets/resfinder_db"]
-        path = assets/resfinder_db
-        url = https://bitbucket.org/genomicepidemiology/resfinder_db.git
+[submodule "assets/virulencefinder_db"]
+        path = assets/virulencefinder_db
+        url = https://bitbucket.org/genomicepidemiology/virulencefinder_db.git
