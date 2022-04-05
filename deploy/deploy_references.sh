@@ -17,22 +17,22 @@ cd ../..
 python bin/download_ncbi.py NC_007795.1 assets/genomes
 mkdir assets/cgmlst/stapylococcus_aureus &> /dev/null
 cd assets/cgmlst/stapylococcus_aureus  
-wget https://www.cgmlst.org/ncs/schema/141106/alleles/
+wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate
 unzip index.html
-cd ../..
+cd ../../..
 
 #EColi
 python bin/download_ncbi.py GCF_000008865.2 assets/genomes
 mkdir assets/cgmlst/escherichia_coli &> /dev/null
 cd assets/cgmlst/escherichia_coli
-wget https://www.cgmlst.org/ncs/schema/5064703/alleles/
+wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate
 unzip index.html
-cd ../..
+cd ../../..
 
 #KPneumoniae
 python bin/download_ncbi.py NC_016845.1 assets/genomes
 mkdir assets/cgmlst/klebsiella_pneumoniae &> /dev/null
 cd assets/cgmlst/klebsiella_pneumoniae
-wget https://www.cgmlst.org/ncs/schema/2187931/alleles/
+wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate
 unzip index.html
-cd ../..
+cd ../../..
