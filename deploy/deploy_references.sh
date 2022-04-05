@@ -1,7 +1,11 @@
+#!/bin/bash
+
 mkdir assets
 mkdir assets/genomes
 mkdir assets/card
 mkdir assets/cgmlst
+
+conda activate jasen
 
 bash bin/download_ncbi.py NC_007795.1 assets/genomes
 
