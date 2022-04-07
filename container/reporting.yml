@@ -4,7 +4,7 @@ channels:
   - bioconda
   - r
 dependencies:
-  - r-dt=0.2
+  - r-dt=0.18
   - r::r-stringi=1.4.3
   - r::r-stringr=1.4.0
   - r-tidyverse=1.3.1
