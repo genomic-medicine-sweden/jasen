@@ -21,6 +21,8 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 * `curl -s https://get.nextflow.io | bash`
 * `bash deploy/deploy_conda/setup.sh`
 * `bash deploy/deploy_references.sh` 
+* `singularity remote login`
+* `bash container/build_container.sh`
 
 ## Usage
 
