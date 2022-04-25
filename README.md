@@ -66,8 +66,8 @@ A value on the evenness of coverage is calculated as an [interquartile range](ht
 
 ### Epidemiological typing
 
-For de novo asspembly [SPAdes](http://cab.spbu.ru/software/spades/) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
-is used for extraxting QC data from the assembly.
+For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
+is used for extracting QC data from the assembly.
 
 The cgMLST reference scheme used, is branched off [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/) 
 At the moment this fork is not synced back with new allele numbers. For extracting alleles [chewBBACA](https://github.com/B-UMMI/chewBBACA/wiki) 
