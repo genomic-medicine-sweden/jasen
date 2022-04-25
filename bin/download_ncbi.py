@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # download_ncbi.py <REFERENCE name> to download the refseq fastq from NCBI
 
@@ -24,10 +24,10 @@ def download_ncbi(reference, reffolder):
 		db="nucleotide", id=reference, rettype="fasta", retmod="text"
 	    )
 	    sequence = record.read()
-	    output = "{}/{}.fasta".format(reffolder, reference)
+	    output = f"{reffolder}/{reference}.fasta"
 	    with open(output, "w") as f:
                 f.write(sequence)
-	    bwaindex = "bwa index {}".format(output)
+	    bwaindex = f"bwa index {output}"
 	    proc = subprocess.Popen(
 		bwaindex.split(),
 		cwd=reffolder,
@@ -35,7 +35,7 @@ def download_ncbi(reference, reffolder):
 		stderr=DEVNULL,
 	    )
 	    out, err = proc.communicate()
-	    samindex = "samtools faidx {}".format(output)
+	    samindex = f"samtools faidx {output}"
 	    proc = subprocess.Popen(
 		samindex.split(),
 		cwd=reffolder,
