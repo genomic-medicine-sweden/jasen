@@ -34,7 +34,7 @@ for tool in "${definitions[@]}"; do
 done;
 echo "Download pre built singularity containers";
 for tool in ${!containers[@]}; do
-    version=$(echo "${containers[$tool]}" | sed -r "s/.*://" | sed "s/--.*//")
+    version=$(echo "${containers[$tool]}" | sed -E "s/.*:|.*%//" | sed "s/--.*//")
     output_file="${tool}_${version}.sif";
     if [[ ! -f $output_file ]]; then
         echo "Downloading ${tool}";
