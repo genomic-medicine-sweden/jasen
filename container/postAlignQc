@@ -13,7 +13,7 @@ From:nfcore/base:1.9
 	umask 0002
 
 %files
-        post-align-qc-environment.yml /
+        ./post-align-qc-environment.yml /
 
 %post
 	rm -rf /var/lib/apt/lists/*

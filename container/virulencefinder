@@ -13,7 +13,7 @@ From:python:3.8
      BLAST_VERSION=2.9.0
 
 	 agt-get update &&    \
-	 agt-get upgade -y && \
+	 agt-get upgrade -y && \
 	 apt-get install -y --no-cache-dir git && \
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
 

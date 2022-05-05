@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-definitions=(chewbbaca bedtools sambamba postAlignQc resfinder virulencefinder)
+definitions=(chewbbaca postAlignQc resfinder virulencefinder)
 declare -A containers=( 
     [bwa]=https://depot.galaxyproject.org/singularity/bwa:0.7.17--pl5.22.0_2
     [kraken]=https://depot.galaxyproject.org/singularity/kraken:1.1.1--pl5262h7d875b9_5
@@ -34,11 +34,11 @@ for tool in "${definitions[@]}"; do
 done;
 echo "Download pre built singularity containers";
 for tool in ${!containers[@]}; do
-    version=$(echo "${containers[$tool]}" | sed -r "s/.*://" | sed "s/--.*//")
+    version=$(echo "${containers[$tool]}" | sed -E "s/.*:|.*%//" | sed "s/--.*//")
     output_file="${tool}_${version}.sif";
     if [[ ! -f $output_file ]]; then
         echo "Downloading ${tool}";
-        wget -O "${output_file}" "${containers[$tool]}"
+        wget -O "${output_file}" "${containers[$tool]}" "--no-check-certificate"
         ln -s "${output_file}" "${output_file%%_*}.sif"
     else
         echo "Tool ${tool} already exist, skipping...";

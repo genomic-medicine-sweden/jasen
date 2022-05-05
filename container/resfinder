@@ -13,13 +13,13 @@ From:python:3.8
      BLAST_VERSION=2.9.0
 
 	 agt-get update &&    \
-	 agt-get upgade -y && \
+	 agt-get upgrade -y && \
 	 apt-get install -y --no-cache-dir git && \
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
 
 	 cd $HOME &&  \
 	 git clone -b "${RESFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/resfinder.git && \
-	 ln -s "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
+	 cp "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
 	 pip3 install tabulate biopython cgecore gitpython python-dateutil
 
 	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
