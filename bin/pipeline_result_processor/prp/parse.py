@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 """Combine output files from pipeline into a standardized json output."""
 
@@ -11,6 +12,7 @@ from typing import Dict, Any, List, Optional
 from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import asdict as dc_asdict
+from .models.sample import AssemblyQc
 
 dictConfig(
     {
@@ -78,18 +80,6 @@ class VariantBase:
 class ResistanceVariant(VariantBase, DatabaseReference):
     """Container for resistance variant information"""
     phenotypes: List[str]
-
-
-@dataclass
-class AssemblyQc:
-    total_length: int
-    reference_length: int
-    largest_contig: int
-    n_contigs: int
-    n50: int
-    assembly_gc: float
-    reference_gc: float
-    duplication_ratio: float
 
 
 @dataclass
@@ -390,7 +380,3 @@ def cli(sample_id, run_metadata, quast, process_metadata, kraken, mlst, cgmlst, 
 
     LOG.info(f"Storing results to: {output.name}")
     json.dump(results, output, indent=2)
-
-
-if __name__ == "__main__":
-    cli()
