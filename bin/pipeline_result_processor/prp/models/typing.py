@@ -4,7 +4,13 @@ from typing import Dict, Optional
 
 from pydantic import Field
 
+from enum import Enum
 from .base import RWModel
+
+
+class TypingMethod(Enum):
+    mlst = "mlst"
+    cgmlst = "cgmlst"
 
 
 class ResultMlstBase(RWModel):

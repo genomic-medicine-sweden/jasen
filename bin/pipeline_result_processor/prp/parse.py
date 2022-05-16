@@ -5,32 +5,22 @@ import csv
 import json
 import logging
 from collections import defaultdict
-from dataclasses import dataclass
-from logging.config import dictConfig
 from typing import Any, Dict, Tuple
+from unittest import result
 
 import click
 import pandas as pd
 
 from .models.metadata import SoupVersion, SoupVersions
 from .models.phenotype import (PhenotypeResult, ResistanceGene,
-                               ResistanceVariant, VirulenceGene)
-from .models.sample import AssemblyQc
-from .models.typing import TypingResultCgMlst, TypingResultMlst
+                               ResistanceVariant, VirulenceGene, PhenotypeType)
+from .models.sample import AssemblyQc, MethodIndex
+from .models.typing import TypingResultCgMlst, TypingResultMlst, TypingMethod
 
 LOG = logging.getLogger(__name__)
 
 
 SPP_MIN_READ_FRAC = 0.001
-
-
-def _normalize_names(name: str) -> str:
-    """Normalize names to be easier to computationally process.
-
-    - space to underline
-    - ensure all lowercase
-    """
-    return name.replace(" ", "_").lower()
 
 
 def parse_qust_results(file: str) -> AssemblyQc:
@@ -72,7 +62,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
             for gene, allele in result["alleles"].items()
         },
     )
-    return result_obj
+    return MethodIndex(type=TypingMethod.mlst, result=result_obj)
 
 
 def parse_cgmlst_results(
@@ -116,7 +106,7 @@ def parse_cgmlst_results(
         n_missing=sum(1 for a in alleles if a in ERRORS),
         alleles=dict(zip(allele_names, corrected_alleles)),
     )
-    return results
+    return MethodIndex(type=TypingMethod.cgmlst, result=results)
 
 
 def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
@@ -138,7 +128,7 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
     return {"susceptible": list(susceptible), "resistant": list(resistant)}
 
 
-def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None):
+def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceGene, ...]:
     """Get resistance genes from resfinder result."""
     results = []
     for info in resfinder_result["genes"].values():
@@ -171,7 +161,7 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None):
     return results
 
 
-def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None):
+def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from resfinder result."""
     results = []
     for info in resfinder_result["seq_variations"].values():
@@ -224,7 +214,7 @@ def parse_resistance_pred(
     ]
     # parse resistance based on the category
     categories = {
-        "chemical": [
+        PhenotypeType.chem: [
             "formaldehyde",
             "benzylkonium chloride",
             "ethidium bromide",
@@ -232,28 +222,20 @@ def parse_resistance_pred(
             "cetylpyridinium chloride",
             "hydrogen peroxide",
         ],
-        "environmental": ["temperature"],
+        PhenotypeType.env: ["temperature"],
     }
-    categories["amr"] = list(
+    categories[PhenotypeType.amr] = list(
         {k for k in prediction["phenotypes"].keys()}
-        - set(categories["chemical"] + categories["environmental"])
+        - set(categories[PhenotypeType.chem] + categories[PhenotypeType.env])
     )
 
     # parse resistance
     resistance = PhenotypeResult(
-        **{
-            "phenotypes": _get_resfinder_amr_sr_profie(
-                prediction, categories[resistance_category]
-            ),
-            "genes": _parse_resfinder_amr_genes(
-                prediction, categories[resistance_category]
-            ),
-            "mutations": _parse_resfinder_amr_variants(
-                prediction, categories[resistance_category]
-            ),
-        }
+        phenotypes=_get_resfinder_amr_sr_profie(prediction, categories[resistance_category]),
+        genes=_parse_resfinder_amr_genes(prediction, categories[resistance_category]),
+        mutations=_parse_resfinder_amr_variants(prediction, categories[resistance_category])
     )
-    return meta, resistance
+    return MethodIndex(type=resistance_category, result=resistance)
 
 
 def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
@@ -327,7 +309,7 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
     else:
         results: PhenotypeResult = _parse_ariba_results(pred)
 
-    return results
+    return MethodIndex(type=PhenotypeType.vir, result=results)
 
 
 def parse_species_pred(file: str):

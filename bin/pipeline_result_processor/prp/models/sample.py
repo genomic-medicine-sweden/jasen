@@ -1,15 +1,13 @@
 """Data model definition of input/ output data"""
 from enum import Enum
-from multiprocessing.sharedctypes import Value
 from typing import List
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
-from .base import DBModelMixin, RWModel
+from .base import RWModel
 from .metadata import RunMetadata
 from .phenotype import PhenotypeResult, PhenotypeType
-from .tags import Tag
-from .typing import TypingResultCgMlst, TypingResultMlst
+from .typing import TypingResultCgMlst, TypingResultMlst, TypingMethod
 
 SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
 
@@ -21,11 +19,6 @@ class TaxLevel(Enum):
     F = "family"
     G = "genus"
     S = "specie"
-
-
-class TypingMethod(Enum):
-    mlst = "mlst"
-    cgmlst = "cgmlst"
 
 
 class AssemblyQc(BaseModel):
@@ -56,6 +49,11 @@ class SpeciesPrediction(RWModel):
     fraction_total_reads: float = Field(..., alias="fractionTotalReads")
 
 
+class MethodIndex(RWModel):
+    type: PhenotypeType | TypingMethod
+    result: PhenotypeResult | TypingResultMlst | TypingResultCgMlst
+
+
 class SampleBase(RWModel):
     """Base datamodel for sample data structure"""
 
@@ -70,17 +68,10 @@ class SampleBase(RWModel):
 class PipelineResult(SampleBase):
     """Input format of sample object from pipeline."""
 
-    output_version: int = Field(..., alias="outputVersion", gt=0)
+    schema_version: int = Field(..., alias="schemaVersion", gt=0)
     # optional typing
-    mlst: TypingResultMlst
-    cgmlst: TypingResultCgMlst
+    typing_result: List[MethodIndex] = Field(..., alias="typingResult")
     # optional phenotype prediction
-    antimicrobial_resistance: PhenotypeResult
-    chemical_resistance: PhenotypeResult
-    environmental_resistance: PhenotypeResult
-    virulence: PhenotypeResult
-
-
-class MethodIndex(RWModel):
-    type: PhenotypeType | TypingMethod
-    result: PhenotypeResult | TypingResultMlst | TypingResultCgMlst
+    phenotype_result: List[MethodIndex] = Field(
+        ..., alias="phenotypeResult"
+    )

@@ -3,11 +3,11 @@ import logging
 from logging.config import dictConfig
 
 import click
-import pandas as pd
+from .models.phenotype import PhenotypeType
 from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
-from .models.sample import PipelineResult
+from .models.sample import MethodIndex, PipelineResult
 from .parse import (parse_cgmlst_results, parse_mlst_results,
                     parse_qust_results, parse_resistance_pred,
                     parse_species_pred, parse_virulence_pred)
@@ -83,6 +83,8 @@ def create_output(
         "sample_id": sample_id,
         "run_metadata": {"run": run_info},
         "qc": {},
+        "typing_result": [],
+        "phenotype_result": []
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -99,23 +101,23 @@ def create_output(
         results["qc"]["assembly"] = parse_qust_results(quast)
     # typing
     if mlst:
-        results["mlst"] = parse_mlst_results(mlst)
+        res: MethodIndex = parse_mlst_results(mlst)
+        results["typing_result"].append(res)
     if cgmlst:
-        results["cgmlst"] = parse_cgmlst_results(cgmlst)
+        res: MethodIndex = parse_cgmlst_results(cgmlst)
+        results["typing_result"].append(res)
 
     # resistance of different types
     if resistance:
         pred_res = json.load(resistance)
-        _, amr = parse_resistance_pred(pred_res, "amr")
-        results["antimicrobial_resistance"] = amr
-        results["chemical_resistance"] = parse_resistance_pred(pred_res, "chemical")[1]
-        results["environmental_resistance"] = parse_resistance_pred(
-            pred_res, "environmental"
-        )[1]
+        amr: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.amr)
+        chem: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.chem)
+        env: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.env)
+        results["phenotype_result"].extend([amr, chem, env])
     # get virulence factors in sample
     if virulence:
-        res = parse_virulence_pred(virulence)
-        results["virulence"] = res
+        vir: MethodIndex = parse_virulence_pred(virulence)
+        results["phenotype_result"].append(vir)
 
     if kraken:
         LOG.info("Parse kraken results")
@@ -124,10 +126,11 @@ def create_output(
         results["species_prediction"] = []
 
     try:
-        output_data = PipelineResult(output_version=OUTPUT_SCHEMA_VERSION, **results)
+        output_data = PipelineResult(schema_version=OUTPUT_SCHEMA_VERSION, **results)
     except ValidationError as err:
         click.secho("Input failed Validation", fg="red")
         click.secho(err)
+        raise click.Abort
     LOG.info(f"Storing results to: {output.name}")
     output.write(output_data.json(indent=2))
     click.secho("Finished generating pipeline output", fg="green")
