@@ -72,6 +72,4 @@ class PipelineResult(SampleBase):
     # optional typing
     typing_result: List[MethodIndex] = Field(..., alias="typingResult")
     # optional phenotype prediction
-    phenotype_result: List[MethodIndex] = Field(
-        ..., alias="phenotypeResult"
-    )
+    phenotype_result: List[MethodIndex] = Field(..., alias="phenotypeResult")

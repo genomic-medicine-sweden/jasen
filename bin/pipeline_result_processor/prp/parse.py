@@ -12,8 +12,13 @@ import click
 import pandas as pd
 
 from .models.metadata import SoupVersion, SoupVersions
-from .models.phenotype import (PhenotypeResult, ResistanceGene,
-                               ResistanceVariant, VirulenceGene, PhenotypeType)
+from .models.phenotype import (
+    PhenotypeResult,
+    ResistanceGene,
+    ResistanceVariant,
+    VirulenceGene,
+    PhenotypeType,
+)
 from .models.sample import AssemblyQc, MethodIndex
 from .models.typing import TypingResultCgMlst, TypingResultMlst, TypingMethod
 
@@ -128,7 +133,9 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
     return {"susceptible": list(susceptible), "resistant": list(resistant)}
 
 
-def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceGene, ...]:
+def _parse_resfinder_amr_genes(
+    resfinder_result, limit_to_phenotypes=None
+) -> Tuple[ResistanceGene, ...]:
     """Get resistance genes from resfinder result."""
     results = []
     for info in resfinder_result["genes"].values():
@@ -161,7 +168,9 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tu
     return results
 
 
-def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceVariant, ...]:
+def _parse_resfinder_amr_variants(
+    resfinder_result, limit_to_phenotypes=None
+) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from resfinder result."""
     results = []
     for info in resfinder_result["seq_variations"].values():
@@ -231,9 +240,13 @@ def parse_resistance_pred(
 
     # parse resistance
     resistance = PhenotypeResult(
-        phenotypes=_get_resfinder_amr_sr_profie(prediction, categories[resistance_category]),
+        phenotypes=_get_resfinder_amr_sr_profie(
+            prediction, categories[resistance_category]
+        ),
         genes=_parse_resfinder_amr_genes(prediction, categories[resistance_category]),
-        mutations=_parse_resfinder_amr_variants(prediction, categories[resistance_category])
+        mutations=_parse_resfinder_amr_variants(
+            prediction, categories[resistance_category]
+        ),
     )
     return MethodIndex(type=resistance_category, result=resistance)
 

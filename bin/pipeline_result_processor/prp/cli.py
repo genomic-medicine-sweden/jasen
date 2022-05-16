@@ -8,9 +8,14 @@ from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
 from .models.sample import MethodIndex, PipelineResult
-from .parse import (parse_cgmlst_results, parse_mlst_results,
-                    parse_qust_results, parse_resistance_pred,
-                    parse_species_pred, parse_virulence_pred)
+from .parse import (
+    parse_cgmlst_results,
+    parse_mlst_results,
+    parse_qust_results,
+    parse_resistance_pred,
+    parse_species_pred,
+    parse_virulence_pred,
+)
 
 dictConfig(
     {
@@ -84,7 +89,7 @@ def create_output(
         "run_metadata": {"run": run_info},
         "qc": {},
         "typing_result": [],
-        "phenotype_result": []
+        "phenotype_result": [],
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
