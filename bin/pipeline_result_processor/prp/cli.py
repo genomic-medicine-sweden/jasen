@@ -1,6 +1,5 @@
 import json
 import logging
-from logging.config import dictConfig
 
 import click
 from pydantic import ValidationError
@@ -17,17 +16,9 @@ from .parse import (
     parse_virulence_pred,
 )
 
-dictConfig(
-    {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "default": {
-                "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-            }
-        },
-        "root": {"level": "INFO"},
-    }
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
 )
 LOG = logging.getLogger(__name__)
 
@@ -82,6 +73,7 @@ def create_output(
 ):
     """Combine pipeline results into a standardized json output file."""
     # base results
+    LOG.info("Start generating pipeline result json")
 
     run_info = RunInformation(**json.load(run_metadata))
     results = {
