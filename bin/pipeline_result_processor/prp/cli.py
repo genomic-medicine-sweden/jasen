@@ -3,7 +3,11 @@ import logging
 from logging.config import dictConfig
 import pandas as pd
 import json
-from .parse import parse_resistance_pred, parse_virulence_pred, parse_qust_results, parse_cgmlst_results, parse_mlst_results
+from .parse import parse_resistance_pred, parse_virulence_pred, parse_qust_results, parse_cgmlst_results, parse_mlst_results, parse_species_pred
+from .models.metadata import RunInformation, SoupVersion
+from .models.sample import PipelineResult
+from pydantic import ValidationError
+
 
 dictConfig(
     {
@@ -19,9 +23,7 @@ dictConfig(
 )
 LOG = logging.getLogger(__name__)
 
-
-SPP_MIN_READ_FRAC = 0.001
-
+OUTPUT_SCHEMA_VERSION = 1
 
 @click.group()
 def cli():
@@ -42,22 +44,31 @@ def cli():
 def create_output(sample_id, run_metadata, quast, process_metadata, kraken, mlst, cgmlst, virulence, resistance, output):
     """Combine pipeline results into a standardized json output file."""
     # base results
+
+    run_info = RunInformation(**json.load(run_metadata))
     results = {
         'sample_id': sample_id,
-        'meta': {'run': json.load(run_metadata)},
+        'run_metadata': {'run': run_info},
         'qc': {},
     }
-    import pdb; pdb.set_trace()
     if process_metadata:
-        results['meta']['databases'] = [json.load(jf) for jf in process_metadata]
+        db_info: List[SoupVersion] = []
+        for soup in process_metadata:
+            dbs = json.load(soup)
+            if isinstance(dbs, (list, tuple)):
+                for db in dbs:
+                    db_info.append(SoupVersion(**db))
+            else:
+                db_info.append(SoupVersion(**dbs))
+        results['run_metadata']['databases'] = db_info
 
     if quast:
-        results['qc']['assembly'] = dc_asdict(parse_qust_results(quast))
+        results['qc']['assembly'] = parse_qust_results(quast)
     # typing
     if mlst:
-        results['mlst'] = dc_asdict(parse_mlst_results(mlst))
+        results['mlst'] = parse_mlst_results(mlst)
     if cgmlst:
-        results['cgmlst'] = dc_asdict(parse_cgmlst_results(cgmlst))
+        results['cgmlst'] = parse_cgmlst_results(cgmlst)
 
     # resistance of different types
     if resistance:
@@ -68,14 +79,20 @@ def create_output(sample_id, run_metadata, quast, process_metadata, kraken, mlst
         results['environmental_resistance'] = parse_resistance_pred(pred_res, 'environmental')[1]
     # get virulence factors in sample
     if virulence:
-        results['virulence'] = parse_virulence_pred(virulence)
+        res = parse_virulence_pred(virulence)
+        results['virulence'] = res
 
     if kraken:
         LOG.info('Parse kraken results')
-        specie_pred = pd.read_csv(kraken, sep='\t').sort_values('fraction_total_reads', ascending=False)
-        specie_pred = specie_pred[specie_pred['fraction_total_reads'] > SPP_MIN_READ_FRAC]
-        # limit the number of predicted species
-        results['species_prediction'] = specie_pred.to_dict(orient='records')
+        results['species_prediction'] = parse_species_pred(kraken)
+    else:
+        results['species_prediction'] = []
 
+    try:
+        output_data = PipelineResult(output_version=OUTPUT_SCHEMA_VERSION, **results)
+    except ValidationError as err:
+        click.secho("Input failed Validation", fg="red")
+        click.secho(err)
     LOG.info(f"Storing results to: {output.name}")
-    json.dump(results, output, indent=2)
+    output.write(output_data.json(indent=2))
+    click.secho("Finished generating pipeline output", fg="green")
