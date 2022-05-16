@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from .base import RWModel
 from .metadata import RunMetadata
 from .phenotype import PhenotypeResult, PhenotypeType
-from .typing import TypingResultCgMlst, TypingResultMlst, TypingMethod
+from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
 SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
 

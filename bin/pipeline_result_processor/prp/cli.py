@@ -3,10 +3,10 @@ import logging
 from logging.config import dictConfig
 
 import click
-from .models.phenotype import PhenotypeType
 from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
+from .models.phenotype import PhenotypeType
 from .models.sample import MethodIndex, PipelineResult
 from .parse import (
     parse_cgmlst_results,

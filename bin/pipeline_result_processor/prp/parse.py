@@ -14,13 +14,13 @@ import pandas as pd
 from .models.metadata import SoupVersion, SoupVersions
 from .models.phenotype import (
     PhenotypeResult,
+    PhenotypeType,
     ResistanceGene,
     ResistanceVariant,
     VirulenceGene,
-    PhenotypeType,
 )
 from .models.sample import AssemblyQc, MethodIndex
-from .models.typing import TypingResultCgMlst, TypingResultMlst, TypingMethod
+from .models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
 LOG = logging.getLogger(__name__)
 

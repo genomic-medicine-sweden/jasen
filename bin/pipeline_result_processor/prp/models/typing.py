@@ -1,10 +1,10 @@
 """Typing related data models"""
 
+from enum import Enum
 from typing import Dict, Optional
 
 from pydantic import Field
 
-from enum import Enum
 from .base import RWModel
 
 
