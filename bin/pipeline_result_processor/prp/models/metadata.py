@@ -1,9 +1,11 @@
 """Metadata models."""
-from lib2to3.pytree import Base
-from pydantic import BaseModel, Field
-from enum import Enum
 from datetime import datetime
-from typing import List, Dict
+from enum import Enum
+from lib2to3.pytree import Base
+from typing import Dict, List
+
+from pydantic import BaseModel, Field
+
 from .base import RWModel
 
 
@@ -22,6 +24,7 @@ class SoupVersion(BaseModel):
 
 class RunInformation(RWModel):
     """Store information on a run how the run was conducted."""
+
     pipeline: str
     version: str
     commit: str

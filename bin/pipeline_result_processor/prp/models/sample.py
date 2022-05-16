@@ -6,10 +6,10 @@ from typing import List
 from pydantic import BaseModel, Field, validator
 
 from .base import DBModelMixin, RWModel
+from .metadata import RunMetadata
+from .phenotype import PhenotypeResult, PhenotypeType
 from .tags import Tag
 from .typing import TypingResultCgMlst, TypingResultMlst
-from .phenotype import PhenotypeResult, PhenotypeType
-from .metadata import RunMetadata
 
 SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
 

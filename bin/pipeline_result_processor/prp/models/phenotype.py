@@ -1,7 +1,9 @@
 """Datamodels used for prediction results."""
-from pydantic import BaseModel, Field
 from enum import Enum
-from typing import List, Dict
+from typing import Dict, List
+
+from pydantic import BaseModel, Field
+
 from .base import RWModel
 
 
