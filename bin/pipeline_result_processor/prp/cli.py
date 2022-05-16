@@ -96,3 +96,24 @@ def create_output(sample_id, run_metadata, quast, process_metadata, kraken, mlst
     LOG.info(f"Storing results to: {output.name}")
     output.write(output_data.json(indent=2))
     click.secho("Finished generating pipeline output", fg="green")
+
+
+@cli.command()
+@click.argument("output", type=click.File("w"), default="-")
+def print_schema(output):
+    """Print Pipeline result output format schema."""
+    click.secho(PipelineResult.schema_json(indent=2))
+
+
+@cli.command()
+@click.argument("output", type=click.File("r"))
+def validate(output):
+    """Validate output format of result json file."""
+    js = json.load(output)
+    try:
+        PipelineResult(**js)
+    except ValidationError as err:
+        click.secho("Invalid file format X", fg="red")
+        click.secho(err)
+    else:
+        click.secho(f'The file "{output.name}" is valid', fg="green")
