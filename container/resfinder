@@ -5,10 +5,10 @@ From:python:3.8
 %labels
 	MAINTAINER Markus Johansson <markus.h.johansson@skane.se>
 	DESCRIPTION Singularity container for CMD microbiology WGS pipeline
-	VERSION 4.1.5
+	VERSION 4.1.11
 
 %post
-     RESFINDER_VERSION=4.1.5
+     RESFINDER_VERSION=4.1.11
      KMA_VERSION=1.3.27
      BLAST_VERSION=2.9.0
 
@@ -19,7 +19,7 @@ From:python:3.8
 
 	 cd $HOME &&  \
 	 git clone -b "${RESFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/resfinder.git && \
-	 cp "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
+	 ln -s "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
 	 pip3 install tabulate biopython cgecore gitpython python-dateutil
 
 	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
