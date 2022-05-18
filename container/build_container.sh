@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-definitions=(chewbbaca postAlignQc resfinder virulencefinder)
+definitions=(chewbbaca postAlignQc resfinder virulencefinder pythonScripts)
 declare -A containers=( 
     [bwa]=https://depot.galaxyproject.org/singularity/bwa:0.7.17--pl5.22.0_2
     [kraken]=https://depot.galaxyproject.org/singularity/kraken:1.1.1--pl5262h7d875b9_5
