@@ -39,8 +39,8 @@ From:nfcore/base:latest
          /opt/conda/bin/conda config --set auto_activate_base true
 
          /opt/conda/bin/conda create -n jasen && \
-         . /opt/conda/bin/activate jasen && \
-         pip3 install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil && \
+         . /opt/conda/bin/activate jasen
+         pip install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
          . /opt/conda/bin/deactivate
 
 	 cd $HOME &&  \
