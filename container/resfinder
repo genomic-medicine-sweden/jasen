@@ -4,12 +4,11 @@ From:nfcore/base:latest
 %environment
         export PYTHONNOUSERSITE=True
         export PATH="/opt/conda/bin:/usr/bin:$PATH"
-        export PATH="/opt/conda/envs/jasen/bin:$PATH"
+        export PATH="/opt/conda/envs/jasen/bin:/usr/src/:/usr/src/cge:$PATH"
         export BASH_ENV="/conda_init.sh:$BASH_ENV"
         export TMPDIR=/tmp
         export TEMPDIR=/tmp
-        export PYTHONPATH="/opt/conda/lib/python3.8/site-packages"
-
+        export PYTHONPATH="/usr/src"
 
 %labels
 	MAINTAINER Markus Johansson <markus.h.johansson@skane.se>

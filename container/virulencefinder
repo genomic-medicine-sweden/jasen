@@ -30,24 +30,30 @@ From:nfcore/base:latest
          localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 
-         /opt/conda/bin/conda init bash && \
+         # /opt/conda/bin/conda init bash && \
          . /opt/conda/etc/profile.d/conda.sh && \
-         /opt/conda/bin/conda config --set auto_activate_base true
+         # /opt/conda/bin/conda config --set auto_activate_base true
 
-         /opt/conda/bin/conda create -n jasen 
+         # /opt/conda/bin/conda create -n jasen 
 
          pip3 install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
 
-	 cd /tmp && \
-         rm -r virulencefinder && \
-         git clone -b "${VIRULENCEFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/virulencefinder.git && \
-	 ln -s "/tmp/virulencefinder/virulencefinder.py" /usr/bin && \
-         cd $HOME
+         # cd $HOME &&  \
+         # rm -r virulencefinder
 
-	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
-	 cd resfinder/cge/kma &&                                                                              \
-	 make &&                                                                                              \
-	 ln -s $(pwd)/kma $(pwd)/kma_index $(pwd)/kma_shm $(pwd)/kma_update /usr/bin
+         cd $HOME && \
+         git clone -b "${VIRULENCEFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/virulencefinder.git && \
+         cd virulencefinder && \
+         cp virulencefinder.py /usr/bin/virulencefinder.py && \
+         cp virulencefinder.py /usr/src/virulencefinder.py && \
+
+
+         cd $HOME && \
+         git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git && \
+         cd kma &&                                                                              \
+         make &&                                                                                              \
+         cp kma* /usr/bin
+         cp kma* /bin/
 
 	 cd $HOME &&                                                                                                                                    \
 	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
@@ -58,7 +64,7 @@ From:nfcore/base:latest
 	 cd $HOME
 
 %runscript
-         . /opt/conda/etc/profile.d/conda.sh
-         . /opt/conda/bin/activate jasen
+         # . /opt/conda/etc/profile.d/conda.sh
+         #. /opt/conda/bin/activate jasen
          exec "$@"`
-         . /opt/conda/bin/deactivate
+         # . /opt/conda/bin/deactivate
