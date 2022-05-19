@@ -49,8 +49,8 @@ From:nfcore/base:latest
 
 
          cd $HOME && \
-         git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git && \
-         cd kma &&                                                                              \
+         git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
+         cd resfinder/cge/kma &&                                                                              \
          make &&                                                                                              \
          cp kma* /usr/bin
          cp kma* /bin/

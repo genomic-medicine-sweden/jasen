@@ -1,2 +1,2 @@
 id,read1,read2
-p1,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+p1,/home/xsylis/code/202203/JASEN-cleanup/JASEN/assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,/home/xsylis/code/202203/JASEN-cleanup/JASEN/assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
