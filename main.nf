@@ -80,7 +80,7 @@ process create_analysis_result {
     path(output)
 
   script:
-    output = "${sampleName}_cgviz.json"
+    output = "${sampleName}_result.json"
     //--kraken ${bracken} \\
     quastArgs = quast ? "--quast ${quast}" : "" 
     mlstArgs = mlst ? "--mlst ${mlst}" : "" 
