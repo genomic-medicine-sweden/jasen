@@ -168,19 +168,8 @@ workflow bacterial_default {
 
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie, mlstDb)
-    // split assemblies and id into two seperate channels to enable re-pairing
-    // of results and id at a later stage. This to allow batch cgmlst analysis 
-    // maskedAssembly
-    //   .multiMap { id, fasta -> 
-    //       idx: id
-    //       fasta: fasta
-    //   }
-    //   .set{ chewbbaca_fasta_ch }
-    // chewbbaca_fasta_ch.idx.collect().view()
-    // chewbbaca_fasta_ch.fasta.collect().view()
+    // cgmlst
     chewbbacaResult = chewbbaca_allelecall(maskedAssembly, cgmlstDb, trainingFile)
-    //chewbbaca_split_results(chewbbacaResult.results)
-    //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
     // end point
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
