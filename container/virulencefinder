@@ -17,9 +17,9 @@ From:python:3.8
 	 apt-get install -y --no-cache-dir git && \
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
 
-	 cd $HOME &&  \
+	 cd /usr/bin &&  \
 	 git clone -b "${VIRULENCEFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/virulencefinder.git && \
-	 ln -s "${HOME}/virulencefinder/virulencefinder.py" /usr/bin && \
+	 ln -s "/usr/bin/virulencefinder/virulencefinder.py" /usr/bin && \
 	 pip3 install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
 
 	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
