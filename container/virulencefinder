@@ -25,8 +25,9 @@ From:nfcore/base:latest
 	 apt-get update &&    \
 	 apt-get upgrade -y && \
 	 apt-get install -y git && \
-	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
-         apt -y install build-essential make curl unzip locales
+	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
+         apt -y install build-essential make curl unzip locales libz-dev 
+
          ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
          locale-gen en_US.UTF-8
          localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
