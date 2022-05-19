@@ -17,10 +17,11 @@ From:python:3.8
 	 apt-get install -y --no-cache-dir git && \
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
 
+         pip3 install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
+
 	 cd $HOME &&  \
 	 git clone -b "${RESFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/resfinder.git && \
 	 cp "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
-	 pip3 install tabulate biopython cgecore gitpython python-dateutil
 
 	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
 	 cd resfinder/cge/kma &&                                                                              \
