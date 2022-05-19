@@ -5,12 +5,10 @@ From:nfcore/base:latest
         export PYTHONNOUSERSITE=True
         export PATH="/opt/conda/bin:/usr/bin:$PATH"
         export PATH="/opt/conda/envs/jasen/bin:$PATH"
-        export PYTHONPATH="/opt/conda/envs/jasen/lib/python3.7/site-packages:/opt/conda/envs/jasen/lib"
         export BASH_ENV="/conda_init.sh:$BASH_ENV"
-	export PICARD_HOME=/opt/conda/envs/jasen/share/picard-2.20.3-0/
-	export PERL5LIB=$PERL5LIB:/opt/conda/envs/jasen/lib/site_perl/5.26.2/
         export TMPDIR=/tmp
         export TEMPDIR=/tmp
+        export PYTHONPATH="/opt/conda/lib/python3.8/site-packages"
 
 
 %labels
@@ -25,32 +23,39 @@ From:nfcore/base:latest
 
          apt-get update &&    \
          apt-get upgrade -y && \
-         apt-get install -y git && \
+         apt -y install build-essential make curl unzip locales libz-dev git
+         apt -y install apt-utils wget python3-pip ncbi-blast+
          rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
-         apt -y install build-essential make curl unzip locales libz-dev
-
+ 
          ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0 
          locale-gen en_US.UTF-8
          localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 
-         /opt/conda/bin/conda init bash && \
+         # /opt/conda/bin/conda init bash && \
          . /opt/conda/etc/profile.d/conda.sh && \
          /opt/conda/bin/conda config --set auto_activate_base true
 
-         /opt/conda/bin/conda create -n jasen && \
+         # /opt/conda/bin/conda create -n jasen && \
          . /opt/conda/bin/activate jasen
-         pip install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
-         . /opt/conda/bin/deactivate
+         pip install tabulate==0.7.7 cgecore==1.5.6 biopython gitpython python-dateutil
+         # . /opt/conda/bin/deactivate
 
 	 cd $HOME &&  \
 	 git clone -b "${RESFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/resfinder.git && \
-	 cp "${HOME}/resfinder/run_resfinder.py" /usr/bin && \
+         cd resfinder
+      	 cp run_resfinder.py /usr/bin/run_resfinder.py
+	 cp run_resfinder.py /usr/src/run_resfinder.py
+         cp -r cge /usr/src/cge
+         cp -r tests /usr/src/tests
 
-	 git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
-	 cd resfinder/cge/kma &&                                                                              \
+
+         cd /usr/src/cge && \
+	 git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git && \
+	 cd kma &&                                                                              \
 	 make &&                                                                                              \
-	 ln -s $(pwd)/kma $(pwd)/kma_index $(pwd)/kma_shm $(pwd)/kma_update /usr/bin
+	 cp kma* /usr/bin
+	 cp kma* /bin/
 
 	 cd $HOME &&                                                                                                                                    \
 	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
@@ -61,8 +66,9 @@ From:nfcore/base:latest
 	 cd $HOME
 
 %runscript
-         . /opt/conda/etc/profile.d/conda.sh
-         . /opt/conda/bin/activate jasen
+         # . /opt/conda/etc/profile.d/conda.sh
+         # . /opt/conda/bin/activate jasen
+         cd /usr/src/
          exec "$@"`
-         . /opt/conda/bin/deactivate
+         # . /opt/conda/bin/deactivate
 
