@@ -1,5 +1,5 @@
 Bootstrap:docker
-From:python:3.8
+From:nfcore/base:latest
 
 %environment
         export PYTHONNOUSERSITE=True
@@ -18,14 +18,25 @@ From:python:3.8
 	VERSION 2.0.4
 
 %post
-     VIRULENCEFINDER_VERSION=2.0.4
-     KMA_VERSION=1.3.27
-     BLAST_VERSION=2.9.0
+         VIRULENCEFINDER_VERSION=2.0.4
+         KMA_VERSION=1.3.27
+         BLAST_VERSION=2.9.0
 
 	 apt-get update &&    \
 	 apt-get upgrade -y && \
 	 apt-get install -y git && \
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
+         apt -y install build-essential make curl unzip locales
+         ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
+         locale-gen en_US.UTF-8
+         localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+
+         /opt/conda/bin/conda init bash && \
+         . /opt/conda/etc/profile.d/conda.sh && \
+         /opt/conda/bin/conda config --set auto_activate_base true
+
+         /opt/conda/bin/conda create -n jasen 
 
          pip3 install tabulate==0.7.7 cgecore==1.5.5 biopython gitpython python-dateutil
 
@@ -47,3 +58,9 @@ From:python:3.8
 	 chmod +x * && \
 	 cp * /usr/bin && \
 	 cd $HOME
+
+%runscript
+         . /opt/conda/etc/profile.d/conda.sh
+         . /opt/conda/bin/activate jasen
+         exec "$@"`
+         . /opt/conda/bin/deactivate
