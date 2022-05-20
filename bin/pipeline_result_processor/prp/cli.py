@@ -107,9 +107,9 @@ def create_output(
     # resistance of different types
     if resistance:
         pred_res = json.load(resistance)
-        amr: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.amr)
-        chem: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.chem)
-        env: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.env)
+        amr: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.AMR)
+        chem: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.CHEM)
+        env: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.ENV)
         results["phenotype_result"].extend([amr, chem, env])
     # get virulence factors in sample
     if virulence:

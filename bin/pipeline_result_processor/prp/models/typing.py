@@ -9,8 +9,8 @@ from .base import RWModel
 
 
 class TypingMethod(Enum):
-    mlst = "mlst"
-    cgmlst = "cgmlst"
+    MLST = "mlst"
+    CGMLST = "cgmlst"
 
 
 class ResultMlstBase(RWModel):

@@ -8,14 +8,14 @@ from .base import RWModel
 
 
 class VariantType(Enum):
-    substitution = "substitution"
+    SUBSTITUTION = "substitution"
 
 
 class PhenotypeType(Enum):
-    amr = "antimicrobial_resistance"
-    chem = "chemical_resistance"
-    env = "environmental_factor_resistance"
-    vir = "virulence"
+    AMR = "antimicrobial_resistance"
+    CHEM = "chemical_resistance"
+    ENV = "environmental_factor_resistance"
+    VIR = "virulence"
 
 
 class DatabaseReference(RWModel):

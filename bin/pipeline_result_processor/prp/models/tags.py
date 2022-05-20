@@ -5,31 +5,31 @@ from .base import RWModel
 
 
 class TagType(Enum):
-    virulence = "virulence"
-    resistance = "resistane"
-    qc = "qc"
+    VIRULENCE = "virulence"
+    RESISTANCE = "resistane"
+    QC = "qc"
 
 
 class ResistanceTag(Enum):
-    vre = "VRE"
-    esbl = "ESBL"
-    mrsa = "MRSA"
+    VRE = "VRE"
+    ESBL = "ESBL"
+    MRSA = "MRSA"
 
 
 class VirulenceTag(Enum):
-    pvl_all_pos = "pos"
-    pvl_lukS_pos = "neg/pos"
-    pvl_lukF_pos = "pos/neg"
-    pvl_all_neg = "neg"
+    PVL_ALL_POS = "pos"
+    PVL_LUKS_POS = "neg/pos"
+    PVL_LUKF_POS = "pos/neg"
+    PVL_ALL_NEG = "neg"
 
 
 class TagSeverity(Enum):
     """Defined severity classes of tags"""
 
-    info = "info"
-    passed = "pass"
-    warning = "warning"
-    danger = "danger"
+    INFO = "info"
+    PASSED = "pass"
+    WARNING = "warning"
+    DANGER = "danger"
 
 
 class Tag(RWModel):

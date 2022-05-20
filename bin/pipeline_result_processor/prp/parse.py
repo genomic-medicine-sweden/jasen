@@ -67,7 +67,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
             for gene, allele in result["alleles"].items()
         },
     )
-    return MethodIndex(type=TypingMethod.mlst, result=result_obj)
+    return MethodIndex(type=TypingMethod.MLST, result=result_obj)
 
 
 def parse_cgmlst_results(
@@ -111,7 +111,7 @@ def parse_cgmlst_results(
         n_missing=sum(1 for a in alleles if a in ERRORS),
         alleles=dict(zip(allele_names, corrected_alleles)),
     )
-    return MethodIndex(type=TypingMethod.cgmlst, result=results)
+    return MethodIndex(type=TypingMethod.CGMLST, result=results)
 
 
 def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
@@ -223,7 +223,7 @@ def parse_resistance_pred(
     ]
     # parse resistance based on the category
     categories = {
-        PhenotypeType.chem: [
+        PhenotypeType.CHEM: [
             "formaldehyde",
             "benzylkonium chloride",
             "ethidium bromide",
@@ -231,11 +231,11 @@ def parse_resistance_pred(
             "cetylpyridinium chloride",
             "hydrogen peroxide",
         ],
-        PhenotypeType.env: ["temperature"],
+        PhenotypeType.ENV: ["temperature"],
     }
-    categories[PhenotypeType.amr] = list(
+    categories[PhenotypeType.AMR] = list(
         {k for k in prediction["phenotypes"].keys()}
-        - set(categories[PhenotypeType.chem] + categories[PhenotypeType.env])
+        - set(categories[PhenotypeType.CHEM] + categories[PhenotypeType.ENV])
     )
 
     # parse resistance
@@ -322,7 +322,7 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
     else:
         results: PhenotypeResult = _parse_ariba_results(pred)
 
-    return MethodIndex(type=PhenotypeType.vir, result=results)
+    return MethodIndex(type=PhenotypeType.VIR, result=results)
 
 
 def parse_species_pred(file: str):

@@ -10,8 +10,8 @@ from .base import RWModel
 
 
 class SoupType(Enum):
-    db = "database"
-    sw = "software"
+    DB = "database"
+    SW = "software"
 
 
 class SoupVersion(BaseModel):
