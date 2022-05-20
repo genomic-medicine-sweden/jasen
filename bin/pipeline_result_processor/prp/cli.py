@@ -37,7 +37,7 @@ def cli():
     "--run-metadata",
     type=click.File(),
     required=True,
-    help="Analysis metadata from pipeline",
+    help="Analysis metadata from the pipeline in json format",
 )
 @click.option("-q", "--quast", type=click.File(), help="Quast quality control metrics")
 @click.option(
@@ -45,7 +45,7 @@ def cli():
     "--process-metadata",
     type=click.File(),
     multiple=True,
-    help="Meta data from nextflow processes",
+    help="Nextflow processes metadata from the pipeline in json format",
 )
 @click.option(
     "-k", "--kraken", type=click.File(), help="Kraken specie annotation results"
