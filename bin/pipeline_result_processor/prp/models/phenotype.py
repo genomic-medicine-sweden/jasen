@@ -73,9 +73,10 @@ class ResistanceVariant(VariantBase):
 class PhenotypeResult(BaseModel):
     """Phenotyp result data model.
 
-    A phenotyp result is a generic data structure that stores predicted genes, 
+    A phenotyp result is a generic data structure that stores predicted genes,
     mutations and phenotyp changes.
     """
+
     phenotypes: Dict[str, List[str]]
     genes: List[ResistanceGene | VirulenceGene]
     mutations: List[ResistanceVariant]

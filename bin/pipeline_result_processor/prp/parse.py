@@ -4,11 +4,8 @@
 import csv
 import json
 import logging
-from collections import defaultdict
 from typing import Any, Dict, Tuple
-from unittest import result
 
-import click
 import pandas as pd
 
 from .models.metadata import SoupVersion, SoupVersions
@@ -19,8 +16,9 @@ from .models.phenotype import (
     ResistanceVariant,
     VirulenceGene,
 )
-from .models.sample import AssemblyQc, MethodIndex
+from .models.sample import MethodIndex
 from .models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
+from .models.qc import QcMethodIndex, QcTool, QuastQcResult
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +26,7 @@ LOG = logging.getLogger(__name__)
 SPP_MIN_READ_FRAC = 0.001
 
 
-def parse_qust_results(file: str) -> AssemblyQc:
+def parse_qust_results(file: str) -> QcMethodIndex:
     """Parse quast file and extract relevant metrics.
 
     Args:
@@ -41,7 +39,7 @@ def parse_qust_results(file: str) -> AssemblyQc:
     creader = csv.reader(file, delimiter="\t")
     header = next(creader)
     raw = [dict(zip(header, row)) for row in creader]
-    return AssemblyQc(
+    qc_res = QuastQcResult(
         total_length=int(raw[0]["Total length"]),
         reference_length=raw[0]["Reference length"],
         largest_contig=raw[0]["Largest contig"],
@@ -51,6 +49,7 @@ def parse_qust_results(file: str) -> AssemblyQc:
         reference_gc=raw[0]["Reference GC (%)"],
         duplication_ratio=raw[0]["Duplication ratio"],
     )
+    return QcMethodIndex(tool=QcTool.QUAST, result=qc_res)
 
 
 def parse_mlst_results(path: str) -> TypingResultMlst:

@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from .models.metadata import RunInformation, SoupVersion
 from .models.phenotype import PhenotypeType
 from .models.sample import MethodIndex, PipelineResult
+from .models.qc import QcMethodIndex
 from .parse import (
     parse_cgmlst_results,
     parse_mlst_results,
@@ -17,8 +18,7 @@ from .parse import (
 )
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    level=logging.INFO, format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
 )
 LOG = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ def create_output(
     results = {
         "sample_id": sample_id,
         "run_metadata": {"run": run_info},
-        "qc": {},
+        "qc": [],
         "typing_result": [],
         "phenotype_result": [],
     }
@@ -95,7 +95,8 @@ def create_output(
         results["run_metadata"]["databases"] = db_info
 
     if quast:
-        results["qc"]["assembly"] = parse_qust_results(quast)
+        res: QcMethodIndex = parse_qust_results(quast)
+        results["qc"].append(res)
     # typing
     if mlst:
         res: MethodIndex = parse_mlst_results(mlst)

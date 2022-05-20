@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from .base import RWModel
 from .metadata import RunMetadata
+from .qc import QcMethodIndex
 from .phenotype import PhenotypeResult, PhenotypeType
 from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
@@ -19,25 +20,6 @@ class TaxLevel(Enum):
     F = "family"
     G = "genus"
     S = "specie"
-
-
-class AssemblyQc(BaseModel):
-    """Assembly QC metrics."""
-
-    total_length: int
-    reference_length: int
-    largest_contig: int
-    n_contigs: int
-    n50: int
-    assembly_gc: float
-    reference_gc: float
-    duplication_ratio: float
-
-
-class SampleQc(BaseModel):
-    """Collection of sample QC."""
-
-    assembly: AssemblyQc
 
 
 class SpeciesPrediction(RWModel):
@@ -61,7 +43,7 @@ class SampleBase(RWModel):
         ..., alias="sampleId", min_length=3, max_length=100, regex=SAMPLE_ID_PATTERN
     )
     run_metadata: RunMetadata = Field(..., alias="runMetadata")
-    qc: SampleQc
+    qc: List[QcMethodIndex] = Field(...)
     species_prediction: List[SpeciesPrediction] = Field(..., alias="speciesPrediction")
 
 
