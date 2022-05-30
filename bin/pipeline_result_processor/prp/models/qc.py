@@ -1,7 +1,9 @@
 """QC data models."""
-from pydantic import BaseModel
-from .base import RWModel
 from enum import Enum
+
+from pydantic import BaseModel
+
+from .base import RWModel
 
 
 class QcTool(Enum):

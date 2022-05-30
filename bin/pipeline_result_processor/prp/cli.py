@@ -6,14 +6,14 @@ from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
 from .models.phenotype import PhenotypeType
-from .models.sample import MethodIndex, PipelineResult
 from .models.qc import QcMethodIndex
+from .models.sample import MethodIndex, PipelineResult
 from .parse import (
     parse_cgmlst_results,
     parse_mlst_results,
-    parse_qust_results,
+    parse_quast_results,
     parse_resistance_pred,
-    parse_species_pred,
+    parse_kraken_result,
     parse_virulence_pred,
 )
 
@@ -95,7 +95,7 @@ def create_output(
         results["run_metadata"]["databases"] = db_info
 
     if quast:
-        res: QcMethodIndex = parse_qust_results(quast)
+        res: QcMethodIndex = parse_quast_results(quast)
         results["qc"].append(res)
     # typing
     if mlst:
@@ -119,7 +119,7 @@ def create_output(
 
     if kraken:
         LOG.info("Parse kraken results")
-        results["species_prediction"] = parse_species_pred(kraken)
+        results["species_prediction"] = parse_kraken_result(kraken)
     else:
         results["species_prediction"] = []
 

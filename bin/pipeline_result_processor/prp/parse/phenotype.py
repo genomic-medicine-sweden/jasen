@@ -1,116 +1,21 @@
-#! /usr/bin/env python
-"""Combine output files from pipeline into a standardized json output."""
+"""Parse output of various phenotype predicting tools."""
 
 import csv
 import json
 import logging
 from typing import Any, Dict, Tuple
 
-import pandas as pd
-
-from .models.metadata import SoupVersion, SoupVersions
-from .models.phenotype import (
+from ..models.metadata import SoupVersion, SoupVersions
+from ..models.phenotype import (
     PhenotypeResult,
     PhenotypeType,
     ResistanceGene,
     ResistanceVariant,
     VirulenceGene,
 )
-from .models.sample import MethodIndex
-from .models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
-from .models.qc import QcMethodIndex, QcTool, QuastQcResult
+from ..models.sample import MethodIndex
 
 LOG = logging.getLogger(__name__)
-
-
-SPP_MIN_READ_FRAC = 0.001
-
-
-def parse_quast_results(file: str) -> QcMethodIndex:
-    """Parse quast file and extract relevant metrics.
-
-    Args:
-        sep (str): seperator
-
-    Returns:
-        AssemblyQc: list of key-value pairs
-    """
-    LOG.info(f"Parsing tsv file: {file}")
-    creader = csv.reader(file, delimiter="\t")
-    header = next(creader)
-    raw = [dict(zip(header, row)) for row in creader]
-    qc_res = QuastQcResult(
-        total_length=int(raw[0]["Total length"]),
-        reference_length=raw[0]["Reference length"],
-        largest_contig=raw[0]["Largest contig"],
-        n_contigs=raw[0]["# contigs"],
-        n50=raw[0]["N50"],
-        assembly_gc=raw[0]["GC (%)"],
-        reference_gc=raw[0]["Reference GC (%)"],
-        duplication_ratio=raw[0]["Duplication ratio"],
-    )
-    return QcMethodIndex(tool=QcTool.QUAST, result=qc_res)
-
-
-def parse_mlst_results(path: str) -> TypingResultMlst:
-    """Parse mlst results from mlst to json object."""
-    LOG.info("Parsing mlst results")
-    result = json.load(path)[0]
-    result_obj = TypingResultMlst(
-        scheme=result["scheme"],
-        sequence_type=None
-        if result["sequence_type"] == "-"
-        else result["sequence_type"],
-        alleles={
-            gene: None if allele == "-" else allele
-            for gene, allele in result["alleles"].items()
-        },
-    )
-    return MethodIndex(type=TypingMethod.MLST, result=result_obj)
-
-
-def parse_cgmlst_results(
-    file: str, include_novel_alleles: bool = True
-) -> TypingResultCgMlst:
-    """Parse chewbbaca cgmlst prediction results to json results.
-
-    chewbbaca reports errors in allele profile, https://github.com/B-UMMI/chewBBACA
-    -------------------
-    INF-<allele name>, inferred new allele
-    LNF, loci not found
-    PLOT, loci contig tips
-    NIPH, non-informative paralogous hits
-    NIPHEM,
-    ALM, alleles larger than locus length
-    ASM, alleles smaller than locus length
-    """
-    ERRORS = ["LNF", "PLOT5", "NIPH", "NIPHEM", "ALM", "ASM"]
-
-    def replace_errors(allele):
-        """Replace errors and novel alleles with nulls if they are not to be inlcuded."""
-        if any(
-            [allele in ERRORS, allele.startswith("INF") and not include_novel_alleles]
-        ):
-            return None
-        elif allele.startswith("INF") and include_novel_alleles:
-            return int(allele.split("-")[1])
-        return int(allele)
-
-    msg = "Parsing cgmslt results, "
-    LOG.info(
-        msg + "not" if not include_novel_alleles else "" + "including novel alleles"
-    )
-    creader = csv.reader(file, delimiter="\t")
-    _, *allele_names = (colname.rstrip(".fasta") for colname in next(creader))
-    # parse alleles
-    _, *alleles = next(creader)
-    corrected_alleles = (replace_errors(a) for a in alleles)
-    results = TypingResultCgMlst(
-        n_novel=sum(1 for a in alleles if a.startswith("INF")),
-        n_missing=sum(1 for a in alleles if a in ERRORS),
-        alleles=dict(zip(allele_names, corrected_alleles)),
-    )
-    return MethodIndex(type=TypingMethod.CGMLST, result=results)
 
 
 def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
@@ -322,13 +227,3 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
         results: PhenotypeResult = _parse_ariba_results(pred)
 
     return MethodIndex(type=PhenotypeType.VIR, result=results)
-
-
-def parse_species_pred(file: str):
-    """ "parse_species_pred""Parse species prediciton result"""
-    specie_pred: pd.DataFrame = pd.read_csv(file, sep="\t").sort_values(
-        "fraction_total_reads", ascending=False
-    )
-    # limit the number of predicted species
-    specie_pred = specie_pred[specie_pred["fraction_total_reads"] > SPP_MIN_READ_FRAC]
-    return specie_pred.to_dict(orient="records")
