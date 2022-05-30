@@ -331,7 +331,4 @@ def parse_species_pred(file: str):
     )
     # limit the number of predicted species
     specie_pred = specie_pred[specie_pred["fraction_total_reads"] > SPP_MIN_READ_FRAC]
-    import pdb
-
-    pdb.set_trace()
     return specie_pred.to_dict(orient="records")
