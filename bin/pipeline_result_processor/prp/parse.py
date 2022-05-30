@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 SPP_MIN_READ_FRAC = 0.001
 
 
-def parse_qust_results(file: str) -> QcMethodIndex:
+def parse_quast_results(file: str) -> QcMethodIndex:
     """Parse quast file and extract relevant metrics.
 
     Args:
