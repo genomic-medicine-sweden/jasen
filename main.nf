@@ -7,7 +7,7 @@ include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
 include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
-include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm; export_to_cgviz } from './nextflow-modules/modules/cmd/main.nf'
+include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
 include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
@@ -61,6 +61,45 @@ process post_align_qc {
     """
     postaln_qc.pl ${bam} ${reference} ${sampleName} ${task.cpus} > ${output}
     """
+}
+
+process create_analysis_result {
+  label "process_low"
+  tag "${sampleName}"
+  publishDir "${params.outdir}", 
+    mode: params.publishDirMode, 
+    overwrite: params.publishDirOverwrite
+
+  input:
+    path runInfo
+    file meta
+    //paths
+    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
+
+  output:
+    path(output)
+
+  script:
+    output = "${sampleName}_result.json"
+    //--kraken ${bracken} \\
+    quastArgs = quast ? "--quast ${quast}" : "" 
+    mlstArgs = mlst ? "--mlst ${mlst}" : "" 
+    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
+    resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
+    virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
+    metaArgs = meta ? "--process-metadata  ${meta[1..-1].join(' --process-metadata ')}" : ""
+    """
+    prp create-output \\
+      --sample-id ${sampleName} \\
+      --run-metadata ${runInfo} \\
+      ${metaArgs} \\
+      ${quastArgs} \\
+      ${mlstArgs} \\
+      ${cgmlstArgs} \\
+      ${virulenceArgs} \\
+      ${resfinderArgs} \\
+      ${output}
+    """ 
 }
 
 workflow bacterial_default {
@@ -129,19 +168,8 @@ workflow bacterial_default {
 
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie, mlstDb)
-    // split assemblies and id into two seperate channels to enable re-pairing
-    // of results and id at a later stage. This to allow batch cgmlst analysis 
-    // maskedAssembly
-    //   .multiMap { id, fasta -> 
-    //       idx: id
-    //       fasta: fasta
-    //   }
-    //   .set{ chewbbaca_fasta_ch }
-    // chewbbaca_fasta_ch.idx.collect().view()
-    // chewbbaca_fasta_ch.fasta.collect().view()
+    // cgmlst
     chewbbacaResult = chewbbaca_allelecall(maskedAssembly, cgmlstDb, trainingFile)
-    //chewbbaca_split_results(chewbbacaResult.results)
-    //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
     // end point
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
@@ -171,13 +199,13 @@ workflow bacterial_default {
       combinedOutput = combinedOutput.join(brackenOutput)
     }
     
-    export_to_cgviz(
+    create_analysis_result(
       runInfo, 
       resfinderOutput.meta.join(virulencefinderOutput.meta),
       combinedOutput
     )
 
   emit: 
-    cgviz_import = export_to_cgviz.output
+    pipeline_result = create_analysis_result.output
     cdm_import = export_to_cdm.output
 }
