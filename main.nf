@@ -74,14 +74,13 @@ process create_analysis_result {
     path runInfo
     file meta
     //paths
-    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
+    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance), val(bracken)
 
   output:
     path(output)
 
   script:
     output = "${sampleName}_result.json"
-    //--kraken ${bracken} \\
     quastArgs = quast ? "--quast ${quast}" : "" 
     mlstArgs = mlst ? "--mlst ${mlst}" : "" 
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
@@ -92,6 +91,7 @@ process create_analysis_result {
     prp create-output \\
       --sample-id ${sampleName} \\
       --run-metadata ${runInfo} \\
+      --kraken ${bracken} \\
       ${metaArgs} \\
       ${quastArgs} \\
       ${mlstArgs} \\
