@@ -3,8 +3,9 @@
 import csv
 import logging
 
-from ..models.qc import QcMethodIndex, QcTool, QuastQcResult
 from click.types import File
+
+from ..models.qc import QcMethodIndex, QcTool, QuastQcResult
 
 LOG = logging.getLogger(__name__)
 

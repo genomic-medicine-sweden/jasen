@@ -2,33 +2,16 @@
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from .base import RWModel
 from .metadata import RunMetadata
 from .phenotype import PhenotypeResult, PhenotypeType
 from .qc import QcMethodIndex
+from .specie import SpeciesPrediction
 from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
 SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
-
-
-class TaxLevel(Enum):
-    P = "phylum"
-    C = "class"
-    O = "order"
-    F = "family"
-    G = "genus"
-    S = "specie"
-
-
-class SpeciesPrediction(RWModel):
-    scientific_name: str = Field(..., alias="scientificName")
-    tax_id: int = Field(..., alias="taxId")
-    tax_level: TaxLevel = Field(..., alias="taxLevel")
-    kraken_assigned_reads: int = Field(..., alias="krakenAssignedReads")
-    added_reads: int = Field(..., alias="addedReads")
-    fraction_total_reads: float = Field(..., alias="fractionTotalReads")
 
 
 class MethodIndex(RWModel):
@@ -44,7 +27,7 @@ class SampleBase(RWModel):
     )
     run_metadata: RunMetadata = Field(..., alias="runMetadata")
     qc: List[QcMethodIndex] = Field(...)
-    species_prediction: List[SpeciesPrediction] = Field(..., alias="speciesPrediction")
+    species_prediction: SpeciesPrediction = Field(..., alias="speciesPrediction")
 
 
 class PipelineResult(SampleBase):
