@@ -1,5 +1,5 @@
 Bootstrap:docker
-From:nfcore/base:latest
+From:python:3.8
 
 %environment
         export PYTHONNOUSERSITE=True
@@ -25,13 +25,13 @@ From:nfcore/base:latest
 	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
          apt -y install build-essential make curl unzip locales libz-dev 
 
-         ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
+         #ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
          locale-gen en_US.UTF-8
          localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 
          # /opt/conda/bin/conda init bash && \
-         . /opt/conda/etc/profile.d/conda.sh && \
+         # . /opt/conda/etc/profile.d/conda.sh && \
          # /opt/conda/bin/conda config --set auto_activate_base true
 
          # /opt/conda/bin/conda create -n jasen 
@@ -47,15 +47,14 @@ From:nfcore/base:latest
          cp virulencefinder.py /usr/bin/virulencefinder.py && \
          cp virulencefinder.py /usr/src/virulencefinder.py && \
 
-
          cd $HOME && \
-         git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
-         cd resfinder/cge/kma &&                                                                              \
+         git clone -b "${KMA_VERSION}" --depth 1  https://bitbucket.org/genomicepidemiology/kma.git virulencefinder/kma && \
+         cd virulencefinder/kma &&                                                                              \
          make &&                                                                                              \
          cp kma* /usr/bin
          cp kma* /bin/
 
-	 cd $HOME &&                                                                                                                                    \
+	 cd $HOME && \
 	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
 	 tar -xzf blast.tar.gz && \
 	 cd "ncbi-blast-${BLAST_VERSION}+/bin/" && \
@@ -66,5 +65,5 @@ From:nfcore/base:latest
 %runscript
          # . /opt/conda/etc/profile.d/conda.sh
          #. /opt/conda/bin/activate jasen
-         exec "$@"`
+         exec "sudo $@"`
          # . /opt/conda/bin/deactivate
