@@ -32,11 +32,11 @@ From:nfcore/base:latest
 
 
          # /opt/conda/bin/conda init bash && \
-         . /opt/conda/etc/profile.d/conda.sh && \
+         #. /opt/conda/etc/profile.d/conda.sh && \
          /opt/conda/bin/conda config --set auto_activate_base true
 
          # /opt/conda/bin/conda create -n jasen && \
-         . /opt/conda/bin/activate jasen
+         #. /opt/conda/bin/activate jasen
          pip install tabulate==0.7.7 cgecore==1.5.6 biopython gitpython python-dateutil
          # . /opt/conda/bin/deactivate
 
@@ -56,7 +56,7 @@ From:nfcore/base:latest
 	 cp kma* /usr/bin
 	 cp kma* /bin/
 
-	 cd $HOME &&                                                                                                                                    \
+	 cd $HOME &&  \
 	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
 	 tar -xzf blast.tar.gz && \
 	 cd "ncbi-blast-${BLAST_VERSION}+/bin/" && \
@@ -67,7 +67,7 @@ From:nfcore/base:latest
 %runscript
          # . /opt/conda/etc/profile.d/conda.sh
          # . /opt/conda/bin/activate jasen
-         cd /usr/src/
-         exec "$@"`
+         # cd /usr/src/
+         exec "sudo $@"`
          # . /opt/conda/bin/deactivate
 
