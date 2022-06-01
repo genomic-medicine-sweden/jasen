@@ -72,9 +72,8 @@ process create_analysis_result {
 
   input:
     path runInfo
-    file meta
     //paths
-    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance), val(bracken)
+    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(bracken)
 
   output:
     path(output)
@@ -82,18 +81,19 @@ process create_analysis_result {
   script:
     output = "${sampleName}_result.json"
     quastArgs = quast ? "--quast ${quast}" : "" 
+    brackenArgs = bracken ? "--kraken ${bracken}" : "" 
     mlstArgs = mlst ? "--mlst ${mlst}" : "" 
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
     resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
+    resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
-    metaArgs = meta ? "--process-metadata  ${meta[1..-1].join(' --process-metadata ')}" : ""
+    virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
     prp create-output \\
       --sample-id ${sampleName} \\
       --run-metadata ${runInfo} \\
-      --kraken ${bracken} \\
-      ${metaArgs} \\
       ${quastArgs} \\
+      ${brackenArgs} \\
       ${mlstArgs} \\
       ${cgmlstArgs} \\
       ${virulenceArgs} \\
@@ -168,8 +168,19 @@ workflow bacterial_default {
 
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie, mlstDb)
-    // cgmlst
+    // split assemblies and id into two seperate channels to enable re-pairing
+    // of results and id at a later stage. This to allow batch cgmlst analysis 
+    // maskedAssembly
+    //   .multiMap { id, fasta -> 
+    //       idx: id
+    //       fasta: fasta
+    //   }
+    //   .set{ chewbbaca_fasta_ch }
+    // chewbbaca_fasta_ch.idx.collect().view()
+    // chewbbaca_fasta_ch.fasta.collect().view()
     chewbbacaResult = chewbbaca_allelecall(maskedAssembly, cgmlstDb, trainingFile)
+    //chewbbaca_split_results(chewbbacaResult.results)
+    //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
     // end point
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
@@ -187,23 +198,28 @@ workflow bacterial_default {
     combinedOutput = assemblyQc
         .join(mlstResult.json)
         .join(chewbbacaResult)
-        .join(aribaJson)
         .join(resfinderOutput.json)
+        .join(resfinderOutput.meta)
         .join(virulencefinderOutput.json)
+        .join(virulencefinderOutput.meta)
 
     // Using kraken for species identificaiton
     if( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
       krakenReport = kraken(reads, krakenDb).report
-      brackenOutput = bracken(krakenReport, krakenDb).output
+      brackenOutput = bracken(krakenReport, krakenDb).report
       combinedOutput = combinedOutput.join(brackenOutput)
-    }
+      create_analysis_result(
+        runInfo, 
+        combinedOutput
+      )
+	} else {
+      create_analysis_result(
+        runInfo, 
+        combinedOutput
+      )
+	}
     
-    create_analysis_result(
-      runInfo, 
-      resfinderOutput.meta.join(virulencefinderOutput.meta),
-      combinedOutput
-    )
 
   emit: 
     pipeline_result = create_analysis_result.output
