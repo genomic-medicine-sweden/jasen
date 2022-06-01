@@ -156,13 +156,12 @@ def parse_resistance_pred(
 
 
 def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
-    """Parse virulence prediction results from ARIBA."""
-    results = {}
+    """Parse virulence prediction results from virulencefinder."""
+    results = []
     # parse virulence finder results
     species = [k for k in pred["virulencefinder"]["results"].keys()]
     for key, genes in pred["virulencefinder"]["results"][species[0]].items():
         virulence_category = key.split("_")[1]
-        vir_genes = []
         for gn in genes.values():
             start_pos, end_pos = map(int, gn["position_in_ref"].split(".."))
             gene = VirulenceGene(
@@ -179,9 +178,8 @@ def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
                 ref_database="virulenceFinder",
                 ref_id=gn["hit_id"],
             )
-            vir_genes.append(gene)
-        results[virulence_category] = vir_genes
-    return PhenotypeResult(results)
+            results.append(gene)
+    return PhenotypeResult(genes=results, mutations=[], phenotypes=[])
 
 
 def _parse_ariba_results(pred: str) -> PhenotypeResult:
@@ -224,6 +222,6 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
     elif "ariba" in pred:
         results: PhenotypeResult = _parse_ariba_results(pred)
     else:
-        results: PhenotypeResult = _parse_ariba_results(pred)
+        raise ValueError(f"Unknown virulence prediction format")
 
     return MethodIndex(type=PhenotypeType.VIR, result=results)
