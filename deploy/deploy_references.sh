@@ -14,7 +14,7 @@ tar -xjf broadstreet-v3.1.4.tar.bz2
 #wget https://card.mcmaster.ca/download/5/ontology-v3.1.4.tar.bz2
 cd ../..
 cd assets/blast
-wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa
+wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa --no-check-certificate
 cd ../..
 
 #SAureus
