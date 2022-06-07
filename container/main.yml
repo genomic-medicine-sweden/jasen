@@ -2,8 +2,10 @@ name: jasen
 channels:
   - conda-forge
   - bioconda
+  - defaults
 dependencies:
   - kraken2 = 2.1.2
+  - kraken=1.1.1
   - kaiju = 1.8.0
   - bwa = 0.7.17
   - fastqc = 0.11.9
@@ -29,3 +31,5 @@ dependencies:
   - multiqc = 1.11
   - spatyper = 0.3.3
   - ncbi-amrfinderplus = 3.10.14
+  - resfinder = 4.1.11
+  - bracken>=2.6
