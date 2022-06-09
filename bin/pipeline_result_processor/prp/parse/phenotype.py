@@ -219,9 +219,7 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
     pred = json.load(file)
     if "virulencefinder" in pred:
         results: PhenotypeResult = _parse_virulence_finder_results(pred)
-    elif "ariba" in pred:
-        results: PhenotypeResult = _parse_ariba_results(pred)
     else:
-        raise ValueError(f"Unknown virulence prediction format")
+        results: PhenotypeResult = _parse_ariba_results(pred)
 
     return MethodIndex(type=PhenotypeType.VIR, result=results)

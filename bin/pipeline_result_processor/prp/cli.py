@@ -15,6 +15,7 @@ from .parse import (
     parse_mlst_results,
     parse_quast_results,
     parse_resistance_pred,
+    parse_kraken_result,
     parse_virulence_pred,
 )
 
@@ -120,8 +121,7 @@ def create_output(
 
     if kraken:
         LOG.info("Parse kraken results")
-        res: SpeciesPrediction = parse_kraken_result(kraken)
-        results["species_prediction"] = res
+        results["species_prediction"] = parse_kraken_result(kraken)
     else:
         results["species_prediction"] = []
 

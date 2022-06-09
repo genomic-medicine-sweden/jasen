@@ -23,7 +23,7 @@ include { virulencefinder } from './nextflow-modules/modules/virulencefinder/mai
 process ariba_summary_to_json {
   tag "${sampleName}"
   label "process_low"
-  publishDir params.outdir, 
+  publishDir params.publishDir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -44,7 +44,7 @@ process ariba_summary_to_json {
 process post_align_qc {
   tag "${sampleName}"
   label "process_low"
-  publishDir params.outdir, 
+  publishDir params.publishDir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -66,7 +66,7 @@ process post_align_qc {
 process create_analysis_result {
   label "process_low"
   tag "${sampleName}"
-  publishDir "${params.outdir}", 
+  publishDir "${params.publishDir}", 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
