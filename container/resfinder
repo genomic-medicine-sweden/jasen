@@ -22,8 +22,8 @@ From:nfcore/base:latest
 
          apt-get update &&    \
          apt-get upgrade -y && \
-         apt -y install build-essential make curl unzip locales libz-dev git
-         apt -y install apt-utils wget python3-pip ncbi-blast+
+         apt -y install build-essential make curl unzip locales libz-dev git git-all
+         apt -y install apt-utils wget python3-pip ncbi-blast+ procps r-base
          rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
  
          ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0 
