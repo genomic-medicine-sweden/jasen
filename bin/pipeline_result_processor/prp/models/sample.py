@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import List
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from .base import RWModel
 from .metadata import RunMetadata
@@ -10,7 +10,9 @@ from .phenotype import PhenotypeResult, PhenotypeType
 from .qc import QcMethodIndex
 from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
-SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
+# disabled validation
+# SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
+# , regex=SAMPLE_ID_PATTERN
 
 
 class TaxLevel(Enum):
@@ -40,7 +42,7 @@ class SampleBase(RWModel):
     """Base datamodel for sample data structure"""
 
     sample_id: str = Field(
-        ..., alias="sampleId", min_length=3, max_length=100, regex=SAMPLE_ID_PATTERN
+        ..., alias="sampleId", min_length=3, max_length=100
     )
     run_metadata: RunMetadata = Field(..., alias="runMetadata")
     qc: List[QcMethodIndex] = Field(...)

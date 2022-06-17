@@ -42,7 +42,7 @@ def parse_cgmlst_results(
     ALM, alleles larger than locus length
     ASM, alleles smaller than locus length
     """
-    ERRORS = ["LNF", "PLOT5", "NIPH", "NIPHEM", "ALM", "ASM"]
+    ERRORS = ["LNF", "PLOT3", "PLOT5", "NIPH", "NIPHEM", "ALM", "ASM"]
 
     def replace_errors(allele):
         """Replace errors and novel alleles with nulls if they are not to be inlcuded."""

@@ -8,10 +8,8 @@ from .models.metadata import RunInformation, SoupVersion
 from .models.phenotype import PhenotypeType
 from .models.qc import QcMethodIndex
 from .models.sample import MethodIndex, PipelineResult
-from .models.specie import SpeciesPrediction
 from .parse import (
     parse_cgmlst_results,
-    parse_kraken_result,
     parse_mlst_results,
     parse_quast_results,
     parse_resistance_pred,
