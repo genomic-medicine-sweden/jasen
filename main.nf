@@ -7,7 +7,7 @@ include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
 include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
-include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm; export_to_cgviz } from './nextflow-modules/modules/cmd/main.nf'
+include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
 include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
@@ -23,7 +23,7 @@ include { virulencefinder } from './nextflow-modules/modules/virulencefinder/mai
 process ariba_summary_to_json {
   tag "${sampleName}"
   label "process_low"
-  publishDir params.outdir, 
+  publishDir params.publishDir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -44,7 +44,7 @@ process ariba_summary_to_json {
 process post_align_qc {
   tag "${sampleName}"
   label "process_low"
-  publishDir params.outdir, 
+  publishDir params.publishDir, 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
@@ -61,6 +61,45 @@ process post_align_qc {
     """
     postaln_qc.pl ${bam} ${reference} ${sampleName} ${task.cpus} > ${output}
     """
+}
+
+process create_analysis_result {
+  label "process_low"
+  tag "${sampleName}"
+  publishDir "${params.publishDir}", 
+    mode: params.publishDirMode, 
+    overwrite: params.publishDirOverwrite
+
+  input:
+    path runInfo
+    //paths
+    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(bracken)
+
+  output:
+    path(output)
+
+  script:
+    output = "${sampleName}_result.json"
+    quastArgs = quast ? "--quast ${quast}" : "" 
+    brackenArgs = bracken ? "--kraken ${bracken}" : "" 
+    mlstArgs = mlst ? "--mlst ${mlst}" : "" 
+    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
+    resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
+    resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
+    virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
+    virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
+    """
+    prp create-output \\
+      --sample-id ${sampleName} \\
+      --run-metadata ${runInfo} \\
+      ${quastArgs} \\
+      ${brackenArgs} \\
+      ${mlstArgs} \\
+      ${cgmlstArgs} \\
+      ${virulenceArgs} \\
+      ${resfinderArgs} \\
+      ${output}
+    """ 
 }
 
 workflow bacterial_default {
@@ -159,25 +198,30 @@ workflow bacterial_default {
     combinedOutput = assemblyQc
         .join(mlstResult.json)
         .join(chewbbacaResult)
-        .join(aribaJson)
         .join(resfinderOutput.json)
+        .join(resfinderOutput.meta)
         .join(virulencefinderOutput.json)
+        .join(virulencefinderOutput.meta)
 
     // Using kraken for species identificaiton
     if( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
       krakenReport = kraken(reads, krakenDb).report
-      brackenOutput = bracken(krakenReport, krakenDb).output
+      brackenOutput = bracken(krakenReport, krakenDb).report
       combinedOutput = combinedOutput.join(brackenOutput)
-    }
+      create_analysis_result(
+        runInfo, 
+        combinedOutput
+      )
+	} else {
+      create_analysis_result(
+        runInfo, 
+        combinedOutput
+      )
+	}
     
-    export_to_cgviz(
-      runInfo, 
-      resfinderOutput.meta.join(virulencefinderOutput.meta),
-      combinedOutput
-    )
 
   emit: 
-    cgviz_import = export_to_cgviz.output
+    pipeline_result = create_analysis_result.output
     cdm_import = export_to_cdm.output
 }
