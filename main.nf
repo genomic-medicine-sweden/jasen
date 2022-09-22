@@ -10,6 +10,7 @@ include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( a
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
+include { ariba_prepareref } from './nextflow-modules/modules/ariba/main.nf'
 include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
 include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--col_filter', 'n', '--row_filter', 'n'] )
 include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
@@ -105,13 +106,13 @@ process create_analysis_result {
 workflow bacterial_default {
   reads = Channel .fromPath(params.csv)
     .splitCsv(header:true)
-    .map{ row -> tuple(row.id, tuple(file(row.read1), file(row.read2))) }
+    .map{ row -> tuple(row.id, tuple(file(row.read1))) }
 
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
   genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
   aribaReference = file(params.aribaReference, checkIfExists: true)
-  aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
+  // debug aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
   // databases
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
@@ -123,6 +124,7 @@ workflow bacterial_default {
 
 
   main:
+    print resfinderDb
     runInfo = save_analysis_metadata()
     // assembly and qc processing
     referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
@@ -186,6 +188,7 @@ workflow bacterial_default {
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
+    aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
     aribaReport = ariba_run(reads, aribaReferenceDir)
     aribaSummary = ariba_summary(aribaReport)
     aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
