@@ -104,15 +104,20 @@ process create_analysis_result {
 }
 
 workflow bacterial_default {
+  // debug single file implementation
+  // reads = Channel .fromPath(params.csv)
+  //   .splitCsv(header:true)
+  //  .map{ row -> tuple(row.id, tuple(file(row.read1))) }
+
   reads = Channel .fromPath(params.csv)
     .splitCsv(header:true)
-    .map{ row -> tuple(row.id, tuple(file(row.read1))) }
+    .map{ row -> tuple(row.id, tuple(file(row.read1), file(row.read2))) }
 
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
   genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
   aribaReference = file(params.aribaReference, checkIfExists: true)
-  // debug aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
+  aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
   // databases
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
@@ -124,7 +129,6 @@ workflow bacterial_default {
 
 
   main:
-    print resfinderDb
     runInfo = save_analysis_metadata()
     // assembly and qc processing
     referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
@@ -188,7 +192,7 @@ workflow bacterial_default {
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
-    aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
+    // debug aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
     aribaReport = ariba_run(reads, aribaReferenceDir)
     aribaSummary = ariba_summary(aribaReport)
     aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
