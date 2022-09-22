@@ -66,7 +66,7 @@ my( $mapped_reads ) = ( $flagstat[4] =~ /^(\d+)/ );
 
 if( $PAIRED ) {
     print STDERR "Collect insert sizes...\n";
-    system_p( "picard CollectInsertSizeMetrics -I $BAM -O $BAM.inssize -HISTOGRAM_FILE $BAM.ins.pdf -STOP_AFTER 1000000");
+    system_p( "picard CollectInsertSizeMetrics -I $BAM -O $BAM.inssize -H $BAM.ins.pdf -STOP_AFTER 1000000");
     open( INS, "$BAM.inssize" );
     while( <INS> ) {
 	if( /^\#\# METRICS CLASS/ ) {
@@ -92,6 +92,7 @@ my @thresholds = qw( 1 10 30 100 250 500 1000);
 print STDERR "Collecting depth stats...\n";
 #system_p( "sambamba depth base --fix-mate-overlaps -c 0 ".($THREADS ? "-t $THREADS": "")." -L $BED $BAM > $OUT_PREFIX.basecov.bed" );
 system_p( "sambamba depth base -c 0 ".($THREADS ? "-t $THREADS": "")." -L $BED $BAM > $OUT_PREFIX.basecov.bed" );
+#system_p( "samtools depth -a -b $BED ".($THREADS ? "-@ $THREADS": "")." $BAM > $OUT_PREFIX.basecov.bed" );
 my( $pct_above, $mean_cov, $iqr_median ) = parse_basecov_bed( $OUT_PREFIX.".basecov.bed", \@thresholds );
 
 unlink( $OUT_PREFIX.".basecov.bed" );
