@@ -20,7 +20,8 @@ From:python:3.8
          apt-get install -y git && \
          rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/*
 
-         mkdir /tmp/bestfolder
+         rm -rf /tmp/bestfolder
+         mkdir -p /tmp/bestfolder
 
          cd /tmp/bestfolder &&  \
          git clone -b "${RESFINDER_VERSION}" --depth 1 https://bitbucket.org/genomicepidemiology/resfinder.git 
