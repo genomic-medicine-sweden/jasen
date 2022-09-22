@@ -11,6 +11,8 @@ source activate jasen
 cd assets/card
 wget https://card.mcmaster.ca/download/0/broadstreet-v3.1.4.tar.bz2
 tar -xjf broadstreet-v3.1.4.tar.bz2
+ariba prepareref -f nucleotide_fasta_protein_homolog_model.fasta --all_coding yes ../card
+
 #wget https://card.mcmaster.ca/download/5/ontology-v3.1.4.tar.bz2
 cd ../..
 cd assets/blast
