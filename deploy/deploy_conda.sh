@@ -15,8 +15,8 @@ echo "Purging any duplicate existing environment"
 conda remove -y -n $NAME --all || :
 
 echo "Creating JASEN environment named $NAME"
-conda env create --name $NAME -f $scriptdir/requirements.txt -q 
-cd $scriptdir/../../bin/pipeline_result_processor
+conda env create --name $NAME -f $scriptdir/reqs/requirements.txt -q 
+cd $scriptdir/../bin/pipeline_result_processor
 pip install .
 cd $scriptdir
 echo "Done!"
