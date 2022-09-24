@@ -21,7 +21,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ## Development deployment (self-contained)
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git`
 * `cd JASEN`
-* `bash deploy/deploy_conda/setup.sh`
+* `bash deploy/deploy_conda.sh`
 * `bash deploy/deploy_references.sh` 
 * `singularity remote login`
 * `cd container && sudo bash -i build_container.sh && cd ..`
