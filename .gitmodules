@@ -13,3 +13,6 @@
 [submodule "assets/virulencefinder_db"]
 	path = assets/virulencefinder_db
 	url = https://bitbucket.org/genomicepidemiology/virulencefinder_db.git
+[submodule "assets/kma"]
+	path = assets/kma
+	url = https://bitbucket.org/genomicepidemiology/kma.git
