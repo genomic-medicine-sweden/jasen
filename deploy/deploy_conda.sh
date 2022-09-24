@@ -16,6 +16,7 @@ conda remove -y -n $NAME --all || :
 
 echo "Creating JASEN environment named $NAME"
 conda env create --name $NAME -f $scriptdir/reqs/requirements.txt -q 
+source activate jasen
 cd $scriptdir/../bin/pipeline_result_processor
 pip install .
 cd $scriptdir
