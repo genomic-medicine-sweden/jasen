@@ -10,7 +10,7 @@ From:nfcore/base:latest
         export TEMPDIR=/tmp
 
 %labels
-	MAINTAINER Markus Johansson <markus.h.johansson@skane.se>
+	MAINTAINER Isak Sylvin <isak.sylvin@gu.se>
 	DESCRIPTION Singularity container for CMD microbiology WGS pipeline
 	VERSION 2.0.4
 
