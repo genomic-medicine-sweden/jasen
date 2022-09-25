@@ -3,7 +3,7 @@ From:python:3.8
 
 
 %labels
-        MAINTAINER Markus Johansson <markus.h.johansson@skane.se>
+        MAINTAINER Isak Sylvin <isak.sylvin@gu.se>
         DESCRIPTION Singularity container for CMD microbiology WGS pipeline
         VERSION 4.1.11
 
