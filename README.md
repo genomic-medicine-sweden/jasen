@@ -25,6 +25,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 * `bash deploy/deploy_references.sh` 
 * `singularity remote login`
 * `cd container && sudo bash -i build_container.sh && cd ..`
+* Edit the root parameter in `configs/nextflow.base.config`
 
 ## Usage
 
