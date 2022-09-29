@@ -1,6 +1,6 @@
 """Data model definition of input/ output data"""
 from enum import Enum
-from typing import List
+from typing import List, Union
 
 from pydantic import BaseModel, Field
 
@@ -34,8 +34,8 @@ class SpeciesPrediction(RWModel):
 
 
 class MethodIndex(RWModel):
-    type: PhenotypeType | TypingMethod
-    result: PhenotypeResult | TypingResultMlst | TypingResultCgMlst
+    type: Union[PhenotypeType , TypingMethod]
+    result: Union[PhenotypeResult , TypingResultMlst , TypingResultCgMlst]
 
 
 class SampleBase(RWModel):

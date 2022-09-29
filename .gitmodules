@@ -1,6 +1,6 @@
 [submodule "nextflow-modules"]
 	path = nextflow-modules
-	url = git@github.com:Clinical-Genomics-Lund/nextflow-modules.git
+	url = https://github.com/genomic-medicine-sweden/nextflow-modules.git
 [submodule "assets/prodigal_training_files"]
 	path = assets/prodigal_training_files
 	url = https://github.com/mickaelsilva/prodigal_training_files.git
@@ -13,3 +13,6 @@
 [submodule "assets/virulencefinder_db"]
 	path = assets/virulencefinder_db
 	url = https://bitbucket.org/genomicepidemiology/virulencefinder_db.git
+[submodule "assets/kma"]
+	path = assets/kma
+	url = https://bitbucket.org/genomicepidemiology/kma.git

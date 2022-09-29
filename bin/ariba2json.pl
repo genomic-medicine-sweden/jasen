@@ -46,13 +46,13 @@ foreach my $row ( @report ) {
     my $gene   = $row->{cluster};
     my $contig = $row->{ctg};
     $contig =~ s/\./_/g;
-    die "Gene in report that does not exist in database: $gene" unless $results{$gene};
+    #debug die "Gene in report that does not exist in database: $gene" unless $results{$gene};
 
-    unless( $results{$gene}->{$contig} ) {
-	$results{$gene}->{$contig}->{id} = $row->{pc_ident};
-	$results{$gene}->{$contig}->{ref_len} = $row->{ref_len};
-	$results{$gene}->{$contig}->{match_len} = $row->{ref_base_assembled};
-    }
+    #    unless( $results{$gene}->{$contig} ) {
+    #	$results{$gene}->{$contig}->{id} = $row->{pc_ident};
+    #	$results{$gene}->{$contig}->{ref_len} = $row->{ref_len};
+    #	$results{$gene}->{$contig}->{match_len} = $row->{ref_base_assembled};
+    #}
 }
 
 

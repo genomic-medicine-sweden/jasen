@@ -3,6 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from typing import Union
+
 from .base import RWModel
 
 
@@ -28,5 +30,5 @@ class QuastQcResult(BaseModel):
 
 class QcMethodIndex(RWModel):
     tool: QcTool
-    version: str | None
+    version: Union[ str , None ]
     result: QuastQcResult

@@ -1,6 +1,6 @@
 """Datamodels used for prediction results."""
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field
 
@@ -29,7 +29,7 @@ class GeneBase(BaseModel):
     name: str
     accession: str
     # prediction info
-    depth: float | None
+    depth: Union[float , None]
     identity: float
     coverage: float
     ref_start_pos: int
@@ -78,5 +78,5 @@ class PhenotypeResult(BaseModel):
     """
 
     phenotypes: Dict[str, List[str]]
-    genes: List[ResistanceGene | VirulenceGene]
+    genes: List[ Union[ResistanceGene , VirulenceGene] ]
     mutations: List[ResistanceVariant]

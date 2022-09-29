@@ -163,24 +163,26 @@ def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
     for key, genes in pred["virulencefinder"]["results"][species[0]].items():
         virulence_category = key.split("_")[1]
         vir_genes = []
-        for gn in genes.values():
-            start_pos, end_pos = map(int, gn["position_in_ref"].split(".."))
-            gene = VirulenceGene(
-                name=gn["virulence_gene"],
-                virulence_category=virulence_category,
-                accession=gn["accession"],
-                depth=None,
-                identity=gn["identity"],
-                coverage=gn["coverage"],
-                ref_start_pos=start_pos,
-                ref_end_pos=end_pos,
-                ref_gene_length=gn["template_length"],
-                alignment_length=gn["HSP_length"],
-                ref_database="virulenceFinder",
-                ref_id=gn["hit_id"],
-            )
+        if not genes == "No hit found":
+            for gn in genes.values():
+                start_pos, end_pos = map(int, gn["position_in_ref"].split(".."))
+                gene = VirulenceGene(
+                    name=gn["virulence_gene"],
+                    virulence_category=virulence_category,
+                    accession=gn["accession"],
+                    depth=None,
+                    identity=gn["identity"],
+                    coverage=gn["coverage"],
+                    ref_start_pos=start_pos,
+                    ref_end_pos=end_pos,
+                    ref_gene_length=gn["template_length"],
+                    alignment_length=gn["HSP_length"],
+                    ref_database="virulenceFinder",
+                    ref_id=gn["hit_id"],
+                )
             vir_genes.append(gene)
         results[virulence_category] = vir_genes
+
     return PhenotypeResult(results)
 
 
@@ -215,15 +217,34 @@ def _parse_ariba_results(pred: str) -> PhenotypeResult:
     return PhenotypeResult(phenotypes=[], genes=present_genes, mutations=[])
 
 
+def _default_results() -> PhenotypeResult:
+    gene = VirulenceGene(
+        name="none",
+        virulence_category="",
+        accession="",
+        depth=None,
+        identity=0,
+        coverage=0,
+        ref_start_pos=0,
+        ref_end_pos=0,
+        ref_gene_length=0,
+        alignment_length=0,
+        ref_database="",
+        ref_id=0,
+    )
+    genes = list()
+    genes.append(gene)
+    return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
+
+
 def parse_virulence_pred(file: str) -> PhenotypeResult:
     """Parse virulence prediction results."""
     LOG.info("Parsing virulence prediction")
     pred = json.load(file)
-    if "virulencefinder" in pred:
+    if "not virulencefinder" in pred:
         results: PhenotypeResult = _parse_virulence_finder_results(pred)
     elif "ariba" in pred:
         results: PhenotypeResult = _parse_ariba_results(pred)
     else:
-        results: PhenotypeResult = _parse_ariba_results(pred)
-
+        results: PhenotypeResult = _default_results()
     return MethodIndex(type=PhenotypeType.VIR, result=results)

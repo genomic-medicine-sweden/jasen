@@ -21,10 +21,11 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ## Development deployment (self-contained)
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git`
 * `cd JASEN`
-* `bash deploy/deploy_conda/setup.sh`
-* `bash deploy/deploy_references.sh` 
+* `bash -i deploy/deploy_conda.sh`
+* `bash -i deploy/deploy_references.sh` 
 * `singularity remote login`
-* `cd container && sudo bash build_container.sh && cd ..`
+* `cd container && sudo bash -i build_container.sh && cd ..`
+* Edit the root parameter in `configs/nextflow.base.config`
 
 ## Usage
 
@@ -39,11 +40,7 @@ Input files are defined in a csv file with the following format. All samples nee
 
 ``` csv
 id,read1,read2
-p1,ALL504A259_122-78386_S1_R1_001.fastq.gz,ALL504A259_122-78386_S1_R2_001.fastq.gz
-p2,ALL504A260_122-78386_S2_R1_001.fastq.gz,ALL504A260_122-78386_S2_R2_001.fastq.gz
-p3,ALL504A261_122-78386_S3_R1_001.fastq.gz,ALL504A261_122-78386_S3_R2_001.fastq.gz
-p4,ALL504A262_122-78386_S4_R1_001.fastq.gz,ALL504A262_122-78386_S4_R2_001.fastq.gz
-p5,ALL504A263_122-78386_S5_R1_001.fastq.gz,ALL504A263_122-78386_S5_R2_001.fastq.gz
+p1,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
 
 ## Component Breakdown

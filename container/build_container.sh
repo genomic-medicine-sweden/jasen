@@ -3,7 +3,7 @@ set -e
 
 definitions=(chewbbaca postAlignQc resfinder virulencefinder pythonScripts)
 declare -A containers=( 
-    [bwa]=https://depot.galaxyproject.org/singularity/bwa:0.7.17--pl5.22.0_2
+    [bwa]=https://depot.galaxyproject.org/singularity/bwa:0.7.17--pl5.22.0_1
     [kraken]=https://depot.galaxyproject.org/singularity/kraken:1.1.1--pl5262h7d875b9_5
     [kraken2]=https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5262h7d875b9_0
     [bracken]=https://depot.galaxyproject.org/singularity/bracken:2.6.1--py39h7cff6ad_2
@@ -26,12 +26,13 @@ for tool in "${definitions[@]}"; do
     output_file="${tool}_${version}.sif";
     if [[ ! -f $output_file ]]; then
         echo "Building tool ${tool} to ${output_file}";
-        singularity build --force "${output_file}" "${tool}";
+        sudo -E singularity build --force "${output_file}" "${tool}";
         ln -sf "${output_file}" "${output_file%%_*}.sif"
     else
         echo "Tool ${tool} already exist, skipping...";
     fi;
 done;
+
 echo "Download pre built singularity containers";
 for tool in ${!containers[@]}; do
     version=$(echo "${containers[$tool]}" | sed -E "s/.*:|.*%//" | sed "s/--.*//")
