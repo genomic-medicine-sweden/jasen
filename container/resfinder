@@ -28,9 +28,9 @@ From:python:3.8
 
          chmod -R 0777 /tmp/bestfolder
  
-         ln -s "/tmp/bestfolder/resfinder/run_resfinder.py" /usr/bin/run_resfinder.py && \
-         ln -s "/tmp/bestfolder/resfinder/run_resfinder.py" /usr/src/run_resfinder.py && \
          pip3 install tabulate biopython cgecore gitpython python-dateutil
+         pip3 install resfinder
+
 
          git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
          cd resfinder/cge/kma &&                                                                              \
