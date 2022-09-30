@@ -13,10 +13,12 @@ dependencies:
   - bowtie2
   - bwa
   - cd-hit
+  - cgecore
   - chewbbaca
   - fastqc
   - freebayes
   - gatk4
+  - gitpython
   - libiconv
   - kraken2
   - mlst
@@ -28,6 +30,7 @@ dependencies:
   - r-base
   - samtools
   - spades
+  - tabulate
   - trimmomatic
   - vcftools
   - pip:
