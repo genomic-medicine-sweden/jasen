@@ -28,6 +28,7 @@ wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa --n
 #Finder dbs
 cd ${assdir}/kma && make
 cd ${assdir}/virulencefinder_db
+export PATH=$PATH:/${assdir}/kma
 python INSTALL.py ${assdir}/kma/kma_index
 cd ${assdir}/resfinder_db
 python INSTALL.py ${assdir}/kma/kma_index
