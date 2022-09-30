@@ -30,10 +30,11 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
         ):
             continue
 
-        if phenotype["resistant"]:
-            resistant.add(phenotype["resistance"])
-        else:
-            susceptible.add(phenotype["resistance"])
+        if "resistant" in phenotype.keys():
+            if phenotype["resistant"]:
+                resistant.add(phenotype["resistance"])
+            else:
+                susceptible.add(phenotype["resistance"])
     return {"susceptible": list(susceptible), "resistant": list(resistant)}
 
 
@@ -42,6 +43,11 @@ def _parse_resfinder_amr_genes(
 ) -> Tuple[ResistanceGene, ...]:
     """Get resistance genes from resfinder result."""
     results = []
+
+    if not "genes" in resfinder_result.keys():
+        results  = _default_resistance().genes
+        return results
+
     for info in resfinder_result["genes"].values():
         # Get only acquired resistance genes
         if not info["ref_database"].startswith("Res"):
@@ -77,6 +83,7 @@ def _parse_resfinder_amr_variants(
 ) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from resfinder result."""
     results = []
+    igenes = []
     for info in resfinder_result["seq_variations"].values():
         # Get only variants from desired phenotypes
         if limit_to_phenotypes is not None:
@@ -84,7 +91,10 @@ def _parse_resfinder_amr_variants(
             if len(intersect) == 0:
                 continue
         # get gene depth
-        info["depth"] = resfinder_result["genes"][info["genes"][0]]["depth"]
+        if "genes" in resfinder_result.keys():
+            info["depth"] = resfinder_result["genes"][info["genes"][0]]["depth"]
+        else:
+            info["depth"] = 0
         # translate variation type bools into classifier
         if info["substitution"]:
             var_type = "substitution"
@@ -94,9 +104,12 @@ def _parse_resfinder_amr_variants(
             var_type = "deletion"
         else:
             raise ValueError("Output has no known mutation type")
+        if not "genes" in info.keys():
+            #igenes = _default_resistance().genes
+            igenes = [""]
         variant = ResistanceVariant(
             variant_type=var_type,
-            genes=info["genes"],
+            genes=igenes,
             phenotypes=info["phenotypes"],
             position=info["ref_start_pos"],
             ref_codon=info["ref_codon"],
@@ -217,7 +230,7 @@ def _parse_ariba_results(pred: str) -> PhenotypeResult:
     return PhenotypeResult(phenotypes=[], genes=present_genes, mutations=[])
 
 
-def _default_results() -> PhenotypeResult:
+def _default_virulence() -> PhenotypeResult:
     gene = VirulenceGene(
         name="none",
         virulence_category="",
@@ -237,6 +250,27 @@ def _default_results() -> PhenotypeResult:
     return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
 
 
+def _default_resistance() -> PhenotypeResult:
+    gene = ResistanceGene(
+        name="none",
+        virulence_category="",
+        accession="",
+        depth=None,
+        identity=0,
+        coverage=0,
+        ref_start_pos=0,
+        ref_end_pos=0,
+        ref_gene_length=0,
+        alignment_length=0,
+        ref_database="",
+        phenotypes=[],
+        ref_id=0,
+    )
+    genes = list()
+    genes.append(gene)
+    return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
+
+
 def parse_virulence_pred(file: str) -> PhenotypeResult:
     """Parse virulence prediction results."""
     LOG.info("Parsing virulence prediction")
@@ -246,5 +280,5 @@ def parse_virulence_pred(file: str) -> PhenotypeResult:
     elif "ariba" in pred:
         results: PhenotypeResult = _parse_ariba_results(pred)
     else:
-        results: PhenotypeResult = _default_results()
+        results: PhenotypeResult = _default_virulence()
     return MethodIndex(type=PhenotypeType.VIR, result=results)
