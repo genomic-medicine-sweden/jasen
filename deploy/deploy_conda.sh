@@ -9,13 +9,14 @@ fi
 
 
 #Unload environment
-conda info | tac | tac | grep -q $NAME && source deactivate || :
+conda info | grep -q $NAME && source deactivate || :
 #Remove environment if already present
 echo "Purging any duplicate existing environment"
 conda remove -y -n $NAME --all || :
 
 echo "Creating JASEN environment named $NAME"
-conda env create --name $NAME -f $scriptdir/reqs/requirements.txt -q 
+#conda create --name $NAME -f $scriptdir/reqs/reqs.txt -q 
+conda env create -f deploy/reqs/env-index.yaml 
 source activate jasen
 cd $scriptdir/../bin/pipeline_result_processor
 pip install .
