@@ -1,0 +1,10 @@
+name: jasen
+channels:
+  - anaconda
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - ariba
+  - bwa
+  - chewbbaca
