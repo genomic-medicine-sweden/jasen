@@ -24,13 +24,18 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 * `bash -i deploy/deploy_references.sh # Downloads self-test databases` 
 * `(Optional) singularity remote login # Access to OCI regestries`
 * `cd container && sudo bash -i build_container.sh && cd .. # Creates singularity images`
-* Edit the `root` parameter in `configs/nextflow.base.config`
 
 ## Usage
 
 ### Simple self-test
 ``` bash
-./nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
+nextflow run main.nf \
+-entry bacterial_default \
+-profile staphylococcus_aureus \
+-config configs/nextflow.base.config \
+--publishDir ./output \
+--root . \
+--csv assets/test_data/samplelist.csv
 ```
 
 Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
