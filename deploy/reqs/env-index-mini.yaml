@@ -7,5 +7,6 @@ channels:
 dependencies:
   - ariba
   - bwa
+  - pip
   - pip:
     - chewbbaca
