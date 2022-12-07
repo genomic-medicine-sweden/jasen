@@ -41,7 +41,7 @@ python INSTALL.py ${assdir}/kma/kma_index
 cd ${assdir}/..
 python bin/download_ncbi.py CP000046.1 assets/genomes
 cd ${assdir}/genomes
-bwa index CP000046.1
+bwa index CP000046.1.fasta
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
 wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate
