@@ -17,7 +17,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ### Recommended
 * Conda
 * Singularity Remote Login
-
+* mamba, Is available from conda. Install in base environment.
 ## Development deployment (self-contained)
 * `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN # Copies code locally`
 * `bash -i deploy/deploy_conda.sh # Creates development environment`

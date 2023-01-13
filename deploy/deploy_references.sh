@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Exit script and throw exception if any of the commands fail
-set -e
+# quit script if any of the commands fails. Note that && commands should be in paranthesis for this to work.
+set -eo pipefail
+trap 'exit_status="$?" && echo Failed on line: $LINENO at command: $BASH_COMMAND && echo "exit status $exit_status" && exit' ERR
+
+
 
 mkdir assets &> /dev/null
 mkdir assets/genomes &> /dev/null
