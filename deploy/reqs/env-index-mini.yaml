@@ -1,6 +1,5 @@
 name: jasen
 channels:
-  - anaconda
   - bioconda
   - conda-forge
   - defaults

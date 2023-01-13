@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit script and throw exception if any of the commands fail
+set -e
+
 mkdir assets &> /dev/null
 mkdir assets/genomes &> /dev/null
 mkdir assets/card &> /dev/null
