@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# quit script if any of the commands fails. Note that && commands should be in paranthesis for this to work.
+# quit script if any of the commands fails. Note that && commands will get an error but the script 
+# will continue UNLESS you use a paranthesis e.g., (echo hey && echo hey2) .
 set -eo pipefail
 trap 'exit_status="$?" && echo Failed on line: $LINENO at command: $BASH_COMMAND && echo "exit status $exit_status" && exit' ERR
-
-
 
 mkdir assets &> /dev/null
 mkdir assets/genomes &> /dev/null
