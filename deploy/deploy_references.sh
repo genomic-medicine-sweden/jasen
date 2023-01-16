@@ -5,11 +5,11 @@
 set -eo pipefail
 trap 'exit_status="$?" && echo Failed on line: $LINENO at command: $BASH_COMMAND && echo "exit status $exit_status" && exit' ERR
 
-mkdir assets &> /dev/null
-mkdir assets/genomes &> /dev/null
-mkdir assets/card &> /dev/null
-mkdir assets/cgmlst &> /dev/null
-mkdir assets/blast &> /dev/null
+mkdir -p assets &> /dev/null
+mkdir -p assets/genomes &> /dev/null
+mkdir -p assets/card &> /dev/null
+mkdir -p assets/cgmlst &> /dev/null
+mkdir -p assets/blast &> /dev/null
 
 scriptdir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 assdir="${scriptdir}/../assets/"
