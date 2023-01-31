@@ -16,7 +16,7 @@ include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addPar
 include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
 include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
 include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf' addParams( args: ['-M'] )
-include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci } from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: ['--fr'] )
+include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci; chewbbaca_create_batch_list} from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: [] )
 include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addParams( args: [] )
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 
@@ -174,15 +174,15 @@ workflow bacterial_default {
     mlstResult = mlst(assembly, params.specie, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
     // of results and id at a later stage. This to allow batch cgmlst analysis 
-    // maskedAssembly
-    //   .multiMap { id, fasta -> 
-    //       idx: id
-    //       fasta: fasta
-    //   }
-    //   .set{ chewbbaca_fasta_ch }
-    // chewbbaca_fasta_ch.idx.collect().view()
-    // chewbbaca_fasta_ch.fasta.collect().view()
-    chewbbacaResult = chewbbaca_allelecall(maskedAssembly, cgmlstDb, trainingFile)
+    maskedAssembly
+      .multiMap { sampleName, filePath -> 
+          sampleName: sampleName
+          filePath: filePath
+      }
+      .set{ maskedAssemblyMap }
+
+    batch_list = chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
+    chewbbacaResult = chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), batch_list, cgmlstDb, trainingFile)
     //chewbbaca_split_results(chewbbacaResult.results)
     //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
