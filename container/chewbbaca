@@ -1,32 +1,21 @@
 Bootstrap:docker
-From:python:3.7.11
+From:condaforge/mambaforge:latest
 
 
 %labels
-	MAINTAINER Björn Hallström <bjorn.hallstrom@skane.se>
+	MAINTAINER Ryan Kennedy <ryan.kennedy@skane.se>
 	DESCRIPTION Singularity container for CMD microbiology WGS pipeline
-	VERSION 2.8.5
+	VERSION 3.1.0
 
 %post
-     CHEWBBACA_VERSION=2.8.5
+     CHEWBBACA_VERSION=3.1.0
      BLAST_VERSION=2.9.0
      PRODIGAL_VERSION=2.6.3
-     MAFT_VERSION=7.480-1
-
-	 cd $HOME
-	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz"
-	 tar -xzf blast.tar.gz
-	 cd "ncbi-blast-${BLAST_VERSION}+/bin/"
-	 chmod +x *
-	 cp * /usr/bin
-	 cd $HOME
-
-	 wget -O prodigal "https://github.com/hyattpd/Prodigal/releases/download/v${PRODIGAL_VERSION}/prodigal.linux"
-	 chmod +x prodigal
-	 cp prodigal /usr/bin
-
-	 wget -O maft.deb "https://mafft.cbrc.jp/alignment/software/mafft_${MAFT_VERSION}_amd64.deb"
-	 dpkg -i maft.deb
-
+     MAFFT_VERSION=7.505
+	 
+	 mamba install -c bioconda -c conda-forge numpy>=1.23.4 scipy>=1.9.3 biopython>=1.78 plotly>=5.8.0 SPARQLWrapper>=2.0.0 requests>=2.27.1 pandas>=1.5.1 BLAST>="${BLAST_VERSION}" Prodigal>="${PRODIGAL_VERSION}" MAFFT>="${MAFFT_VERSION}"
 	 pip install chewbbaca=="${CHEWBBACA_VERSION}"
-	 pip install utils chardet
+	 #pip install utils chardet
+
+%test
+     /opt/conda/bin/chewBBACA.py -V
