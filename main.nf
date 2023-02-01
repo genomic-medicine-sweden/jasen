@@ -169,7 +169,7 @@ workflow bacterial_default {
     maskedRegionsVcf = freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
     //maskedRegionsVcf = freebayes(assembly.join(sortedAssemblyMappingIdx).join(sortedAssemblyMapping.bam))
     maskedAssembly = mask_polymorph_assembly(assembly.join(maskedRegionsVcf))
-
+    // maskedAssemblies = maskedAssembly.map({ sampleName, filePath -> [ filePath ] }).collect()
     assemblyQc = quast(assembly, genomeReference)
     mlstResult = mlst(assembly, params.specie, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
@@ -181,9 +181,9 @@ workflow bacterial_default {
       }
       .set{ maskedAssemblyMap }
 
-    batch_list = chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-    chewbbacaResult = chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), batch_list, cgmlstDb, trainingFile)
-    //chewbbaca_split_results(chewbbacaResult.results)
+    batchList = chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
+    chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), batchList, cgmlstDb, trainingFile)
+    chewbbacaResult = chewbbaca_split_results(chewbbaca_allelecall.out.sampleName, chewbbaca_allelecall.out.calls)
     //chewbbaca_split_missing_loci(chewbbacaResult.missing)
 
     // end point
@@ -221,6 +221,8 @@ workflow bacterial_default {
         combinedOutput
       )
 	} else {
+      emptyBrackenOutput = maskedAssemblyMap.sampleName.map{sampleName -> [ sampleName, [] ] }
+      combinedOutput = combinedOutput.join(emptyBrackenOutput)
       create_analysis_result(
         runInfo, 
         combinedOutput
