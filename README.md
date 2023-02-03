@@ -63,6 +63,11 @@ A value on the evenness of coverage is calculated as an [interquartile range](ht
 
 ### Epidemiological typing
 
+Currently, 3 profiles are supported:
+* `staphylococcus_aureus`
+* `escherichia_coli`
+* `klebsiella_pneumoniae`
+
 For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
 is used for extracting QC data from the assembly.
 
