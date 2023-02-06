@@ -13,95 +13,15 @@ include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args:
 include { ariba_prepareref } from './nextflow-modules/modules/ariba/main.nf'
 include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
 include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--col_filter', 'n', '--row_filter', 'n'] )
+include { ariba_summary_to_json } from './nextflow-modules/modules/ariba/main.nf'
 include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
 include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
 include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf' addParams( args: ['-M'] )
+include { post_align_qc } from './nextflow-modules/modules/qc/main.nf'
 include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci; chewbbaca_create_batch_list} from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: [] )
 include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addParams( args: [] )
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
-
-
-process ariba_summary_to_json {
-  tag "${sampleName}"
-  label "process_low"
-  publishDir params.publishDir, 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
-
-  input:
-    tuple val(sampleName), path(report), path(summary) 
-    path reference
-
-  output:
-    tuple val(sampleName), path("${output}"), emit: output
-
-  script:
-    output = "${summary.simpleName}_export.json"
-    """
-    ariba2json.pl ${reference} ${summary} ${report} > ${output}
-    """
-}
-
-process post_align_qc {
-  tag "${sampleName}"
-  label "process_low"
-  publishDir params.publishDir, 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
-
-  input:
-    tuple val(sampleName), path(bam)
-    path bai
-    path reference
-
-  output:
-    tuple val(sampleName), path(output)
-
-  script:
-    output = "${sampleName}_bwa.qc"
-    """
-    postaln_qc.pl ${bam} ${reference} ${sampleName} ${task.cpus} > ${output}
-    """
-}
-
-process create_analysis_result {
-  label "process_low"
-  tag "${sampleName}"
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
-
-  input:
-    path runInfo
-    //paths
-    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(bracken)
-
-  output:
-    path(output)
-
-  script:
-    output = "${sampleName}_result.json"
-    quastArgs = quast ? "--quast ${quast}" : "" 
-    brackenArgs = bracken ? "--kraken ${bracken}" : "" 
-    mlstArgs = mlst ? "--mlst ${mlst}" : "" 
-    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
-    resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
-    resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
-    virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
-    virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
-    """
-    prp create-output \\
-      --sample-id ${sampleName} \\
-      --run-metadata ${runInfo} \\
-      ${quastArgs} \\
-      ${brackenArgs} \\
-      ${mlstArgs} \\
-      ${cgmlstArgs} \\
-      ${virulenceArgs} \\
-      ${resfinderArgs} \\
-      ${output}
-    """ 
-}
+include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
 
 workflow bacterial_default {
   if (params.strands==2){
