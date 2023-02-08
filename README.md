@@ -34,7 +34,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ./nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
 ```
 
-Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile.
+Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile. If nextflow has been added to the PATH, one should start the command with `nextflow` instead of `./nextflow`.
 
 Input files are defined in a csv file with the following format. All samples need to be of the same "type", meaning that they can be analyzed with the same analysis profile, defined in the nextflow config.
 
@@ -63,6 +63,11 @@ A value on the evenness of coverage is calculated as an [interquartile range](ht
 
 ### Epidemiological typing
 
+Currently, 3 profiles are supported:
+* `staphylococcus_aureus`
+* `escherichia_coli`
+* `klebsiella_pneumoniae`
+
 For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
 is used for extracting QC data from the assembly.
 
@@ -81,3 +86,7 @@ The database for virulence markes is [VFDB](http://www.mgc.ac.cn/VFs/).
 
 The QC data is aggregated in a web service CDM (repo coming) and the cgMLST is visualized using a web service 
 cgviz that is combined with [graptetree](https://github.com/achtman-lab/GrapeTree) for manipulating trees (repo coming).
+
+## Tips
+
+It is recommended that you use latest versions of software tools, however if you are running an older version of Singularity and you get an error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!` check the permissions set on image `*.sif`. Make sure you have the permission to execute it.
