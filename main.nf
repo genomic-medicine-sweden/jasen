@@ -7,6 +7,7 @@ include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
 include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
+include { skesa } from './nextflow-modules/modules/skesa/main.nf'
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
 include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
@@ -62,8 +63,12 @@ workflow bacterial_default {
        }
       .set{ post_align_qc_ch }
     postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
-
-    assembly = spades(reads)
+    
+    if ( params.useSkesa ) {
+      assembly = skesa(reads)
+    } else {
+      assembly = spades(reads)
+    }
 
     // mask polymorph regions
     assemblyBwaIdx = bwa_index(assembly)
@@ -140,14 +145,14 @@ workflow bacterial_default {
         runInfo, 
         combinedOutput
       )
-	} else {
+	  } else {
       emptyBrackenOutput = maskedAssemblyMap.sampleName.map{sampleName -> [ sampleName, [] ] }
       combinedOutput = combinedOutput.join(emptyBrackenOutput)
       create_analysis_result(
         runInfo, 
         combinedOutput
       )
-	}
+	  }
     
 
   emit: 
