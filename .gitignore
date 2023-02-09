@@ -3,6 +3,10 @@ work/
 .nextflow/
 .nextflow*
 assets/references
+assets/blast
+assets/card
+assets/cgmlst
+assets/genomes
 work/
 results
 container/*.sif
