@@ -11,6 +11,7 @@ declare -A containers=(
     [ariba]=https://depot.galaxyproject.org/singularity/ariba:2.14.6--py38h6ed170a_0
     [mlst]=https://depot.galaxyproject.org/singularity/mlst:2.19.0--hdfd78af_1
     [spades]=https://depot.galaxyproject.org/singularity/spades:3.15.2--h95f258a_1
+    [skesa]=https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0
     [quast]=https://depot.galaxyproject.org/singularity/quast:5.0.2--py37pl5262h190e900_4
     [freebayes]=https://depot.galaxyproject.org/singularity/freebayes:1.3.5--py39hba5d119_3
     [perl_json]=https://depot.galaxyproject.org/singularity/perl-json%3A4.02--pl526_0
