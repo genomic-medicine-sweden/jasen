@@ -139,7 +139,7 @@ workflow bacterial_default {
     if( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
       krakenReport = kraken(reads, krakenDb).report
-      brackenOutput = bracken(krakenReport, krakenDb).report
+      brackenOutput = bracken(krakenReport, krakenDb).output
       combinedOutput = combinedOutput.join(brackenOutput)
       create_analysis_result(
         runInfo, 
