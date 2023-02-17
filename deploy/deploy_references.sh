@@ -37,29 +37,35 @@ python INSTALL.py ${assdir}/kma/kma_index
 
 ## Organisms
 
-#SAureus
+#Saureus
 cd ${assdir}/..
-python bin/download_ncbi.py CP000046.1 assets/genomes
+python bin/download_ncbi.py NC_002951.2 assets/genomes # change reference
 cd ${assdir}/genomes
-bwa index CP000046.1.fasta
+bwa index NC_002951.2.fasta
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
 wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate
 unzip index.html
 cd ${assdir}/cgmlst/staphylococcus_aureus/ 
 echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
-chewBBACA.py PrepExternalSchema  -i ${assdir}/cgmlst/staphylococcus_aureus/alleles -o ${assdir}/cgmlst/staphylococcus_aureus/alleles_rereffed \
+chewie PrepExternalSchema -i ${assdir}/cgmlst/staphylococcus_aureus/alleles -o ${assdir}/cgmlst/staphylococcus_aureus/alleles_rereffed \
 	--cpu 1 --ptf ${assdir}/prodigal_training_files/Staphylococcus_aureus.trn
 
-#EColi
+#Ecoli
 cd ${assdir}/..
 python bin/download_ncbi.py NC_000913.3 assets/genomes
-mkdir -p assets/cgmlst/escherichia_coli/alleles &> /dev/null
-cd assets/cgmlst/escherichia_coli/alleles
+cd ${assdir}/genomes
+bwa index NC_000913.3.fasta
+mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
+cd ${assdir}/cgmlst/escherichia_coli/alleles
 wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate
 unzip index.html
+cd ${assdir}/cgmlst/escherichia_coli/
+echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
+chewie PrepExternalSchema -i ${assdir}/cgmlst/escherichia_coli/alleles -o ${assdir}/cgmlst/escherichia_coli/alleles_rereffed \
+	--cpu 1 --ptf ${assdir}/prodigal_training_files/Escherichia_coli.trn
 
-#KPneumoniae
+#Kpneumoniae
 cd ${assdir}/..
 python bin/download_ncbi.py NC_016845.1 assets/genomes
 mkdir -p assets/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
