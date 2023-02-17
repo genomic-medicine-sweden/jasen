@@ -9,16 +9,16 @@ from .base import RWModel
 class TaxLevel(Enum):
     """Braken phylogenetic level."""
 
-    PHYLUM = "P"
-    CLASS = "C"
-    ORDER = "O"
-    FAMILY = "F"
-    GENUS = "G"
-    SPECIE = "S"
+    P = "phylum"
+    C = "class"
+    O = "order"
+    F = "family"
+    G = "genus"
+    S = "species"
 
 
-class SpeciePrediction(RWModel):
-    name: str = Field(..., alias="scientificName")
+class SpeciesPrediction(RWModel):
+    scientific_name: str = Field(..., alias="scientificName")
     taxonomy_id: int = Field(..., alias="taxId")
     taxonomy_lvl: TaxLevel = Field(..., alias="taxLevel")
     kraken_assigned_reads: int = Field(..., alias="krakenAssignedReads")
@@ -26,4 +26,4 @@ class SpeciePrediction(RWModel):
     fraction_total_reads: float = Field(..., alias="fractionTotalReads")
 
 
-SpeciesPrediction = List[SpeciePrediction]
+SpeciesPrediction = List[SpeciesPrediction]

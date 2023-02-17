@@ -48,7 +48,7 @@ def cli():
     help="Nextflow processes metadata from the pipeline in json format",
 )
 @click.option(
-    "-k", "--kraken", type=click.File(), help="Kraken specie annotation results"
+    "-k", "--kraken", type=click.File(), help="Kraken species annotation results"
 )
 @click.option("-m", "--mlst", type=click.File(), help="MLST prediction results")
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
