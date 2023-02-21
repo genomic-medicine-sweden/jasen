@@ -17,7 +17,7 @@ include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addPar
 include { ariba_summary_to_json } from './nextflow-modules/modules/ariba/main.nf'
 include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
 include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
-include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf' addParams( args: ['-M'] )
+include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf'
 include { post_align_qc } from './nextflow-modules/modules/qc/main.nf'
 include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci; chewbbaca_create_batch_list} from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: [] )
 include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addParams( args: [] )
@@ -96,7 +96,7 @@ workflow bacterial_default {
     maskedAssembly = mask_polymorph_assembly(assembly.join(maskedRegionsVcf))
     // maskedAssemblies = maskedAssembly.map({ sampleName, filePath -> [ filePath ] }).collect()
     assemblyQc = quast(assembly, genomeReference)
-    mlstResult = mlst(assembly, params.specie, mlstDb)
+    mlstResult = mlst(assembly, params.species, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
     // of results and id at a later stage. This to allow batch cgmlst analysis 
     maskedAssembly
@@ -123,7 +123,7 @@ workflow bacterial_default {
     }
 
     // perform resistance prediction
-    resfinderOutput = resfinder(reads, params.specie, resfinderDb, pointfinderDb)
+    resfinderOutput = resfinder(reads, params.species, resfinderDb, pointfinderDb)
     virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
 
     // combine results for export

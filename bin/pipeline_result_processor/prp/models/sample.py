@@ -16,16 +16,16 @@ from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
 
 class TaxLevel(Enum):
-    PHYLUM = "P"
-    CLASS = "C"
-    ORDER = "O"
-    FAMILY = "F"
-    GENUS = "G"
-    SPECIE = "S"
+    P = "phylum"
+    C = "class"
+    O = "order"
+    F = "family"
+    G = "genus"
+    S = "species"
 
 
 class SpeciesPrediction(RWModel):
-    name: str = Field(..., alias="scientificName")
+    scientific_name: str = Field(..., alias="scientificName")
     taxonomy_id: int = Field(..., alias="taxId")
     taxonomy_lvl: TaxLevel = Field(..., alias="taxLevel")
     kraken_assigned_reads: int = Field(..., alias="krakenAssignedReads")

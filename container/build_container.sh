@@ -8,8 +8,8 @@ declare -A containers=(
     [kraken2]=https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5262h7d875b9_0
     [bracken]=https://depot.galaxyproject.org/singularity/bracken:2.6.1--py39h7cff6ad_2
     [samtools]=https://depot.galaxyproject.org/singularity/samtools:1.12--hd5e65b6_0
-    [ariba]=https://depot.galaxyproject.org/singularity/ariba:2.14.6--py38h6ed170a_0
-    [mlst]=https://depot.galaxyproject.org/singularity/mlst:2.19.0--hdfd78af_1
+    [ariba]=https://depot.galaxyproject.org/singularity/ariba:2.14.6--py39h8f06ca0_2
+    [mlst]=https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1 
     [spades]=https://depot.galaxyproject.org/singularity/spades:3.15.2--h95f258a_1
     [skesa]=https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0
     [quast]=https://depot.galaxyproject.org/singularity/quast:5.0.2--py37pl5262h190e900_4
@@ -41,7 +41,7 @@ for tool in ${!containers[@]}; do
     if [[ ! -f $output_file ]]; then
         echo "Downloading ${tool}";
         wget -O "${output_file}" "${containers[$tool]}" "--no-check-certificate"
-        ln -s "${output_file}" "${output_file%%_*}.sif"
+        ln -sf "${output_file}" "${output_file%%_*}.sif"
     else
         echo "Tool ${tool} already exist, skipping...";
     fi;
