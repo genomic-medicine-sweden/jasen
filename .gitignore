@@ -3,11 +3,11 @@ work/
 .nextflow/
 .nextflow*
 assets/references
-assets/blast
 assets/card
-assets/cgmlst
+assets/cgmlst/*/alleles*
 assets/genomes
-assets/mlst_db
+assets/mlst_db/blast
+assets/mlst_db/pubmlst
 work/
 results
 container/*.sif

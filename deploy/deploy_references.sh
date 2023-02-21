@@ -1,10 +1,10 @@
 #!/bin/bash
 
 mkdir assets &> /dev/null
-mkdir assets/genomes &> /dev/null
+mkdir -p assets/genomes/{escherichia_coli,klebsiella_pneumoniae,staphylococcus_aureus} &> /dev/null
 mkdir assets/card &> /dev/null
 mkdir assets/cgmlst &> /dev/null
-mkdir assets/blast &> /dev/null
+mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
 
 scriptdir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 assdir="${scriptdir}/../assets/"
@@ -22,8 +22,10 @@ cp tmpdir/* .
 
 #MLST db
 #wget https://card.mcmaster.ca/download/5/ontology-v3.1.4.tar.bz2
-cd ${assdir}/blast
-wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa --no-check-certificate
+cd ${assdir}/mlst_db
+bash ./mlst-download_pub_mlst.sh
+bash ./mlst-make_blast_db.sh
+#wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa --no-check-certificate
 
 #Finder dbs
 cd ${assdir}/kma && make
@@ -39,8 +41,8 @@ python INSTALL.py ${assdir}/kma/kma_index
 
 #Saureus
 cd ${assdir}/..
-python bin/download_ncbi.py NC_002951.2 assets/genomes # change reference
-cd ${assdir}/genomes
+python bin/download_ncbi.py NC_002951.2 assets/genomes/staphylococcus_aureus
+cd ${assdir}/genomes/staphylococcus_aureus
 bwa index NC_002951.2.fasta
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
@@ -53,8 +55,8 @@ chewie PrepExternalSchema -i ${assdir}/cgmlst/staphylococcus_aureus/alleles -o $
 
 #Ecoli
 cd ${assdir}/..
-python bin/download_ncbi.py NC_000913.3 assets/genomes
-cd ${assdir}/genomes
+python bin/download_ncbi.py NC_000913.3 assets/genomes/escherichia_coli
+cd ${assdir}/genomes/escherichia_coli
 bwa index NC_000913.3.fasta
 mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
 cd ${assdir}/cgmlst/escherichia_coli/alleles
@@ -67,9 +69,11 @@ chewie PrepExternalSchema -i ${assdir}/cgmlst/escherichia_coli/alleles -o ${assd
 
 #Kpneumoniae
 cd ${assdir}/..
-python bin/download_ncbi.py NC_016845.1 assets/genomes
-mkdir -p assets/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
-cd assets/cgmlst/klebsiella_pneumoniae/alleles
+python bin/download_ncbi.py NC_016845.1 assets/genomes/klebsiella_pneumoniae
+cd ${assdir}/genomes/klebsiella_pneumoniae
+bwa index NC_016845.1.fasta
+mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
+cd ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
 wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate
 unzip index.html
 
