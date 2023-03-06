@@ -24,13 +24,22 @@ include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addPar
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
 
+  // Function for paired-end or single-end
+def get_reads(LinkedHashMap row) {
+  if (row.read2) {
+    reads = tuple(row.id, tuple(file(row.read1), file(row.read2)))
+  } else {
+    reads = tuple(row.id, tuple(file(row.read1)))
+  }
+  return reads
+}
+
 workflow bacterial_default {
-  if (params.strands==2){
-    reads = Channel.fromPath(params.csv)
-    .splitCsv(header:true).map{ row -> tuple(row.id, tuple(file(row.read1),file(row.read2))) }}
-  else if (params.strands==1){
-    reads = Channel.fromPath(params.csv)
-    .splitCsv(header:true).map{ row -> tuple(row.id, tuple(file(row.read1))) }}
+  meta = Channel.fromPath(params.csv).splitCsv(header:true)
+  .multiMap{ row ->
+    reads: get_reads(row)
+    platform: row.platform
+  }
 
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
@@ -50,7 +59,7 @@ workflow bacterial_default {
   main:
     runInfo = save_analysis_metadata()
     // assembly and qc processing
-    referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
+    referenceMapping = bwa_mem_ref(meta.reads, genomeReferenceDir)
     sortedReferenceMapping = samtools_sort_one(referenceMapping, [])
     sortedReferenceMappingIdx = samtools_index_one(sortedReferenceMapping.bam)
 
@@ -65,14 +74,14 @@ workflow bacterial_default {
     postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
     
     if ( params.useSkesa ) {
-      assembly = skesa(reads)
+      assembly = skesa(meta.reads)
     } else {
-      assembly = spades(reads)
+      assembly = spades(meta.reads)
     }
 
     // mask polymorph regions
     assemblyBwaIdx = bwa_index(assembly)
-    reads
+    meta.reads
       .join(assemblyBwaIdx)
       .multiMap { id, reads, bai -> 
           reads: tuple(id, reads)
@@ -115,16 +124,16 @@ workflow bacterial_default {
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
-    if (params.strands == 2) {
+    if (meta.reads.count() == 3) {
       // debug aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
-      aribaReport = ariba_run(reads, aribaReferenceDir)
+      aribaReport = ariba_run(meta.reads, aribaReferenceDir)
       aribaSummary = ariba_summary(aribaReport)
       aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
     }
 
     // perform resistance prediction
-    resfinderOutput = resfinder(reads, params.species, resfinderDb, pointfinderDb)
-    virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
+    resfinderOutput = resfinder(meta.reads, params.species, resfinderDb, pointfinderDb)
+    virulencefinderOutput = virulencefinder(meta.reads, params.useVirulenceDbs, virulencefinderDb)
 
     // combine results for export
     combinedOutput = assemblyQc
@@ -138,7 +147,7 @@ workflow bacterial_default {
     // Using kraken for species identificaiton
     if( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
-      krakenReport = kraken(reads, krakenDb).report
+      krakenReport = kraken(meta.reads, krakenDb).report
       brackenOutput = bracken(krakenReport, krakenDb).output
       combinedOutput = combinedOutput.join(brackenOutput)
       create_analysis_result(
