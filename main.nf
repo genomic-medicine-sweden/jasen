@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two; samtools_index as samtools_index_one; samtools_index as samtools_index_two } from './nextflow-modules/modules/samtools/main.nf'
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
-include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
+include { spades } from './nextflow-modules/modules/spades/main.nf'
 include { skesa } from './nextflow-modules/modules/skesa/main.nf'
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
@@ -24,7 +24,7 @@ include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addPar
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
 
-  // Function for paired-end or single-end
+// Function for paired-end or single-end
 def get_reads(LinkedHashMap row) {
   if (row.read2) {
     reads = tuple(row.id, tuple(file(row.read1), file(row.read2)))
@@ -34,11 +34,26 @@ def get_reads(LinkedHashMap row) {
   return reads
 }
 
+// Function for platform
+def get_platform(LinkedHashMap row) {
+  platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
+  if (row.platform in platforms) {
+    if (row.platform == "illumina") {
+      platform = []
+    } else {
+      platform = row.platform
+    }
+  } else {
+    exit 1, "ERROR: Please check input csv -> platform is not one of the following: ${platforms.join(', ')}"
+  }
+  return platform
+}
+
 workflow bacterial_default {
   meta = Channel.fromPath(params.csv).splitCsv(header:true)
   .multiMap{ row ->
     reads: get_reads(row)
-    platform: row.platform
+    platform: get_platform(row)
   }
 
   // load references 
@@ -76,7 +91,7 @@ workflow bacterial_default {
     if ( params.useSkesa ) {
       assembly = skesa(meta.reads)
     } else {
-      assembly = spades(meta.reads)
+      assembly = spades(meta.reads, meta.platform)
     }
 
     // mask polymorph regions
