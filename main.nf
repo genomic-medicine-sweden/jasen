@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two; samtools_index as samtools_index_one; samtools_index as samtools_index_two } from './nextflow-modules/modules/samtools/main.nf'
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
-include { spades } from './nextflow-modules/modules/spades/main.nf' addParams( args: ['--only-assembler'] )
+include { spades } from './nextflow-modules/modules/spades/main.nf'
 include { skesa } from './nextflow-modules/modules/skesa/main.nf'
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
@@ -24,13 +24,37 @@ include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addPar
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
 
+// Function for paired-end or single-end
+def get_reads(LinkedHashMap row) {
+  if (row.read2) {
+    reads = tuple(row.id, tuple(file(row.read1), file(row.read2)))
+  } else {
+    reads = tuple(row.id, tuple(file(row.read1)))
+  }
+  return reads
+}
+
+// Function for platform
+def get_platform(LinkedHashMap row) {
+  platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
+  if (row.platform in platforms) {
+    if (row.platform == "illumina") {
+      platform = []
+    } else {
+      platform = row.platform
+    }
+  } else {
+    exit 1, "ERROR: Please check input csv -> platform is not one of the following: ${platforms.join(', ')}"
+  }
+  return platform
+}
+
 workflow bacterial_default {
-  if (params.strands==2){
-    reads = Channel.fromPath(params.csv)
-    .splitCsv(header:true).map{ row -> tuple(row.id, tuple(file(row.read1),file(row.read2))) }}
-  else if (params.strands==1){
-    reads = Channel.fromPath(params.csv)
-    .splitCsv(header:true).map{ row -> tuple(row.id, tuple(file(row.read1))) }}
+  meta = Channel.fromPath(params.csv).splitCsv(header:true)
+  .multiMap{ row ->
+    reads: get_reads(row)
+    platform: get_platform(row)
+  }
 
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
@@ -50,7 +74,7 @@ workflow bacterial_default {
   main:
     runInfo = save_analysis_metadata()
     // assembly and qc processing
-    referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
+    referenceMapping = bwa_mem_ref(meta.reads, genomeReferenceDir)
     sortedReferenceMapping = samtools_sort_one(referenceMapping, [])
     sortedReferenceMappingIdx = samtools_index_one(sortedReferenceMapping.bam)
 
@@ -65,14 +89,14 @@ workflow bacterial_default {
     postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
     
     if ( params.useSkesa ) {
-      assembly = skesa(reads)
+      assembly = skesa(meta.reads)
     } else {
-      assembly = spades(reads)
+      assembly = spades(meta.reads, meta.platform)
     }
 
     // mask polymorph regions
     assemblyBwaIdx = bwa_index(assembly)
-    reads
+    meta.reads
       .join(assemblyBwaIdx)
       .multiMap { id, reads, bai -> 
           reads: tuple(id, reads)
@@ -115,16 +139,16 @@ workflow bacterial_default {
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
-    if (params.strands == 2) {
+    if (meta.reads.count() == 3) {
       // debug aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
-      aribaReport = ariba_run(reads, aribaReferenceDir)
+      aribaReport = ariba_run(meta.reads, aribaReferenceDir)
       aribaSummary = ariba_summary(aribaReport)
       aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
     }
 
     // perform resistance prediction
-    resfinderOutput = resfinder(reads, params.species, resfinderDb, pointfinderDb)
-    virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
+    resfinderOutput = resfinder(meta.reads, params.species, resfinderDb, pointfinderDb)
+    virulencefinderOutput = virulencefinder(meta.reads, params.useVirulenceDbs, virulencefinderDb)
 
     // combine results for export
     combinedOutput = assemblyQc
@@ -138,7 +162,7 @@ workflow bacterial_default {
     // Using kraken for species identificaiton
     if( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
-      krakenReport = kraken(reads, krakenDb).report
+      krakenReport = kraken(meta.reads, krakenDb).report
       brackenOutput = bracken(krakenReport, krakenDb).output
       combinedOutput = combinedOutput.join(brackenOutput)
       create_analysis_result(
