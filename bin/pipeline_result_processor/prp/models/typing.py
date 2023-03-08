@@ -16,14 +16,14 @@ class TypingMethod(Enum):
 class ResultMlstBase(RWModel):
     """Base class for storing MLST-like typing results"""
 
-    alleles: Dict[str, Union[ int , None] ]
+    alleles: Dict[str, Union[int, str, None]]
 
 
 class TypingResultMlst(ResultMlstBase):
     """MLST results"""
 
     scheme: str
-    sequence_type: Union[int , None] = Field(None, alias="sequenceType")
+    sequence_type: Union[int, None] = Field(None, alias="sequenceType")
 
 
 class TypingResultCgMlst(ResultMlstBase):
