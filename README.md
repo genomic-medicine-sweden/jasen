@@ -39,8 +39,8 @@ Start a new analysis with samples defined in `assets/test_data/samplelist.csv` u
 Input files are defined in a csv file with the following format. All samples need to be of the same "type", meaning that they can be analyzed with the same analysis profile, defined in the nextflow config.
 
 ``` csv
-id,read1,read2
-p1,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+id,species,platform,read1,read2
+p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
 
 ## Component Breakdown
@@ -54,7 +54,7 @@ The database used is a standard Kraken database built with
 kraken2-build --standard --db $DBNAME
 ```
 
-Low levels of Intra-species contamination or erronous mapping is removed using bwa and filtering away 
+Low levels of Intra-species contamination or erroneous mapping is removed using bwa and filtering away 
 the heterozygous mapped bases. 
 
 Genome coverage is estimated by mapping with [bwa mem](https://github.com/lh3/bwa) and using a bed file containing the cgMLST loci.
@@ -63,12 +63,15 @@ A value on the evenness of coverage is calculated as an [interquartile range](ht
 
 ### Epidemiological typing
 
-Currently, 3 profiles are supported:
+Currently, 2 profiles are supported:
 * `staphylococcus_aureus`
 * `escherichia_coli`
-* `klebsiella_pneumoniae`
 
-For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
+Future profiles that will be supported:
+* `klebsiella_pneumoniae`
+* `mycobacterium_tuberculosis`
+
+For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) or [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
 is used for extracting QC data from the assembly.
 
 The cgMLST reference scheme used, is branched off [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/) 
