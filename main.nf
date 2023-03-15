@@ -27,9 +27,9 @@ include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf'
 // Function for paired-end or single-end
 def get_reads(LinkedHashMap row) {
   if (row.read2) {
-    reads = tuple(row.id, tuple(file(row.read1), file(row.read2)))
+    reads = tuple(row.id, tuple(file(row.read1, checkIfExists: true), file(row.read2, checkIfExists: true)))
   } else {
-    reads = tuple(row.id, tuple(file(row.read1)))
+    reads = tuple(row.id, tuple(file(row.read1, checkIfExists: true)))
   }
   return reads
 }
