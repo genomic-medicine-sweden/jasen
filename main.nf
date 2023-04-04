@@ -6,7 +6,8 @@ nextflow.enable.dsl=2
 include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two; samtools_index as samtools_index_one; samtools_index as samtools_index_two } from './nextflow-modules/modules/samtools/main.nf'
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
 include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
-include { spades } from './nextflow-modules/modules/spades/main.nf'
+include { assembly_trim_clean } from './nextflow-modules/modules/clean/main.nf'
+include { spades_iontorrent; spades_illumina} from './nextflow-modules/modules/spades/main.nf'
 include { skesa } from './nextflow-modules/modules/skesa/main.nf'
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
 include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
@@ -24,37 +25,29 @@ include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addPar
 include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
 include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
 
-// Function for paired-end or single-end
-def get_reads(LinkedHashMap row) {
-  if (row.read2) {
-    reads = tuple(row.id, tuple(file(row.read1, checkIfExists: true), file(row.read2, checkIfExists: true)))
-  } else {
-    reads = tuple(row.id, tuple(file(row.read1, checkIfExists: true)))
-  }
-  return reads
-}
-
-// Function for platform
-def get_platform(LinkedHashMap row) {
+// Function for platform and paired-end or single-end
+def get_meta(LinkedHashMap row) {
   platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
   if (row.platform in platforms) {
-    if (row.platform == "illumina") {
-      platform = []
+    if (row.read2) {
+      meta = tuple(row.id, tuple(file(row.read1), file(row.read2)), row.platform)
     } else {
-      platform = row.platform
+      meta = tuple(row.id, tuple(file(row.read1)), row.platform)
     }
   } else {
-    exit 1, "ERROR: Please check input csv -> platform is not one of the following: ${platforms.join(', ')}"
+    exit 1, "ERROR: Please check input samplesheet -> Platform is not one of the following:!\n-${platforms.join('\n-')}"
   }
-  return platform
+  return meta
 }
 
 workflow bacterial_default {
-  meta = Channel.fromPath(params.csv).splitCsv(header:true)
-  .multiMap{ row ->
-    reads: get_reads(row)
-    platform: get_platform(row)
-  }
+  Channel.fromPath(params.csv).splitCsv(header:true)
+    .map{ row -> get_meta(row) }
+    .branch {
+      iontorrent: it[2] == "iontorrent"
+      illumina: it[2] == "illumina"
+    }
+    .set{ meta }
 
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
@@ -70,11 +63,16 @@ workflow bacterial_default {
   pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
   virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
-
   main:
     runInfo = save_analysis_metadata()
+
+    // reads trim and clean
+    clean_meta = assembly_trim_clean(meta.iontorrent)
+    input_meta = meta.illumina.mix(clean_meta)
+    reads = input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }
+
     // assembly and qc processing
-    referenceMapping = bwa_mem_ref(meta.reads, genomeReferenceDir)
+    referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
     sortedReferenceMapping = samtools_sort_one(referenceMapping, [])
     sortedReferenceMappingIdx = samtools_index_one(sortedReferenceMapping.bam)
 
@@ -82,26 +80,27 @@ workflow bacterial_default {
     sortedReferenceMapping.bam
       .join(sortedReferenceMappingIdx)
       .multiMap { id, bam, bai -> 
-          bam: tuple(id, bam)
-          bai: bai
-       }
+        bam: tuple(id, bam)
+        bai: bai
+      }
       .set{ post_align_qc_ch }
     postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
     
-    if ( params.useSkesa ) {
-      assembly = skesa(meta.reads)
-    } else {
-      assembly = spades(meta.reads, meta.platform)
-    }
+    // assembly
+    skesa(input_meta).set{ ass_sk_il }
+    spades_illumina(input_meta).set{ ass_sp_il }
+    spades_iontorrent(input_meta).set{ ass_sp_it }
+
+    Channel.empty().mix(ass_sk_il, ass_sp_il, ass_sp_it).set{ assembly }
 
     // mask polymorph regions
     assemblyBwaIdx = bwa_index(assembly)
-    meta.reads
+    reads
       .join(assemblyBwaIdx)
       .multiMap { id, reads, bai -> 
-          reads: tuple(id, reads)
-          bai: bai
-       }
+        reads: tuple(id, reads)
+        bai: bai
+      }
       .set { bwa_mem_dedup_ch }
     assemblyMapping = bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
     sortedAssemblyMapping = samtools_sort_two(assemblyMapping, [])
@@ -111,10 +110,11 @@ workflow bacterial_default {
       .join(sortedAssemblyMapping.bam)
       .join(sortedAssemblyMappingIdx)
       .multiMap { id, fasta, bam, bai -> 
-          assembly: tuple(id, fasta)
-          mapping: tuple(bam, bai)
-       }
+        assembly: tuple(id, fasta)
+        mapping: tuple(bam, bai)
+      }
       .set { freebayes_ch }
+
     maskedRegionsVcf = freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
     //maskedRegionsVcf = freebayes(assembly.join(sortedAssemblyMappingIdx).join(sortedAssemblyMapping.bam))
     maskedAssembly = mask_polymorph_assembly(assembly.join(maskedRegionsVcf))
@@ -125,8 +125,8 @@ workflow bacterial_default {
     // of results and id at a later stage. This to allow batch cgmlst analysis 
     maskedAssembly
       .multiMap { sampleName, filePath -> 
-          sampleName: sampleName
-          filePath: filePath
+        sampleName: sampleName
+        filePath: filePath
       }
       .set{ maskedAssemblyMap }
 
@@ -139,30 +139,30 @@ workflow bacterial_default {
     export_to_cdm(chewbbacaResult.join(assemblyQc).join(postQc))
 
     // ariba path
-    if (meta.reads.count() == 3) {
+    if (reads.count() == 3) {
       // debug aribaReferenceDir = ariba_prepareref(aribaReference, Channel.empty())
-      aribaReport = ariba_run(meta.reads, aribaReferenceDir)
+      aribaReport = ariba_run(reads, aribaReferenceDir)
       aribaSummary = ariba_summary(aribaReport)
       aribaJson = ariba_summary_to_json(aribaReport.join(aribaSummary), aribaReference)
     }
 
     // perform resistance prediction
-    resfinderOutput = resfinder(meta.reads, params.species, resfinderDb, pointfinderDb)
-    virulencefinderOutput = virulencefinder(meta.reads, params.useVirulenceDbs, virulencefinderDb)
+    resfinderOutput = resfinder(reads, params.species, resfinderDb, pointfinderDb)
+    virulencefinderOutput = virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
 
     // combine results for export
     combinedOutput = assemblyQc
-        .join(mlstResult.json)
-        .join(chewbbacaResult)
-        .join(resfinderOutput.json)
-        .join(resfinderOutput.meta)
-        .join(virulencefinderOutput.json)
-        .join(virulencefinderOutput.meta)
+      .join(mlstResult.json)
+      .join(chewbbacaResult)
+      .join(resfinderOutput.json)
+      .join(resfinderOutput.meta)
+      .join(virulencefinderOutput.json)
+      .join(virulencefinderOutput.meta)
 
     // Using kraken for species identificaiton
-    if( params.useKraken ) {
+    if ( params.useKraken ) {
       krakenDb = file(params.krakenDb, checkIfExists: true)
-      krakenReport = kraken(meta.reads, krakenDb).report
+      krakenReport = kraken(reads, krakenDb).report
       brackenOutput = bracken(krakenReport, krakenDb).output
       combinedOutput = combinedOutput.join(brackenOutput)
       create_analysis_result(
