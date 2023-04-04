@@ -5,25 +5,25 @@ nextflow.enable.dsl=2
 
 include { samtools_sort as samtools_sort_one; samtools_sort as samtools_sort_two; samtools_index as samtools_index_one; samtools_index as samtools_index_two } from './nextflow-modules/modules/samtools/main.nf'
 include { sambamba_markdup } from './nextflow-modules/modules/sambamba/main.nf'
-include { freebayes } from './nextflow-modules/modules/freebayes/main.nf' addParams( args: ['-C', '2', '-F', '0.2', '--pooled-continuous'] )
+include { freebayes } from './nextflow-modules/modules/freebayes/main.nf'
 include { assembly_trim_clean } from './nextflow-modules/modules/clean/main.nf'
 include { spades_iontorrent; spades_illumina} from './nextflow-modules/modules/spades/main.nf'
 include { skesa } from './nextflow-modules/modules/skesa/main.nf'
 include { save_analysis_metadata; mask_polymorph_assembly; export_to_cdm } from './nextflow-modules/modules/cmd/main.nf'
-include { quast } from './nextflow-modules/modules/quast/main.nf' addParams( args: [] )
-include { mlst } from './nextflow-modules/modules/mlst/main.nf' addParams( args: [] )
+include { quast } from './nextflow-modules/modules/quast/main.nf'
+include { mlst } from './nextflow-modules/modules/mlst/main.nf'
 include { ariba_prepareref } from './nextflow-modules/modules/ariba/main.nf'
-include { ariba_run } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--force'] )
-include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf' addParams( args: ['--col_filter', 'n', '--row_filter', 'n'] )
+include { ariba_run } from './nextflow-modules/modules/ariba/main.nf'
+include { ariba_summary } from './nextflow-modules/modules/ariba/main.nf'
 include { ariba_summary_to_json } from './nextflow-modules/modules/ariba/main.nf'
-include { kraken } from './nextflow-modules/modules/kraken/main.nf' addParams( args: ['--gzip-compressed'] )
-include { bracken } from './nextflow-modules/modules/bracken/main.nf' addParams( args: ['-r', '150'] )
+include { kraken } from './nextflow-modules/modules/kraken/main.nf'
+include { bracken } from './nextflow-modules/modules/bracken/main.nf'
 include { bwa_mem as bwa_mem_ref; bwa_mem as bwa_mem_dedup; bwa_index } from './nextflow-modules/modules/bwa/main.nf'
 include { post_align_qc } from './nextflow-modules/modules/qc/main.nf'
-include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci; chewbbaca_create_batch_list} from './nextflow-modules/modules/chewbbaca/main.nf' addParams( args: [] )
-include { resfinder } from './nextflow-modules/modules/resfinder/main.nf' addParams( args: [] )
-include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf' addParams( args: [] )
-include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf' addParams( args: [] )
+include { chewbbaca_allelecall; chewbbaca_split_results; chewbbaca_split_missing_loci; chewbbaca_create_batch_list} from './nextflow-modules/modules/chewbbaca/main.nf'
+include { resfinder } from './nextflow-modules/modules/resfinder/main.nf'
+include { virulencefinder } from './nextflow-modules/modules/virulencefinder/main.nf'
+include { create_analysis_result } from './nextflow-modules/modules/prp/main.nf'
 
 // Function for platform and paired-end or single-end
 def get_meta(LinkedHashMap row) {
