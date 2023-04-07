@@ -64,12 +64,13 @@ workflow bacterial_default {
   virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
   main:
-    runInfo = save_analysis_metadata()
-
     // reads trim and clean
     clean_meta = assembly_trim_clean(meta.iontorrent)
     input_meta = meta.illumina.mix(clean_meta)
     reads = input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }
+
+    // analysis metadata
+    runInfo = save_analysis_metadata(input_meta)
 
     // assembly and qc processing
     referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
