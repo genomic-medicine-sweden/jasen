@@ -57,7 +57,7 @@ workflow bacterial_default {
   // databases
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
-  cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
+  cgmlstLociBed = file(params.cgmlstLociBed, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
   resfinderDb = file(params.resfinderDb, checkIfExists: true)
   pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
@@ -84,7 +84,7 @@ workflow bacterial_default {
         bai: bai
       }
       .set{ post_align_qc_ch }
-    postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
+    postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstLociBed)
     
     // assembly
     skesa(input_meta).set{ ass_sk_il }
