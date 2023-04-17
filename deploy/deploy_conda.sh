@@ -18,7 +18,4 @@ echo "Creating JASEN environment named $NAME"
 #conda create --name $NAME -f $scriptdir/reqs/reqs.txt -q 
 conda env create -f deploy/reqs/env-index-mini.yaml 
 source activate jasen
-cd $scriptdir/../bin/pipeline_result_processor
-pip install .
-cd $scriptdir
 echo "Done!"

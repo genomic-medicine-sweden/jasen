@@ -57,19 +57,20 @@ workflow bacterial_default {
   // databases
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
-  cgmlstSchema = file(params.cgmlstSchema, checkIfExists: true)
+  cgmlstLociBed = file(params.cgmlstLociBed, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
   resfinderDb = file(params.resfinderDb, checkIfExists: true)
   pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
   virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
   main:
-    runInfo = save_analysis_metadata()
-
     // reads trim and clean
     clean_meta = assembly_trim_clean(meta.iontorrent)
     input_meta = meta.illumina.mix(clean_meta)
     reads = input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }
+
+    // analysis metadata
+    runInfo = save_analysis_metadata(input_meta)
 
     // assembly and qc processing
     referenceMapping = bwa_mem_ref(reads, genomeReferenceDir)
@@ -84,7 +85,7 @@ workflow bacterial_default {
         bai: bai
       }
       .set{ post_align_qc_ch }
-    postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstSchema)
+    postQc = post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstLociBed)
     
     // assembly
     skesa(input_meta).set{ ass_sk_il }
