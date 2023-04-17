@@ -30,7 +30,10 @@ class RunInformation(RWModel):
     commit: str
     analysis_profile: str = Field(..., alias="analysisProfile")
     configuration_files: List[str] = Field(..., alias="configurationFiles")
-    run: str
+    workflow_name: str
+    sample_name: str
+    sequencing_platform: str
+    sequencing_type: str
     command: str
     date: datetime
 
