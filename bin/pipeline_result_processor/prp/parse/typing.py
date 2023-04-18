@@ -28,7 +28,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
 
 
 def parse_cgmlst_results(
-    file: str, include_novel_alleles: bool = True
+    file: str, include_novel_alleles: bool = True, correct_alleles: bool = False
 ) -> TypingResultCgMlst:
     """Parse chewbbaca cgmlst prediction results to json results.
 
@@ -62,7 +62,7 @@ def parse_cgmlst_results(
     _, *allele_names = (colname.rstrip(".fasta") for colname in next(creader))
     # parse alleles
     _, *alleles = next(creader)
-    corrected_alleles = (replace_errors(a) for a in alleles)
+    corrected_alleles = (replace_errors(a) if correct_alleles else a for a in alleles)
     results = TypingResultCgMlst(
         n_novel=sum(1 for a in alleles if a.startswith("INF")),
         n_missing=sum(1 for a in alleles if a in ERRORS),
