@@ -47,12 +47,16 @@ def parse_cgmlst_results(
     def replace_errors(allele):
         """Replace errors and novel alleles with nulls if they are not to be inlcuded."""
         if any(
-            [allele in ERRORS, allele.startswith("INF") and not include_novel_alleles]
+            [correct_alleles and allele in ERRORS, correct_alleles and allele.startswith("INF") and not include_novel_alleles]
         ):
             return None
         elif allele.startswith("INF") and include_novel_alleles:
             return int(allele.split("-")[1])
-        return int(allele)
+        try:
+            allele = int(allele)
+        except ValueError:
+            allele = str(allele)
+        return allele
 
     msg = "Parsing cgmslt results, "
     LOG.info(
@@ -62,7 +66,7 @@ def parse_cgmlst_results(
     _, *allele_names = (colname.rstrip(".fasta") for colname in next(creader))
     # parse alleles
     _, *alleles = next(creader)
-    corrected_alleles = (replace_errors(a) if correct_alleles else a for a in alleles)
+    corrected_alleles = (replace_errors(a) for a in alleles)
     results = TypingResultCgMlst(
         n_novel=sum(1 for a in alleles if a.startswith("INF")),
         n_missing=sum(1 for a in alleles if a in ERRORS),
