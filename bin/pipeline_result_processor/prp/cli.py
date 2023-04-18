@@ -47,17 +47,12 @@ def cli():
     multiple=True,
     help="Nextflow processes metadata from the pipeline in json format",
 )
-@click.option(
-    "-k", "--kraken", type=click.File(), help="Kraken species annotation results"
-)
+@click.option("-k", "--kraken", type=click.File(), help="Kraken species annotation results")
 @click.option("-m", "--mlst", type=click.File(), help="MLST prediction results")
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
-@click.option(
-    "-v", "--virulence", type=click.File(), help="Virulence factor prediction results"
-)
-@click.option(
-    "-r", "--resistance", type=click.File(), help="Resistance prediction results"
-)
+@click.option("-v", "--virulence", type=click.File(), help="Virulence factor prediction results")
+@click.option("-r", "--resistance", type=click.File(), help="Resistance prediction results")
+@click.option("-a", "--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
 def create_output(
     sample_id,
@@ -69,6 +64,7 @@ def create_output(
     cgmlst,
     virulence,
     resistance,
+    correct_alleles,
     output,
 ):
     """Combine pipeline results into a standardized json output file."""
@@ -102,7 +98,7 @@ def create_output(
         res: MethodIndex = parse_mlst_results(mlst)
         results["typing_result"].append(res)
     if cgmlst:
-        res: MethodIndex = parse_cgmlst_results(cgmlst)
+        res: MethodIndex = parse_cgmlst_results(cgmlst, correct_alleles=correct_alleles)
         results["typing_result"].append(res)
 
     # resistance of different types
