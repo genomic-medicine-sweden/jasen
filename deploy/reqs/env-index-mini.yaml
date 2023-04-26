@@ -1,12 +1,8 @@
 name: jasen
 channels:
-  - anaconda
-  - bioconda
   - conda-forge
-  - defaults
+  - bioconda
 dependencies:
-  - ariba
   - bwa
-  - pip
-  - pip:
-    - chewbbaca
+  - blast
+  - chewbbaca
