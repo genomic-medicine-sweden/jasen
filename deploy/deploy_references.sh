@@ -9,23 +9,21 @@ mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
 scriptdir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 assdir="${scriptdir}/../assets/"
 
-source activate jasen
+conda activate jasen
 
 ## DBS
 
 #CARD db
-cd ${assdir}/card
-wget https://card.mcmaster.ca/download/0/broadstreet-v3.1.4.tar.bz2
-tar -xjf broadstreet-v3.1.4.tar.bz2
-ariba prepareref -f nucleotide_fasta_protein_homolog_model.fasta --all_coding yes --force tmpdir
-cp tmpdir/* .
+# cd ${assdir}/card
+# wget https://card.mcmaster.ca/download/0/broadstreet-v3.1.4.tar.bz2
+# tar -xjf broadstreet-v3.1.4.tar.bz2
+# ariba prepareref -f nucleotide_fasta_protein_homolog_model.fasta --all_coding yes --force tmpdir
+# cp tmpdir/* .
 
 #MLST db
-#wget https://card.mcmaster.ca/download/5/ontology-v3.1.4.tar.bz2
 cd ${assdir}/mlst_db
-bash ./mlst-download_pub_mlst.sh
-bash ./mlst-make_blast_db.sh
-#wget https://raw.githubusercontent.com/tseemann/mlst/master/db/blast/mlst.fa --no-check-certificate
+bash ./mlst-download_pub_mlst.sh &> /dev/null
+bash ./mlst-make_blast_db.sh &> /dev/null
 
 #Finder dbs
 cd ${assdir}/kma && make
@@ -46,8 +44,8 @@ cd ${assdir}/genomes/staphylococcus_aureus
 bwa index NC_002951.2.fasta
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
-wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate
-unzip index.html
+wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate &> /dev/null
+unzip index.html &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/ 
 echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
 chewie PrepExternalSchema -i ${assdir}/cgmlst/staphylococcus_aureus/alleles -o ${assdir}/cgmlst/staphylococcus_aureus/alleles_rereffed \
@@ -60,8 +58,8 @@ cd ${assdir}/genomes/escherichia_coli
 bwa index NC_000913.3.fasta
 mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
 cd ${assdir}/cgmlst/escherichia_coli/alleles
-wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate
-unzip index.html
+wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate &> /dev/null
+unzip index.html &> /dev/null
 cd ${assdir}/cgmlst/escherichia_coli/
 echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
 chewie PrepExternalSchema -i ${assdir}/cgmlst/escherichia_coli/alleles -o ${assdir}/cgmlst/escherichia_coli/alleles_rereffed \
@@ -74,7 +72,19 @@ cd ${assdir}/genomes/klebsiella_pneumoniae
 bwa index NC_016845.1.fasta
 mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
 cd ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
-wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate
-unzip index.html
+wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate &> /dev/null
+unzip index.html &> /dev/null
 
 cd ${assdir}/..
+
+#chewbbaca check
+saureus=${assdir}/cgmlst/staphylococcus_aureus/alleles_rereffed
+if [ -d "$saureus" ]; then echo "$saureus exists."; else echo "ERROR: $saureus does not exist!!! Please report this to JASEN issues."; fi
+
+#bwa check
+ref=${assdir}/genomes/staphylococcus_aureus/NC_002951.2.fasta; refamb=$ref.amb; refann=$ref.ann; refbwt=$ref.bwt; refpac=$ref.pac; refsa=$ref.sa
+if [[ -f $ref && -f $refamb && -f $refann && -f $refbwt && -f $refpac && -f $refsa ]]; then echo "bwa indexes exists."; else echo "ERROR: bwa indexes do not exist!!! Please report this to JASEN issues."; fi
+
+#blastdb check
+mlst=${assdir}/mlst_db/blast/mlst.fa; mlstndb=$mlst.ndb; mlstnhd=$mlst.nhd; mlstnhi=$mlst.nhi; mlstnhr=$mlst.nhr; mlstnin=$mlst.nin; mlstnog=$mlst.nog; mlstnos=$mlst.nos; mlstnot=$mlst.not; mlstnsq=$mlst.nsq; mlstntf=$mlst.ntf; mlstnto=$mlst.nto
+if [[ -f $mlst && -f $mlstndb && -f $mlstnhd && -f $mlstnhi && -f $mlstnhr && -f $mlstnin && -f $mlstnog && -f $mlstnos && -f $mlstnot && -f $mlstnsq && -f $mlstntf && -f $mlstnto ]]; then echo "BLAST indexes exists!"; else echo "ERROR: BLAST indexes do not exist!!! Please report this to JASEN issues."; fi
