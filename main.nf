@@ -62,8 +62,6 @@ workflow bacterial_default {
   // load references 
   genomeReference = file(params.genomeReference, checkIfExists: true)
   genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
-  aribaReference = file(params.aribaReference, checkIfExists: true)
-  aribaReferenceDir = file(aribaReference.getParent(), checkIfExists: true)
   // databases
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
