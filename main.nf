@@ -1,39 +1,31 @@
 #!/usr/bin/env nextflow
 
-// Example of an bacterial analysis pipeline
 nextflow.enable.dsl=2
 
-include { samtools_sort as samtools_sort_ref        } from './nextflow-modules/modules/samtools/main.nf'
-include { samtools_sort as samtools_sort_assembly   } from './nextflow-modules/modules/samtools/main.nf'
-include { samtools_index as samtools_index_ref      } from './nextflow-modules/modules/samtools/main.nf'
-include { samtools_index as samtools_index_assembly } from './nextflow-modules/modules/samtools/main.nf'
-include { sambamba_markdup                          } from './nextflow-modules/modules/sambamba/main.nf'
-include { freebayes                                 } from './nextflow-modules/modules/freebayes/main.nf'
 include { assembly_trim_clean                       } from './nextflow-modules/modules/clean/main.nf'
-include { spades_iontorrent                         } from './nextflow-modules/modules/spades/main.nf'
-include { spades_illumina                           } from './nextflow-modules/modules/spades/main.nf'
-include { skesa                                     } from './nextflow-modules/modules/skesa/main.nf'
-include { save_analysis_metadata                    } from './nextflow-modules/modules/meta/main.nf'
-include { mask_polymorph_assembly                   } from './nextflow-modules/modules/mask/main.nf'
-include { export_to_cdm                             } from './nextflow-modules/modules/cmd/main.nf'
-include { quast                                     } from './nextflow-modules/modules/quast/main.nf'
-include { mlst                                      } from './nextflow-modules/modules/mlst/main.nf'
-include { ariba_prepareref                          } from './nextflow-modules/modules/ariba/main.nf'
-include { ariba_run                                 } from './nextflow-modules/modules/ariba/main.nf'
-include { ariba_summary                             } from './nextflow-modules/modules/ariba/main.nf'
-include { ariba_summary_to_json                     } from './nextflow-modules/modules/ariba/main.nf'
-include { kraken                                    } from './nextflow-modules/modules/kraken/main.nf'
 include { bracken                                   } from './nextflow-modules/modules/bracken/main.nf'
 include { bwa_mem as bwa_mem_ref                    } from './nextflow-modules/modules/bwa/main.nf'
 include { bwa_mem as bwa_mem_dedup                  } from './nextflow-modules/modules/bwa/main.nf'
 include { bwa_index                                 } from './nextflow-modules/modules/bwa/main.nf'
-include { post_align_qc                             } from './nextflow-modules/modules/qc/main.nf'
 include { chewbbaca_allelecall                      } from './nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_split_results                   } from './nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_create_batch_list               } from './nextflow-modules/modules/chewbbaca/main.nf'
-include { resfinder                                 } from './nextflow-modules/modules/resfinder/main.nf'
-include { virulencefinder                           } from './nextflow-modules/modules/virulencefinder/main.nf'
 include { create_analysis_result                    } from './nextflow-modules/modules/prp/main.nf'
+include { export_to_cdm                             } from './nextflow-modules/modules/cmd/main.nf'
+include { freebayes                                 } from './nextflow-modules/modules/freebayes/main.nf'
+include { kraken                                    } from './nextflow-modules/modules/kraken/main.nf'
+include { mask_polymorph_assembly                   } from './nextflow-modules/modules/mask/main.nf'
+include { mlst                                      } from './nextflow-modules/modules/mlst/main.nf'
+include { post_align_qc                             } from './nextflow-modules/modules/qc/main.nf'
+include { quast                                     } from './nextflow-modules/modules/quast/main.nf'
+include { samtools_index as samtools_index_ref      } from './nextflow-modules/modules/samtools/main.nf'
+include { samtools_index as samtools_index_assembly } from './nextflow-modules/modules/samtools/main.nf'
+include { resfinder                                 } from './nextflow-modules/modules/resfinder/main.nf'
+include { save_analysis_metadata                    } from './nextflow-modules/modules/meta/main.nf'
+include { skesa                                     } from './nextflow-modules/modules/skesa/main.nf'
+include { spades_illumina                           } from './nextflow-modules/modules/spades/main.nf'
+include { spades_iontorrent                         } from './nextflow-modules/modules/spades/main.nf'
+include { virulencefinder                           } from './nextflow-modules/modules/virulencefinder/main.nf'
 
 // Function for platform and paired-end or single-end
 def get_meta(LinkedHashMap row) {
@@ -82,11 +74,9 @@ workflow bacterial_default {
 
     // assembly and qc processing
     bwa_mem_ref(reads, genomeReferenceDir)
-    samtools_sort_ref(bwa_mem_ref.out.sam, [])
-    samtools_index_ref(samtools_sort_ref.out.bam)
+    samtools_index_ref(bwa_mem_ref.out.bam)
 
-    //sambamba_markdup(samtools_sort_ref.out.bam, samtools_index_ref.out.bai)
-    samtools_sort_ref.out.bam
+    bwa_mem_ref.out.bam
       .join(samtools_index_ref.out.bai)
       .multiMap { id, bam, bai -> 
         bam: tuple(id, bam)
@@ -112,11 +102,11 @@ workflow bacterial_default {
       }
       .set { bwa_mem_dedup_ch }
     bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
-    samtools_sort_assembly(bwa_mem_dedup.out.sam, [])
-    samtools_index_assembly(samtools_sort_assembly.out.bam)
+    samtools_index_assembly(bwa_mem_dedup.out.bam)
+
     // construct freebayes input channels
     assembly
-      .join(samtools_sort_assembly.out.bam)
+      .join(bwa_mem_dedup.out.bam)
       .join(samtools_index_assembly.out.bai)
       .multiMap { id, fasta, bam, bai -> 
         assembly: tuple(id, fasta)
