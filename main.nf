@@ -2,6 +2,8 @@
 
 nextflow.enable.dsl=2
 
+include { abritamr                                  } from './nextflow-modules/modules/abritamr/main.nf'
+include { amrfinderplus                             } from './nextflow-modules/modules/amrfinderplus/main.nf'
 include { assembly_trim_clean                       } from './nextflow-modules/modules/clean/main.nf'
 include { bracken                                   } from './nextflow-modules/modules/bracken/main.nf'
 include { bwa_mem as bwa_mem_ref                    } from './nextflow-modules/modules/bwa/main.nf'
@@ -135,6 +137,8 @@ workflow bacterial_default {
     export_to_cdm(chewbbaca_split_results.out.output.join(quast.out.qc).join(post_align_qc.out.qc))
 
     // antimicrobial detection (amrfinderplus & abritamr)
+    //amrfinderplus(assembly)
+    //abritamr(amrfinderplus.out.output)
 
     // perform resistance prediction
     resfinder(reads, params.species, resfinderDb, pointfinderDb)
@@ -144,6 +148,7 @@ workflow bacterial_default {
     quast.out.qc
       .join(mlst.out.json)
       .join(chewbbaca_split_results.out.output)
+      //.join(abritamr.out.output)
       .join(resfinder.out.json)
       .join(resfinder.out.meta)
       .join(virulencefinder.out.json)
