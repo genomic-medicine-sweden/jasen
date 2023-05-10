@@ -1,9 +1,6 @@
 process chewbbaca_allelecall {
   tag "${workflow.runName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     val sampleName
@@ -55,9 +52,6 @@ process chewbbaca_allelecall {
 
 process chewbbaca_create_batch_list {
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     path maskedAssembly
@@ -81,9 +75,6 @@ process chewbbaca_create_batch_list {
 process chewbbaca_split_results {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     each sampleName
@@ -109,9 +100,6 @@ process chewbbaca_split_results {
 process chewbbaca_split_missing_loci {
   tag "${assembly.simpleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     path input

@@ -1,9 +1,6 @@
 process sambamba_markdup {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sampleName), path(bam)

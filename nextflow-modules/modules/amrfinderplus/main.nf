@@ -1,26 +1,25 @@
 process amrfinderplus {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleName), path(assembly)
     path database
 
   output:
     tuple val(sampleName), path(output), emit: output
-    tuple val(sampleName), path(report), emit: report
-    path "*versions.yml"                    , emit: versions
+    path "*versions.yml"               , emit: versions
 
   script:
     def args = task.ext.args ?: ''
+    def database_command = database ? "--database ${database}" : ""
     output = "${sampleName}_amr.out"
     """
     amrfinder \\
-    ${args} \\
-    --output ${output}
+    --nucleotide $assembly \\
+    $database_command \\
+    $args \\
+    --output $output
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
     ${task.process}:
