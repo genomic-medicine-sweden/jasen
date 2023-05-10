@@ -4,6 +4,7 @@ mkdir assets &> /dev/null
 mkdir -p assets/genomes/{escherichia_coli,klebsiella_pneumoniae,staphylococcus_aureus} &> /dev/null
 mkdir assets/card &> /dev/null
 mkdir assets/cgmlst &> /dev/null
+mkdir -p assets/amrfinder_db/allele_counts_by_year &> /dev/null
 mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
 
 scriptdir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -13,12 +14,8 @@ conda activate jasen
 
 ## DBS
 
-#CARD db
-# cd ${assdir}/card
-# wget https://card.mcmaster.ca/download/0/broadstreet-v3.1.4.tar.bz2
-# tar -xjf broadstreet-v3.1.4.tar.bz2
-# ariba prepareref -f nucleotide_fasta_protein_homolog_model.fasta --all_coding yes --force tmpdir
-# cp tmpdir/* .
+#AMR
+amrfinder_update -d ${assdir}/amrfinder_db
 
 #MLST db
 cd ${assdir}/mlst_db
@@ -88,3 +85,5 @@ if [[ -f $ref && -f $refamb && -f $refann && -f $refbwt && -f $refpac && -f $ref
 #blastdb check
 mlst=${assdir}/mlst_db/blast/mlst.fa; mlstndb=$mlst.ndb; mlstnhd=$mlst.nhd; mlstnhi=$mlst.nhi; mlstnhr=$mlst.nhr; mlstnin=$mlst.nin; mlstnog=$mlst.nog; mlstnos=$mlst.nos; mlstnot=$mlst.not; mlstnsq=$mlst.nsq; mlstntf=$mlst.ntf; mlstnto=$mlst.nto
 if [[ -f $mlst && -f $mlstndb && -f $mlstnhd && -f $mlstnhi && -f $mlstnhr && -f $mlstnin && -f $mlstnog && -f $mlstnos && -f $mlstnot && -f $mlstnsq && -f $mlstntf && -f $mlstnto ]]; then echo "BLAST indexes exists!"; else echo "ERROR: BLAST indexes do not exist!!! Please report this to JASEN issues."; fi
+
+AMR.LIB,AMRProt,AMRProt-mutation.tab,AMRProt-suppress,AMRProt-susceptible.tab,AMR_CDS,AMR_DNA-Campylobacter,AMR_DNA-Campylobacter.tab,AMR_DNA-Clostridioides_difficile,AMR_DNA-Clostridioides_difficile.tab,AMR_DNA-Enterococcus_faecalis,AMR_DNA-Enterococcus_faecalis.tab,AMR_DNA-Enterococcus_faecium,AMR_DNA-Enterococcus_faecium.tab,AMR_DNA-Escherichia,AMR_DNA-Escherichia.tab,AMR_DNA-Klebsiella_oxytoca,AMR_DNA-Klebsiella_oxytoca.tab,AMR_DNA-Neisseria_gonorrhoeae,AMR_DNA-Neisseria_gonorrhoeae.tab,AMR_DNA-Salmonella,AMR_DNA-Salmonella.tab,AMR_DNA-Staphylococcus_aureus,AMR_DNA-Staphylococcus_aureus.tab,AMR_DNA-Streptococcus_pneumoniae,AMR_DNA-Streptococcus_pneumoniae.tab,ReferenceGeneCatalog.txt,ReferenceGeneHierarchy.txt,amr_targets.fa,changelog.txt,changes.txt,database_format_version.txt,fam.tab,taxgroup.tab,version.txt
