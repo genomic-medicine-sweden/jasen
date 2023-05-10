@@ -57,6 +57,7 @@ workflow bacterial_default {
   genomeReference = file(params.genomeReference, checkIfExists: true)
   genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
   // databases
+  amrfinderDb = params.amrfinderDb
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
   cgmlstLociBed = file(params.cgmlstLociBed, checkIfExists: true)
@@ -137,7 +138,7 @@ workflow bacterial_default {
     export_to_cdm(chewbbaca_split_results.out.output.join(quast.out.qc).join(post_align_qc.out.qc))
 
     // antimicrobial detection (amrfinderplus & abritamr)
-    //amrfinderplus(assembly)
+    amrfinderplus(assembly, amrfinderDb)
     //abritamr(amrfinderplus.out.output)
 
     // perform resistance prediction
@@ -148,7 +149,7 @@ workflow bacterial_default {
     quast.out.qc
       .join(mlst.out.json)
       .join(chewbbaca_split_results.out.output)
-      //.join(abritamr.out.output)
+      //.join(amrfinderplus.out.output)
       .join(resfinder.out.json)
       .join(resfinder.out.meta)
       .join(virulencefinder.out.json)
