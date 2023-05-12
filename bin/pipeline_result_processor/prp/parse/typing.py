@@ -27,9 +27,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
     return MethodIndex(type=TypingMethod.MLST, result=result_obj)
 
 
-def parse_cgmlst_results(
-    file: str, include_novel_alleles: bool = True, correct_alleles: bool = False
-) -> TypingResultCgMlst:
+def parse_cgmlst_results(file: str, include_novel_alleles: bool = True, correct_alleles: bool = False) -> TypingResultCgMlst:
     """Parse chewbbaca cgmlst prediction results to json results.
 
     chewbbaca reports errors in allele profile, https://github.com/B-UMMI/chewBBACA
@@ -46,9 +44,7 @@ def parse_cgmlst_results(
 
     def replace_errors(allele):
         """Replace errors and novel alleles with nulls if they are not to be inlcuded."""
-        if any(
-            [correct_alleles and allele in ERRORS, correct_alleles and allele.startswith("INF") and not include_novel_alleles]
-        ):
+        if any([correct_alleles and allele in ERRORS, correct_alleles and allele.startswith("INF") and not include_novel_alleles]):
             return None
         elif allele.startswith("INF") and include_novel_alleles:
             return int(allele.split("-")[1])
@@ -59,9 +55,7 @@ def parse_cgmlst_results(
         return allele
 
     msg = "Parsing cgmslt results, "
-    LOG.info(
-        msg + "not" if not include_novel_alleles else "" + "including novel alleles"
-    )
+    LOG.info(msg + "not" if not include_novel_alleles else "" + "including novel alleles")
     creader = csv.reader(file, delimiter="\t")
     _, *allele_names = (colname.rstrip(".fasta") for colname in next(creader))
     # parse alleles
