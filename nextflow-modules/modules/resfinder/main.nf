@@ -19,10 +19,10 @@ process resfinder {
     def resfinderFinderParams = pointfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
     def speciesArgs = species ? "--species '${species}'" : ""
-    outputFileJson = "resfinder_${sampleName}.json"
-    metaFile = "resfinder_meta_${sampleName}.json"
-    outputFileGene = "pheno_table_${sampleName}.txt"
-    outputFilePoint = "point_table_${sampleName}.txt"
+    outputFileJson = "${sampleName}_resfinder.json"
+    metaFile = "${sampleName}_resfinder_meta.json"
+    outputFileGene = "${sampleName}_pheno_table.txt"
+    outputFilePoint = "${sampleName}_point_table.txt"
     """
     # Get db version
     RES_DB_HASH=\$(git -C ${resfinderDb} rev-parse HEAD)
@@ -33,7 +33,7 @@ process resfinder {
     # Run resfinder
     python -m resfinder             \\
     --inputfastq ${reads.join(' ')} \\
-    ${speciesArgs}                   \\
+    ${speciesArgs}                  \\
     ${resfinderFinderParams}        \\
     ${pointFinderParams}            \\
     --out_json std_format_under_development.json  \\
@@ -52,10 +52,10 @@ process resfinder {
     """
 
   stub:
-    outputFileJson = "resfinder_${sampleName}.json"
-    metaFile = "resfinder_meta_${sampleName}.json"
-    outputFileGene = "pheno_table_${sampleName}.txt"
-    outputFilePoint = "point_table_${sampleName}.txt"
+    outputFileJson = "${sampleName}_resfinder.json"
+    metaFile = "${sampleName}_resfinder_meta.json"
+    outputFileGene = "${sampleName}_pheno_table.txt"
+    outputFilePoint = "${sampleName}_point_table.txt"
     """
     touch $outputFileJson
     touch $metaFile

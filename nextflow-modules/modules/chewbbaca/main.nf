@@ -15,9 +15,7 @@ process chewbbaca_allelecall {
 
   script:
     def args = task.ext.args ?: ''
-    missingLoci = "chewbbaca.missingloci"
     trainingFile = trainingFile ? "--ptf ${trainingFile}" : "" 
-
     """
     chewie AlleleCall \\
     -i ${batchInput} \\
@@ -26,7 +24,6 @@ process chewbbaca_allelecall {
     --output-directory output_dir \\
     ${trainingFile} \\
     --schema-directory ${schemaDir}
-    #bash parse_missing_loci.sh batch_input.list 'output_dir/*/results_alleles.tsv' ${missingLoci}
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
     ${task.process}:
@@ -84,39 +81,14 @@ process chewbbaca_split_results {
     tuple val(sampleName), path(output), emit: output
 
   script:
-    output = "${sampleName}.chewbbaca"
+    output = "${sampleName}_chewbbaca.out"
     """
     head -1 ${input} > ${output}
     grep ${sampleName} ${input} >> ${output}
     """
 
   stub:
-    output = "${sampleName}.chewbbaca"
-    """
-    touch $output
-    """
-}
-
-process chewbbaca_split_missing_loci {
-  tag "${assembly.simpleName}"
-  scratch params.scratch
-
-  input:
-    path input
-
-  output:
-    path output
-
-  script:
-    id = "${input.simpleName}"
-    output = "${id}.chewbbaca"
-    """
-    grep ${id} ${input} > ${output}
-    """
-
-  stub:
-    id = "${input.simpleName}"
-    output = "${id}.chewbbaca"
+    output = "${sampleName}_chewbbaca.out"
     """
     touch $output
     """

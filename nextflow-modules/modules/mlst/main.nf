@@ -21,11 +21,9 @@ process mlst {
 
   script:
     def args = task.ext.args ?: ''
-    outputName = "${sampleName}.mlst"
+    outputName = "${sampleName}_mlst"
     abbrevName = getAbbrevSpeciesName(species)
     blastDbPath = blastDb ? "--blastdb ${blastDb}/mlst.fa" : ""
-    //pubmlstDataDir = pubmlstData ? "--datadir ${pubmlstData}" : ""
-    //${pubmlstDataDir} \\
     """
     mlst \\
       ${args} \\
@@ -45,10 +43,11 @@ process mlst {
     """
 
   stub:
+    outputName = "${sampleName}_mlst"
     """
-    touch ${sampleName}.tsv
-    touch ${sampleName}.json
-    touch ${sampleName}.novel
+    touch ${outputName}.tsv
+    touch ${outputName}.json
+    touch ${outputName}.novel
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
     ${task.process}:

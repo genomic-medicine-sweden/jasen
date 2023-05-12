@@ -13,7 +13,7 @@ process amrfinderplus {
   script:
     def args = task.ext.args ?: ''
     def database_command = database ? "--database ${database}" : ""
-    output = "${sampleName}_amr.out"
+    output = "${sampleName}_amrfinder.out"
     """
     amrfinder \\
     --nucleotide $assembly \\
@@ -30,7 +30,7 @@ process amrfinderplus {
     """
 
   stub:
-    output = "${sampleName}_amr.out"
+    output = "${sampleName}_amrfinder.out"
     """
     touch ${output}
 
