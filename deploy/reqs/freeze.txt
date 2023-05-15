@@ -260,7 +260,6 @@ https://conda.anaconda.org/anaconda/linux-64/pip-20.2.4-py37_0.tar.bz2
 https://conda.anaconda.org/anaconda/noarch/plotly-4.11.0-py_0.tar.bz2
 https://conda.anaconda.org/anaconda/linux-64/scipy-1.5.2-py37habc2bb6_0.tar.bz2
 https://conda.anaconda.org/bioconda/linux-64/tabixpp-1.1.0-hb264ae4_8.tar.bz2
-https://conda.anaconda.org/bioconda/linux-64/ariba-2.14.6-py37h675a0cb_3.tar.bz2
 https://conda.anaconda.org/bioconda/linux-64/blast-2.12.0-hf3cf87c_4.tar.bz2
 https://conda.anaconda.org/anaconda/linux-64/pango-1.42.4-h049681c_0.tar.bz2
 https://conda.anaconda.org/bioconda/noarch/perl-file-listing-6.14-pl5321hdfd78af_0.tar.bz2
