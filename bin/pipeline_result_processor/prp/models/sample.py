@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from .base import RWModel
 from .metadata import RunMetadata
-from .phenotype import PhenotypeResult, PhenotypeType
+from .phenotype import PhenotypeResult, ElementType
 from .qc import QcMethodIndex
 from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
@@ -34,7 +34,7 @@ class SpeciesPrediction(RWModel):
 
 
 class MethodIndex(RWModel):
-    type: Union[PhenotypeType , TypingMethod]
+    type: Union[ElementType , TypingMethod]
     result: Union[PhenotypeResult , TypingResultMlst , TypingResultCgMlst]
 
 

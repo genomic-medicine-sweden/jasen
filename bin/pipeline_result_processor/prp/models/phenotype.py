@@ -11,7 +11,7 @@ class VariantType(Enum):
     SUBSTITUTION = "substitution"
 
 
-class PhenotypeType(Enum):
+class ElementType(Enum):
     AMR = "antimicrobial_resistance"
     CHEM = "chemical_resistance"
     ENV = "environmental_factor_resistance"
@@ -71,9 +71,9 @@ class ResistanceVariant(VariantBase):
 
 
 class PhenotypeResult(BaseModel):
-    """Phenotyp result data model.
+    """Phenotype result data model.
 
-    A phenotyp result is a generic data structure that stores predicted genes,
+    A phenotype result is a generic data structure that stores predicted genes,
     mutations and phenotyp changes.
     """
 

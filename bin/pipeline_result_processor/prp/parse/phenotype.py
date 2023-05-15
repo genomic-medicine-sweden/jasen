@@ -3,12 +3,13 @@
 import csv
 import json
 import logging
+import pandas as pd
 from typing import Any, Dict, Tuple
 
 from ..models.metadata import SoupVersion, SoupVersions
 from ..models.phenotype import (
     PhenotypeResult,
-    PhenotypeType,
+    ElementType,
     ResistanceGene,
     ResistanceVariant,
     VirulenceGene,
@@ -24,10 +25,7 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
     resistant = set()
     for phenotype in resfinder_result["phenotypes"].values():
         # skip phenotype if its not part of the desired category
-        if (
-            limit_to_phenotypes is not None
-            and phenotype["key"] not in limit_to_phenotypes
-        ):
+        if (limit_to_phenotypes is not None and phenotype["key"] not in limit_to_phenotypes):
             continue
 
         if "resistant" in phenotype.keys():
@@ -38,9 +36,7 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
     return {"susceptible": list(susceptible), "resistant": list(resistant)}
 
 
-def _parse_resfinder_amr_genes(
-    resfinder_result, limit_to_phenotypes=None
-) -> Tuple[ResistanceGene, ...]:
+def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceGene, ...]:
     """Get resistance genes from resfinder result."""
     results = []
 
@@ -78,9 +74,7 @@ def _parse_resfinder_amr_genes(
     return results
 
 
-def _parse_resfinder_amr_variants(
-    resfinder_result, limit_to_phenotypes=None
-) -> Tuple[ResistanceVariant, ...]:
+def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from resfinder result."""
     results = []
     igenes = []
@@ -121,10 +115,25 @@ def _parse_resfinder_amr_variants(
         results.append(variant)
     return results
 
+def _parse_amrfinder_amr_results(pred, element_type: str):
+    """Parse amrfinder prediction results from amrfinderplus."""
+    with open(pred, "rb") as tsvfile:
+        hits = pd.read_csv(tsvfile, delimiter="\t")
+        hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
+                                    "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
+                                    "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
+                                    "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
+        hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        if element_type == "AMR":
+            res = hits[hits["element_type"] == "AMR"].to_json(orient="records")
+        elif element_type == "ENV":
+            res = hits[(hits["element_subtype"] == "HEAT")].to_json(orient="records")
+        elif element_type == "CHEM":
+            res = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE") & (hits["element_subtype"] == "METAL")].to_json(orient="records")
+    return res
 
-def parse_resistance_pred(
-    prediction: Dict[str, Any], resistance_category
-) -> Tuple[SoupVersions, PhenotypeResult]:
+
+def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, PhenotypeResult]:
     """Parse resfinder resistance prediction results."""
     # resfinder missclassifies resistance the param amr_category by setting all to amr
     LOG.info("Parsing resistance prediction")
@@ -140,7 +149,7 @@ def parse_resistance_pred(
     ]
     # parse resistance based on the category
     categories = {
-        PhenotypeType.CHEM: [
+        ElementType.CHEM: [
             "formaldehyde",
             "benzylkonium chloride",
             "ethidium bromide",
@@ -148,27 +157,33 @@ def parse_resistance_pred(
             "cetylpyridinium chloride",
             "hydrogen peroxide",
         ],
-        PhenotypeType.ENV: ["temperature"],
+        ElementType.ENV: ["temperature"],
     }
-    categories[PhenotypeType.AMR] = list(
+    categories[ElementType.AMR] = list(
         {k for k in prediction["phenotypes"].keys()}
-        - set(categories[PhenotypeType.CHEM] + categories[PhenotypeType.ENV])
+        - set(categories[ElementType.CHEM] + categories[ElementType.ENV])
     )
 
     # parse resistance
     resistance = PhenotypeResult(
-        phenotypes=_get_resfinder_amr_sr_profie(
-            prediction, categories[resistance_category]
-        ),
-        genes=_parse_resfinder_amr_genes(prediction, categories[resistance_category]),
-        mutations=_parse_resfinder_amr_variants(
-            prediction, categories[resistance_category]
-        ),
+        phenotypes = _get_resfinder_amr_sr_profie(prediction, categories[resistance_category]),
+        genes = _parse_resfinder_amr_genes(prediction, categories[resistance_category]),
+        mutations = _parse_resfinder_amr_variants(prediction, categories[resistance_category]),
     )
     return MethodIndex(type=resistance_category, result=resistance)
 
 
-def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
+def parse_amrfinder_amr_pred(file, element_type: str):
+    """Parse amrfinder resistance prediction results."""
+    LOG.info("Parsing amrfinder amr prediction")
+    if file:
+        results = _parse_amrfinder_amr_results(file, element_type)
+    else:
+        results = _default_resistance()
+    return results
+
+
+def _parse_virulencefinder_vir_results(pred: str) -> PhenotypeResult:
     """Parse virulence prediction results from ARIBA."""
     results = {}
     # parse virulence finder results
@@ -198,37 +213,16 @@ def _parse_virulence_finder_results(pred: str) -> PhenotypeResult:
 
     return PhenotypeResult(results)
 
-
-def _parse_ariba_results(pred: str) -> PhenotypeResult:
-    """Parse virulence prediction results from ARIBA."""
-    absent_genes = []
-    present_genes = []
-    for gene, metrics in pred.items():
-        if metrics["present"] == 0:
-            absent_genes.append(gene)
-            continue
-        best_hit = max(
-            [k for k in metrics.keys() if not k == "present"],
-            key=lambda x: int(x.split("_")[-1]),
-        )
-        hit = metrics[best_hit]
-        vir_gene = VirulenceGene(
-            name=gene,
-            virulence_category="",
-            accession="",
-            depth=None,
-            identity=hit["id"],
-            coverage=int(hit["match_len"]) / int(hit["ref_len"]),
-            ref_start_pos=0,
-            ref_end_pos=0,
-            ref_gene_length=int(hit["ref_len"]),
-            alignment_length=int(hit["match_len"]),
-            ref_database="ariba",
-            ref_id=best_hit,
-        )
-        present_genes.append(vir_gene)
-    return PhenotypeResult(phenotypes=[], genes=present_genes, mutations=[])
-
+def _parse_amrfinder_vir_results(pred: str):
+    """Parse amrfinder prediction results from amrfinderplus."""
+    hits = pd.read_csv(pred, delimiter="\t")
+    hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
+                                "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
+                                "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
+                                "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
+    hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+    virulence = hits[hits["element_type"] == "VIRULENCE"].to_json(orient="records")
+    return virulence
 
 def _default_virulence() -> PhenotypeResult:
     gene = VirulenceGene(
@@ -271,14 +265,18 @@ def _default_resistance() -> PhenotypeResult:
     return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
 
 
-def parse_virulence_pred(file: str) -> PhenotypeResult:
-    """Parse virulence prediction results."""
-    LOG.info("Parsing virulence prediction")
+def parse_virulencefinder_vir_pred(file: str) -> PhenotypeResult:
+    """Parse virulencefinder virulence prediction results."""
+    LOG.info("Parsing virulencefinder virulence prediction")
     pred = json.load(file)
     if "not virulencefinder" in pred:
-        results: PhenotypeResult = _parse_virulence_finder_results(pred)
-    elif "ariba" in pred:
-        results: PhenotypeResult = _parse_ariba_results(pred)
+        results: PhenotypeResult = _parse_virulencefinder_vir_results(pred)
     else:
         results: PhenotypeResult = _default_virulence()
-    return MethodIndex(type=PhenotypeType.VIR, result=results)
+    return MethodIndex(type=ElementType.VIR, result=results)
+
+def parse_amrfinder_vir_pred(file: str):
+    """Parse amrfinder virulence prediction results."""
+    LOG.info("Parsing amrfinder virulence prediction")
+    results = _parse_amrfinder_vir_results(file)
+    return results
