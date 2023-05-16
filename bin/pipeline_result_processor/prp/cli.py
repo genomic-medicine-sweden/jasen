@@ -81,7 +81,7 @@ def create_output(
         "run_metadata": {"run": run_info},
         "qc": [],
         "typing_result": [],
-        "element_type": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "virulence": {}},
+        "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "virulence": {}},
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -111,9 +111,9 @@ def create_output(
         res: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.AMR)
         chem: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.CHEM)
         env: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.ENV)
-        results["element_type"]["antimicrobial_resistance"]["resfinder"] = res
-        results["element_type"]["chemical_resistance"]["resfinder"] = chem
-        results["element_type"]["environmental_resistance"]["resfinder"] = env
+        results["element_type_result"]["antimicrobial_resistance"]["resfinder"] = res
+        results["element_type_result"]["chemical_resistance"]["resfinder"] = chem
+        results["element_type_result"]["environmental_resistance"]["resfinder"] = env
 
     # amrfinder
     if amr:
@@ -122,15 +122,15 @@ def create_output(
         metal = parse_amrfinder_amr_pred(amr, "METAL")
         env = parse_amrfinder_amr_pred(amr, "ENV")
         vir = parse_amrfinder_vir_pred(amr)
-        results["element_type"]["antimicrobial_resistance"]["amrfinder"] = res
-        results["element_type"]["chemical_resistance"]["amrfinder"] = chem
-        results["element_type"]["environmental_resistance"]["amrfinder"] = env
-        results["element_type"]["virulence"]["amrfinder"] = vir
+        results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
+        results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem
+        results["element_type_result"]["environmental_resistance"]["amrfinder"] = env
+        results["element_type_result"]["virulence"]["amrfinder"] = vir
 
     # get virulence factors in sample
     if virulence:
         vir: MethodIndex = parse_virulencefinder_vir_pred(virulence)
-        results["element_type"]["virulence"]["virulencefinder"] = vir
+        results["element_type_result"]["virulence"]["virulencefinder"] = vir
 
     if kraken:
         LOG.info("Parse kraken results")
