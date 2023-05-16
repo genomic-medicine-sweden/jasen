@@ -8,7 +8,7 @@ from typing import Any, Dict, Tuple
 
 from ..models.metadata import SoupVersion, SoupVersions
 from ..models.phenotype import (
-    PhenotypeResult,
+    ElementTypeResult,
     ElementType,
     ResistanceGene,
     ResistanceVariant,
@@ -115,25 +115,44 @@ def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) ->
         results.append(variant)
     return results
 
-def _parse_amrfinder_amr_results(pred, element_type: str):
+def _parse_amrfinder_amr_results(predictions: dict) -> Tuple[ResistanceGene, ...]:
     """Parse amrfinder prediction results from amrfinderplus."""
-    with open(pred, "rb") as tsvfile:
-        hits = pd.read_csv(tsvfile, delimiter="\t")
-        hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
-                                    "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
-                                    "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
-                                    "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
-        hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
-        if element_type == "AMR":
-            res = hits[hits["element_type"] == "AMR"].to_json(orient="records")
-        elif element_type == "ENV":
-            res = hits[(hits["element_subtype"] == "HEAT")].to_json(orient="records")
-        elif element_type == "CHEM":
-            res = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE") & (hits["element_subtype"] == "METAL")].to_json(orient="records")
-    return res
+    genes = []
+    for prediction in predictions:
+        gene = ResistanceGene(
+            name = None,
+            virulence_category = None,
+            accession = prediction["close_seq_accn"],
+            depth = None,
+            identity = prediction["ref_seq_identity"],
+            coverage = prediction["ref_seq_cov"],
+            ref_start_pos = None,
+            ref_end_pos = None,
+            ref_gene_length = prediction["ref_seq_len"],
+            alignment_length = prediction["align_len"],
+            ref_database = None,
+            phenotypes = [],
+            ref_id = None,
+
+            contig_id = prediction["contig_id"],
+            gene_symbol = prediction["gene_symbol"],
+            sequence_name = prediction["sequence_name"],
+            ass_start_pos = prediction["Start"],
+            ass_end_pos = prediction["Stop"],
+            strand = prediction["Strand"],
+            element_type = prediction["element_type"],
+            element_subtype = prediction["element_subtype"],
+            target_length = prediction["target_length"],
+            res_class = prediction["Class"],
+            res_subclass = prediction["Subclass"],
+            method = prediction["Method"],
+            close_seq_name = prediction["close_seq_name"],
+        )
+        genes.append(gene)
+    return ElementTypeResult(phenotypes=[], genes=genes, mutations=[])
 
 
-def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, PhenotypeResult]:
+def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, ElementTypeResult]:
     """Parse resfinder resistance prediction results."""
     # resfinder missclassifies resistance the param amr_category by setting all to amr
     LOG.info("Parsing resistance prediction")
@@ -165,7 +184,7 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
     )
 
     # parse resistance
-    resistance = PhenotypeResult(
+    resistance = ElementTypeResult(
         phenotypes = _get_resfinder_amr_sr_profie(prediction, categories[resistance_category]),
         genes = _parse_resfinder_amr_genes(prediction, categories[resistance_category]),
         mutations = _parse_resfinder_amr_variants(prediction, categories[resistance_category]),
@@ -173,17 +192,34 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
     return MethodIndex(type=resistance_category, result=resistance)
 
 
-def parse_amrfinder_amr_pred(file, element_type: str):
+def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
     """Parse amrfinder resistance prediction results."""
     LOG.info("Parsing amrfinder amr prediction")
-    if file:
-        results = _parse_amrfinder_amr_results(file, element_type)
-    else:
-        results = _default_resistance()
-    return results
+    with open(file, "rb") as tsvfile:
+        hits = pd.read_csv(tsvfile, delimiter="\t")
+        hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
+                                    "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
+                                    "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
+                                    "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
+        hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        if element_type == "AMR":
+            predictions = hits[hits["element_type"] == "AMR"].to_dict(orient="records")
+            results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
+        elif element_type == "ENV":
+            predictions = hits[(hits["element_subtype"] == "HEAT")].to_dict(orient="records")
+            results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
+        elif element_type == "CHEM":
+            predictions = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE")].to_dict(orient="records")
+            results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
+        elif element_type == "METAL":
+            predictions = hits[hits["element_subtype"] == "METAL"].to_dict(orient="records")
+            results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
+        else:
+            results = _default_resistance()
+    return MethodIndex(type = element_type, result = results)
 
 
-def _parse_virulencefinder_vir_results(pred: str) -> PhenotypeResult:
+def _parse_virulencefinder_vir_results(pred: str) -> ElementTypeResult:
     """Parse virulence prediction results from ARIBA."""
     results = {}
     # parse virulence finder results
@@ -211,20 +247,45 @@ def _parse_virulencefinder_vir_results(pred: str) -> PhenotypeResult:
             vir_genes.append(gene)
         results[virulence_category] = vir_genes
 
-    return PhenotypeResult(results)
+    return ElementTypeResult(results)
 
-def _parse_amrfinder_vir_results(pred: str):
+def _parse_amrfinder_vir_results(predictions: dict)  -> ElementTypeResult:
     """Parse amrfinder prediction results from amrfinderplus."""
-    hits = pd.read_csv(pred, delimiter="\t")
-    hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
-                                "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
-                                "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
-                                "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
-    hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
-    virulence = hits[hits["element_type"] == "VIRULENCE"].to_json(orient="records")
-    return virulence
+    genes = []
+    for prediction in predictions:
+        gene = VirulenceGene(
+            name = None,
+            virulence_category = None,
+            accession = prediction["close_seq_accn"],
+            depth = None,
+            identity = prediction["ref_seq_identity"],
+            coverage = prediction["ref_seq_cov"],
+            ref_start_pos = None,
+            ref_end_pos = None,
+            ref_gene_length = prediction["ref_seq_len"],
+            alignment_length = prediction["align_len"],
+            ref_database = None,
+            phenotypes = [],
+            ref_id = None,
 
-def _default_virulence() -> PhenotypeResult:
+            contig_id = prediction["contig_id"],
+            gene_symbol = prediction["gene_symbol"],
+            sequence_name = prediction["sequence_name"],
+            ass_start_pos = prediction["Start"],
+            ass_end_pos = prediction["Stop"],
+            strand = prediction["Strand"],
+            element_type = prediction["element_type"],
+            element_subtype = prediction["element_subtype"],
+            target_length = prediction["target_length"],
+            res_class = prediction["Class"],
+            res_subclass = prediction["Subclass"],
+            method = prediction["Method"],
+            close_seq_name = prediction["close_seq_name"],
+        )
+        genes.append(gene)
+    return ElementTypeResult(phenotypes=[], genes=genes, mutations=[])
+
+def _default_virulence() -> ElementTypeResult:
     gene = VirulenceGene(
         name="none",
         virulence_category="",
@@ -241,42 +302,50 @@ def _default_virulence() -> PhenotypeResult:
     )
     genes = list()
     genes.append(gene)
-    return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
+    return ElementTypeResult(phenotypes=[], genes=genes, mutations=[])
 
 
-def _default_resistance() -> PhenotypeResult:
+def _default_resistance() -> ElementTypeResult:
     gene = ResistanceGene(
-        name="none",
-        virulence_category="",
-        accession="",
-        depth=None,
-        identity=0,
-        coverage=0,
-        ref_start_pos=0,
-        ref_end_pos=0,
-        ref_gene_length=0,
-        alignment_length=0,
-        ref_database="",
-        phenotypes=[],
-        ref_id=0,
+        name = None,
+        virulence_category = None,
+        accession = None,
+        depth = None,
+        identity = None,
+        coverage = None,
+        ref_start_pos = None,
+        ref_end_pos = None,
+        ref_gene_length = None,
+        alignment_length = None,
+        ref_database = None,
+        phenotypes = [],
+        ref_id = None,
     )
     genes = list()
     genes.append(gene)
-    return PhenotypeResult(phenotypes=[], genes=genes, mutations=[])
+    return ElementTypeResult(phenotypes=[], genes=genes, mutations=[])
 
 
-def parse_virulencefinder_vir_pred(file: str) -> PhenotypeResult:
+def parse_virulencefinder_vir_pred(file: str) -> ElementTypeResult:
     """Parse virulencefinder virulence prediction results."""
     LOG.info("Parsing virulencefinder virulence prediction")
     pred = json.load(file)
     if "not virulencefinder" in pred:
-        results: PhenotypeResult = _parse_virulencefinder_vir_results(pred)
+        results: ElementTypeResult = _parse_virulencefinder_vir_results(pred)
     else:
-        results: PhenotypeResult = _default_virulence()
+        results: ElementTypeResult = _default_virulence()
     return MethodIndex(type=ElementType.VIR, result=results)
 
 def parse_amrfinder_vir_pred(file: str):
     """Parse amrfinder virulence prediction results."""
     LOG.info("Parsing amrfinder virulence prediction")
-    results = _parse_amrfinder_vir_results(file)
-    return results
+    with open(file, "rb") as tsvfile:
+        hits = pd.read_csv(tsvfile, delimiter="\t")
+        hits = hits.rename(columns={"Contig id": "contig_id", "Gene symbol": "gene_symbol", "Sequence name": "sequence_name", "Element type": "element_type", 
+                                    "Element subtype": "element_subtype", "Target length": "target_length", "Reference sequence length": "ref_seq_len", 
+                                    "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
+                                    "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
+        hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(orient="records")
+        results: ElementTypeResult = _parse_amrfinder_vir_results(predictions)
+    return MethodIndex(type = ElementType.VIR, result = results)

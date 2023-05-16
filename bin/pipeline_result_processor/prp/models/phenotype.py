@@ -19,23 +19,37 @@ class ElementType(Enum):
 
 
 class DatabaseReference(RWModel):
-    ref_database: str
-    ref_id: str
+    ref_database: Union[str, None]
+    ref_id: Union[str, None]
 
 
 class GeneBase(BaseModel):
     """Container for gene information"""
 
-    name: str
-    accession: str
+    name: Union[str, None]
+    accession: Union[str, None]
     # prediction info
-    depth: Union[float , None]
-    identity: float
-    coverage: float
-    ref_start_pos: int
-    ref_end_pos: int
-    ref_gene_length: int
-    alignment_length: int
+    depth: Union[float, None]
+    identity: Union[float, None]
+    coverage: Union[float, None]
+    ref_start_pos: Union[int, None]
+    ref_end_pos: Union[int, None]
+    ref_gene_length: Union[int, None]
+    alignment_length: Union[int, None]
+    #amrfinder extra info
+    contig_id: Union[str, None]
+    gene_symbol: Union[str, None]
+    sequence_name: Union[str, None]
+    ass_start_pos: Union[int, None]
+    ass_end_pos: Union[int, None]
+    strand: Union[str, None]
+    element_type: Union[str, None]
+    element_subtype: Union[str, None]
+    target_length: Union[int, None]
+    res_class: Union[str, None]
+    res_subclass: Union[str, None]
+    method: Union[str, None]
+    close_seq_name: Union[str, None]
 
 
 class ResistanceGene(GeneBase, DatabaseReference):
@@ -47,7 +61,7 @@ class ResistanceGene(GeneBase, DatabaseReference):
 class VirulenceGene(GeneBase, DatabaseReference):
     """Container for virulence gene information"""
 
-    virulence_category: str
+    virulence_category: Union[str, None]
 
 
 class VariantBase(DatabaseReference):
@@ -70,7 +84,7 @@ class ResistanceVariant(VariantBase):
     phenotypes: List[str]
 
 
-class PhenotypeResult(BaseModel):
+class ElementTypeResult(BaseModel):
     """Phenotype result data model.
 
     A phenotype result is a generic data structure that stores predicted genes,
