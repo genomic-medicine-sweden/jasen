@@ -8,6 +8,7 @@ assets/cgmlst/*/alleles*
 assets/genomes
 assets/mlst_db/blast
 assets/mlst_db/pubmlst
+assets/amrfinder_db
 work/
 results
 container/*.sif

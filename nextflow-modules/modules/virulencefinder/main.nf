@@ -1,9 +1,6 @@
 process virulencefinder {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sampleName), path(reads)
@@ -16,8 +13,8 @@ process virulencefinder {
     
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
-    outputFile = "virulencefinder_${sampleName}.json"
-    metaFile = "virulencefinder_meta_${sampleName}.json"
+    outputFile = "${sampleName}_virulencefinder.json"
+    metaFile = "${sampleName}_virulencefinder_meta.json"
     """
     # Get db version
     DB_HASH=\$(git -C ${virulenceDb} rev-parse HEAD)
@@ -33,8 +30,8 @@ process virulencefinder {
     """
 
  stub:
-    outputFile = "virulencefinder_${sampleName}.json"
-    metaFile = "virulencefinder_meta_${sampleName}.json"
+    outputFile = "${sampleName}_virulencefinder.json"
+    metaFile = "${sampleName}_virulencefinder_meta.json"
     """
     touch $outputFile
     touch $metaFile

@@ -1,9 +1,6 @@
 process export_to_cgviz {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     path runInfo

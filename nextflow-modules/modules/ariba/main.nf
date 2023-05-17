@@ -1,9 +1,6 @@
 process ariba_prepareref {
   tag "${fasta.simpleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     path fasta
@@ -29,9 +26,6 @@ process ariba_prepareref {
 process ariba_run {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sampleName), path(reads)
@@ -72,9 +66,6 @@ process ariba_run {
 process ariba_summary {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sampleName), path(report)
@@ -115,9 +106,6 @@ process ariba_summary {
 process ariba_summary_to_json {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sampleName), path(report), path(summary)

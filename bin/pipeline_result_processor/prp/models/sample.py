@@ -1,12 +1,12 @@
 """Data model definition of input/ output data"""
 from enum import Enum
-from typing import List, Union
+from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field
 
 from .base import RWModel
 from .metadata import RunMetadata
-from .phenotype import PhenotypeResult, PhenotypeType
+from .phenotype import ElementTypeResult, ElementType
 from .qc import QcMethodIndex
 from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
 
@@ -34,8 +34,8 @@ class SpeciesPrediction(RWModel):
 
 
 class MethodIndex(RWModel):
-    type: Union[PhenotypeType , TypingMethod]
-    result: Union[PhenotypeResult , TypingResultMlst , TypingResultCgMlst]
+    type: Union[ElementType, TypingMethod]
+    result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst]
 
 
 class SampleBase(RWModel):
@@ -56,4 +56,4 @@ class PipelineResult(SampleBase):
     # optional typing
     typing_result: List[MethodIndex] = Field(..., alias="typingResult")
     # optional phenotype prediction
-    phenotype_result: List[MethodIndex] = Field(..., alias="phenotypeResult")
+    element_type_result: Dict[str, Dict[str, MethodIndex]] = Field(..., alias="elementTypeResult")

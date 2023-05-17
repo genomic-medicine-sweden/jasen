@@ -7,7 +7,6 @@ channels:
 dependencies:
   - openjdk
   - python=3.7.1
-  - ariba
   - bcftools=1.5
   - blast
   - bowtie2

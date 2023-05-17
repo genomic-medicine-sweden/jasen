@@ -31,7 +31,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 ## Usage
 
 ### Simple self-test
-``` bash
+```
 ./nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
 ```
 
@@ -51,7 +51,7 @@ p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R
 Species detection is performed using [Kraken2](https://ccb.jhu.edu/software/kraken2/) together with [Bracken](https://ccb.jhu.edu/software/bracken/). 
 The database used is a standard Kraken database built with 
 
-``` bash
+```
 kraken2-build --standard --db $DBNAME
 ```
 
@@ -83,7 +83,7 @@ Traditional 7-locus MLST is calculated using [mlst](https://github.com/tseemann/
 
 ### Virulence and resistance markers
 
-[ARIBA](https://github.com/sanger-pathogens/ariba) is used as the tool to detect genetic markes. 
+[amrfinderplus](https://github.com/ncbi/amr/wiki/Running-AMRFinderPlus) is used as the tool to detect genetic markes. 
 The database for virulence markes is [VFDB](http://www.mgc.ac.cn/VFs/).
 
 ## Report and visualisation

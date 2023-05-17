@@ -1,9 +1,6 @@
 process chewbbaca_allelecall {
   tag "${workflow.runName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     val sampleName
@@ -18,9 +15,7 @@ process chewbbaca_allelecall {
 
   script:
     def args = task.ext.args ?: ''
-    missingLoci = "chewbbaca.missingloci"
     trainingFile = trainingFile ? "--ptf ${trainingFile}" : "" 
-
     """
     chewie AlleleCall \\
     -i ${batchInput} \\
@@ -29,7 +24,6 @@ process chewbbaca_allelecall {
     --output-directory output_dir \\
     ${trainingFile} \\
     --schema-directory ${schemaDir}
-    #bash parse_missing_loci.sh batch_input.list 'output_dir/*/results_alleles.tsv' ${missingLoci}
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
     ${task.process}:
@@ -55,9 +49,6 @@ process chewbbaca_allelecall {
 
 process chewbbaca_create_batch_list {
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     path maskedAssembly
@@ -81,9 +72,6 @@ process chewbbaca_create_batch_list {
 process chewbbaca_split_results {
   tag "${sampleName}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     each sampleName
@@ -93,42 +81,14 @@ process chewbbaca_split_results {
     tuple val(sampleName), path(output), emit: output
 
   script:
-    output = "${sampleName}.chewbbaca"
+    output = "${sampleName}_chewbbaca.out"
     """
     head -1 ${input} > ${output}
     grep ${sampleName} ${input} >> ${output}
     """
 
   stub:
-    output = "${sampleName}.chewbbaca"
-    """
-    touch $output
-    """
-}
-
-process chewbbaca_split_missing_loci {
-  tag "${assembly.simpleName}"
-  scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
-
-  input:
-    path input
-
-  output:
-    path output
-
-  script:
-    id = "${input.simpleName}"
-    output = "${id}.chewbbaca"
-    """
-    grep ${id} ${input} > ${output}
-    """
-
-  stub:
-    id = "${input.simpleName}"
-    output = "${id}.chewbbaca"
+    output = "${sampleName}_chewbbaca.out"
     """
     touch $output
     """

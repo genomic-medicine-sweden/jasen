@@ -18,6 +18,6 @@ echo "Creating JASEN environment named $NAME"
 conda config --add channels bioconda
 conda config --add channels conda-forge
 conda create -y -n $NAME mamba && conda activate $NAME
-mamba install -y bwa blast chewbbaca
+mamba install -y ncbi-amrfinderplus bwa blast chewbbaca
 #mamba env create -f deploy/reqs/env-index-mini.yaml 
 echo "Done!"

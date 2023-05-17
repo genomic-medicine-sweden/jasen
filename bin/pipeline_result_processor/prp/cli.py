@@ -5,16 +5,18 @@ import click
 from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
-from .models.phenotype import PhenotypeType
+from .models.phenotype import ElementType
 from .models.qc import QcMethodIndex
 from .models.sample import MethodIndex, PipelineResult
 from .parse import (
     parse_cgmlst_results,
     parse_mlst_results,
     parse_quast_results,
-    parse_resistance_pred,
+    parse_resfinder_amr_pred,
+    parse_amrfinder_amr_pred,
     parse_kraken_result,
-    parse_virulence_pred,
+    parse_virulencefinder_vir_pred,
+    parse_amrfinder_vir_pred,
 )
 
 logging.basicConfig(
@@ -48,11 +50,12 @@ def cli():
     help="Nextflow processes metadata from the pipeline in json format",
 )
 @click.option("-k", "--kraken", type=click.File(), help="Kraken species annotation results")
+@click.option("-a", "--amr", type=str, help="amrfinderplus anti-microbial resistance results")
 @click.option("-m", "--mlst", type=click.File(), help="MLST prediction results")
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
 @click.option("-v", "--virulence", type=click.File(), help="Virulence factor prediction results")
-@click.option("-r", "--resistance", type=click.File(), help="Resistance prediction results")
-@click.option("-a", "--correct_alleles", is_flag=True, help="Correct alleles")
+@click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
+@click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
 def create_output(
     sample_id,
@@ -63,6 +66,7 @@ def create_output(
     mlst,
     cgmlst,
     virulence,
+    amr,
     resistance,
     correct_alleles,
     output,
@@ -77,7 +81,7 @@ def create_output(
         "run_metadata": {"run": run_info},
         "qc": [],
         "typing_result": [],
-        "phenotype_result": [],
+        "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "metal_resistance": {}, "virulence": {}},
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -101,17 +105,33 @@ def create_output(
         res: MethodIndex = parse_cgmlst_results(cgmlst, correct_alleles=correct_alleles)
         results["typing_result"].append(res)
 
-    # resistance of different types
+    # resfinder of different types
     if resistance:
         pred_res = json.load(resistance)
-        amr: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.AMR)
-        chem: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.CHEM)
-        env: MethodIndex = parse_resistance_pred(pred_res, PhenotypeType.ENV)
-        results["phenotype_result"].extend([amr, chem, env])
+        res: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.AMR)
+        chem: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.CHEM)
+        env: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.ENV)
+        results["element_type_result"]["antimicrobial_resistance"]["resfinder"] = res
+        results["element_type_result"]["chemical_resistance"]["resfinder"] = chem
+        results["element_type_result"]["environmental_resistance"]["resfinder"] = env
+
+    # amrfinder
+    if amr:
+        res = parse_amrfinder_amr_pred(amr, ElementType.AMR)
+        chem = parse_amrfinder_amr_pred(amr, ElementType.CHEM)
+        metal = parse_amrfinder_amr_pred(amr, ElementType.METAL)
+        env = parse_amrfinder_amr_pred(amr, ElementType.ENV)
+        vir = parse_amrfinder_vir_pred(amr)
+        results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
+        results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem
+        results["element_type_result"]["environmental_resistance"]["amrfinder"] = env
+        results["element_type_result"]["metal_resistance"]["amrfinder"] = metal
+        results["element_type_result"]["virulence"]["amrfinder"] = vir
+
     # get virulence factors in sample
     if virulence:
-        vir: MethodIndex = parse_virulence_pred(virulence)
-        results["phenotype_result"].append(vir)
+        vir: MethodIndex = parse_virulencefinder_vir_pred(virulence)
+        results["element_type_result"]["virulence"]["virulencefinder"] = vir
 
     if kraken:
         LOG.info("Parse kraken results")

@@ -4,6 +4,7 @@ mkdir assets &> /dev/null
 mkdir -p assets/genomes/{escherichia_coli,klebsiella_pneumoniae,staphylococcus_aureus} &> /dev/null
 mkdir assets/card &> /dev/null
 mkdir assets/cgmlst &> /dev/null
+mkdir -p assets/amrfinder_db/allele_counts_by_year &> /dev/null
 mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
 
 scriptdir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -13,12 +14,8 @@ conda activate jasen
 
 ## DBS
 
-#CARD db
-# cd ${assdir}/card
-# wget https://card.mcmaster.ca/download/0/broadstreet-v3.1.4.tar.bz2
-# tar -xjf broadstreet-v3.1.4.tar.bz2
-# ariba prepareref -f nucleotide_fasta_protein_homolog_model.fasta --all_coding yes --force tmpdir
-# cp tmpdir/* .
+#AMR
+amrfinder_update -d ${assdir}/amrfinder_db
 
 #MLST db
 cd ${assdir}/mlst_db
