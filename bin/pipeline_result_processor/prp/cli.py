@@ -117,10 +117,10 @@ def create_output(
 
     # amrfinder
     if amr:
-        res = parse_amrfinder_amr_pred(amr, "AMR")
-        chem = parse_amrfinder_amr_pred(amr, "CHEM")
-        metal = parse_amrfinder_amr_pred(amr, "METAL")
-        env = parse_amrfinder_amr_pred(amr, "ENV")
+        res = parse_amrfinder_amr_pred(amr, ElementType.AMR)
+        chem = parse_amrfinder_amr_pred(amr, ElementType.CHEM)
+        metal = parse_amrfinder_amr_pred(amr, ElementType.METAL)
+        env = parse_amrfinder_amr_pred(amr, ElementType.ENV)
         vir = parse_amrfinder_vir_pred(amr)
         results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
         results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem

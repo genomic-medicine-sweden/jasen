@@ -15,6 +15,7 @@ class ElementType(Enum):
     AMR = "antimicrobial_resistance"
     CHEM = "chemical_resistance"
     ENV = "environmental_factor_resistance"
+    METAL = "metal_resistance"
     VIR = "virulence"
 
 

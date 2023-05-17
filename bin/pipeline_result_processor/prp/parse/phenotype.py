@@ -202,16 +202,16 @@ def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
                                     "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
-        if element_type == "AMR":
+        if element_type == ElementType.AMR:
             predictions = hits[hits["element_type"] == "AMR"].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == "ENV":
+        elif element_type == ElementType.ENV:
             predictions = hits[(hits["element_subtype"] == "HEAT")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == "CHEM":
+        elif element_type == ElementType.CHEM:
             predictions = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == "METAL":
+        elif element_type == ElementType.METAL:
             predictions = hits[hits["element_subtype"] == "METAL"].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
         else:

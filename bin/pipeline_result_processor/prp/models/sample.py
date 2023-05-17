@@ -34,7 +34,7 @@ class SpeciesPrediction(RWModel):
 
 
 class MethodIndex(RWModel):
-    type: Union[ElementType, TypingMethod, str]
+    type: Union[ElementType, TypingMethod]
     result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst]
 
 
