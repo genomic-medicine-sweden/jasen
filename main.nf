@@ -57,7 +57,7 @@ workflow bacterial_default {
   genomeReference = file(params.genomeReference, checkIfExists: true)
   genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
   // databases
-  amrfinderDb = params.amrfinderDb
+  amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
   cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
   cgmlstLociBed = file(params.cgmlstLociBed, checkIfExists: true)
@@ -149,7 +149,7 @@ workflow bacterial_default {
     quast.out.qc
       .join(mlst.out.json)
       .join(chewbbaca_split_results.out.output)
-      //.join(amrfinderplus.out.output)
+      .join(amrfinderplus.out.output)
       .join(resfinder.out.json)
       .join(resfinder.out.meta)
       .join(virulencefinder.out.json)
