@@ -62,6 +62,8 @@ Genome coverage is estimated by mapping with [bwa mem](https://github.com/lh3/bw
 
 A value on the evenness of coverage is calculated as an [interquartile range](https://en.wikipedia.org/wiki/Interquartile_range).
 
+De novo assembly parameters are extracted with [quast](https://github.com/ablab/quast)
+
 ### Epidemiological typing
 
 Currently, 2 profiles are supported:
