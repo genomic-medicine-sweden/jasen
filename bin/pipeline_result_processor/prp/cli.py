@@ -81,7 +81,7 @@ def create_output(
         "run_metadata": {"run": run_info},
         "qc": [],
         "typing_result": [],
-        "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "virulence": {}},
+        "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "metal_resistance": {}, "virulence": {}},
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -125,6 +125,7 @@ def create_output(
         results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
         results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem
         results["element_type_result"]["environmental_resistance"]["amrfinder"] = env
+        results["element_type_result"]["metal_resistance"]["amrfinder"] = metal
         results["element_type_result"]["virulence"]["amrfinder"] = vir
 
     # get virulence factors in sample

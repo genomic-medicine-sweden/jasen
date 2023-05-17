@@ -28,11 +28,11 @@ def _get_resfinder_amr_sr_profie(resfinder_result, limit_to_phenotypes=None):
         if (limit_to_phenotypes is not None and phenotype["key"] not in limit_to_phenotypes):
             continue
 
-        if "resistant" in phenotype.keys():
-            if phenotype["resistant"]:
-                resistant.add(phenotype["resistance"])
+        if "amr_resistant" in phenotype.keys():
+            if phenotype["amr_resistant"]:
+                resistant.add(phenotype["amr_resistance"])
             else:
-                susceptible.add(phenotype["resistance"])
+                susceptible.add(phenotype["amr_resistance"])
     return {"susceptible": list(susceptible), "resistant": list(resistant)}
 
 
@@ -40,13 +40,13 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tu
     """Get resistance genes from resfinder result."""
     results = []
 
-    if not "genes" in resfinder_result.keys():
+    if not "seq_regions" in resfinder_result:
         results  = _default_resistance().genes
         return results
 
-    for info in resfinder_result["genes"].values():
+    for info in resfinder_result["seq_regions"].values():
         # Get only acquired resistance genes
-        if not info["ref_database"].startswith("Res"):
+        if not info["ref_database"][0].startswith("Res"):
             continue
 
         # Get only genes of desired phenotype
@@ -64,10 +64,10 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tu
             coverage=info["coverage"],
             ref_start_pos=info["ref_start_pos"],
             ref_end_pos=info["ref_end_pos"],
-            ref_gene_length=info["ref_gene_lenght"],
+            ref_gene_length=info["ref_seq_lenght"],
             alignment_length=info["alignment_length"],
             phenotypes=info["phenotypes"],
-            ref_database=info["ref_database"],
+            ref_database=info["ref_database"][0],
             ref_id=info["ref_id"],
         )
         results.append(gene)
@@ -85,8 +85,8 @@ def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) ->
             if len(intersect) == 0:
                 continue
         # get gene depth
-        if "genes" in resfinder_result.keys():
-            info["depth"] = resfinder_result["genes"][info["genes"][0]]["depth"]
+        if "seq_regions" in resfinder_result:
+            info["depth"] = resfinder_result["seq_regions"][info["seq_regions"][0]]["depth"]
         else:
             info["depth"] = 0
         # translate variation type bools into classifier
@@ -98,7 +98,7 @@ def _parse_resfinder_amr_variants(resfinder_result, limit_to_phenotypes=None) ->
             var_type = "deletion"
         else:
             raise ValueError("Output has no known mutation type")
-        if not "genes" in info.keys():
+        if not "seq_regions" in info:
             #igenes = _default_resistance().genes
             igenes = [""]
         variant = ResistanceVariant(
