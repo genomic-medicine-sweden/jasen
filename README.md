@@ -6,7 +6,7 @@
 
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
-JASEN produces results for epidemiological and surveillance purposes. 
+JASEN produces results for epidemiological and surveillance purposes.
 JASEN has been tested using MRSA, but should work well with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
@@ -15,83 +15,158 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 * Nextflow (`curl -s https://get.nextflow.io | bash`)
 
 ### Recommended
+
 * Conda
 * Singularity Remote Login
 
 ## Development deployment (self-contained)
-* `git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN # Copies code locally`
-* `bash -i deploy/deploy_conda.sh # Creates development environment`
-* `bash -i deploy/deploy_references.sh # Downloads self-test databases` 
-* `(Optional) singularity remote login # Access to OCI regestries`
-* `cd container && sudo bash -i build_container.sh && cd .. # Creates singularity images`
+
+### Copy code locally
+
+```
+git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
+```
+
+### Create conda environment needed for `deploy_references.sh`
+
+```
+bash -i deploy/deploy_conda.sh
+```
+
+### Download references and databases. NOTE: Ensure that after running `deploy_references.sh` that there are no error messages
+
+```
+bash -i deploy/deploy_references.sh
+```
+
+### Access to OCI regestries (Optional)
+
+```
+singularity remote login
+```
+
+### # Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
+
+```
+cd container && sudo bash -i build_container.sh && cd ..
+```
+
+## Config and test data
+
+### Config (`configs/nextflow.base.config`)
+
 * Edit the `root` parameter in `configs/nextflow.base.config`
 * Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
+* Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
+
+### Test data (`assets/test_data/samplelist.csv`)
+
 * Edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
+
+## Setting temp directories
+
+### Open `~/.bashrc` and add the following (Edit `/path/to/tmp`)
+
+```
+export SINGULARITY_TMPDIR="/path/to/tmp"
+```
+
+## Building databases
+
+### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***)
+
+### Build MiniKraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
+
+```
+singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --max-db-size 8 --db $DBNAME 
+```
+
+### Build Kraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
+
+```
+singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --db $DBNAME
+```
+
+### NOTE: Add the `--use-ftp` argument if you get an `rsync` related error (due to server's firewall)
+
 
 ## Usage
 
 ### Simple self-test
+
 ```
-./nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv=assets/test_data/samplelist.csv
+nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv assets/test_data/samplelist.csv
 ```
 
-Start a new analysis with samples defined in `assets/test_data/samplelist.csv` using the staphylococcus_aureus profile. If nextflow has been added to the PATH, one should start the command with `nextflow` instead of `./nextflow`.
+### Usage arguments
 
-Input files are defined in a csv file with the following format. All samples need to be of the same "type", meaning that they can be analyzed with the same analysis profile, defined in the nextflow config.
+| Argument type | Options                                | Required |
+| ------------- | -------------------------------------- | -------- |
+| -profile      | staphylococcus_aureus/escherichia_coli | True     |
+| -entry        | bacterial_default                      | True     |
+| -config       | nextflow.base.config                   | True     |
+| -resume       | NA                                     | False    |
+| --output      | user specified                         | False    |
 
-``` csv
+### Input file format 
+
+```csv
 id,species,platform,read1,read2
 p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
+
+### Input species options
+
+* `saureus`
+* `ecoli`
 
 ## Component Breakdown
 
 ### QC
 
-Species detection is performed using [Kraken2](https://ccb.jhu.edu/software/kraken2/) together with [Bracken](https://ccb.jhu.edu/software/bracken/). 
-The database used is a standard Kraken database built with 
+* [Kraken2](https://ccb.jhu.edu/software/kraken2/): Species detection.
+* [Bracken](https://ccb.jhu.edu/software/bracken/): Combined with Kraken2 for species detection.
+* [bwa mem](https://github.com/lh3/bwa): Maps reads to cgMLST loci (demarcated by bed file) in order to estimate genome coverage. Low levels of Intra-species contamination or erroneous mapping is removed using bwa and filtering away the heterozygous mapped bases.
+* [interquartile range](https://en.wikipedia.org/wiki/Interquartile_range): Calculates evenness of coverage.
 
-```
-kraken2-build --standard --db $DBNAME
-```
+### Assembly
 
-Low levels of Intra-species contamination or erroneous mapping is removed using bwa and filtering away 
-the heterozygous mapped bases. 
-
-Genome coverage is estimated by mapping with [bwa mem](https://github.com/lh3/bwa) and using a bed file containing the cgMLST loci.
-
-A value on the evenness of coverage is calculated as an [interquartile range](https://en.wikipedia.org/wiki/Interquartile_range).
+* [SPAdes](http://cab.spbu.ru/software/spades/): De novo assembly for Ion Torrent.
+* [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html): De novo assembly for Illumina.
+* [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data from the assembly.
 
 De novo assembly parameters are extracted with [quast](https://github.com/ablab/quast)
 
 ### Epidemiological typing
 
-Currently, 2 profiles are supported:
-* `staphylococcus_aureus`
-* `escherichia_coli`
+* [chewBBACA](https://github.com/B-UMMI/chewBBACA/wiki): Calculates cgMLST of extracted alleles decided by schema. Number of missing loci is calculated and used as a QC parameter.
+* [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/): The cgMLST reference schema.
+* [mlst](https://github.com/tseemann/mlst): Caculates traditional 7-locus MLST.
 
-Future profiles that will be supported:
+#### Currently, 2 profiles are supported:
+
+* `staphylococcus_aureus` (`saureus` in csv)
+* `escherichia_coli` (`ecoli` in csv)
+
+#### Future profiles that will be supported:
+
 * `klebsiella_pneumoniae`
 * `mycobacterium_tuberculosis`
 
-For de novo assembly [SPAdes](http://cab.spbu.ru/software/spades/) or [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html) is used. [QUAST](http://cab.spbu.ru/software/quast/) 
-is used for extracting QC data from the assembly.
-
-The cgMLST reference scheme used, is branched off [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/) 
-At the moment this fork is not synced back with new allele numbers. For extracting alleles [chewBBACA](https://github.com/B-UMMI/chewBBACA/wiki) 
-is used. Number of missing loci is calculated and used as a QC parameter.
-
-Traditional 7-locus MLST is calculated using [mlst](https://github.com/tseemann/mlst).
-
 ### Virulence and resistance markers
 
-[amrfinderplus](https://github.com/ncbi/amr/wiki/Running-AMRFinderPlus) is used as the tool to detect genetic markes. 
-The database for virulence markes is [VFDB](http://www.mgc.ac.cn/VFs/).
+* [resfinder](https://bitbucket.org/genomicepidemiology/resfinder/src/master/): Detects antimicrobial resistance genes as well as environmental and chemical resistance genes.
+* [pointfinder](https://bitbucket.org/genomicepidemiology/pointfinder/src/master/): Combines with resfinder to detect variants.
+* [virulencefinder](https://bitbucket.org/genomicepidemiology/virulencefinder/src/master/): Detects virulence genes.
+* [amrfinderplus](https://github.com/ncbi/amr/wiki/Running-AMRFinderPlus): Detects antimicrobial resistance genes as well as environmental, chemical resistance and virulence genes.
+* [resfinder_db](https://bitbucket.org/genomicepidemiology/resfinder_db/src/master/): Resfinder database.
+* [pointfinder_db](https://bitbucket.org/genomicepidemiology/pointfinder_db/src/master/): Pointfinder database.
+* [virulencefinder_db](https://bitbucket.org/genomicepidemiology/virulencefinder_db/src/master/): Virulencefinder database.
 
 ## Report and visualisation
 
-The QC data is aggregated in a web service CDM (repo coming) and the cgMLST is visualized using a web service 
-cgviz that is combined with [graptetree](https://github.com/achtman-lab/GrapeTree) for manipulating trees (repo coming).
+* [Bonsai](https://github.com/Clinical-Genomics-Lund/cgviz): Visualises JASEN outputs.
+* [graptetree](https://github.com/achtman-lab/GrapeTree): Visualise phylogenetic relationship using cgmlst data.
 
 ## Tips
 
