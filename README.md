@@ -45,7 +45,7 @@ bash -i deploy/deploy_references.sh
 singularity remote login
 ```
 
-### # Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
+### Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
 
 ```
 cd container && sudo bash -i build_container.sh && cd ..
@@ -71,24 +71,23 @@ cd container && sudo bash -i build_container.sh && cd ..
 export SINGULARITY_TMPDIR="/path/to/tmp"
 ```
 
-## Building databases
+## Fetching databases
 
 ### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***)
 
-### Build MiniKraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
+### Download MiniKraken database
 
 ```
-singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --max-db-size 8 --db $DBNAME 
+wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
+tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
-### Build Kraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
+### Download Kraken database
 
 ```
-singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --db $DBNAME
+wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
+tar -xf /path/to/kraken_db/krakenstd.tar.gz
 ```
-
-### NOTE: Add the `--use-ftp` argument if you get an `rsync` related error (due to server's firewall)
-
 
 ## Usage
 
