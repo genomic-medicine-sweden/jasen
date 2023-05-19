@@ -8,6 +8,7 @@ From:nfcore/base:latest
         export BASH_ENV="/conda_init.sh:$BASH_ENV"
         export TMPDIR=/tmp
         export TEMPDIR=/tmp
+        umask 0002
 
 %labels
 	MAINTAINER Isak Sylvin <isak.sylvin@gu.se>
