@@ -39,6 +39,12 @@ bash -i deploy/deploy_conda.sh
 bash -i deploy/deploy_references.sh
 ```
 
+### Download references and databases using singularity instead of conda (above). NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
+
+```
+bash -i deploy/deploy_references_singularity.sh
+```
+
 ### Access to OCI regestries (Optional)
 
 ```
