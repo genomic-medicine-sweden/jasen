@@ -23,7 +23,7 @@ process spades_iontorrent {
     spades.py ${args} ${inputData} -t ${task.cpus} -o ${outputDir}
     mv ${outputDir}/contigs.fasta ${sampleName}.fasta
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -36,7 +36,7 @@ process spades_iontorrent {
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -70,7 +70,7 @@ process spades_illumina {
     spades.py ${args} ${inputData} -t ${task.cpus} -o ${outputDir}
     mv ${outputDir}/contigs.fasta ${sampleName}.fasta
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -83,7 +83,7 @@ process spades_illumina {
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')

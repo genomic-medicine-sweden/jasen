@@ -43,7 +43,7 @@ process resfinder {
     cp pheno_table.txt ${outputFileGene}
     cp PointFinder_results.txt ${outputFilePoint}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
@@ -62,7 +62,7 @@ process resfinder {
     touch $outputFileGene
     touch $outputFilePoint
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )

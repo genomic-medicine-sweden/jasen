@@ -34,7 +34,7 @@ process mlst {
       --threads ${task.cpus} \\
       ${assembly}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      mlst:
       version: \$(echo \$(mlst --version 2>&1) | sed 's/^.*mlst //')
@@ -49,7 +49,7 @@ process mlst {
     touch ${outputName}.json
     touch ${outputName}.novel
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      mlst:
       version: \$(echo \$(mlst --version 2>&1) | sed 's/^.*mlst //')
