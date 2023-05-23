@@ -27,17 +27,17 @@ bash ./mlst-make_blast_db.sh &> /dev/null
 cd ${assdir}/kma && make
 cd ${assdir}/virulencefinder_db
 export PATH=$PATH:/${assdir}/kma
-python3 INSTALL.py ${assdir}/kma/kma_index
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTALL.py ${assdir}/kma/kma_index
 cd ${assdir}/resfinder_db
-python3 INSTALL.py ${assdir}/kma/kma_index
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTALL.py ${assdir}/kma/kma_index
 cd ${assdir}/pointfinder_db
-python3 INSTALL.py ${assdir}/kma/kma_index
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTALL.py ${assdir}/kma/kma_index
 
 ## Organisms
 
 #Saureus
 cd ${assdir}/..
-python3 bin/download_ncbi.py NC_002951.2 assets/genomes/staphylococcus_aureus
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_002951.2 assets/genomes/staphylococcus_aureus
 cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
@@ -51,7 +51,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 
 #Ecoli
 cd ${assdir}/..
-python3 bin/download_ncbi.py NC_000913.3 assets/genomes/escherichia_coli
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_000913.3 assets/genomes/escherichia_coli
 cd ${assdir}/genomes/escherichia_coli
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_000913.3.fasta
 mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
@@ -65,7 +65,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 
 #Kpneumoniae
 cd ${assdir}/..
-python3 bin/download_ncbi.py NC_016845.1 assets/genomes/klebsiella_pneumoniae
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_016845.1 assets/genomes/klebsiella_pneumoniae
 cd ${assdir}/genomes/klebsiella_pneumoniae
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
 mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null

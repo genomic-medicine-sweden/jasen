@@ -27,19 +27,7 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
 ```
 
-### Create conda environment needed for `deploy_references.sh`
-
-```
-bash -i deploy/deploy_conda.sh
-```
-
-### Download references and databases. NOTE: Ensure that after running `deploy_references.sh` that there are no error messages
-
-```
-bash -i deploy/deploy_references.sh
-```
-
-### Download references and databases using singularity instead of conda (above). NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
+### Download references and databases using singularity. NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
 
 ```
 bash -i deploy/deploy_references_singularity.sh
