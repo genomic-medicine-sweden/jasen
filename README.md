@@ -79,7 +79,7 @@ export SINGULARITY_TMPDIR="/path/to/tmp"
 
 ## Fetching databases
 
-### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***)
+### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***) (or choose your own [here](https://benlangmead.github.io/aws-indexes/k2))
 
 ### Download MiniKraken database
 
