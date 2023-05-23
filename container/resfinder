@@ -9,6 +9,7 @@ From:python:3.8
 
 %environment
         export PATH="/tmp/bestfolder/resfinder/run_resfinder.py:$PATH"
+        umask 0002
 
 %post
      RESFINDER_VERSION=4.1.11

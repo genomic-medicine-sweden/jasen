@@ -24,7 +24,7 @@ process kraken {
     --report ${report} \\
     ${reads.join(' ')}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
@@ -39,7 +39,7 @@ process kraken {
     touch ${output}
     touch ${report}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')

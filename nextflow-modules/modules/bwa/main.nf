@@ -13,7 +13,7 @@ process bwa_index {
     """
     bwa index ${reference} ${reference.baseName}/${reference}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -29,7 +29,7 @@ process bwa_index {
     touch ${reference}.pac
     touch ${reference}.sa
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -61,9 +61,9 @@ process bwa_mem {
         -t $task.cpus \\
         \$INDEX \\
         ${reads.join(' ')} \\
-        | samtools sort $args2 --threads $task.cpus -o ${sampleName}.bam -
+        | samtools sort $args2 --threads ${task.cpus} -o ${sampleName}.bam -
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -78,7 +78,7 @@ process bwa_mem {
     """
     touch ${sampleName}.bam
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')

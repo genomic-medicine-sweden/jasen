@@ -27,16 +27,10 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
 ```
 
-### Create conda environment needed for `deploy_references.sh`
+### Download references and databases using singularity. NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
 
 ```
-bash -i deploy/deploy_conda.sh
-```
-
-### Download references and databases. NOTE: Ensure that after running `deploy_references.sh` that there are no error messages
-
-```
-bash -i deploy/deploy_references.sh
+bash -i deploy/deploy_references_singularity.sh
 ```
 
 ### Access to OCI regestries (Optional)
@@ -45,7 +39,7 @@ bash -i deploy/deploy_references.sh
 singularity remote login
 ```
 
-### # Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
+### Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
 
 ```
 cd container && sudo bash -i build_container.sh && cd ..
@@ -71,24 +65,23 @@ cd container && sudo bash -i build_container.sh && cd ..
 export SINGULARITY_TMPDIR="/path/to/tmp"
 ```
 
-## Building databases
+## Fetching databases
 
-### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***)
+### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***) (or choose your own [here](https://benlangmead.github.io/aws-indexes/k2))
 
-### Build MiniKraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
-
-```
-singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --max-db-size 8 --db $DBNAME 
-```
-
-### Build Kraken database (change $ROOT to path that contains both `/path/to/kraken2.sif` and `$DBNAME`)
+### Download MiniKraken database
 
 ```
-singularity exec --bind $ROOT /path/to/kraken2.sif kraken2-build --standard --db $DBNAME
+wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
+tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
-### NOTE: Add the `--use-ftp` argument if you get an `rsync` related error (due to server's firewall)
+### Download Kraken database
 
+```
+wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
+tar -xf /path/to/kraken_db/krakenstd.tar.gz
+```
 
 ## Usage
 

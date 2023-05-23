@@ -19,7 +19,7 @@ process quast {
     quast.py $args $assembly $reference_command -o $outputDir -t ${task.cpus}
     cp ${outputDir}/transposed_report.tsv $output
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      quast:
       version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')
@@ -32,7 +32,7 @@ process quast {
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      quast:
       version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')

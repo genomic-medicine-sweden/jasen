@@ -23,7 +23,7 @@ process bracken {
     -o ${output} \\
     -w ${outputReport}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bracken:
       version: 2.8
@@ -38,7 +38,7 @@ process bracken {
     touch $output
     touch $outputReport
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      bracken:
       version: 2.8

@@ -59,8 +59,8 @@ workflow bacterial_default {
   // databases
   amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
   mlstDb = file(params.mlstBlastDb, checkIfExists: true)
-  cgmlstDb = file(params.cgmlstDb, checkIfExists: true)
-  cgmlstLociBed = file(params.cgmlstLociBed, checkIfExists: true)
+  chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
+  coreLociBed = file(params.coreLociBed, checkIfExists: true)
   trainingFile = file(params.trainingFile, checkIfExists: true)
   resfinderDb = file(params.resfinderDb, checkIfExists: true)
   pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
@@ -86,7 +86,7 @@ workflow bacterial_default {
         bai: bai
       }
       .set{ post_align_qc_ch }
-    post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, cgmlstLociBed)
+    post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, coreLociBed)
     
     // assembly
     skesa(input_meta)
@@ -122,7 +122,7 @@ workflow bacterial_default {
     quast(assembly, genomeReference)
     mlst(assembly, params.species, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
-    // of results and id at a later stage. This to allow batch cgmlst analysis 
+    // of results and id at a later stage. This to allow batch cgmlst/wgmlst analysis 
     mask_polymorph_assembly.out.fasta
       .multiMap { sampleName, filePath -> 
         sampleName: sampleName
@@ -131,7 +131,7 @@ workflow bacterial_default {
       .set{ maskedAssemblyMap }
 
     chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-    chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), chewbbaca_create_batch_list.out.list, cgmlstDb, trainingFile)
+    chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
     chewbbaca_split_results(chewbbaca_allelecall.out.sampleName, chewbbaca_allelecall.out.calls)
 
     // end point

@@ -21,7 +21,7 @@ process amrfinderplus {
     $args \\
     --output $output
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      amrfinderplus:
       version: \$(echo \$(amrfinder --version 2>&1))
@@ -34,7 +34,7 @@ process amrfinderplus {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      amrfinderplus:
       version: \$(echo \$(amrfinder --version 2>&1))
