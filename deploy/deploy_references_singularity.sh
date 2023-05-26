@@ -1,8 +1,6 @@
 #!/bin/bash
 
-mkdir assets &> /dev/null
 mkdir -p assets/genomes/{escherichia_coli,klebsiella_pneumoniae,staphylococcus_aureus} &> /dev/null
-mkdir assets/card &> /dev/null
 mkdir assets/cgmlst &> /dev/null
 mkdir -p assets/amrfinder_db/allele_counts_by_year &> /dev/null
 mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
@@ -38,7 +36,7 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTA
 #Saureus
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_002951.2 assets/genomes/staphylococcus_aureus
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_002951.2 -o ${assdir}/genomes/staphylococcus_aureus
 ## Index reference
 cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
@@ -56,7 +54,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 #Ecoli
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_000913.3 assets/genomes/escherichia_coli
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_000913.3 -o ${assdir}/genomes/escherichia_coli
 ## Index reference
 cd ${assdir}/genomes/escherichia_coli
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_000913.3.fasta
@@ -78,7 +76,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 #Kpneumoniae
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_016845.1 assets/genomes/klebsiella_pneumoniae
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_016845.1 -o ${assdir}/genomes/klebsiella_pneumoniae
 ## Index reference
 cd ${assdir}/genomes/klebsiella_pneumoniae
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
