@@ -25,10 +25,10 @@ process resfinder {
     outputFilePoint = "${sampleName}_point_table.txt"
     """
     # Get db version
-    RES_DB_HASH=\$(git -C ${resfinderDb} rev-parse HEAD)
-    POINT_DB_HASH=\$(git -C ${pointfinderDb} rev-parse HEAD)
+    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\n')
+    POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
-    printf "\$JSON_FMT" "resfinder" \$RES_DB_HASH "database" "pointfinder" \$POINT_DB_HASH "database" > $metaFile
+    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > $metaFile
 
     # Run resfinder
     python -m resfinder             \\
@@ -48,6 +48,12 @@ process resfinder {
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
+     resfinder_db:
+      version: \$(cat ${resfinderDb}/VERSION | tr -d '\n')
+      container: ${task.container}
+     pointfinder_db:
+      version: \$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+      container: ${task.container}
     END_VERSIONS
     """
 
@@ -66,6 +72,12 @@ process resfinder {
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
+      container: ${task.container}
+     resfinder_db:
+      version: \$(cat ${resfinderDb}/VERSION | tr -d '\n')
+      container: ${task.container}
+     pointfinder_db:
+      version: \$(cat ${pointfinderDb}/VERSION | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """
