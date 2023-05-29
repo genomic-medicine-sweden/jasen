@@ -20,10 +20,11 @@ include { mask_polymorph_assembly                   } from './nextflow-modules/m
 include { mlst                                      } from './nextflow-modules/modules/mlst/main.nf'
 include { post_align_qc                             } from './nextflow-modules/modules/qc/main.nf'
 include { quast                                     } from './nextflow-modules/modules/quast/main.nf'
+include { resfinder                                 } from './nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_ref      } from './nextflow-modules/modules/samtools/main.nf'
 include { samtools_index as samtools_index_assembly } from './nextflow-modules/modules/samtools/main.nf'
-include { resfinder                                 } from './nextflow-modules/modules/resfinder/main.nf'
 include { save_analysis_metadata                    } from './nextflow-modules/modules/meta/main.nf'
+include { sourmash                                  } from './nextflow-modules/modules/sourmash/main.nf'
 include { skesa                                     } from './nextflow-modules/modules/skesa/main.nf'
 include { spades_illumina                           } from './nextflow-modules/modules/spades/main.nf'
 include { spades_iontorrent                         } from './nextflow-modules/modules/spades/main.nf'
@@ -136,6 +137,9 @@ workflow bacterial_default {
 
     // end point
     export_to_cdm(chewbbaca_split_results.out.output.join(quast.out.qc).join(post_align_qc.out.qc))
+
+    // sourmash
+    sourmash(assembly)
 
     // antimicrobial detection (amrfinderplus & abritamr)
     amrfinderplus(assembly, amrfinderDb)

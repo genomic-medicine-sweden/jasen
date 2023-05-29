@@ -104,14 +104,9 @@ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -co
 ### Input file format 
 
 ```csv
-id,species,platform,read1,read2
-p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+id,platform,read1,read2
+p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
-
-### Input species options
-
-* `saureus`
-* `ecoli`
 
 ## Component Breakdown
 
@@ -138,8 +133,8 @@ De novo assembly parameters are extracted with [quast](https://github.com/ablab/
 
 #### Currently, 2 profiles are supported:
 
-* `staphylococcus_aureus` (`saureus` in csv)
-* `escherichia_coli` (`ecoli` in csv)
+* `staphylococcus_aureus`
+* `escherichia_coli`
 
 #### Future profiles that will be supported:
 

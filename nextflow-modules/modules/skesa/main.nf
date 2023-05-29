@@ -7,7 +7,7 @@ process skesa {
 
   output:
     tuple val(sampleName), path(output), emit: fasta
-    path "*versions.yml"                    , emit: versions
+    path "*versions.yml"               , emit: versions
 
   when:
     task.ext.when && platform == "illumina"
