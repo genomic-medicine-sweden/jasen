@@ -27,6 +27,13 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
 ```
 
+### Create singularity images. 
+**NOTE:** Ensure that you have sudo privileges before running `build_container.sh`
+
+```
+cd container && sudo bash -i build_container.sh && cd ..
+```
+
 ### Download references and databases using singularity. 
 
 ```
@@ -38,13 +45,6 @@ Verify that `deploy_references_singularity.sh` produces no error messages
 
 ```
 singularity remote login
-```
-
-### Create singularity images. 
-**NOTE:** Ensure that you have sudo privileges before running `build_container.sh`
-
-```
-cd container && sudo bash -i build_container.sh && cd ..
 ```
 
 ## Configuration and test data
