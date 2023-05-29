@@ -27,13 +27,14 @@ JASEN has been tested using MRSA, but should work well with any bacteria with a 
 git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
 ```
 
-### Access to OCI regestries (Optional)
+### Access to OCI registries (Optional)
 
 ```
 singularity remote login
 ```
 
-### Creates singularity images. NOTE: Ensure that you have sudo priviledges before running `build_container.sh`
+### Create singularity images. 
+**NOTE:** Ensure that you have sudo privileges before running `build_container.sh`
 
 ```
 cd container && sudo bash -i build_container.sh && cd ..
@@ -45,42 +46,52 @@ cd container && sudo bash -i build_container.sh && cd ..
 bash -i deploy/deploy_references_singularity.sh
 ```
 
-## Config and test data
+### Download references and databases using singularity. 
 
-### Config (`configs/nextflow.base.config`)
+```
+bash -i deploy/deploy_references_singularity.sh
+```
+Verify that `deploy_references_singularity.sh` produces no error messages
+
+## Configuration and test data
+
+### Config 
+Source: `configs/nextflow.base.config`
 
 * Edit the `root` parameter in `configs/nextflow.base.config`
 * Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
 * Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
 
-### Test data (`assets/test_data/samplelist.csv`)
+### Test data
+Source: `assets/test_data/samplelist.csv`
 
 * Edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
 
-## Setting temp directories
-
-### Open `~/.bashrc` and add the following (Edit `/path/to/tmp`)
+## Setting up temp directories
+Source: `~/.bashrc`
 
 ```
-export SINGULARITY_TMPDIR="/path/to/tmp"
+export SINGULARITY_TMPDIR="/tmp" #or equivalent
 ```
 
 ## Fetching databases
 
-### Choose between MiniKraken DB (8GB) or Kraken DB (64GB; Recommended***) (or choose your own [here](https://benlangmead.github.io/aws-indexes/k2))
-
-### Download MiniKraken database
-
-```
-wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
-tar -xf /path/to/kraken_db/krakenmini.tar.gz
-```
+### Choose database
+Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).
+Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
 
 ### Download Kraken database
 
 ```
 wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenstd.tar.gz
+```
+
+### Download MiniKraken database
+
+```
+wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
+tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
 ## Usage
@@ -121,9 +132,7 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 
 * [SPAdes](http://cab.spbu.ru/software/spades/): De novo assembly for Ion Torrent.
 * [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html): De novo assembly for Illumina.
-* [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data from the assembly.
-
-De novo assembly parameters are extracted with [quast](https://github.com/ablab/quast)
+* [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data (De novo assembly parameters) from the assembly.
 
 ### Epidemiological typing
 
@@ -131,7 +140,7 @@ De novo assembly parameters are extracted with [quast](https://github.com/ablab/
 * [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/): The cgMLST reference schema.
 * [mlst](https://github.com/tseemann/mlst): Caculates traditional 7-locus MLST.
 
-#### Currently, 2 profiles are supported:
+#### Supported profiles:
 
 * `staphylococcus_aureus`
 * `escherichia_coli`
@@ -158,4 +167,8 @@ De novo assembly parameters are extracted with [quast](https://github.com/ablab/
 
 ## Tips
 
-It is recommended that you use latest versions of software tools, however if you are running an older version of Singularity and you get an error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!` check the permissions set on image `*.sif`. Make sure you have the permission to execute it.
+It is recommended that you use latest versions of software tools.
+
+If you are running an older version of Singularity and you get an error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!`
+
+Check the permissions set on image `*.sif`. Make sure you have the permission to execute it.
