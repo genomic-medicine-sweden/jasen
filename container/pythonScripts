@@ -14,3 +14,4 @@ From:python
 
 %post
 	pip install -e /pipeline_result_processor
+        pip install  biopython

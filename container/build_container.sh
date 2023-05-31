@@ -15,6 +15,8 @@ declare -A containers=(
     [quast]=https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
     [freebayes]=https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
     [perl_json]=https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5321hdfd78af_0
+    [blast]=https://depot.galaxyproject.org/singularity/blast%3A2.14.0--hf3cf87c_0
+
 )
 
 for tool in "${definitions[@]}"; do
