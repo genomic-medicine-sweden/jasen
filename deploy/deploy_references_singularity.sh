@@ -21,7 +21,7 @@ singularity exec --bind $mntroot ${containerdir}/amrfinderplus.sif amrfinder_upd
 #MLST db
 cd ${assdir}/mlst_db
 bash ./mlst-download_pub_mlst.sh &> /dev/null
-singularity exec $mntroot --bind  ${containerdir}/blast.sif bash ${assdir}/mlst_db/mlst-make_blast_db.sh &> /dev/null
+singularity exec --bind $mntroot ${containerdir}/blast.sif bash ${assdir}/mlst_db/mlst-make_blast_db.sh &> /dev/null
 
 #Finder dbs
 cd ${assdir}/kma && make
