@@ -9,13 +9,13 @@ process mask_polymorph_assembly {
     tuple val(sampleName), path(output), emit: fasta
 
   script:
-    output = "${sampleName}.fasta"
+    output = "${sampleName}.fa"
     """
     error_corr_assembly.pl ${assembly} ${polymorph} > ${output}
     """
 
   stub:
-    output = "${sampleName}.fasta"
+    output = "${sampleName}.fa"
     """
     touch $output
     """
