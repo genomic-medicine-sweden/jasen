@@ -57,7 +57,7 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tu
 
         # store results
         gene = ResistanceGene(
-            name=info["name"],
+            gen_symbol=info["name"],
             accession=info["ref_acc"],
             depth=info["depth"],
             identity=info["identity"],
@@ -120,7 +120,6 @@ def _parse_amrfinder_amr_results(predictions: dict) -> Tuple[ResistanceGene, ...
     genes = []
     for prediction in predictions:
         gene = ResistanceGene(
-            name = None,
             virulence_category = None,
             accession = prediction["close_seq_accn"],
             depth = None,
@@ -202,6 +201,9 @@ def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
                                     "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        hits = hits.where(pd.notnull(hits), None)
+        print(hits["target_length"])
+        print(hits["contig_id"])
         if element_type == ElementType.AMR:
             predictions = hits[hits["element_type"] == "AMR"].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
@@ -346,6 +348,7 @@ def parse_amrfinder_vir_pred(file: str):
                                     "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        hits = hits.where(pd.notnull(hits), None)
         predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(orient="records")
         results: ElementTypeResult = _parse_amrfinder_vir_results(predictions)
     return MethodIndex(type = ElementType.VIR, result = results)

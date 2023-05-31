@@ -27,7 +27,6 @@ class DatabaseReference(RWModel):
 class GeneBase(BaseModel):
     """Container for gene information"""
 
-    name: Union[str, None]
     accession: Union[str, None]
     # prediction info
     depth: Union[float, None]
