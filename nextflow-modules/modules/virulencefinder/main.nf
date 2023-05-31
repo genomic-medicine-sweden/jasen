@@ -32,7 +32,7 @@ process virulencefinder {
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
-      version: \$(cat $DB_HASH | tr -d '\n')
+      version: \$(echo \$DB_HASH | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """
@@ -48,7 +48,7 @@ process virulencefinder {
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
-      version: \$(cat $DB_HASH | tr -d '\n')
+      version: \$(echo \$DB_HASH | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """
