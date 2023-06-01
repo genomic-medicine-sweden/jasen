@@ -81,7 +81,7 @@ def create_output(
         "run_metadata": {"run": run_info},
         "qc": [],
         "typing_result": [],
-        "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "metal_resistance": {}, "virulence": {}},
+        "element_type_result": [],
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -108,30 +108,24 @@ def create_output(
     # resfinder of different types
     if resistance:
         pred_res = json.load(resistance)
-        res: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.AMR)
-        chem: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.BIOCIDE)
-        env: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.HEAT)
-        results["element_type_result"]["antimicrobial_resistance"]["resfinder"] = res
-        results["element_type_result"]["chemical_resistance"]["resfinder"] = chem
-        results["element_type_result"]["environmental_resistance"]["resfinder"] = env
+        methods = [ElementType.AMR, ElementType.BIOCIDE, ElementType.HEAT]
+        for method in methods:
+            res: MethodIndex = parse_resfinder_amr_pred(pred_res, method)
+            results["element_type_result"].append(res)
 
     # amrfinder
     if amr:
-        res = parse_amrfinder_amr_pred(amr, ElementType.AMR)
-        chem = parse_amrfinder_amr_pred(amr, ElementType.BIOCIDE)
-        metal = parse_amrfinder_amr_pred(amr, ElementType.METAL)
-        env = parse_amrfinder_amr_pred(amr, ElementType.HEAT)
-        vir = parse_amrfinder_vir_pred(amr)
-        results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
-        results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem
-        results["element_type_result"]["environmental_resistance"]["amrfinder"] = env
-        results["element_type_result"]["metal_resistance"]["amrfinder"] = metal
-        results["element_type_result"]["virulence"]["amrfinder"] = vir
+        methods = [ElementType.AMR, ElementType.BIOCIDE, ElementType.METAL, ElementType.HEAT] 
+        for method in methods:
+            res: MethodIndex = parse_amrfinder_amr_pred(amr, method)
+            results["element_type_result"].append(res)
+        vir: MethodIndex = parse_amrfinder_vir_pred(amr)
+        results["element_type_result"].append(vir)
 
     # get virulence factors in sample
     if virulence:
         vir: MethodIndex = parse_virulencefinder_vir_pred(virulence)
-        results["element_type_result"]["virulence"]["virulencefinder"] = vir
+        results["element_type_result"].append(vir)
 
     if kraken:
         LOG.info("Parse kraken results")

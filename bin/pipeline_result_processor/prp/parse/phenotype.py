@@ -1,6 +1,5 @@
 """Parse output of various phenotype predicting tools."""
 
-import csv
 import json
 import logging
 import pandas as pd
@@ -14,6 +13,7 @@ from ..models.phenotype import (
     ResistanceVariant,
     VirulenceGene,
 )
+from ..models import Software
 from ..models.sample import MethodIndex
 
 LOG = logging.getLogger(__name__)
@@ -188,7 +188,7 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
         genes = _parse_resfinder_amr_genes(prediction, categories[resistance_category]),
         mutations = _parse_resfinder_amr_variants(prediction, categories[resistance_category]),
     )
-    return MethodIndex(type=resistance_category, result=resistance)
+    return MethodIndex(type=resistance_category, software=Software.RESFINDER, result=resistance)
 
 
 def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
@@ -216,7 +216,7 @@ def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
         else:
             results = _default_resistance()
-    return MethodIndex(type = element_type, result = results)
+    return MethodIndex(type = element_type, result = results, software = Software.AMRFINDER)
 
 
 def _parse_virulencefinder_vir_results(pred: str) -> ElementTypeResult:
@@ -334,7 +334,7 @@ def parse_virulencefinder_vir_pred(file: str) -> ElementTypeResult:
         results: ElementTypeResult = _parse_virulencefinder_vir_results(pred)
     else:
         results: ElementTypeResult = _default_virulence()
-    return MethodIndex(type=ElementType.VIR, result=results)
+    return MethodIndex(type=ElementType.VIR, software=Software.VIRFINDER, result=results)
 
 def parse_amrfinder_vir_pred(file: str):
     """Parse amrfinder virulence prediction results."""
@@ -349,4 +349,4 @@ def parse_amrfinder_vir_pred(file: str):
         hits = hits.where(pd.notnull(hits), None)
         predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(orient="records")
         results: ElementTypeResult = _parse_amrfinder_vir_results(predictions)
-    return MethodIndex(type = ElementType.VIR, result = results)
+    return MethodIndex(type = ElementType.VIR, software=Software.AMRFINDER, result = results)
