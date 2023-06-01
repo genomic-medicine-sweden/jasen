@@ -47,6 +47,7 @@ def parse_postalignqc_results(input_file: File) -> QcMethodIndex:
     """
     LOG.info(f"Parsing json file: {input_file.name}")
     qc_dict = json.load(input_file)
+    print(qc_dict)
     qc_res = PostAlignQcResult(
         ins_size = int(qc_dict["ins_size"]),
         ins_size_dev = int(qc_dict["ins_size_dev"]),

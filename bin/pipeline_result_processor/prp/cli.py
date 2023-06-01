@@ -82,8 +82,7 @@ def create_output(
     results = {
         "sample_id": sample_id,
         "run_metadata": {"run": run_info},
-        "quast_qc": [],
-        "postalignqc": [],
+        "qc": [],
         "typing_result": [],
         "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "metal_resistance": {}, "virulence": {}},
     }
@@ -101,10 +100,10 @@ def create_output(
     # qc
     if quast:
         res: QcMethodIndex = parse_quast_results(quast)
-        results["quast_qc"].append(res)
+        results["qc"].append(res)
     if quality:
         res: QcMethodIndex = parse_postalignqc_results(quality)
-        results["postalignqc"].append(res)
+        results["qc"].append(res)
 
     # typing
     if mlst:

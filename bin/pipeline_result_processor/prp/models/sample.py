@@ -45,8 +45,7 @@ class SampleBase(RWModel):
         ..., alias="sampleId", min_length=3, max_length=100
     )
     run_metadata: RunMetadata = Field(..., alias="runMetadata")
-    quast_qc: List[QcMethodIndex] = Field(...)
-    postalignqc: List[QcMethodIndex] = Field(...)
+    qc: List[QcMethodIndex] = Field(...)
     species_prediction: List[SpeciesPrediction] = Field(..., alias="speciesPrediction")
 
 
