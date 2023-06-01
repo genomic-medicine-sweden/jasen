@@ -44,7 +44,7 @@ def cli():
 )
 @click.option("-q", "--quast", type=click.File(), help="Quast quality control metrics")
 @click.option(
-    "-p",
+    "-d",
     "--process-metadata",
     type=click.File(),
     multiple=True,
@@ -56,7 +56,7 @@ def cli():
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
 @click.option("-v", "--virulence", type=click.File(), help="Virulence factor prediction results")
 @click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
-@click.option("--quality", type=click.File(), help="postalignqc qc results")
+@click.option("-p", "--quality", type=click.File(), help="postalignqc qc results")
 @click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
 def create_output(
