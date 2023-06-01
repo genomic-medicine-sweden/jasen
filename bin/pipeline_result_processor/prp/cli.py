@@ -49,12 +49,23 @@ def cli():
     multiple=True,
     help="Nextflow processes metadata from the pipeline in json format",
 )
-@click.option("-k", "--kraken", type=click.File(), help="Kraken species annotation results")
-@click.option("-a", "--amr", type=str, help="amrfinderplus anti-microbial resistance results")
+@click.option(
+    "-k", "--kraken", type=click.File(), help="Kraken species annotation results"
+)
+@click.option(
+    "-a", "--amr", type=str, help="amrfinderplus anti-microbial resistance results"
+)
 @click.option("-m", "--mlst", type=click.File(), help="MLST prediction results")
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
-@click.option("-v", "--virulence", type=click.File(), help="Virulence factor prediction results")
-@click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
+@click.option(
+    "-v", "--virulence", type=click.File(), help="Virulence factor prediction results"
+)
+@click.option(
+    "-r",
+    "--resistance",
+    type=click.File(),
+    help="resfinder resistance prediction results",
+)
 @click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
 def create_output(
@@ -115,7 +126,12 @@ def create_output(
 
     # amrfinder
     if amr:
-        methods = [ElementType.AMR, ElementType.BIOCIDE, ElementType.METAL, ElementType.HEAT] 
+        methods = [
+            ElementType.AMR,
+            ElementType.BIOCIDE,
+            ElementType.METAL,
+            ElementType.HEAT,
+        ]
         for method in methods:
             res: MethodIndex = parse_amrfinder_amr_pred(amr, method)
             results["element_type_result"].append(res)

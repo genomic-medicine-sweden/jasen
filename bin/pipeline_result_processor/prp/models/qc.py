@@ -30,5 +30,5 @@ class QuastQcResult(BaseModel):
 
 class QcMethodIndex(RWModel):
     software: QcSoftware
-    version: Union[ str , None ]
+    version: Union[str, None]
     result: QuastQcResult

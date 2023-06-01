@@ -10,6 +10,7 @@ from .base import RWModel
 
 class TypingSoftware(Enum):
     """Container for software names."""
+
     # typing
     CHEWBBACA = "chewbbaca"
     MLST = "mlst"
