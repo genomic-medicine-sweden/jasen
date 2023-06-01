@@ -3,7 +3,7 @@
 import csv
 import logging
 
-from ..models.qc import QcMethodIndex, QcTool, QuastQcResult
+from ..models.qc import QcMethodIndex, QcSoftware, QuastQcResult
 from click.types import File
 
 LOG = logging.getLogger(__name__)
@@ -32,4 +32,4 @@ def parse_quast_results(file: File) -> QcMethodIndex:
         reference_gc=raw[0]["Reference GC (%)"],
         duplication_ratio=raw[0]["Duplication ratio"],
     )
-    return QcMethodIndex(tool=QcTool.QUAST, result=qc_res)
+    return QcMethodIndex(software=QcSoftware.QUAST, result=qc_res)

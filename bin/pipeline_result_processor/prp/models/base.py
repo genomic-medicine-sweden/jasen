@@ -5,18 +5,6 @@ from enum import Enum
 from pydantic import BaseConfig, BaseModel
 
 
-class Software(Enum):
-    """Container for software names."""
-
-    # phenotype
-    AMRFINDER = "amrfinder"
-    RESFINDER = "resfinder"
-    VIRFINDER = "virulencefinder"
-    # typing
-    CHEWBACCA = "chewbbacca"
-    MLST = "mlst"
-
-
 class RWModel(BaseModel):
     """Base model for read/ write operations"""
 

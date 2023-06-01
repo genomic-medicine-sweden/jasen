@@ -6,6 +6,7 @@ import logging
 
 from ..models.sample import MethodIndex
 from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
+from ..models.typing import TypingSoftware as Software
 
 LOG = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
             for gene, allele in result["alleles"].items()
         },
     )
-    return MethodIndex(type=TypingMethod.MLST, result=result_obj)
+    return MethodIndex(type=TypingMethod.MLST, software=Software.MLST, result=result_obj)
 
 
 def parse_cgmlst_results(file: str, include_novel_alleles: bool = True, correct_alleles: bool = False) -> TypingResultCgMlst:
@@ -40,7 +41,7 @@ def parse_cgmlst_results(file: str, include_novel_alleles: bool = True, correct_
     ALM, alleles larger than locus length
     ASM, alleles smaller than locus length
     """
-    ERRORS = ["LNF", "PLOT3", "PLOT5", "NIPH", "NIPHEM", "ALM", "ASM"]
+    ERRORS = ("LNF", "PLOT3", "PLOT5", "NIPH", "NIPHEM", "ALM", "ASM")
 
     def replace_errors(allele):
         """Replace errors and novel alleles with nulls if they are not to be inlcuded."""
@@ -66,4 +67,4 @@ def parse_cgmlst_results(file: str, include_novel_alleles: bool = True, correct_
         n_missing=sum(1 for a in alleles if a in ERRORS),
         alleles=dict(zip(allele_names, corrected_alleles)),
     )
-    return MethodIndex(type=TypingMethod.CGMLST, result=results)
+    return MethodIndex(type=TypingMethod.CGMLST, software=Software.CHEWBBACA, result=results)

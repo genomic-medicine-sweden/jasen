@@ -13,7 +13,7 @@ from ..models.phenotype import (
     ResistanceVariant,
     VirulenceGene,
 )
-from ..models import Software
+from ..models.phenotype import PredictionSoftware as Software
 from ..models.sample import MethodIndex
 
 LOG = logging.getLogger(__name__)

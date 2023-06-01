@@ -4,11 +4,11 @@ from typing import List, Union
 
 from pydantic import Field
 
-from .base import RWModel, Software
+from .base import RWModel
 from .metadata import RunMetadata
-from .phenotype import ElementTypeResult, ElementType
+from .phenotype import ElementTypeResult, ElementType, PredictionSoftware
 from .qc import QcMethodIndex
-from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
+from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingSoftware
 
 # disabled validation
 # SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
@@ -37,7 +37,7 @@ class MethodIndex(RWModel):
     """Container for key-value lookup of analytical results."""
 
     type: Union[ElementType, TypingMethod]
-    software: Software | None
+    software: PredictionSoftware | TypingSoftware | None
     result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst]
 
 

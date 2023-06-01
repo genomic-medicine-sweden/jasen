@@ -8,6 +8,13 @@ from pydantic import Field
 from .base import RWModel
 
 
+class TypingSoftware(Enum):
+    """Container for software names."""
+    # typing
+    CHEWBBACA = "chewbbaca"
+    MLST = "mlst"
+
+
 class TypingMethod(Enum):
     MLST = "mlst"
     CGMLST = "cgmlst"

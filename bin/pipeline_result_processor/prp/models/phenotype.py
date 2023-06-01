@@ -7,6 +7,15 @@ from pydantic import BaseModel, Field
 from .base import RWModel
 
 
+class PredictionSoftware(Enum):
+    """Container for software names."""
+
+    # phenotype
+    AMRFINDER = "amrfinder"
+    RESFINDER = "resfinder"
+    VIRFINDER = "virulencefinder"
+
+
 class VariantType(Enum):
     SUBSTITUTION = "substitution"
 

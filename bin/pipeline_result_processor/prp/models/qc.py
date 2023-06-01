@@ -8,7 +8,7 @@ from typing import Union
 from .base import RWModel
 
 
-class QcTool(Enum):
+class QcSoftware(Enum):
     """Valid tools."""
 
     QUAST = "quast"
@@ -29,6 +29,6 @@ class QuastQcResult(BaseModel):
 
 
 class QcMethodIndex(RWModel):
-    tool: QcTool
+    software: QcSoftware
     version: Union[ str , None ]
     result: QuastQcResult
