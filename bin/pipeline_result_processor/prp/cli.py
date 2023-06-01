@@ -12,6 +12,7 @@ from .parse import (
     parse_cgmlst_results,
     parse_mlst_results,
     parse_quast_results,
+    parse_postalignqc_results,
     parse_resfinder_amr_pred,
     parse_amrfinder_amr_pred,
     parse_kraken_result,
@@ -55,6 +56,7 @@ def cli():
 @click.option("-c", "--cgmlst", type=click.File(), help="cgMLST prediction results")
 @click.option("-v", "--virulence", type=click.File(), help="Virulence factor prediction results")
 @click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
+@click.option("--quality", type=click.File(), help="postalignqc qc results")
 @click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
 def create_output(
@@ -68,6 +70,7 @@ def create_output(
     virulence,
     amr,
     resistance,
+    quality,
     correct_alleles,
     output,
 ):
@@ -79,7 +82,8 @@ def create_output(
     results = {
         "sample_id": sample_id,
         "run_metadata": {"run": run_info},
-        "qc": [],
+        "quast_qc": [],
+        "postalignqc": [],
         "typing_result": [],
         "element_type_result": {"antimicrobial_resistance": {}, "chemical_resistance": {}, "environmental_resistance": {}, "metal_resistance": {}, "virulence": {}},
     }
@@ -94,9 +98,14 @@ def create_output(
                 db_info.append(SoupVersion(**dbs))
         results["run_metadata"]["databases"] = db_info
 
+    # qc
     if quast:
         res: QcMethodIndex = parse_quast_results(quast)
-        results["qc"].append(res)
+        results["quast_qc"].append(res)
+    if quality:
+        res: QcMethodIndex = parse_postalignqc_results(quality)
+        results["postalignqc"].append(res)
+
     # typing
     if mlst:
         res: MethodIndex = parse_mlst_results(mlst)
@@ -133,6 +142,7 @@ def create_output(
         vir: MethodIndex = parse_virulencefinder_vir_pred(virulence)
         results["element_type_result"]["virulence"]["virulencefinder"] = vir
 
+    # species id
     if kraken:
         LOG.info("Parse kraken results")
         results["species_prediction"] = parse_kraken_result(kraken)
