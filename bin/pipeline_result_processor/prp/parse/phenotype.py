@@ -57,7 +57,7 @@ def _parse_resfinder_amr_genes(resfinder_result, limit_to_phenotypes=None) -> Tu
 
         # store results
         gene = ResistanceGene(
-            name=info["name"],
+            gen_symbol=info["name"],
             accession=info["ref_acc"],
             depth=info["depth"],
             identity=info["identity"],
@@ -120,7 +120,6 @@ def _parse_amrfinder_amr_results(predictions: dict) -> Tuple[ResistanceGene, ...
     genes = []
     for prediction in predictions:
         gene = ResistanceGene(
-            name = None,
             virulence_category = None,
             accession = prediction["close_seq_accn"],
             depth = None,
@@ -168,7 +167,7 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
     ]
     # parse resistance based on the category
     categories = {
-        ElementType.CHEM: [
+        ElementType.BIOCIDE: [
             "formaldehyde",
             "benzylkonium chloride",
             "ethidium bromide",
@@ -176,11 +175,11 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
             "cetylpyridinium chloride",
             "hydrogen peroxide",
         ],
-        ElementType.ENV: ["temperature"],
+        ElementType.HEAT: ["temperature"],
     }
     categories[ElementType.AMR] = list(
         {k for k in prediction["phenotypes"].keys()}
-        - set(categories[ElementType.CHEM] + categories[ElementType.ENV])
+        - set(categories[ElementType.BIOCIDE] + categories[ElementType.HEAT])
     )
 
     # parse resistance
@@ -202,13 +201,14 @@ def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
                                     "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        hits = hits.where(pd.notnull(hits), None)
         if element_type == ElementType.AMR:
             predictions = hits[hits["element_type"] == "AMR"].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == ElementType.ENV:
+        elif element_type == ElementType.HEAT:
             predictions = hits[(hits["element_subtype"] == "HEAT")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == ElementType.CHEM:
+        elif element_type == ElementType.BIOCIDE:
             predictions = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
         elif element_type == ElementType.METAL:
@@ -346,6 +346,7 @@ def parse_amrfinder_vir_pred(file: str):
                                     "% Coverage of reference sequence": "ref_seq_cov", "% Identity to reference sequence": "ref_seq_identity", 
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
+        hits = hits.where(pd.notnull(hits), None)
         predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(orient="records")
         results: ElementTypeResult = _parse_amrfinder_vir_results(predictions)
     return MethodIndex(type = ElementType.VIR, result = results)

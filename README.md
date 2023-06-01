@@ -40,6 +40,12 @@ singularity remote login
 cd container && sudo bash -i build_container.sh && cd ..
 ```
 
+### Download references and databases using singularity. NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
+
+```
+bash -i deploy/deploy_references_singularity.sh
+```
+
 ### Download references and databases using singularity. 
 
 ```
@@ -74,21 +80,19 @@ export SINGULARITY_TMPDIR="/tmp" #or equivalent
 Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).
 Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
 
-
 ### Download Kraken database
 
 ```
 wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenstd.tar.gz
 ```
+
 ### Download MiniKraken database
 
 ```
 wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
-
-
 
 ## Usage
 
@@ -111,14 +115,9 @@ nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -co
 ### Input file format 
 
 ```csv
-id,species,platform,read1,read2
-p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+id,platform,read1,read2
+p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
-
-### Input species options
-
-* `saureus`
-* `ecoli`
 
 ## Component Breakdown
 
@@ -133,9 +132,7 @@ p1,saureus,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R
 
 * [SPAdes](http://cab.spbu.ru/software/spades/): De novo assembly for Ion Torrent.
 * [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html): De novo assembly for Illumina.
-* [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data from the assembly.
-
-De novo assembly parameters are extracted with [quast](https://github.com/ablab/quast)
+* [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data (De novo assembly parameters) from the assembly.
 
 ### Epidemiological typing
 
@@ -145,8 +142,8 @@ De novo assembly parameters are extracted with [quast](https://github.com/ablab/
 
 #### Supported profiles:
 
-* `staphylococcus_aureus` (`saureus` in csv)
-* `escherichia_coli` (`ecoli` in csv)
+* `staphylococcus_aureus`
+* `escherichia_coli`
 
 #### Future profiles that will be supported:
 
@@ -171,5 +168,7 @@ De novo assembly parameters are extracted with [quast](https://github.com/ablab/
 ## Tips
 
 It is recommended that you use latest versions of software tools.
+
 If you are running an older version of Singularity and you get an error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!`
+
 Check the permissions set on image `*.sif`. Make sure you have the permission to execute it.

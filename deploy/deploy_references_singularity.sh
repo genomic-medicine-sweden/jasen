@@ -1,8 +1,6 @@
 #!/bin/bash
 
-mkdir assets &> /dev/null
 mkdir -p assets/genomes/{escherichia_coli,klebsiella_pneumoniae,staphylococcus_aureus} &> /dev/null
-mkdir assets/card &> /dev/null
 mkdir assets/cgmlst &> /dev/null
 mkdir -p assets/amrfinder_db/allele_counts_by_year &> /dev/null
 mkdir -p assets/mlst_db/{blast,pubmlst} &> /dev/null
@@ -36,38 +34,53 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTA
 ## Organisms
 
 #Saureus
+## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_002951.2 assets/genomes/staphylococcus_aureus
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_002951.2 -o ${assdir}/genomes/staphylococcus_aureus
+## Index reference
 cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
+## Download Saureus cgmlst cgmlst.org schema
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
 wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
+## Prepping Saureus cgmlst cgmlst.org schema
 cd ${assdir}/cgmlst/staphylococcus_aureus/ 
 echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
 singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExternalSchema -i ${assdir}/cgmlst/staphylococcus_aureus/alleles -o ${assdir}/cgmlst/staphylococcus_aureus/alleles_rereffed \
 	--cpu 1 --ptf ${assdir}/prodigal_training_files/Staphylococcus_aureus.trn
 
 #Ecoli
+## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_000913.3 assets/genomes/escherichia_coli
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_000913.3 -o ${assdir}/genomes/escherichia_coli
+## Index reference
 cd ${assdir}/genomes/escherichia_coli
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_000913.3.fasta
+## Download Ecoli wgmlst INNUENDO schema
+mkdir -p ${assdir}/wgmlst/escherichia_coli/alleles &> /dev/null
+cd ${assdir}/wgmlst/escherichia_coli/alleles
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie DownloadSchema -sp 5 -sc 1 -o ${assdir}/wgmlst/escherichia_coli/alleles --latest
+## Download Ecoli cgmlst cgmlst.org schema
 mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
 cd ${assdir}/cgmlst/escherichia_coli/alleles
 wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
+## Prepping Ecoli cgmlst cgmlst.org schema
 cd ${assdir}/cgmlst/escherichia_coli/
 echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
 singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExternalSchema -i ${assdir}/cgmlst/escherichia_coli/alleles -o ${assdir}/cgmlst/escherichia_coli/alleles_rereffed \
 	--cpu 1 --ptf ${assdir}/prodigal_training_files/Escherichia_coli.trn
 
 #Kpneumoniae
+## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py NC_016845.1 assets/genomes/klebsiella_pneumoniae
+singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_016845.1 -o ${assdir}/genomes/klebsiella_pneumoniae
+## Index reference
 cd ${assdir}/genomes/klebsiella_pneumoniae
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
+## Download Kpneumoniae cgmlst cgmlst.org schema
 mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
 cd ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
 wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate &> /dev/null

@@ -12,11 +12,12 @@ class VariantType(Enum):
 
 
 class ElementType(Enum):
-    AMR = "antimicrobial_resistance"
-    CHEM = "chemical_resistance"
-    ENV = "environmental_factor_resistance"
-    METAL = "metal_resistance"
-    VIR = "virulence"
+    AMR = "AMR"
+    ACID = "STRESS_ACID"
+    BIOCIDE = "STRESS_BIOCIDE"
+    METAL = "STRESS_METAL"
+    HEAT = "STRESS_HEAT"
+    VIR = "VIRULENCE"
 
 
 class DatabaseReference(RWModel):
@@ -27,7 +28,6 @@ class DatabaseReference(RWModel):
 class GeneBase(BaseModel):
     """Container for gene information"""
 
-    name: Union[str, None]
     accession: Union[str, None]
     # prediction info
     depth: Union[float, None]

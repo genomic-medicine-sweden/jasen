@@ -10,6 +10,7 @@ process virulencefinder {
   output:
     tuple val(sampleName), path(outputFile), emit: json
     tuple val(sampleName), path(metaFile)  , emit: meta
+    path "*versions.yml"                   , emit: versions
     
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
@@ -27,13 +28,28 @@ process virulencefinder {
     ${databasesArgs}                \\
     --databasePath ${virulenceDb}
     cp data.json ${outputFile}
+
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    ${task.process}:
+     virulencefinder_db:
+      version: \$(echo \$DB_HASH | tr -d '\n')
+      container: ${task.container}
+    END_VERSIONS
     """
 
  stub:
     outputFile = "${sampleName}_virulencefinder.json"
     metaFile = "${sampleName}_virulencefinder_meta.json"
     """
+    DB_HASH=\$(git -C ${virulenceDb} rev-parse HEAD)
     touch $outputFile
     touch $metaFile
+
+    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    ${task.process}:
+     virulencefinder_db:
+      version: \$(echo \$DB_HASH | tr -d '\n')
+      container: ${task.container}
+    END_VERSIONS
     """
 }
