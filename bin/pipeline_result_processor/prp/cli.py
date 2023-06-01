@@ -109,8 +109,8 @@ def create_output(
     if resistance:
         pred_res = json.load(resistance)
         res: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.AMR)
-        chem: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.CHEM)
-        env: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.ENV)
+        chem: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.BIOCIDE)
+        env: MethodIndex = parse_resfinder_amr_pred(pred_res, ElementType.HEAT)
         results["element_type_result"]["antimicrobial_resistance"]["resfinder"] = res
         results["element_type_result"]["chemical_resistance"]["resfinder"] = chem
         results["element_type_result"]["environmental_resistance"]["resfinder"] = env
@@ -118,9 +118,9 @@ def create_output(
     # amrfinder
     if amr:
         res = parse_amrfinder_amr_pred(amr, ElementType.AMR)
-        chem = parse_amrfinder_amr_pred(amr, ElementType.CHEM)
+        chem = parse_amrfinder_amr_pred(amr, ElementType.BIOCIDE)
         metal = parse_amrfinder_amr_pred(amr, ElementType.METAL)
-        env = parse_amrfinder_amr_pred(amr, ElementType.ENV)
+        env = parse_amrfinder_amr_pred(amr, ElementType.HEAT)
         vir = parse_amrfinder_vir_pred(amr)
         results["element_type_result"]["antimicrobial_resistance"]["amrfinder"] = res
         results["element_type_result"]["chemical_resistance"]["amrfinder"] = chem

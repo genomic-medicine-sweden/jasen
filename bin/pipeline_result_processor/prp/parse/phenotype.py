@@ -167,7 +167,7 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
     ]
     # parse resistance based on the category
     categories = {
-        ElementType.CHEM: [
+        ElementType.BIOCIDE: [
             "formaldehyde",
             "benzylkonium chloride",
             "ethidium bromide",
@@ -175,11 +175,11 @@ def parse_resfinder_amr_pred(prediction: Dict[str, Any], resistance_category) ->
             "cetylpyridinium chloride",
             "hydrogen peroxide",
         ],
-        ElementType.ENV: ["temperature"],
+        ElementType.HEAT: ["temperature"],
     }
     categories[ElementType.AMR] = list(
         {k for k in prediction["phenotypes"].keys()}
-        - set(categories[ElementType.CHEM] + categories[ElementType.ENV])
+        - set(categories[ElementType.BIOCIDE] + categories[ElementType.HEAT])
     )
 
     # parse resistance
@@ -202,15 +202,13 @@ def parse_amrfinder_amr_pred(file, element_type: str) -> ElementTypeResult:
                                     "Alignment length": "align_len", "Accession of closest sequence": "close_seq_accn", "Name of closest sequence": "close_seq_name"})
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
         hits = hits.where(pd.notnull(hits), None)
-        print(hits["target_length"])
-        print(hits["contig_id"])
         if element_type == ElementType.AMR:
             predictions = hits[hits["element_type"] == "AMR"].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == ElementType.ENV:
+        elif element_type == ElementType.HEAT:
             predictions = hits[(hits["element_subtype"] == "HEAT")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
-        elif element_type == ElementType.CHEM:
+        elif element_type == ElementType.BIOCIDE:
             predictions = hits[(hits["element_subtype"] == "ACID") & (hits["element_subtype"] == "BIOCIDE")].to_dict(orient="records")
             results: ElementTypeResult = _parse_amrfinder_amr_results(predictions)
         elif element_type == ElementType.METAL:
