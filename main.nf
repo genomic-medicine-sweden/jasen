@@ -151,6 +151,7 @@ workflow bacterial_default {
 
     // combine results for export
     quast.out.qc
+      .join(post_align_qc.out.qc)
       .join(mlst.out.json)
       .join(chewbbaca_split_results.out.output)
       .join(amrfinderplus.out.output)

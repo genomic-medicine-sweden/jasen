@@ -10,6 +10,7 @@ assets/mlst_db/blast
 assets/mlst_db/pubmlst
 assets/amrfinder_db
 assets/wgmlst
+assets/krakenstd
 work/
 results
 container/*.sif
