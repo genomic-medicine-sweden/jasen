@@ -7,6 +7,15 @@ from pydantic import BaseModel, Field
 from .base import RWModel
 
 
+class PredictionSoftware(Enum):
+    """Container for software names."""
+
+    # phenotype
+    AMRFINDER = "amrfinder"
+    RESFINDER = "resfinder"
+    VIRFINDER = "virulencefinder"
+
+
 class VariantType(Enum):
     SUBSTITUTION = "substitution"
 
@@ -37,7 +46,7 @@ class GeneBase(BaseModel):
     ref_end_pos: Union[int, None]
     ref_gene_length: Union[int, None]
     alignment_length: Union[int, None]
-    #amrfinder extra info
+    # amrfinder extra info
     contig_id: Union[str, None]
     gene_symbol: Union[str, None]
     sequence_name: Union[str, None]
@@ -93,5 +102,5 @@ class ElementTypeResult(BaseModel):
     """
 
     phenotypes: Dict[str, List[str]]
-    genes: List[ Union[ResistanceGene , VirulenceGene] ]
+    genes: List[Union[ResistanceGene, VirulenceGene]]
     mutations: List[ResistanceVariant]

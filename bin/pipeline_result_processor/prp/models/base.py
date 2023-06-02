@@ -1,7 +1,8 @@
 """Generic database objects of which several other models are based on."""
 from datetime import datetime
+from enum import Enum
 
-from pydantic import BaseConfig, BaseModel, Field
+from pydantic import BaseConfig, BaseModel
 
 
 class RWModel(BaseModel):

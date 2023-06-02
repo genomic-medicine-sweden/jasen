@@ -8,7 +8,7 @@ from typing import Dict, Union
 from .base import RWModel
 
 
-class QcTool(Enum):
+class QcSoftware(Enum):
     """Valid tools."""
 
     QUAST = "quast"
@@ -44,6 +44,6 @@ class PostAlignQcResult(BaseModel):
 
 
 class QcMethodIndex(RWModel):
-    tool: QcTool
-    version: Union[ str , None ]
-    result: Union[ QuastQcResult, PostAlignQcResult ]
+    software: QcSoftware
+    version: Union[str, None]
+    result: Union[QuastQcResult, PostAlignQcResult]

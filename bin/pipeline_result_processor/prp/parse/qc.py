@@ -4,7 +4,7 @@ import csv
 import logging
 import json
 
-from ..models.qc import QcMethodIndex, QcTool, QuastQcResult, PostAlignQcResult
+from ..models.qc import QcMethodIndex, QcSoftware, QuastQcResult, PostAlignQcResult
 from click.types import File
 
 LOG = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def parse_quast_results(file: File) -> QcMethodIndex:
         reference_gc=raw[0]["Reference GC (%)"],
         duplication_ratio=raw[0]["Duplication ratio"],
     )
-    return QcMethodIndex(tool=QcTool.QUAST, result=qc_res)
+    return QcMethodIndex(software=QcSoftware.QUAST, result=qc_res)
 
 
 def parse_postalignqc_results(input_file: File) -> QcMethodIndex:
@@ -47,7 +47,6 @@ def parse_postalignqc_results(input_file: File) -> QcMethodIndex:
     """
     LOG.info(f"Parsing json file: {input_file.name}")
     qc_dict = json.load(input_file)
-    print(qc_dict)
     qc_res = PostAlignQcResult(
         ins_size = int(qc_dict["ins_size"]),
         ins_size_dev = int(qc_dict["ins_size_dev"]),
@@ -59,4 +58,4 @@ def parse_postalignqc_results(input_file: File) -> QcMethodIndex:
         dup_pct = float(qc_dict["dup_pct"]),
         dup_reads = str(qc_dict["dup_reads"]),
     )
-    return QcMethodIndex(tool=QcTool.POSTALIGNQC, result=qc_res)
+    return QcMethodIndex(software=QcSoftware.POSTALIGNQC, result=qc_res)

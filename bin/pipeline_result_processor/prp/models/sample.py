@@ -1,14 +1,14 @@
 """Data model definition of input/ output data"""
 from enum import Enum
-from typing import Dict, List, Union
+from typing import List, Union
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from .base import RWModel
 from .metadata import RunMetadata
-from .phenotype import ElementTypeResult, ElementType
+from .phenotype import ElementTypeResult, ElementType, PredictionSoftware
 from .qc import QcMethodIndex
-from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
+from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingSoftware
 
 # disabled validation
 # SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
@@ -34,16 +34,17 @@ class SpeciesPrediction(RWModel):
 
 
 class MethodIndex(RWModel):
+    """Container for key-value lookup of analytical results."""
+
     type: Union[ElementType, TypingMethod]
+    software: PredictionSoftware | TypingSoftware | None
     result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst]
 
 
 class SampleBase(RWModel):
     """Base datamodel for sample data structure"""
 
-    sample_id: str = Field(
-        ..., alias="sampleId", min_length=3, max_length=100
-    )
+    sample_id: str = Field(..., alias="sampleId", min_length=3, max_length=100)
     run_metadata: RunMetadata = Field(..., alias="runMetadata")
     qc: List[QcMethodIndex] = Field(...)
     species_prediction: List[SpeciesPrediction] = Field(..., alias="speciesPrediction")
@@ -56,4 +57,4 @@ class PipelineResult(SampleBase):
     # optional typing
     typing_result: List[MethodIndex] = Field(..., alias="typingResult")
     # optional phenotype prediction
-    element_type_result: Dict[str, Dict[str, MethodIndex]] = Field(..., alias="elementTypeResult")
+    element_type_result: List[MethodIndex] = Field(..., alias="elementTypeResult")
