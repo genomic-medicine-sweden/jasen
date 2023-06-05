@@ -151,6 +151,7 @@ workflow bacterial_default {
 
     // combine results for export
     quast.out.qc
+      .join(post_align_qc.out.qc)
       .join(mlst.out.json)
       .join(chewbbaca_split_results.out.output)
       .join(amrfinderplus.out.output)
@@ -158,6 +159,7 @@ workflow bacterial_default {
       .join(resfinder.out.meta)
       .join(virulencefinder.out.json)
       .join(virulencefinder.out.meta)
+      .join(save_analysis_metadata.out.meta)
       .set{ combinedOutput }
 
     // Using kraken for species identificaiton
@@ -166,17 +168,11 @@ workflow bacterial_default {
       kraken(reads, krakenDb)
       bracken(kraken.out.report, krakenDb).output
       combinedOutput = combinedOutput.join(bracken.out.output)
-      create_analysis_result(
-        save_analysis_metadata.out.meta, 
-        combinedOutput
-      )
+      create_analysis_result(combinedOutput)
 	  } else {
       emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
       combinedOutput = combinedOutput.join(emptyBrackenOutput)
-      create_analysis_result(
-        save_analysis_metadata.out.meta, 
-        combinedOutput
-      )
+      create_analysis_result(combinedOutput)
 	  }
     
   emit: 

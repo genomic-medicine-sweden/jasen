@@ -3,29 +3,30 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    path runInfo
-    //paths
-    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(bracken)
+    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(bracken)
 
   output:
     path(output)
 
   script:
     output = "${sampleName}_result.json"
-    quastArgs = quast ? "--quast ${quast}" : "" 
-    brackenArgs = bracken ? "--kraken ${bracken}" : "" 
-    mlstArgs = mlst ? "--mlst ${mlst}" : "" 
+    quastArgs = quast ? "--quast ${quast}" : ""
+    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
+    brackenArgs = bracken ? "--kraken ${bracken}" : ""
+    mlstArgs = mlst ? "--mlst ${mlst}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     amrfinderArgs = amr ? "--amr ${amr}" : ""
-    resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
+    resfinderArgs = resistance ? "--resistance ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
-    virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
+    virulenceArgs = virulence ? "--virulence ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
+    runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     """
     prp create-output \\
       --sample-id ${sampleName} \\
-      --run-metadata ${runInfo} \\
+      ${runInfoArgs} \\
       ${quastArgs} \\
+      ${postalignqcArgs} \\
       ${brackenArgs} \\
       ${mlstArgs} \\
       ${cgmlstArgs} \\

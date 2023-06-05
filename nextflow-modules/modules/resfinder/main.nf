@@ -25,7 +25,7 @@ process resfinder {
     outputFilePoint = "${sampleName}_point_table.txt"
     """
     # Get db version
-    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\n')
+    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
     POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
     printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > $metaFile
@@ -63,8 +63,11 @@ process resfinder {
     outputFileGene = "${sampleName}_pheno_table.txt"
     outputFilePoint = "${sampleName}_point_table.txt"
     """
+    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
+    POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+    JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
+    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > $metaFile
     touch $outputFileJson
-    touch $metaFile
     touch $outputFileGene
     touch $outputFilePoint
 
