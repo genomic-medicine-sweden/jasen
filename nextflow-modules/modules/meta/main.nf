@@ -6,7 +6,7 @@ process save_analysis_metadata {
     tuple val(sampleName), path(reads), val(platform)  
 
   output:
-    path(output), emit: meta
+    tuple val(sampleName), path(output), emit: meta
 
   script:
     def seqType = reads.size() == 2 ? "PE" : "SE"
