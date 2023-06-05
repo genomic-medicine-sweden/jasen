@@ -11,19 +11,19 @@ From:nfcore/base:latest
         umask 0002
 
 %labels
-	MAINTAINER Isak Sylvin <isak.sylvin@gu.se>
-	DESCRIPTION Singularity container for CMD microbiology WGS pipeline
-	VERSION 2.0.4
+        MAINTAINER Isak Sylvin <isak.sylvin@gu.se>
+        DESCRIPTION Singularity container for CMD microbiology WGS pipeline
+        VERSION 2.0.4
 
 %post
          VIRULENCEFINDER_VERSION=2.0.4
          KMA_VERSION=1.3.27
          BLAST_VERSION=2.9.0
 
-	 apt-get update &&    \
-	 apt-get upgrade -y && \
-	 apt-get install -y git && \
-	 rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
+         apt-get update &&    \
+         apt-get upgrade -y && \
+         apt-get install -y git && \
+         rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
          apt -y install build-essential make curl unzip locales libz-dev 
 
          ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
@@ -55,13 +55,13 @@ From:nfcore/base:latest
          cp kma* /usr/bin
          cp kma* /bin/
 
-	 cd $HOME && \
-	 wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
-	 tar -xzf blast.tar.gz && \
-	 cd "ncbi-blast-${BLAST_VERSION}+/bin/" && \
-	 chmod +x * && \
-	 cp * /usr/bin && \
-	 cd $HOME
+         cd $HOME && \
+         wget -O blast.tar.gz "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz" && \
+         tar -xzf blast.tar.gz && \
+         cd "ncbi-blast-${BLAST_VERSION}+/bin/" && \
+         chmod +x * && \
+         cp * /usr/bin && \
+         cd $HOME
 
 %runscript
          # . /opt/conda/etc/profile.d/conda.sh
