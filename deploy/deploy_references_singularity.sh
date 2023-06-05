@@ -36,7 +36,7 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 INSTA
 #Saureus
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_002951.2 -o ${assdir}/genomes/staphylococcus_aureus
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py -i NC_002951.2 -o ${assdir}/genomes/staphylococcus_aureus
 ## Index reference
 cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
