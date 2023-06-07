@@ -7,7 +7,7 @@
 _Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
 
 JASEN produces results for epidemiological and surveillance purposes.
-JASEN has been tested using MRSA, but should work well with any bacteria with a stable cgMLST scheme.
+JASEN has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
@@ -34,24 +34,16 @@ singularity remote login
 ```
 
 ### Create singularity images. 
-**NOTE:** Ensure that you have sudo privileges before running `build_container.sh`
-
+Running `build_container.sh` requires sudo priviledges.
 ```
 cd container && sudo bash -i build_container.sh && cd ..
 ```
 
-### Download references and databases using singularity. NOTE: Ensure that after running `deploy_references_singularity.sh` that there are no error messages
-
-```
-bash -i deploy/deploy_references_singularity.sh
-```
-
 ### Download references and databases using singularity. 
-
 ```
 bash -i deploy/deploy_references_singularity.sh
 ```
-Verify that `deploy_references_singularity.sh` produces no error messages
+Any errors produced during `deploy_references_singularity.sh` will hinder pipeline execution in unexpected ways.
 
 ## Configuration and test data
 
@@ -167,8 +159,7 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 
 ## Tips
 
-It is recommended that you use latest versions of software tools.
+* Always run the latest versions of the bioinformatical software.
+* Verify you have execution permission for JASENs `*.sif` images.
+* Old Singularity versions may sporadically produce the error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!`
 
-If you are running an older version of Singularity and you get an error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!`
-
-Check the permissions set on image `*.sif`. Make sure you have the permission to execute it.
