@@ -40,7 +40,7 @@ class PostAlignQcResult(BaseModel):
     tot_reads: int
     iqr_median: float
     dup_pct: float
-    dup_reads: str
+    dup_reads: int
 
 
 class QcMethodIndex(RWModel):
