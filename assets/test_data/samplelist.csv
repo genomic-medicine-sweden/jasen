@@ -1,2 +1,3 @@
 id,platform,read1,read2
-p1000,illumina,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R1_001.fastq.gz,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R2_001.fastq.gz
+p1000,illumina,/projects/mikro/nobackup/gms/jasen2/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R1_001.fastq.gz,/projects/mikro/nobackup/gms/jasen2/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R2_001.fastq.gz
+p1000,illumina,/projects/mikro/nobackup/gms/jasen2/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R1_001.fastq.gz,/projects/mikro/nobackup/gms/jasen2/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R2_001.fastq.gz
