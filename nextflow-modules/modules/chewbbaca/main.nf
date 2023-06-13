@@ -59,14 +59,22 @@ process chewbbaca_create_batch_list {
   script:
     output = "batch_input.list"
     """
-    realpath $maskedAssembly > $output
-    """
+    touch /projects/mikro/nobackup/gms/jasen2/chewbbaca_temp.txt
+    
+    for f in $maskedAssembly
+    do 
+      echo "Processing $f" > /projects/mikro/nobackup/gms/jasen2/chewbbaca_temp.txt
+    done
 
-  stub:
-    output = "batch_input.list"
+    
     """
-    touch $output
-    """
+//realpath $maskedAssembly > $output
+
+  //stub:
+    //output = "batch_input.list"
+    
+    //touch $output
+    
 }
 
 process chewbbaca_split_results {
@@ -93,4 +101,3 @@ process chewbbaca_split_results {
     touch $output
     """
 }
-#test
