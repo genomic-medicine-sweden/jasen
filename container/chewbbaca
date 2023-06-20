@@ -11,7 +11,7 @@ From:condaforge/mambaforge:22.9.0-2
 	umask 0002
 
 %post
-     CHEWBBACA_VERSION=3.1.0
+     CHEWBBACA_VERSION=3.2.0
      BLAST_VERSION=2.9.0
      PRODIGAL_VERSION=2.6.3
      MAFFT_VERSION=7.505
