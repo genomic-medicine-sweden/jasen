@@ -96,6 +96,9 @@ workflow bacterial_default {
 
     Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta).set{ assembly }
 
+    // evaluate assembly quality 
+    quast(assembly, genomeReference)
+
     // mask polymorph regions
     bwa_index(assembly)
     reads
@@ -120,7 +123,8 @@ workflow bacterial_default {
 
     freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
     mask_polymorph_assembly(assembly.join(freebayes.out.vcf))
-    quast(assembly, genomeReference)
+
+    // sequence typing
     mlst(assembly, params.species, mlstDb)
     // split assemblies and id into two seperate channels to enable re-pairing
     // of results and id at a later stage. This to allow batch cgmlst/wgmlst analysis 
@@ -135,9 +139,6 @@ workflow bacterial_default {
     chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
     chewbbaca_split_results(chewbbaca_allelecall.out.sampleName, chewbbaca_allelecall.out.calls)
 
-    // end point
-    export_to_cdm(chewbbaca_split_results.out.output.join(quast.out.qc).join(post_align_qc.out.qc))
-
     // sourmash
     sourmash(assembly)
 
@@ -148,6 +149,9 @@ workflow bacterial_default {
     // perform resistance prediction
     resfinder(reads, params.species, resfinderDb, pointfinderDb)
     virulencefinder(reads, params.useVirulenceDbs, virulencefinderDb)
+
+    // end point
+    export_to_cdm(chewbbaca_split_results.out.output.join(quast.out.qc).join(post_align_qc.out.qc))
 
     // combine results for export
     quast.out.qc
@@ -177,5 +181,5 @@ workflow bacterial_default {
     
   emit: 
     pipeline_result = create_analysis_result.output
-    cdm_import = export_to_cdm.output
+    cdm_import      = export_to_cdm.output
 }
