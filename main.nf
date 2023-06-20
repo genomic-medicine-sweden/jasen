@@ -173,11 +173,11 @@ workflow bacterial_default {
       bracken(kraken.out.report, krakenDb).output
       combinedOutput = combinedOutput.join(bracken.out.output)
       create_analysis_result(combinedOutput)
-	  } else {
+    } else {
       emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
       combinedOutput = combinedOutput.join(emptyBrackenOutput)
       create_analysis_result(combinedOutput)
-	  }
+    }
     
   emit: 
     pipeline_result = create_analysis_result.output
