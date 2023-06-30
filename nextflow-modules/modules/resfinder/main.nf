@@ -16,7 +16,7 @@ process resfinder {
     path "*versions.yml"                       , emit: versions
 
   when:
-    task.ext.when && workflow.profile != "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     def resfinderFinderParams = pointfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""

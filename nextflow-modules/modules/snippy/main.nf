@@ -8,11 +8,12 @@ process snippy {
 
   output:
     tuple val(sampleName), path("${sampleName}/snps.vcf"), emit: vcf
+    tuple val(sampleName), path("${sampleName}/snps.bam"), emit: bam
     tuple val(sampleName), path("${sampleName}/snps.csv"), emit: csv
     path "*versions.yml"                                 , emit: versions
 
   when:
-    task.ext.when && workflow.profile == "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''

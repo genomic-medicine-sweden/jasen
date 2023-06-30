@@ -13,7 +13,7 @@ process virulencefinder {
     path "*versions.yml"                   , emit: versions
 
   when:
-    task.ext.when && workflow.profile != "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""

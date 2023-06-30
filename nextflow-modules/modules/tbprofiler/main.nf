@@ -10,7 +10,7 @@ process tbprofiler {
     path "*versions.yml"                         , emit: versions
 
   when:
-    task.ext.when && workflow.profile == "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''
