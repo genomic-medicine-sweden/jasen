@@ -160,6 +160,10 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 * [pointfinder_db](https://bitbucket.org/genomicepidemiology/pointfinder_db/src/master/): Pointfinder database.
 * [virulencefinder_db](https://bitbucket.org/genomicepidemiology/virulencefinder_db/src/master/): Virulencefinder database.
 
+### Relatedness
+
+* [sourmash](https://github.com/sourmash-bio/sourmash): Determine relatedness between samples.
+
 ## Report and visualisation
 
 * [Bonsai](https://github.com/Clinical-Genomics-Lund/cgviz): Visualises JASEN outputs.
