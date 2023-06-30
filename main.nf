@@ -2,8 +2,13 @@
 
 nextflow.enable.dsl=2
 
-include { CALL_BACTERIAL_DEFAULT  } from './workflows/bacterial_default.nf'
+include { CALL_STAPHYLOCOCCUS_AUREUS        } from './workflows/staphylococcus_aureus.nf'
+include { CALL_MYCOBACTERIUM_TUBERCULOSIS   } from './workflows/mycobacterium_tuberculosis.nf'
 
 workflow {
-    CALL_BACTERIAL_DEFAULT()  
+    if (workflow.profile == "staphylococcus_aureus") {
+        CALL_STAPHYLOCOCCUS_AUREUS()
+    } else if (workflow.profile == "mycobacterium_tuberculosis") {
+        CALL_MYCOBACTERIUM_TUBERCULOSIS()
+    }
 }
