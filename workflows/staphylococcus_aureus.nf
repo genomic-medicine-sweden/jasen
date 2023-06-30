@@ -48,9 +48,16 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         CALL_BACTERIAL_BASE( coreLociBed, genomeReference, genomeReferenceDir, ch_meta.iontorrent, ch_meta.illumina )
         
-        bwa_index(CALL_BACTERIAL_BASE.out.assembly)
+        CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
+        CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
+        CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
+        CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
+        CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
+        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
 
-        CALL_BACTERIAL_BASE.out.reads
+        bwa_index(ch_assembly)
+
+        ch_reads
             .join(bwa_index.out.idx)
             .multiMap { id, reads, bai -> 
                 reads: tuple(id, reads)
@@ -61,22 +68,22 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         samtools_index_assembly(bwa_mem_dedup.out.bam)
 
         // construct freebayes input channels
-        CALL_BACTERIAL_BASE.out.assembly
-        .join(bwa_mem_dedup.out.bam)
-        .join(samtools_index_assembly.out.bai)
-        .multiMap { id, fasta, bam, bai -> 
-            assembly: tuple(id, fasta)
-            mapping: tuple(bam, bai)
-        }
-        .set { freebayes_ch }
+        ch_assembly
+            .join(bwa_mem_dedup.out.bam)
+            .join(samtools_index_assembly.out.bai)
+            .multiMap { id, fasta, bam, bai -> 
+                assembly: tuple(id, fasta)
+                mapping: tuple(bam, bai)
+            }
+            .set { freebayes_ch }
 
         // VARIANT CALLING
         freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
 
-        mask_polymorph_assembly(CALL_BACTERIAL_BASE.out.assembly.join(freebayes.out.vcf))
+        mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(CALL_BACTERIAL_BASE.out.assembly, params.species, mlstDb)
+        mlst(ch_assembly, params.species, mlstDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleName, filePath -> 
@@ -91,26 +98,26 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
-        amrfinderplus(CALL_BACTERIAL_BASE.out.assembly, amrfinderDb)
+        amrfinderplus(ch_assembly, amrfinderDb)
 
         // resistance & virulence prediction
-        resfinder(CALL_BACTERIAL_BASE.out.reads, params.species, resfinderDb, pointfinderDb)
-        virulencefinder(CALL_BACTERIAL_BASE.out.reads, params.useVirulenceDbs, virulencefinderDb)
+        resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
+        virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
-        export_to_cdm(chewbbaca_split_results.join(CALL_BACTERIAL_BASE.out.quast).join(CALL_BACTERIAL_BASE.out.qc))
+        export_to_cdm(chewbbaca_split_results.out.output.join(ch_quast).join(ch_qc))
 
-        CALL_BACTERIAL_BASE.out.reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
-        CALL_BACTERIAL_BASE.out.quast
-            .join(CALL_BACTERIAL_BASE.out.qc)
-            .join(mlst.out.mlst)
-            .join(chewbbaca_split_results.out.chewbbaca)
+        ch_quast
+            .join(ch_qc)
+            .join(mlst.out.json)
+            .join(chewbbaca_split_results.out.output)
             .join(amrfinderplus.out.output)
             .join(resfinder.out.json)
             .join(resfinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
-            .join(CALL_BACTERIAL_BASE.out.metadata)
+            .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
@@ -118,7 +125,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         if ( params.useKraken ) {
             krakenDb = file(params.krakenDb, checkIfExists: true)
-            kraken(CALL_BACTERIAL_BASE.out.reads, krakenDb)
+            kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput = combinedOutput.join(bracken.out.output)
             create_analysis_result(combinedOutput)
@@ -141,7 +148,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit: 
-        pipeline_result = CALL_POSTPROCESSING.out.pipeline_result
-        cdm             = CALL_POSTPROCESSING.out.cdm
+        pipeline_result = create_analysis_result.output
+        cdm             = export_to_cdm.output
         versions        = ch_versions
 }
