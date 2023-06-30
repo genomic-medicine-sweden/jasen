@@ -2,11 +2,14 @@ include { bwa_index                                 } from '../nextflow-modules/
 include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main'
 include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main'
+include { snippy                                    } from '../nextflow-modules/modules/snippy/main'
+include { tbprofiler                                } from '../nextflow-modules/modules/tbprofiler/main'
 
 workflow CALL_VARIANT_CALLING {
     take:
-        ch_assembly // channel: [ val(meta), val(fasta) ]
-        ch_reads    // channel: [ val(meta), val(reads) ]
+        ch_assembly     // channel: [ val(meta), val(fasta) ]
+        ch_input_meta   // channel: [ val(meta), val(input_meta) ]
+        ch_reads        // channel: [ val(meta), val(reads) ]
 
     main:
         ch_versions = Channel.empty()
@@ -36,12 +39,19 @@ workflow CALL_VARIANT_CALLING {
 
         freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
 
+        snippy(ch_reads)
+
+        tbprofiler(ch_reads)
+
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
+        ch_versions = ch_versions.mix(tbprofiler.out.versions)
 
     emit:
-        vcf         = freebayes.out.vcf // channel: [ val(meta), path(vcf)]
-        versions    = ch_versions       // channel: [ versions.yml ]
+        vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf)]
+        snippy_vcf  = snippy.out.vcf        // channel: [ val(meta), path(vcf)]
+        json        = tbprofiler.out.json   // channel: [ val(meta), path(vcf)]
+        versions    = ch_versions           // channel: [ versions.yml ]
 }

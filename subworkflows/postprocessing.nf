@@ -5,8 +5,8 @@ include { kraken                    } from '../nextflow-modules/modules/kraken/m
 
 workflow CALL_POSTPROCESSING {
     take:
-        ch_chewbbaca_split_results  // channel: [ val(meta), val(ch_post_align_qc) ]
-        ch_combinedOutput          // channel: [ val(meta), val(ch_post_align_qc) ]
+        ch_chewbbaca_split_results  // channel: [ val(meta), val(tsv) ]
+        ch_combinedOutput           // channel: [ val(meta), val(combinedOutput) ]
         ch_post_align_qc            // channel: [ val(meta), val(ch_post_align_qc) ]
         ch_quast                    // channel: [ val(meta), val(quast) ]
         ch_reads                    // channel: [ val(meta), val(reads) ]
