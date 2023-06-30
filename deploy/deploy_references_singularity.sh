@@ -41,7 +41,7 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/d
 cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
 ## Download Saureus cgmlst cgmlst.org schema
-mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
+mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles
 cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
 wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
@@ -59,11 +59,11 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/d
 cd ${assdir}/genomes/escherichia_coli
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_000913.3.fasta
 ## Download Ecoli wgmlst INNUENDO schema
-mkdir -p ${assdir}/wgmlst/escherichia_coli/alleles &> /dev/null
+mkdir -p ${assdir}/wgmlst/escherichia_coli/alleles
 cd ${assdir}/wgmlst/escherichia_coli/alleles
 singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie DownloadSchema -sp 5 -sc 1 -o ${assdir}/wgmlst/escherichia_coli/alleles --latest
 ## Download Ecoli cgmlst cgmlst.org schema
-mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles &> /dev/null
+mkdir -p ${assdir}/cgmlst/escherichia_coli/alleles
 cd ${assdir}/cgmlst/escherichia_coli/alleles
 wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
@@ -81,7 +81,7 @@ singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/d
 cd ${assdir}/genomes/klebsiella_pneumoniae
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
 ## Download Kpneumoniae cgmlst cgmlst.org schema
-mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
+mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
 cd ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
 wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
