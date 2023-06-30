@@ -9,9 +9,6 @@ process tbprofiler {
     tuple val(sampleName), path("results/*.json"), emit: json
     path "*versions.yml"                         , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"

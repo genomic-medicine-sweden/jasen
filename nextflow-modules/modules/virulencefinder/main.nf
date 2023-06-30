@@ -12,9 +12,6 @@ process virulencefinder {
     tuple val(sampleName), path(metaFile)  , emit: meta
     path "*versions.yml"                   , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
     outputFile = "${sampleName}_virulencefinder.json"

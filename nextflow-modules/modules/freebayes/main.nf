@@ -10,9 +10,6 @@ process freebayes {
     tuple val(sampleName), path(output), emit: vcf
     path "*versions.yml"               , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     output = "${sampleName}.vcf"

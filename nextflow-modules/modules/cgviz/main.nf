@@ -11,9 +11,6 @@ process export_to_cgviz {
   output:
     path(output)
 
-  when:
-    task.ext.when
-
   script:
     output = "${sampleName}_cgviz.json"
     //--kraken ${bracken} \\

@@ -13,9 +13,6 @@ process abritamr {
     tuple val(sampleName), path(virulence), optional: true, emit: virulence
     path "*versions.yml"                  , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def mode = task.ext.mode ?: 'run'
     def database_command = database ? "--amrfinder_db ${database}" : ""

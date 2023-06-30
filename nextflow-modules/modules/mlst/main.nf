@@ -19,9 +19,6 @@ process mlst {
     tuple val(sampleName), path('*.novel'), optional: true, emit: novel
     path "*versions.yml"                  , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     outputName = "${sampleName}_mlst"

@@ -8,9 +8,6 @@ process mask_polymorph_assembly {
   output:
     tuple val(sampleName), path(output), emit: fasta
 
-  when:
-    task.ext.when
-
   script:
     output = "${sampleName}.fa"
     """

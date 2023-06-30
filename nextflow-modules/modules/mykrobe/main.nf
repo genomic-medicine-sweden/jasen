@@ -9,9 +9,6 @@ process mykrobe {
     tuple val(sampleName), path(output), emit: json
     path "*versions.yml"               , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"

@@ -13,9 +13,6 @@ process chewbbaca_allelecall {
     path('output_dir/results_alleles.tsv'), emit: calls
     path "*versions.yml"                  , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     trainingFile = trainingFile ? "--ptf ${trainingFile}" : "" 

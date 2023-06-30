@@ -8,9 +8,6 @@ process create_analysis_result {
   output:
     path(output)
 
-  when:
-    task.ext.when
-
   script:
     output = "${sampleName}_result.json"
     amrfinderArgs = amr ? "--amr ${amr}" : ""

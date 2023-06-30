@@ -8,9 +8,6 @@ process export_to_cdm {
   output:
     path(output)
 
-  when:
-    task.ext.when
-
   script:
     output = "${sampleName}.cdm"
     rundir = 'fool'

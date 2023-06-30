@@ -12,9 +12,6 @@ process snippy {
     tuple val(sampleName), path("${sampleName}/snps.csv"), emit: csv
     path "*versions.yml"                                 , emit: versions
 
-  when:
-    task.ext.when
-
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
