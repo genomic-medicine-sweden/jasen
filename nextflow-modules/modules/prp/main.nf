@@ -3,39 +3,42 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(bracken)
+    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(snippy), val(tbprofiler), val(bracken)
 
   output:
     path(output)
 
   when:
-    task.ext.when && workflow.profile != "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     output = "${sampleName}_result.json"
-    quastArgs = quast ? "--quast ${quast}" : ""
-    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
-    brackenArgs = bracken ? "--kraken ${bracken}" : ""
-    mlstArgs = mlst ? "--mlst ${mlst}" : ""
-    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     amrfinderArgs = amr ? "--amr ${amr}" : ""
+    brackenArgs = bracken ? "--kraken ${bracken}" : ""
+    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
+    mlstArgs = mlst ? "--mlst ${mlst}" : ""
+    mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
+    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
+    quastArgs = quast ? "--quast ${quast}" : ""
     resfinderArgs = resistance ? "--resistance ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
+    runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
+    snippyArgs = snippy ? "--snippy ${snippy}" : ""
+    tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulence ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
-    runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     """
     prp create-output \\
       --sample-id ${sampleName} \\
-      ${runInfoArgs} \\
-      ${quastArgs} \\
-      ${postalignqcArgs} \\
-      ${brackenArgs} \\
-      ${mlstArgs} \\
-      ${cgmlstArgs} \\
       ${amrfinderArgs} \\
-      ${virulenceArgs} \\
+      ${brackenArgs} \\
+      ${cgmlstArgs} \\
+      ${mlstArgs} \\
+      ${postalignqcArgs} \\
+      ${quastArgs} \\
       ${resfinderArgs} \\
+      ${runInfoArgs} \\
+      ${virulenceArgs} \\
       ${output}
     """
 
