@@ -8,6 +8,9 @@ process save_analysis_metadata {
   output:
     tuple val(sampleName), path(output), emit: meta
 
+  when:
+    task.ext.when
+
   script:
     def seqType = reads.size() == 2 ? "PE" : "SE"
     output = "${sampleName}_analysis_meta.json"

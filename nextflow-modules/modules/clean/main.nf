@@ -9,7 +9,7 @@ process assembly_trim_clean {
     tuple val(sampleName), path(output), val(platform)
 
   when:
-    platform == "iontorrent"
+    task.ext.when && platform == "iontorrent"
 
   script:
     def args = task.ext.args ?: ''

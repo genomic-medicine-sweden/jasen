@@ -10,6 +10,9 @@ process post_align_qc {
   output:
     tuple val(sampleName), path(output), emit: qc
 
+  when:
+    task.ext.when
+
   script:
     output = "${sampleName}_bwa.qc"
     """

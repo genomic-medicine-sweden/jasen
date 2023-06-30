@@ -8,6 +8,9 @@ process create_analysis_result {
   output:
     path(output)
 
+  when:
+    task.ext.when && workflow.profile != "mycobacterium_tuberculosis"
+
   script:
     output = "${sampleName}_result.json"
     quastArgs = quast ? "--quast ${quast}" : ""

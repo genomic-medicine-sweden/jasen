@@ -11,6 +11,9 @@ process kraken {
     tuple val(sampleName), path(report), emit: report
     path "*versions.yml"               , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def args = task.ext.args ?: ''
     output = "${sampleName}_kraken.out"

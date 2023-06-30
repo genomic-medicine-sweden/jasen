@@ -13,7 +13,7 @@ process spades_iontorrent {
     path "*versions.yml"                              , emit: versions
 
   when:
-    platform == "iontorrent"
+    task.ext.when && platform == "iontorrent"
 
   script:
     def args = task.ext.args ?: ''

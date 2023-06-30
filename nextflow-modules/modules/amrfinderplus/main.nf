@@ -10,6 +10,9 @@ process amrfinderplus {
     tuple val(sampleName), path(output), emit: output
     path "*versions.yml"               , emit: versions
 
+  when:
+    task.ext.when && workflow.profile != "mycobacterium_tuberculosis"
+
   script:
     def args = task.ext.args ?: ''
     def database_command = database ? "--database ${database}" : ""
