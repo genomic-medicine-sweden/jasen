@@ -2,6 +2,7 @@
 
 nextflow.enable.dsl=2
 
+include { get_meta              } from '../methods/get_meta'
 include { CALL_ASSEMBLY         } from '../subworkflows/assembly.nf'
 include { CALL_POSTPROCESSING   } from '../subworkflows/postprocessing.nf'
 include { CALL_PREPROCESSING    } from '../subworkflows/preprocessing.nf'
@@ -10,21 +11,6 @@ include { CALL_RELATEDNESS      } from '../subworkflows/relatedness.nf'
 include { CALL_SCREENING        } from '../subworkflows/screening.nf'
 include { CALL_TYPING           } from '../subworkflows/typing.nf'
 include { CALL_VARIANT_CALLING  } from '../subworkflows/variant_calling.nf'
-
-// Function for platform and paired-end or single-end
-def get_meta(LinkedHashMap row) {
-    platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
-    if (row.platform in platforms) {
-        if (row.read2) {
-        meta = tuple(row.id, tuple(file(row.read1), file(row.read2)), row.platform)
-        } else {
-        meta = tuple(row.id, tuple(file(row.read1)), row.platform)
-        }
-    } else {
-        exit 1, "ERROR: Please check input samplesheet -> Platform is not one of the following:!\n-${platforms.join('\n-')}"
-    }
-    return meta
-}
 
 workflow CALL_BACTERIAL_DEFAULT {
     Channel.fromPath(params.csv).splitCsv(header:true)
@@ -51,7 +37,7 @@ workflow CALL_BACTERIAL_DEFAULT {
     main:
         CALL_PREPROCESSING( ch_meta.iontorrent, ch_meta.illumina )
         CALL_ASSEMBLY( genomeReference, CALL_PREPROCESSING.out.input_meta )
-        CALL_VARIANT_CALLING( CALL_ASSEMBLY.out.assembly, CALL_PREPROCESSING.out.reads )
+        CALL_VARIANT_CALLING( CALL_ASSEMBLY.out.assembly, CALL_PREPROCESSING.out.input_meta, CALL_PREPROCESSING.out.reads )
         CALL_QUALITY_CONTROL( coreLociBed, genomeReferenceDir, CALL_PREPROCESSING.out.reads )
         CALL_TYPING( chewbbacaDb, mlstDb, trainingFile, CALL_ASSEMBLY.out.assembly, CALL_VARIANT_CALLING.out.vcf )
         CALL_SCREENING( amrfinderDb, pointfinderDb, resfinderDb, virulencefinderDb, CALL_ASSEMBLY.out.assembly, CALL_PREPROCESSING.out.reads )
