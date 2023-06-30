@@ -1,5 +1,4 @@
 include { amrfinderplus     } from '../nextflow-modules/modules/amrfinderplus/main'
-include { mykrobe           } from '../nextflow-modules/modules/mykrobe/main'
 include { resfinder         } from '../nextflow-modules/modules/resfinder/main'
 include { virulencefinder   } from '../nextflow-modules/modules/virulencefinder/main'
 
@@ -17,22 +16,17 @@ workflow CALL_SCREENING {
 
         // antimicrobial detection (amrfinderplus & abritamr)
         amrfinderplus(ch_assembly, amrfinderDb)
-        //abritamr(amrfinderplus.out.output)
 
         // perform resistance prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
-        mykrobe(ch_reads)
-
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(resfinder.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
-        ch_versions = ch_versions.mix(mykrobe.out.versions)
 
     emit:
         amrfinderplus       = amrfinderplus.out.output  // channel: [ val(meta), path(tsv)]
-        mykrobe             = mykrobe.out.json          // channel: [ val(meta), path(tsv)]
         resfinderJson       = resfinder.out.json        // channel: [ val(meta), path(json)]
         resfinderMeta       = resfinder.out.meta        // channel: [ val(meta), path(meta)]
         virulencefinderJson = virulencefinder.out.json  // channel: [ val(meta), path(json)]

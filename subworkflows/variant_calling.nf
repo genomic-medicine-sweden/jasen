@@ -39,15 +39,10 @@ workflow CALL_VARIANT_CALLING {
 
         freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
 
-        snippy(ch_reads)
-
-        tbprofiler(ch_reads)
-
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
-        ch_versions = ch_versions.mix(tbprofiler.out.versions)
 
     emit:
         vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf)]
