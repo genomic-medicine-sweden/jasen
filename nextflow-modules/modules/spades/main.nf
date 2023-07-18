@@ -13,7 +13,7 @@ process spades_iontorrent {
     path "*versions.yml"                              , emit: versions
 
   when:
-    task.ext.when && platform == "iontorrent"
+    platform == "iontorrent"
 
   script:
     def args = task.ext.args ?: ''
@@ -60,7 +60,7 @@ process spades_illumina {
     path "*versions.yml"                              , emit: versions
 
   when:
-    task.ext.when && platform == "illumina"
+    platform == "illumina"
 
   script:
     def args = task.ext.args ?: ''
