@@ -482,8 +482,7 @@ def parse_amrfinder_vir_pred(file: str):
 def parse_mykrobe_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, ElementTypeResult]:
     """Parse resfinder resistance prediction results."""
     LOG.info("Parsing mykrobe prediction")
-
-    sample_id = prediction.keys()[0]
+    sample_id = list(prediction.keys())[0]
     pred = prediction[sample_id]["susceptibility"]
     resistance = ElementTypeResult(
         phenotypes=_get_mykrobe_amr_sr_profie(pred),
