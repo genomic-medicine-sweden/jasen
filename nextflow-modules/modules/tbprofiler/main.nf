@@ -6,20 +6,21 @@ process tbprofiler {
     tuple val(sampleName), path(reads)
 
   output:
-    tuple val(sampleName), path("results/*.json"), emit: json
-    path "*versions.yml"                         , emit: versions
+    tuple val(sampleName), path(output), emit: json
+    path "*versions.yml"               , emit: versions
 
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
-    output = "${sampleName}.json"
+    output = "${sampleName}_tbprofiler.json"
     """
     tb-profiler profile \\
       ${args} \\
       ${inputData} \\
       --threads ${task.cpus} \\
-      --ram ${task.memory} \\
       --prefix ${sampleName}
+
+    cp results/${sampleName}.results.json $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -30,9 +31,10 @@ process tbprofiler {
     """
 
   stub:
+    output = "${sampleName}_tbprofiler.json"
     """
     mkdir results
-    touch results/${sampleName}.json
+    touch $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:

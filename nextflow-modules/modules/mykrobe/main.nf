@@ -12,13 +12,12 @@ process mykrobe {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
-    output = "${sampleName}.json"
+    output = "${sampleName}_mykrobe.json"
     """
     mykrobe predict \\
       ${args} \\
       --sample ${sampleName} \\
       --seq ${inputData} \\
-      --memory ${task.memory} \\
       --threads ${task.cpus} \\
       --output ${output}
 
@@ -31,7 +30,7 @@ process mykrobe {
     """
 
   stub:
-    output = "${sampleName}.json"
+    output = "${sampleName}_mykrobe.json"
     """
     touch $output
 

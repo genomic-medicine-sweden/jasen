@@ -7,7 +7,7 @@ process snippy {
     path reference
 
   output:
-    tuple val(sampleName), path("${sampleName}/snps.vcf"), emit: vcf
+    tuple val(sampleName), path(output)                  , emit: vcf
     tuple val(sampleName), path("${sampleName}/snps.bam"), emit: bam
     tuple val(sampleName), path("${sampleName}/snps.csv"), emit: csv
     path "*versions.yml"                                 , emit: versions
@@ -15,14 +15,16 @@ process snippy {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
+    output = "${sampleName}_snippy.vcf"
     """
     snippy \\
       ${args} \\
       ${inputData} \\
       --ref ${reference} \\
       --cpus ${task.cpus} \\
-      --ram ${task.memory} \\
-      --output ${sampleName}
+      --outdir ${sampleName}
+
+    cp ${sampleName}/snps.vcf $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -33,8 +35,10 @@ process snippy {
     """
 
   stub:
+    output = "${sampleName}_snippy.vcf"
     """
     mkdir ${sampleName}
+    touch $output
     touch "${sampleName}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}"
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
