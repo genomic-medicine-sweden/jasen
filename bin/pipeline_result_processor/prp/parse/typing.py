@@ -3,9 +3,10 @@
 import csv
 import json
 import logging
+import pandas as pd
 
 from ..models.sample import MethodIndex
-from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst
+from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultMlst
 from ..models.typing import TypingSoftware as Software
 
 LOG = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ LOG = logging.getLogger(__name__)
 def parse_mlst_results(path: str) -> TypingResultMlst:
     """Parse mlst results from mlst to json object."""
     LOG.info("Parsing mlst results")
-    result = json.load(path)[0]
+    result = json.load(path)
     result_obj = TypingResultMlst(
         scheme=result["scheme"],
         sequence_type=None
@@ -82,4 +83,27 @@ def parse_cgmlst_results(
     )
     return MethodIndex(
         type=TypingMethod.CGMLST, software=Software.CHEWBBACA, result=results
+    )
+
+def parse_snippy_results(path: str) -> TypingResultMlst:
+    """Parse mlst results from mlst to json object."""
+    LOG.info("Parsing snippy results")
+    with open(path, "rb") as tsvfile:
+        snps = pd.read_csv(tsvfile, delimiter="\t", comment="##")
+        snps = snps.rename(
+            columns={
+                "#CHROM": "chrom",
+                "POS": "position",
+                "ID": "id",
+                "REF": "reference",
+                "ALT": "alternative",
+                "QUAL": "quality",
+                "FILTER": "filter",
+                "INFO": "info",
+                "FORMAT": "format",
+            }
+        )
+        snps = snps.to_dict(orient="records")
+    return MethodIndex(
+        type=TypingMethod.SNIPPY, software=Software.SNIPPY, result=snps
     )

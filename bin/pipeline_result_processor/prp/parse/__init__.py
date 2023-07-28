@@ -5,6 +5,7 @@ from .phenotype import (
     parse_amrfinder_amr_pred,
     parse_virulencefinder_vir_pred,
     parse_amrfinder_vir_pred,
+    parse_mykrobe_amr_pred,
 )
 from .qc import parse_quast_results, parse_postalignqc_results
 from .species import parse_kraken_result
