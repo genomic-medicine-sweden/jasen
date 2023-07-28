@@ -9,6 +9,7 @@ include { kraken                    } from '../nextflow-modules/modules/kraken/m
 include { mykrobe                   } from '../nextflow-modules/modules/mykrobe/main'
 include { snippy                    } from '../nextflow-modules/modules/snippy/main'
 include { tbprofiler                } from '../nextflow-modules/modules/tbprofiler/main'
+include { CALL_BACTERIAL_BASE       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     Channel.fromPath(params.csv).splitCsv(header:true)
@@ -32,7 +33,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         mykrobe(CALL_BACTERIAL_BASE.out.reads)
 
-        snippy(CALL_BACTERIAL_BASE.out.reads)
+        snippy(CALL_BACTERIAL_BASE.out.reads, genomeReference)
 
         tbprofiler(CALL_BACTERIAL_BASE.out.reads)
         
@@ -58,13 +59,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(CALL_BACTERIAL_BASE.out.reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput = combinedOutput.join(bracken.out.output)
-            create_analysis_result(combinedOutput)
+            //create_analysis_result(combinedOutput)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
             combinedOutput = combinedOutput.join(emptyBrackenOutput)
-            create_analysis_result(combinedOutput)
+            //create_analysis_result(combinedOutput)
         }
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
@@ -73,6 +74,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler.out.versions)
 
     emit: 
-        pipeline_result = create_analysis_result.out.pipeline_result
+        //pipeline_result = create_analysis_result.output
         versions        = ch_versions
 }
