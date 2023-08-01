@@ -483,6 +483,15 @@ def parse_mykrobe_amr_pred(prediction: Dict[str, Any], resistance_category) -> T
     """Parse resfinder resistance prediction results."""
     LOG.info("Parsing mykrobe prediction")
     sample_id = list(prediction.keys())[0]
+    meta = [
+        SoupVersion(
+            **{
+                "name": "mykrobe-predictor",
+                "version": prediction[sample_id]["version"]["mykrobe-predictor"],
+                "type": "database",
+            }
+        )
+    ]
     pred = prediction[sample_id]["susceptibility"]
     resistance = ElementTypeResult(
         phenotypes=_get_mykrobe_amr_sr_profie(pred),

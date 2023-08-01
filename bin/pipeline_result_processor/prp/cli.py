@@ -19,7 +19,6 @@ from .parse import (
     parse_virulencefinder_vir_pred,
     parse_amrfinder_vir_pred,
     parse_mykrobe_amr_pred,
-    #parse_mykrobe_result,
     #parse_snippy_result,
     #parse_tbprofiler_result,
 )
@@ -99,9 +98,8 @@ def create_output(
         "qc": [],
         "typing_result": [],
         "element_type_result": [],
-        "mykrobe": [],
-        "snippy": [],
-        "tbprofiler": [],
+        #"snippy": [],
+        #"tbprofiler": [],
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -178,18 +176,30 @@ def create_output(
     if mykrobe:
         LOG.info("Parse mykrobe results")
         pred_res = json.load(mykrobe)
+        sample_id = list(pred_res.keys())[0]
+        db_info: List[SoupVersion] = []
+        db_info = [
+            SoupVersion(
+                **{
+                    "name": "mykrobe-predictor",
+                    "version": pred_res[sample_id]["version"]["mykrobe-predictor"],
+                    "type": "database",
+                }
+            )
+        ]
+        results["run_metadata"]["databases"] = db_info
         res: MethodIndex = parse_mykrobe_amr_pred(pred_res, ElementType.AMR)
-        results["mykrobe"].append(res)
+        results["element_type_result"].append(res)
 
     # snippy
     if snippy:
         LOG.info("Parse snippy results")
-        results["snippy"] = []
+        #results["snippy"] = []
 
     # tbprofiler
     if tbprofiler:
         LOG.info("Parse tbprofiler results")
-        results["tbprofiler"] = []
+        #results["tbprofiler"] = []
 
     try:
         output_data = PipelineResult(schema_version=OUTPUT_SCHEMA_VERSION, **results)

@@ -15,7 +15,7 @@ LOG = logging.getLogger(__name__)
 def parse_mlst_results(path: str) -> TypingResultMlst:
     """Parse mlst results from mlst to json object."""
     LOG.info("Parsing mlst results")
-    result = json.load(path)
+    result = json.load(path)[0]
     result_obj = TypingResultMlst(
         scheme=result["scheme"],
         sequence_type=None
