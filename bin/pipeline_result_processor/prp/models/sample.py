@@ -8,7 +8,7 @@ from .base import RWModel
 from .metadata import RunMetadata
 from .phenotype import ElementTypeResult, ElementType, PredictionSoftware
 from .qc import QcMethodIndex
-from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingSoftware
+from .typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultLineage, TypingSoftware
 
 # disabled validation
 # SAMPLE_ID_PATTERN = r"^[a-zA-Z1-9-_]+$"
@@ -38,7 +38,7 @@ class MethodIndex(RWModel):
 
     type: Union[ElementType, TypingMethod]
     software: PredictionSoftware | TypingSoftware | None
-    result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst]
+    result: Union[ElementTypeResult, TypingResultMlst, TypingResultCgMlst, TypingResultLineage]
 
 
 class SampleBase(RWModel):

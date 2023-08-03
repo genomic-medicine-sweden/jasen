@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
 from .models.phenotype import ElementType
+from .models.typing import TypingMethod
 from .models.qc import QcMethodIndex
 from .models.sample import MethodIndex, PipelineResult
 from .parse import (
@@ -19,8 +20,10 @@ from .parse import (
     parse_virulencefinder_vir_pred,
     parse_amrfinder_vir_pred,
     parse_mykrobe_amr_pred,
+    parse_mykrobe_lineage_results,
+    parse_tbprofiler_amr_pred,
+    parse_tbprofiler_lineage_results,
     #parse_snippy_result,
-    #parse_tbprofiler_result,
 )
 
 logging.basicConfig(
@@ -188,8 +191,10 @@ def create_output(
             )
         ]
         results["run_metadata"]["databases"] = db_info
-        res: MethodIndex = parse_mykrobe_amr_pred(pred_res, ElementType.AMR)
-        results["element_type_result"].append(res)
+        amr_res: MethodIndex = parse_mykrobe_amr_pred(pred_res[sample_id], ElementType.AMR)
+        results["element_type_result"].append(amr_res)
+        lin_res: MethodIndex = parse_mykrobe_lineage_results(pred_res[sample_id], TypingMethod.LINEAGE)
+        results["typing_result"].append(lin_res)
 
     # snippy
     if snippy:
@@ -199,7 +204,22 @@ def create_output(
     # tbprofiler
     if tbprofiler:
         LOG.info("Parse tbprofiler results")
-        #results["tbprofiler"] = []
+        pred_res = json.load(tbprofiler)
+        db_info: List[SoupVersion] = []
+        db_info = [
+            SoupVersion(
+                **{
+                    "name": pred_res["db_version"]["name"],
+                    "version": pred_res["db_version"]["commit"],
+                    "type": "database",
+                }
+            )
+        ]
+        results["run_metadata"]["databases"].extend(db_info)
+        lin_res: MethodIndex = parse_tbprofiler_lineage_results(pred_res, TypingMethod.LINEAGE)
+        results["typing_result"].append(lin_res)
+        amr_res: MethodIndex = parse_tbprofiler_amr_pred(pred_res, ElementType.AMR)
+        results["element_type_result"].append(amr_res)
 
     try:
         output_data = PipelineResult(schema_version=OUTPUT_SCHEMA_VERSION, **results)
