@@ -210,26 +210,73 @@ def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]
     """Get resistance genes from mykrobe result."""
     results = []
 
-    if not mykrobe_result:
-        results = _default_resistance().genes
-        return results
-
     for element_type in mykrobe_result:
         if mykrobe_result[element_type]["predict"].upper() == "R":
             hits = mykrobe_result[element_type]["called_by"]
             for hit in hits:
-                variant = ResistanceVariant(
-                    variant_type=None,
-                    genes=hit.split("_")[0],
-                    phenotypes=element_type,
-                    position=int(hit.split("-")[1][3:-3]),
-                    ref_codon=hit.split("-")[1][-3:],
-                    alt_codon=hit.split("-")[1][:3],
-                    depth=hits[hit]["info"]["coverage"]["alternate"]["median_depth"],
-                    ref_database=None,
-                    ref_id=None,
-                )
-                results.append(variant)
+                if hits[hit]["variant"] == None:
+                    var_type = "substitution"
+                    variant = ResistanceVariant(
+                        variant_type=var_type,
+                        genes=[hit.split("_")[0]],
+                        phenotypes=[element_type],
+                        position=int(hit.split("-")[1][3:-3]),
+                        ref_codon=hit.split("-")[1][-3:],
+                        alt_codon=hit.split("-")[1][:3],
+                        depth=hits[hit]["info"]["coverage"]["alternate"]["median_depth"],
+                        ref_database=None,
+                        ref_id=None,
+                    )
+                    results.append(variant)
+    if not results:
+        results = _default_resistance().genes
+        return results
+
+    return results
+
+
+def _get_tbprofiler_amr_sr_profie(tbprofiler_result):
+    """Get tbprofiler susceptibility/resistance profile."""
+    susceptible = set()
+    resistant = set()
+    drugs = ["ofloxacin", "moxifloxacin", "isoniazid", "delamanid", 
+             "kanamycin", "amikacin", "ethambutol", "ethionamide", 
+             "streptomycin", "ciprofloxacin", "levofloxacin", "pyrazinamide", 
+             "linezolid", "rifampicin", "capreomycin"]
+
+    if not tbprofiler_result:
+        return {}
+
+    for hit in tbprofiler_result["dr_variants"]:
+        for drug in hit["gene_associated_drugs"]:
+            resistant.add(drug)
+    susceptible = [drug for drug in drugs if drug not in resistant]
+    return {"susceptible": list(susceptible), "resistant": list(resistant)}
+
+
+def _parse_tbprofiler_amr_variants(tbprofiler_result) -> Tuple[ResistanceVariant, ...]:
+    """Get resistance genes from tbprofiler result."""
+    results = []
+
+    for hit in tbprofiler_result["dr_variants"]:
+        var_type = "substitution"
+        variant = ResistanceVariant(
+            variant_type=var_type,
+            genes=[hit["gene"]],
+            phenotypes=hit["gene_associated_drugs"],
+            position=int(hit["genome_pos"]),
+            ref_codon=f"{hit['protein_change'][2:4]}({hit['ref']})",
+            alt_codon=f"{hit['protein_change'][-3:-1]}({hit['alt']})",
+            depth=hit["depth"],
+            ref_database=tbprofiler_result["db_version"]["name"],
+            ref_id=None,
+        )
+        results.append(variant)
+
+    if not results:
+        results = _default_resistance().genes
+        return results
+    
     return results
 
 
@@ -470,9 +517,7 @@ def parse_amrfinder_vir_pred(file: str):
         )
         hits = hits.drop(columns=["Protein identifier", "HMM id", "HMM description"])
         hits = hits.where(pd.notnull(hits), None)
-        predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(
-            orient="records"
-        )
+        predictions = hits[hits["element_type"] == "VIRULENCE"].to_dict(orient="records")
         results: ElementTypeResult = _parse_amrfinder_vir_results(predictions)
     return MethodIndex(
         type=ElementType.VIR, software=Software.AMRFINDER, result=results
@@ -480,22 +525,41 @@ def parse_amrfinder_vir_pred(file: str):
 
 
 def parse_mykrobe_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, ElementTypeResult]:
-    """Parse resfinder resistance prediction results."""
+    """Parse mykrobe resistance prediction results."""
     LOG.info("Parsing mykrobe prediction")
-    sample_id = list(prediction.keys())[0]
     meta = [
         SoupVersion(
             **{
                 "name": "mykrobe-predictor",
-                "version": prediction[sample_id]["version"]["mykrobe-predictor"],
+                "version": prediction["version"]["mykrobe-predictor"],
                 "type": "database",
             }
         )
     ]
-    pred = prediction[sample_id]["susceptibility"]
+    pred = prediction["susceptibility"]
     resistance = ElementTypeResult(
         phenotypes=_get_mykrobe_amr_sr_profie(pred),
-        genes=_parse_mykrobe_amr_genes(pred),
+        genes=[], #_parse_mykrobe_amr_genes(pred),
         mutations=_parse_mykrobe_amr_variants(pred),
     )
     return MethodIndex(type=resistance_category, software=Software.MYKROBE, result=resistance)
+
+
+def parse_tbprofiler_amr_pred(prediction: Dict[str, Any], resistance_category) -> Tuple[SoupVersions, ElementTypeResult]:
+    """Parse tbprofiler resistance prediction results."""
+    LOG.info("Parsing tbprofiler prediction")
+    db_info = [
+            SoupVersion(
+                **{
+                    "name": prediction["db_version"]["name"],
+                    "version": prediction["db_version"]["commit"],
+                    "type": "database",
+                }
+            )
+        ]
+    resistance = ElementTypeResult(
+        phenotypes=_get_tbprofiler_amr_sr_profie(prediction),
+        genes=[],
+        mutations=_parse_tbprofiler_amr_variants(prediction),
+    )
+    return MethodIndex(type=resistance_category, software=Software.TBPROFILER, result=resistance)
