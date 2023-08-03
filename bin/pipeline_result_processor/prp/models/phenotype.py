@@ -15,7 +15,6 @@ class PredictionSoftware(Enum):
     RESFINDER = "resfinder"
     VIRFINDER = "virulencefinder"
     MYKROBE = "mykrobe"
-    SNIPPY = "snippy"
     TBPROFILER = "tbprofiler"
 
 

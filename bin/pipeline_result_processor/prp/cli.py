@@ -23,7 +23,7 @@ from .parse import (
     parse_mykrobe_lineage_results,
     parse_tbprofiler_amr_pred,
     parse_tbprofiler_lineage_results,
-    #parse_snippy_result,
+    parse_snippy_results,
 )
 
 logging.basicConfig(
@@ -68,7 +68,7 @@ def cli():
 @click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
 @click.option("-p", "--quality", type=click.File(), help="postalignqc qc results")
 @click.option("-k", "--mykrobe", type=click.File(), help="mykrobe results")
-@click.option("-s", "--snippy", type=click.File(), help="snippy results")
+@click.option("-s", "--snippy", type=str, help="snippy results")
 @click.option("-t", "--tbprofiler", type=click.File(), help="tbprofiler results")
 @click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
@@ -199,7 +199,8 @@ def create_output(
     # snippy
     if snippy:
         LOG.info("Parse snippy results")
-        #results["snippy"] = []
+        snp_res: MethodIndex = parse_snippy_results(snippy, TypingMethod.SNP)
+        results["typing_result"].append(snp_res)
 
     # tbprofiler
     if tbprofiler:
