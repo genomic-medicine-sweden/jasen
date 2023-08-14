@@ -50,7 +50,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(CALL_BACTERIAL_BASE.out.metadata)
             .join(mykrobe.out.json)
-            .join(snippy.out.vcf)
+            .join(snippy.out.csv)
             .join(tbprofiler.out.json)
             .set{ combinedOutput }
 
