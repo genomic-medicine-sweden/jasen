@@ -31,10 +31,13 @@ process create_analysis_result {
       ${brackenArgs} \\
       ${cgmlstArgs} \\
       ${mlstArgs} \\
+      ${mykrobeArgs} \\
       ${postalignqcArgs} \\
       ${quastArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
+      ${snippyArgs} \\
+      ${tbprofilerArgs} \\
       ${virulenceArgs} \\
       ${output}
     """

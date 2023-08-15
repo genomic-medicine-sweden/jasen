@@ -40,7 +40,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
         CALL_BACTERIAL_BASE.out.quast
-            .join(CALL_BACTERIAL_BASE.out.qc)
+            .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
@@ -59,13 +59,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(CALL_BACTERIAL_BASE.out.reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput = combinedOutput.join(bracken.out.output)
-            //create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
             combinedOutput = combinedOutput.join(emptyBrackenOutput)
-            //create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput)
         }
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
