@@ -1,6 +1,6 @@
 """Datamodels used for prediction results."""
 from enum import Enum
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Any
 
 from pydantic import BaseModel, Field
 
@@ -79,15 +79,13 @@ class VirulenceGene(GeneBase, DatabaseReference):
 class VariantBase(DatabaseReference):
     """Container for mutation information"""
 
-    variant_type: VariantType = Field(
-        ..., alias="variantType"
-    )  # type of mutation insertion/deletion/substitution
-    genes: List[str]
-    position: int
-    ref_codon: str = Field(..., alias="refCodon")
-    alt_codon: str = Field(..., alias="altCodon")
+    variant_type: Union[VariantType, None] # type of mutation insertion/deletion/substitution
+    genes: Union[List[str], None]
+    position: Union[int, None]
+    ref_codon: Union[str, None]
+    alt_codon: Union[str, None]
     # prediction info
-    depth: float
+    depth: Union[float, None]
 
 
 class ResistanceVariant(VariantBase):

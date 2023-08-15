@@ -229,7 +229,7 @@ def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]
                     )
                     results.append(variant)
     if not results:
-        results = _default_resistance().genes
+        results = _default_variant().mutations
         return results
 
     return results
@@ -274,7 +274,7 @@ def _parse_tbprofiler_amr_variants(tbprofiler_result) -> Tuple[ResistanceVariant
         results.append(variant)
 
     if not results:
-        results = _default_resistance().genes
+        results = _default_variant().mutations
         return results
     
     return results
@@ -479,6 +479,20 @@ def _default_resistance() -> ElementTypeResult:
     genes = list()
     genes.append(gene)
     return ElementTypeResult(phenotypes=[], genes=genes, mutations=[])
+
+def _default_variant() -> ElementTypeResult:
+    mutation = ResistanceGene(
+        variant_type=None,
+        genes=None,
+        phenotypes=[],
+        position=None,
+        ref_codon=None,
+        alt_codon=None,
+        depth=None,
+    )
+    mutations = list()
+    mutations.append(mutation)
+    return ElementTypeResult(phenotypes=[], genes=[], mutations=mutations)
 
 
 def parse_virulencefinder_vir_pred(file: str) -> ElementTypeResult:
