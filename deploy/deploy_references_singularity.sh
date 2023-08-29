@@ -42,7 +42,7 @@ cd ${assdir}/genomes/staphylococcus_aureus
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_002951.2.fasta
 ## Download Saureus cgmlst cgmlst.org schema
 mkdir -p ${assdir}/cgmlst/staphylococcus_aureus/alleles &> /dev/null
-cd ${assdir}/cgmlst/staphylococcus_aureus/alleles  
+cd ${assdir}/cgmlst/staphylococcus_aureus/alleles
 wget https://www.cgmlst.org/ncs/schema/141106/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
 ## Prepping Saureus cgmlst cgmlst.org schema
@@ -54,7 +54,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 #Ecoli
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_000913.3 -o ${assdir}/genomes/escherichia_coli
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py -i NC_000913.3 -o ${assdir}/genomes/escherichia_coli
 ## Index reference
 cd ${assdir}/genomes/escherichia_coli
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_000913.3.fasta
@@ -76,7 +76,7 @@ singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExtern
 #Kpneumoniae
 ## Download reference
 cd ${assdir}/..
-singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif python3 bin/download_ncbi.py -i NC_016845.1 -o ${assdir}/genomes/klebsiella_pneumoniae
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py -i NC_016845.1 -o ${assdir}/genomes/klebsiella_pneumoniae
 ## Index reference
 cd ${assdir}/genomes/klebsiella_pneumoniae
 singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
@@ -85,6 +85,19 @@ mkdir -p ${assdir}/cgmlst/klebsiella_pneumoniae/alleles &> /dev/null
 cd ${assdir}/cgmlst/klebsiella_pneumoniae/alleles
 wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate &> /dev/null
 unzip index.html &> /dev/null
+## Prepping Kpneumoniae cgmlst cgmlst.org schema
+#cd ${assdir}/cgmlst/klebsiella_pneumoniae/
+#echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee"
+#singularity exec --bind $mntroot ${containerdir}/chewbbaca.sif chewie PrepExternalSchema -i ${assdir}/cgmlst/klebsiella_pneumoniae/alleles -o ${assdir}/cgmlst/klebsiella_pneumoniae/alleles_rereffed \
+#	--cpu 1 --ptf ${assdir}/prodigal_training_files/Klebsiella_pneumoniae.trn #TO-DO: create Kpneumoniae training file
+
+#Mtuberculosis
+## Download reference
+cd ${assdir}/..
+singularity exec --bind $mntroot ${containerdir}/pythonScripts.sif python3 bin/download_ncbi.py -i NC_000962.3 -o ${assdir}/genomes/mycobacterium_tuberculosis
+## Index reference
+cd ${assdir}/genomes/mycobacterium_tuberculosis
+singularity exec --bind $mntroot ${containerdir}/bwakit.sif bwa index NC_016845.1.fasta
 
 cd ${assdir}/..
 

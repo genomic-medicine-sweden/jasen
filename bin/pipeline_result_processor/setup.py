@@ -17,7 +17,7 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3.10",
     ],
-    install_requires=["Click", "pydantic", "pandas"],
+    install_requires=["Click", "pydantic==1.10.7", "pandas"],
     entry_points={"console_scripts": ["prp=prp.cli:cli"]},
     packages=find_packages(exclude=("tests")),
 )

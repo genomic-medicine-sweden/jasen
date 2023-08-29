@@ -10,7 +10,7 @@ process skesa {
     path "*versions.yml"               , emit: versions
 
   when:
-    task.ext.when && platform == "illumina"
+    platform == "illumina"
 
   script:
     def args = task.ext.args ?: ''
