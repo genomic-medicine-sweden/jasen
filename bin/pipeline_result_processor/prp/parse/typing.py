@@ -11,6 +11,15 @@ from ..models.typing import TypingSoftware as Software
 
 LOG = logging.getLogger(__name__)
 
+def _process_allele_call(allele):
+    if allele.isdigit():
+        return int(allele)
+    elif ',' in allele:
+        return allele.split(',')
+    elif allele == '-':
+        return
+    raise ValueError(f"MLST allele {allele} not expected format")
+
 
 def parse_mlst_results(path: str) -> TypingResultMlst:
     """Parse mlst results from mlst to json object."""
@@ -21,10 +30,7 @@ def parse_mlst_results(path: str) -> TypingResultMlst:
         sequence_type=None
         if result["sequence_type"] == "-"
         else result["sequence_type"],
-        alleles={
-            gene: None if allele == "-" else allele
-            for gene, allele in result["alleles"].items()
-        },
+        alleles={gene: _process_allele_call(allele) for gene, allele in result["alleles"].items()},
     )
     return MethodIndex(
         type=TypingMethod.MLST, software=Software.MLST, result=result_obj

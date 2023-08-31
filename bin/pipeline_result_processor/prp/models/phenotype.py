@@ -86,6 +86,19 @@ class VariantBase(DatabaseReference):
     alt_codon: Union[str, None]
     # prediction info
     depth: Union[float, None]
+    contig_id: Union[str, None]
+    gene_symbol: Union[str, None]
+    sequence_name: Union[str, None]
+    ass_start_pos: Union[int, None]
+    ass_end_pos: Union[int, None]
+    strand: Union[str, None]
+    element_type: Union[str, None]
+    element_subtype: Union[str, None]
+    target_length: Union[int, None]
+    res_class: Union[str, None]
+    res_subclass: Union[str, None]
+    method: Union[str, None]
+    close_seq_name: Union[str, None]
 
 
 class ResistanceVariant(VariantBase):
