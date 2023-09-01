@@ -62,7 +62,7 @@ def _parse_resfinder_amr_genes(
 
         # store results
         gene = ResistanceGene(
-            gen_symbol=info["name"],
+            gene_symbol=info["name"],
             accession=info["ref_acc"],
             depth=info["depth"],
             identity=info["identity"],
@@ -74,6 +74,18 @@ def _parse_resfinder_amr_genes(
             phenotypes=info["phenotypes"],
             ref_database=info["ref_database"][0],
             ref_id=info["ref_id"],
+            contig_id=None,
+            sequence_name=None,
+            ass_start_pos=None,
+            ass_end_pos=None,
+            strand=None,
+            element_type=None,
+            element_subtype=None,
+            target_length=None,
+            res_class=None,
+            res_subclass=None,
+            method=None,
+            close_seq_name=None,
         )
         results.append(gene)
     return results
@@ -189,7 +201,7 @@ def _parse_mykrobe_amr_genes(mykrobe_result) -> Tuple[ResistanceGene, ...]:
             hits = mykrobe_result[element_type]["called_by"]
             for hit in hits:
                 gene = ResistanceGene(
-                    gen_symbol=hit.split("_")[0],
+                    gene_symbol=hit.split("_")[0],
                     accession=None,
                     depth=hits[hit]["info"]["coverage"]["alternate"]["median_depth"],
                     identity=None,
@@ -201,6 +213,18 @@ def _parse_mykrobe_amr_genes(mykrobe_result) -> Tuple[ResistanceGene, ...]:
                     phenotypes=element_type,
                     ref_database=None,
                     ref_id=None,
+                    contig_id=None,
+                    sequence_name=None,
+                    ass_start_pos=None,
+                    ass_end_pos=None,
+                    strand=None,
+                    element_type=None,
+                    element_subtype=None,
+                    target_length=None,
+                    res_class=None,
+                    res_subclass=None,
+                    method=None,
+                    close_seq_name=None,
                 )
                 results.append(gene)
     return results
@@ -397,6 +421,19 @@ def _parse_virulencefinder_vir_results(pred: str) -> ElementTypeResult:
                     alignment_length=gn["HSP_length"],
                     ref_database="virulenceFinder",
                     ref_id=gn["hit_id"],
+                    contig_id=None,
+                    gene_symbol=None,
+                    sequence_name=None,
+                    ass_start_pos=int(None),
+                    ass_end_pos=int(None),
+                    strand=None,
+                    element_type=None,
+                    element_subtype=None,
+                    target_length=int(None),
+                    res_class=None,
+                    res_subclass=None,
+                    method=None,
+                    close_seq_name=None,
                 )
             vir_genes.append(gene)
         results[virulence_category] = vir_genes
@@ -425,12 +462,12 @@ def _parse_amrfinder_vir_results(predictions: dict) -> ElementTypeResult:
             contig_id=prediction["contig_id"],
             gene_symbol=prediction["gene_symbol"],
             sequence_name=prediction["sequence_name"],
-            ass_start_pos=prediction["Start"],
-            ass_end_pos=prediction["Stop"],
+            ass_start_pos=int(prediction["Start"]),
+            ass_end_pos=int(prediction["Stop"]),
             strand=prediction["Strand"],
             element_type=prediction["element_type"],
             element_subtype=prediction["element_subtype"],
-            target_length=prediction["target_length"],
+            target_length=int(prediction["target_length"]),
             res_class=prediction["Class"],
             res_subclass=prediction["Subclass"],
             method=prediction["Method"],
@@ -442,8 +479,8 @@ def _parse_amrfinder_vir_results(predictions: dict) -> ElementTypeResult:
 
 def _default_virulence() -> ElementTypeResult:
     gene = VirulenceGene(
-        name="none",
-        virulence_category="",
+        name=None,
+        virulence_category=None,
         accession="",
         depth=None,
         identity=0,
@@ -454,6 +491,19 @@ def _default_virulence() -> ElementTypeResult:
         alignment_length=0,
         ref_database="",
         ref_id=0,
+        contig_id=None,
+        gene_symbol=None,
+        sequence_name=None,
+        ass_start_pos=None,
+        ass_end_pos=None,
+        strand=None,
+        element_type=None,
+        element_subtype=None,
+        target_length=None,
+        res_class=None,
+        res_subclass=None,
+        method=None,
+        close_seq_name=None,
     )
     genes = list()
     genes.append(gene)
@@ -475,6 +525,18 @@ def _default_resistance() -> ElementTypeResult:
         ref_database=None,
         phenotypes=[],
         ref_id=None,
+        contig_id=None,
+        sequence_name=None,
+        ass_start_pos=None,
+        ass_end_pos=None,
+        strand=None,
+        element_type=None,
+        element_subtype=None,
+        target_length=None,
+        res_class=None,
+        res_subclass=None,
+        method=None,
+        close_seq_name=None,
     )
     genes = list()
     genes.append(gene)
