@@ -91,7 +91,7 @@ tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ### Simple self-test
 
 ```
-nextflow run main.nf -entry bacterial_default -profile staphylococcus_aureus -config configs/nextflow.base.config --csv assets/test_data/samplelist.csv
+nextflow run main.nf -profile staphylococcus_aureus -config configs/nextflow.base.config --csv assets/test_data/samplelist.csv
 ```
 
 ### Usage arguments
