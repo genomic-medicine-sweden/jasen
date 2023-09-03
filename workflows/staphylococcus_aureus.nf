@@ -132,7 +132,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
-            emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
+            emptyBrackenOutput = ch_reads.map { sampleName, reads -> [ sampleName, [] ] }
             combinedOutput = combinedOutput.join(emptyBrackenOutput)
             create_analysis_result(combinedOutput)
         }

@@ -27,7 +27,7 @@ workflow CALL_POSTPROCESSING {
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
-            emptyBrackenOutput = reads.map { sampleName, reads -> [ sampleName, [] ] }
+            emptyBrackenOutput = ch_reads.map { sampleName, reads -> [ sampleName, [] ] }
             ch_combinedOutput = ch_combinedOutput.join(emptyBrackenOutput)
             create_analysis_result(ch_combinedOutput)
         }
