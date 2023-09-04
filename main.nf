@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
+idList = []     // Global variable to save IDs from samplesheet
 
 include { abritamr                                  } from './nextflow-modules/modules/abritamr/main.nf'
 include { amrfinderplus                             } from './nextflow-modules/modules/amrfinderplus/main.nf'
@@ -30,17 +31,30 @@ include { spades_illumina                           } from './nextflow-modules/m
 include { spades_iontorrent                         } from './nextflow-modules/modules/spades/main.nf'
 include { virulencefinder                           } from './nextflow-modules/modules/virulencefinder/main.nf'
 
+
+
 // Function for platform and paired-end or single-end
 def get_meta(LinkedHashMap row) {
   platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
-  if (row.platform in platforms) {
+  idErrorMessage = "ERROR: Please check input samplesheet -> ID '${row.id}' is not a unique name in the samplesheet."
+  platformErrorMessage = "ERROR: Please check input samplesheet -> Platform is not one of the following:!\n-${platforms.join('\n-')}"
+  
+  idList.add(row.id)
+  identicalIds=idList.clone().unique().size() != idList.size()
+  correctPlatform = (row.platform in platforms)
+  
+  if (correctPlatform && !identicalIds) {
     if (row.read2) {
       meta = tuple(row.id, tuple(file(row.read1), file(row.read2)), row.platform)
     } else {
       meta = tuple(row.id, tuple(file(row.read1)), row.platform)
     }
-  } else {
-    exit 1, "ERROR: Please check input samplesheet -> Platform is not one of the following:!\n-${platforms.join('\n-')}"
+  } else if (!correctPlatform && identicalIds) {
+    exit 1, platformErrorMessage + "\n\n" + idErrorMessage
+  } else if (!correctPlatform && !identicalIds) {
+    exit 1, platformErrorMessage
+  } else if (correctPlatform && identicalIds) {
+    exit 1, idErrorMessage
   }
   return meta
 }
