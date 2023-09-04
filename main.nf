@@ -3,34 +3,10 @@
 nextflow.enable.dsl=2
 idList = []     // Global variable to save IDs from samplesheet
 
-include { abritamr                                  } from './nextflow-modules/modules/abritamr/main.nf'
-include { amrfinderplus                             } from './nextflow-modules/modules/amrfinderplus/main.nf'
-include { assembly_trim_clean                       } from './nextflow-modules/modules/clean/main.nf'
-include { bracken                                   } from './nextflow-modules/modules/bracken/main.nf'
-include { bwa_mem as bwa_mem_ref                    } from './nextflow-modules/modules/bwa/main.nf'
-include { bwa_mem as bwa_mem_dedup                  } from './nextflow-modules/modules/bwa/main.nf'
-include { bwa_index                                 } from './nextflow-modules/modules/bwa/main.nf'
-include { chewbbaca_allelecall                      } from './nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_split_results                   } from './nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list               } from './nextflow-modules/modules/chewbbaca/main.nf'
-include { create_analysis_result                    } from './nextflow-modules/modules/prp/main.nf'
-include { export_to_cdm                             } from './nextflow-modules/modules/cmd/main.nf'
-include { freebayes                                 } from './nextflow-modules/modules/freebayes/main.nf'
-include { kraken                                    } from './nextflow-modules/modules/kraken/main.nf'
-include { mask_polymorph_assembly                   } from './nextflow-modules/modules/mask/main.nf'
-include { mlst                                      } from './nextflow-modules/modules/mlst/main.nf'
-include { post_align_qc                             } from './nextflow-modules/modules/qc/main.nf'
-include { quast                                     } from './nextflow-modules/modules/quast/main.nf'
-include { resfinder                                 } from './nextflow-modules/modules/resfinder/main.nf'
-include { samtools_index as samtools_index_ref      } from './nextflow-modules/modules/samtools/main.nf'
-include { samtools_index as samtools_index_assembly } from './nextflow-modules/modules/samtools/main.nf'
-include { save_analysis_metadata                    } from './nextflow-modules/modules/meta/main.nf'
-include { sourmash                                  } from './nextflow-modules/modules/sourmash/main.nf'
-include { skesa                                     } from './nextflow-modules/modules/skesa/main.nf'
-include { spades_illumina                           } from './nextflow-modules/modules/spades/main.nf'
-include { spades_iontorrent                         } from './nextflow-modules/modules/spades/main.nf'
-include { virulencefinder                           } from './nextflow-modules/modules/virulencefinder/main.nf'
+include { CALL_STAPHYLOCOCCUS_AUREUS        } from './workflows/staphylococcus_aureus.nf'
+include { CALL_MYCOBACTERIUM_TUBERCULOSIS   } from './workflows/mycobacterium_tuberculosis.nf'
 
+<<<<<<< HEAD
 
 
 // Function for platform and paired-end or single-end
@@ -192,4 +168,12 @@ workflow bacterial_default {
   emit: 
     pipeline_result = create_analysis_result.output
     cdm_import = export_to_cdm.output
+=======
+workflow {
+    if (workflow.profile == "staphylococcus_aureus") {
+        CALL_STAPHYLOCOCCUS_AUREUS()
+    } else if (workflow.profile == "mycobacterium_tuberculosis") {
+        CALL_MYCOBACTERIUM_TUBERCULOSIS()
+    }
+>>>>>>> master
 }

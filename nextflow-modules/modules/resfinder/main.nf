@@ -14,7 +14,7 @@ process resfinder {
     path outputFileGene                        , emit: geneTable
     path outputFilePoint                       , emit: pointTable
     path "*versions.yml"                       , emit: versions
-  
+
   script:
     def resfinderFinderParams = pointfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""

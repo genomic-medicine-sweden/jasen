@@ -24,7 +24,7 @@ From:nfcore/base:latest
          apt-get upgrade -y && \
          apt-get install -y git && \
          rm -rf /var/lib/apt/lists/*/var/lib/apt/lists/* && \
-         apt -y install build-essential make curl unzip locales libz-dev 
+         apt -y install python3-pip build-essential make curl unzip locales libz-dev 
 
          ln -s /opt/conda/lib/libcrypto.so.1.1 /opt/conda/lib/libcrypto.so.1.0.0
          locale-gen en_US.UTF-8

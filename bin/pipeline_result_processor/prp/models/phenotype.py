@@ -1,6 +1,6 @@
 """Datamodels used for prediction results."""
 from enum import Enum
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Any
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +14,8 @@ class PredictionSoftware(Enum):
     AMRFINDER = "amrfinder"
     RESFINDER = "resfinder"
     VIRFINDER = "virulencefinder"
+    MYKROBE = "mykrobe"
+    TBPROFILER = "tbprofiler"
 
 
 class VariantType(Enum):
@@ -77,15 +79,26 @@ class VirulenceGene(GeneBase, DatabaseReference):
 class VariantBase(DatabaseReference):
     """Container for mutation information"""
 
-    variant_type: VariantType = Field(
-        ..., alias="variantType"
-    )  # type of mutation insertion/deletion/substitution
-    genes: List[str]
-    position: int
-    ref_codon: str = Field(..., alias="refCodon")
-    alt_codon: str = Field(..., alias="altCodon")
+    variant_type: Union[VariantType, None] # type of mutation insertion/deletion/substitution
+    genes: Union[List[str], None]
+    position: Union[int, None]
+    ref_codon: Union[str, None]
+    alt_codon: Union[str, None]
     # prediction info
-    depth: float
+    depth: Union[float, None]
+    contig_id: Union[str, None]
+    gene_symbol: Union[str, None]
+    sequence_name: Union[str, None]
+    ass_start_pos: Union[int, None]
+    ass_end_pos: Union[int, None]
+    strand: Union[str, None]
+    element_type: Union[str, None]
+    element_subtype: Union[str, None]
+    target_length: Union[int, None]
+    res_class: Union[str, None]
+    res_subclass: Union[str, None]
+    method: Union[str, None]
+    close_seq_name: Union[str, None]
 
 
 class ResistanceVariant(VariantBase):
