@@ -48,7 +48,7 @@ class TypingSnp(BaseModel):
 class ResultMlstBase(RWModel):
     """Base class for storing MLST-like typing results"""
 
-    alleles: Dict[str, Union[int, str, None]]
+    alleles: Dict[str, Union[int, str, List, None]]
 
 class ResultLineageBase(RWModel):
     """Base class for storing MLST-like typing results"""
