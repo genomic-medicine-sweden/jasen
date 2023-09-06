@@ -16,6 +16,8 @@ def _process_allele_call(allele):
         return int(allele)
     elif ',' in allele:
         return allele.split(',')
+    elif '?' in allele:
+        return "novel"
     elif allele == '-':
         return
     raise ValueError(f"MLST allele {allele} not expected format")
