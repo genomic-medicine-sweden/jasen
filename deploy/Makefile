@@ -1,7 +1,8 @@
 # ==============================================================================
-# Define variables etc
+# Various definitions
 # ==============================================================================
-# Make sure bash is used as shell, for consistency
+# Make sure bash is used as shell, for consistency and to make some more
+# advanced scripting possible than with /bin/sh
 SHELL := /bin/bash
 
 # Define path variables
@@ -14,6 +15,7 @@ PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
 MNT_ROOT := /$(shell readlink -f . | cut -d"/" -f2)
 INSTALL_LOG := "$(SCRIPT_DIR)/.install.log"
 
+# Declare that these commands don't produce outputs
 .PHONY: print_vars install update_amrfinderplus update_mlst_db update_blast_db update_virulencefinder_db
 
 define log_message
