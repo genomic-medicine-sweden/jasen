@@ -16,7 +16,7 @@ process flye {
     def args = task.ext.args ?: ''
     outputDir = params.publishDir ? params.publishDir : 'flye'
     """
-    flye --nano-hq ${reads} --out-dir ${outputDir} ${args}
+    flye ${reads} --out-dir ${outputDir} ${args}
     mv ${outputDir}/assembly.fasta ${sampleName}_assembly.fasta
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
