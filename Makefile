@@ -7,8 +7,8 @@ SHELL := /bin/bash
 
 # Define path variables
 SCRIPT_DIR := $(shell pwd)
-ASSETS_DIR := $(shell realpath $(SCRIPT_DIR)/../assets/)
-CONTAINER_DIR := $(realpath $(SCRIPT_DIR)/../container/)
+ASSETS_DIR := $(shell realpath $(SCRIPT_DIR)/assets/)
+CONTAINER_DIR := $(realpath $(SCRIPT_DIR)/container/)
 PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
 # The root folder where the pipeline is currently located. To be mounted into
 # the Singularity containers below.
@@ -55,7 +55,7 @@ check:	check_chewbbaca \
 # ==============================================================================
 
 build_containers:
-	cd ../container \
+	cd $(CONTAINER_DIR) \
 	&& make all; \
 	cd -
 
@@ -161,7 +161,7 @@ saureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. Aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
-	&& cd $(ASSETS_DIR)/.. \
+	&& cd $(SCRIPT_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SAUR_REFSEQ_ACC) \
@@ -234,7 +234,7 @@ ecoli_download_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. coli genome ...")
-	cd $(ASSETS_DIR)/.. \
+	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(ECOLI_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
@@ -324,7 +324,7 @@ kpneumoniae_download_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading K pneumoniae genome ...")
-	cd $(ASSETS_DIR)/.. \
+	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
@@ -390,7 +390,7 @@ mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading M. tuberculosis genome ...")
 	mkdir -p $(MTUBE_GENOMES_DIR) \
-	&& cd $(ASSETS_DIR)/.. \
+	&& cd $(SCRIPT_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(MTUBE_REFSEQ_ACC) \
@@ -413,7 +413,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 # Check chewBBACA
 # -----------------------------
 check_chewbbaca:
-	@cd $(ASSETS_DIR)/.. \
+	@cd $(SCRIPT_DIR) \
 	&& saureus=$(SAUR_CGMLST_DIR)/alleles_rereffed \
 	&& ecoli=$(ECOLI_CGMLST_DIR)/alleles_rereffed \
 	&& kpneumoniae=$(KPNEU_CGMLST_DIR)/alleles_rereffed \
@@ -440,7 +440,7 @@ check_chewbbaca:
 # Check BWA
 # -----------------------------
 check_bwa:
-	@cd $(ASSETS_DIR)/.. \
+	@cd $(SCRIPT_DIR) \
 	&& ref=$(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta; \
 		refamb=$${ref}.amb; \
 		refann=$${ref}.ann; \
@@ -464,7 +464,7 @@ check_bwa:
 # -----------------------------
 MLST_BLAST_DIR := $(ASSETS_DIR)/mlst_db/blast
 check_blastdb:
-	@cd $(ASSETS_DIR)/.. \
+	@cd $(SCRIPT_DIR) \
 	&& mlst=$(MLST_BLAST_DIR)/mlst.fa; \
 	 mlstndb=$${mlst}.ndb; \
 	 mlstnhd=$${mlst}.nhd; \
