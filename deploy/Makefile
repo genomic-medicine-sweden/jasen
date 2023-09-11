@@ -56,7 +56,8 @@ check:	check_chewbbaca \
 
 build_containers:
 	cd ../container \
-	&& make all
+	&& make all; \
+	cd -
 
 # ==============================================================================
 # Update databases
@@ -77,7 +78,7 @@ $(AMRFINDERDB_DIR)/latest:
 		--bind $(MNT_ROOT) \
 		$(CONTAINER_DIR)/amrfinderplus.sif \
 		amrfinder_update \
-		--database $(AMRFINDERDB_DIR) &>> $(INSTALL_LOG)
+		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update MLST database
@@ -89,7 +90,7 @@ update_mlst_db: $(MLSTDB_DIR)/pubmlst/dbases.xml
 $(ASSETS_DIR)/mlst_db/pubmlst/dbases.xml:
 	$(call log_message,"Starting update of MLST database ...")
 	cd $(MLSTDB_DIR) \
-	&& bash mlst-download_pub_mlst.sh &>> $(INSTALL_LOG)
+	&& bash mlst-download_pub_mlst.sh |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update Blast database
@@ -102,7 +103,7 @@ $(MLSTDB_DIR)/blast:
 	&& singularity exec \
 		--bind $(MNT_ROOT) \
 		$(CONTAINER_DIR)/blast.sif \
-		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh &>> $(INSTALL_LOG)
+		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update VirulenceFinder database
@@ -120,15 +121,15 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name:
 	&& export PATH=$(ASSETS_DIR)/kma:$$PATH \
 	&& singularity exec	--bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index \
+		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/resfinder_db \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index \
+		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/pointfinder_db \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index
+		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Download, index and prep reference genomes for organisms
@@ -164,7 +165,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SAUR_REFSEQ_ACC) \
-		-o $(SAUR_GENOMES_DIR)
+		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 
 saureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
@@ -173,7 +174,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REF
 	$(call log_message,"Indexing S. Aureus reference genome ...")
 	cd $(SAUR_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
-		bwa index $$(basename $<)
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
@@ -184,7 +185,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
 	&& wget https://www.cgmlst.org/ncs/schema/141106/alleles/ \
 		-O $@ \
-		--no-check-certificate &> /dev/null \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
@@ -192,7 +193,7 @@ saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
 $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 	$(call log_message,"Unpacking S. Aureus cgMLST schema ...")
 	cd $$(dirname $<) \
-		&& unzip -Duq $$(basename $<)
+		&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 saureus_prep_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
@@ -206,7 +207,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR
 		-i $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
 		--cpu 1 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
+		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # E. coli
@@ -238,7 +239,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(ECOLI_REFSEQ_ACC) \
-		-o $(ECOLI_GENOMES_DIR)
+		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 
 ecoli_index_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt
@@ -247,7 +248,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI
 	$(call log_message,"Indexing E. coli genome ...")
 	cd $(ECOLI_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
-		bwa index $$(basename $<)
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli wgmlst INNUENDO schema
@@ -262,7 +263,7 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 		-sp 5 \
 		-sc 1 \
 		-o $(ECOLI_WGMLST_DIR)/alleles \
-		--latest
+		--latest |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli cgmlst cgmlst.org schema
@@ -272,7 +273,7 @@ $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate &> /dev/null
+	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 # Unpack Ecoli cgmlst schema
@@ -281,7 +282,7 @@ ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
 $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& unzip -Duq $$(basename $<)
+	&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Prepping Ecoli cgmlst cgmlst.org schema
@@ -295,7 +296,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/a
 		-i $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
 		--cpu 1 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
+		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn |& tee -a $(INSTALL_LOG)
 
 
 # -----------------------------
@@ -328,7 +329,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(KPNEU_REFSEQ_ACC) \
-		-o $(KPNEU_GENOMES_DIR)
+		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 
 kpneumoniae_index_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
@@ -337,7 +338,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU
 	$(call log_message,"Indexing K pneumoniae genome ...")
 	cd $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
-		bwa index $$(basename $<)
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Download Kpneumoniae cgmlst cgmlst.org schema
@@ -347,7 +348,7 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate &> /dev/null
+	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta
@@ -355,7 +356,7 @@ kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta
 $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& unzip -Duq $$(basename $<)
+	&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Prep Kpneumoniae cgmlst cgmlst.org schema
@@ -370,7 +371,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn:
 		-i $(KPNEU_CGMLST_DIR)/alleles \
 		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 		--cpu 1 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn #TODO: create Kpneumoniae training file
+		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG) #TODO: create Kpneumoniae training file
 
 # -----------------------------
 # M. tuberculosis
@@ -393,7 +394,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(MTUBE_REFSEQ_ACC) \
-		-o $(MTUBE_GENOMES_DIR)
+		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
 
@@ -401,7 +402,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 	$(call log_message,"Indexing M. tuberculosis genome ...")
 	cd $(MTUBE_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
-		bwa index $$(basename $<)
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Perform checks
@@ -417,22 +418,22 @@ check_chewbbaca:
 	&& ecoli=$(ECOLI_CGMLST_DIR)/alleles_rereffed \
 	&& kpneumoniae=$(KPNEU_CGMLST_DIR)/alleles_rereffed \
 	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" ]]; then \
-		echo "[✓] PASSED check for chewBBACA: Directories exist:" \
-		&& echo "- "$$saureus \
-		&& echo "- "$$ecoli \
-		&& echo "- $$kpneumoniae"; \
+		echo "[✓] PASSED check for chewBBACA: Directories exist:" |& tee -a $(INSTALL_LOG) \
+		&& echo "- "$$saureus |& tee -a $(INSTALL_LOG) \
+		&& echo "- "$$ecoli |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for chewBBACA: Some directories do not exist:"; \
 		if [[ ! -d $$saureus ]]; then \
-			echo "    Missing directory: $$saureus";  \
+			echo "    Missing directory: $$saureus" |& tee -a $(INSTALL_LOG);  \
 		fi; \
 		if [[ ! -d $$ecoli ]]; then \
-			echo "    Missing directory: $$ecoli";  \
+			echo "    Missing directory: $$ecoli" |& tee -a $(INSTALL_LOG);  \
 		fi; \
 		if [[ ! -d $$kpneumoniae ]]; then \
-			echo "    Missing directory: $$kpneumoniae";  \
+			echo "    Missing directory: $$kpneumoniae" |& tee -a $(INSTALL_LOG);  \
 		fi; \
-		echo "    Please report this in an issue on the JASEN repo: https://github.com/genomic-medicine-sweden/JASEN/issues"; \
+		echo "    Please report this in an issue on the JASEN repo: https://github.com/genomic-medicine-sweden/JASEN/issues" |& tee -a $(INSTALL_LOG); \
 	fi
 
 # -----------------------------
@@ -453,9 +454,9 @@ check_bwa:
 		&& -f $${refpac} \
 		&& -f $${refsa} \
 	]]; then \
-		echo "[✓] PASSED check for bwa: Indexes exist in $(SAUR_GENOMES_DIR)"; \
+		echo "[✓] PASSED check for bwa: Indexes exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
 	else \
-		echo "[!] FAILED check for bwa: Indexes do not exist in $(SAUR_GENOMES_DIR)"; \
+		echo "[!] FAILED check for bwa: Indexes do not exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
 	fi
 
 # -----------------------------
@@ -489,7 +490,7 @@ check_blastdb:
 		&& -f $${mlstntf} \
 		&& -f $${mlstnto} \
 	]]; then \
-		echo "[✓] PASSED check for blast: Indexes exist in $(MLST_BLAST_DIR)"; \
+		echo "[✓] PASSED check for blast: Indexes exist in $(MLST_BLAST_DIR)" |& tee -a $(INSTALL_LOG); \
 	else \
-		echo "[!] FAILED check for blast: Indexes do not exist in $(MLST_BLAST_DIR)"; \
+		echo "[!] FAILED check for blast: Indexes do not exist in $(MLST_BLAST_DIR)" |& tee -a $(INSTALL_LOG); \
 	fi
