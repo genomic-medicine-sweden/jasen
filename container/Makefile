@@ -5,6 +5,10 @@
 # advanced scripting possible than with /bin/sh
 SHELL := /bin/bash
 
+all: \
+	download_remote_containers \
+	build_local_containers
+
 # These are containers that will be built locally using the definition files in
 # the current folder
 local_containers := chewbbaca.sif \
