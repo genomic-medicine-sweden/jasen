@@ -35,7 +35,8 @@ print_paths:
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
 # NOTE: We don't run *_all for kpneumoniae, since prodigal training file is missing
-install: update_amrfinderplus \
+install: build_containers \
+	update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
 	update_virulencefinder_db \
@@ -47,6 +48,15 @@ install: update_amrfinderplus \
 check:	check_chewbbaca \
 	check_bwa \
 	check_blastdb
+
+
+# ==============================================================================
+# Build containers
+# ==============================================================================
+
+build_containers:
+	cd ../container \
+	&& make all
 
 # ==============================================================================
 # Update databases
