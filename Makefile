@@ -140,9 +140,6 @@ PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
 MNT_ROOT := /$(shell readlink -f . | cut -d"/" -f2)
 INSTALL_LOG := "$(SCRIPT_DIR)/.install.log"
 
-# Declare that these commands don't produce outputs
-.PHONY: print_vars install update_amrfinderplus update_mlst_db update_blast_db update_virulencefinder_db
-
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);
 	@echo "$$(date "+%Y-%m-%d %H:%M:%S"): $1" | tee -a $(INSTALL_LOG);
@@ -180,7 +177,8 @@ check:	check_chewbbaca \
 # ==============================================================================
 
 build_containers:
-	cd $(CONTAINER_DIR) \
+	$(call log_message,"Checking if any containers need to be built ...")
+	@cd $(CONTAINER_DIR) \
 	&& make all; \
 	cd -
 
@@ -263,14 +261,7 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name:
 # -----------------------------
 # S. Aureus
 # -----------------------------
-.PHONY: saureus_all \
-	saureus_download_reference \
-	saureus_index_reference \
-	saureus_download_cgmlst_schema \
-	saureus_unpack_cgmlst_schema \
-	saureus_prep_cgmlst_schema
-
-saureus_all: saureus_download_reference \
+saureus_all: | saureus_download_reference \
 	saureus_index_reference \
 	saureus_download_cgmlst_schema \
 	saureus_unpack_cgmlst_schema \
@@ -337,13 +328,6 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR
 # -----------------------------
 # E. coli
 # -----------------------------
-
-.PHONY: ecoli_all \
-	ecoli_download_reference \
-	ecoli_index_reference \
-	ecoli_download_wgmlst_schema \
-	ecoli_download_cgmlst_schema \
-	ecoli_prep_ecoli_cgmlst_schema
 
 ecoli_all: ecoli_index_reference \
 	ecoli_download_wgmlst_schema \
@@ -428,13 +412,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/a
 # K. pneumoniae
 # -----------------------------
 
-.PHONY: kpneumoniae_all \
-	kpneumoniae_download_reference \
-	kpneumoniae_index_reference \
-	kpneumoniae_download_cgmlst_schema \
-	kpneumoniae_prep_cgmlst_schema
-
-kpneumoniae_all: kpneumoniae_download_reference \
+kpneumoniae_all: | kpneumoniae_download_reference \
 	kpneumoniae_index_reference \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_prep_cgmlst_schema
@@ -503,10 +481,6 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn:
 # -----------------------------
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 MTUBE_REFSEQ_ACC := NC_000962.3
-
-.PHONY: mtuberculosis_all \
-	mtuberculosis_download_reference\
-	mtuberculosis_index_reference
 
 mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference
 
