@@ -36,11 +36,25 @@
 #     one commands
 #     more commands
 #
-# Preferrably, such named rules should be indicated with setting:
+# Now, there is one big caveat here, related to our scripts: Make will rebuild
+# a target as soon as any of its inputs are updated, or have a newer timestamp
+# than the target. This is typically not desired for us, since we might have
+# files unpacked with zip with all kinds of different dates, and for a one-run
+# installation, we are mostly interested in wheter an output file already
+# exists or not, not so much about timestamps.
 #
-# .PHONY: name_of_the_rule
+# To change so that Make only cares about whether files exist, and not timestamps,
+# one can add a | character before those input files, like so:
 #
-# ... somewhere in the Makefile.
+# name_of_the_rule : input files where timestamp matters | input files where only existence matters
+#     one commands
+#     more commands
+#
+# Of course, one can have everything on the right side of the | character, so:
+#
+# name_of_the_rule : | input files where only existence matters
+#     one commands
+#     more commands
 #
 # Running Makefiles
 # ------------------------------------------------------------------------------
