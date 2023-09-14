@@ -1,4 +1,115 @@
 # ==============================================================================
+# Brief explanation of Makefile syntax
+# ==============================================================================
+# Since Makefiles are a bit special, and there are not a lot of easy to read
+# tutorials out there, here follows a very brief introduction to the syntax in
+# Makefiles.
+#
+# Basics
+# ------------------------------------------------------------------------------
+#
+# Makefiles are in many ways similar to bash-scripts, but unlike bash-scripts
+# they are not written in a linear sequential fashion, but rather divided into
+# so called rules, that are typically tightly connected to specific output file
+# paths or file path pattern.
+#
+# Firstly, Makefiles should be named `Makefile` and be put inside a folder
+# where one wants to run the make command.
+#
+# The rule syntax
+# ------------------------------------------------------------------------------
+#
+# The syntax of a rule is at its core very simple:
+#
+# output file(s)/target(s) : any dependent input files
+#     commands to produce the output files from input files
+#     possibly more commands
+#
+# So, the significant part of the rule syntax is the ':'-character, as well as
+# the indentation of the rows following the head of the rule, to indicate the
+# "recipe" or the commands to produce the outputs of the rule.
+#
+# A rule can also have just a name, and no concrete output file. That is, it
+# would have the form:
+#
+# name_of_the_rule : any dependent input files
+#     one commands
+#     more commands
+#
+# Preferrably, such named rules should be indicated with setting:
+#
+# .PHONY: name_of_the_rule
+#
+# ... somewhere in the Makefile.
+#
+# Running Makefiles
+# ------------------------------------------------------------------------------
+#
+# To run a named rule, you would then do:
+#
+# $ make name_of_the_rule
+#
+# For normal rules, you would hit:
+#
+# $ make <outputfile>
+#
+# Tip: Type "make" and hit tab twice in the shell, to show available targets to
+# run in the current makefile.
+#
+# Special variables and more
+# ------------------------------------------------------------------------------
+#
+# Inside the commands of the rules, one can write pretty much bash, especially
+# if setting `SHELL := /bin/bash` in the beginning of the Makefile which we have
+# done below.
+#
+# There are a some differences though:
+#
+# 1. Variable syntax using only a single $-character refer to MAKE-variables.
+#    Thus, to use variables set in bash, you have to use double-$.
+#    So:
+#    echo $(this-is-a-make-variable) and $$(this-is-a-bash-variable)
+#
+#    This also goes for command substitution, so rather than:
+#
+#    	echo "Lines in file:" $(wc -l somefile.txt)
+#
+#    ... you would write:
+#
+#    	echo "Lines in file:" $$(wc -l somefile.txt)
+#
+# 2. Makefiles also use some special variables with special meaning, to access
+#    things like the output and input files:
+#
+#    $@   The output target (In case of multiple targets, the same command will
+#         be run once for every output file, feeding this variable with only a
+#         single one at a time)
+#
+#    $<   The first input file or dependency
+#
+#    $^   ALL input files / dependencies.
+#
+# 3. Another speciality is that adding a '@' character before any command, will
+#    stop this command from being printed out when it is executed (only its output
+#    will be printed).
+#
+# That's all for now. For the official docs, see:
+# https://www.gnu.org/software/make/manual/make.html
+#
+# Some more caveats
+# ------------------------------------------------------------------------------
+#  Here are some things that might not be obvious at first:
+#
+#  To create a rule with a single output but many dependencies, you can add
+#  these dependencies on multiple lines by using the continuation character \
+#  like so:
+#
+#  name_of_rule: dependency1 \
+#  		dependency2 \
+#  		dependency3 \
+#  		dependency4 \
+
+# ==============================================================================
 # Various definitions
 # ==============================================================================
 # Make sure bash is used as shell, for consistency and to make some more
