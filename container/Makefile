@@ -1,3 +1,5 @@
+# N.B: See the Makefile in the main JASEN directory for a brief explanation of
+# the Makefile syntax(!)
 # ==============================================================================
 # Various definitions
 # ==============================================================================
