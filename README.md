@@ -35,11 +35,19 @@ singularity remote login
 
 ### Create singularity images. 
 
-Building the containers requires sudo priviledges.
+Note: The containers that need to be built locally require sudo privileges.
 
 ```
-cd container && sudo make all
+cd container
+sudo make build_local_containers
+make download_remote_containers
 ```
+
+Note: The containers will be attempted to be built and/or downloaded as part of
+the main Makefile (that is, when running `make install` in the main repo
+folder), but building them with sudo before like above means you avoid the main
+script being stopped in the middle, asking you for the sudo password, when it
+comes to this step.
 
 ### Download references and databases using singularity. 
 

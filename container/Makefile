@@ -105,5 +105,5 @@ $(local_containers):
 		version=$$(grep "VERSION " "${tool}" | sed "s/.* //"); \
 	fi \
     && output_file="$${tool}_$${version}.sif" \
-	&& singularity build --fakeroot --force "$${output_file}" "$${tool}" \
+	&& sudo singularity build --force "$${output_file}" "$${tool}" \
 	&& ln -sf $${output_file} $@
