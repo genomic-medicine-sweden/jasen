@@ -34,16 +34,29 @@ singularity remote login
 ```
 
 ### Create singularity images. 
-Running `build_container.sh` requires sudo priviledges.
+
+Building the containers requires sudo priviledges.
+
 ```
-cd container && sudo bash -i build_container.sh && cd ..
+cd container && sudo make all
 ```
 
 ### Download references and databases using singularity. 
+
+Run the install make rule:
+
 ```
-bash -i deploy/deploy_references_singularity.sh
+make install
 ```
-Any errors produced during `deploy_references_singularity.sh` will hinder pipeline execution in unexpected ways.
+
+Finally, run checks:
+
+```
+make check
+```
+
+Any errors produced during this step will hinder pipeline execution in
+unexpected ways.
 
 ## Configuration and test data
 
