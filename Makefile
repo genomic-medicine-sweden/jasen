@@ -318,7 +318,7 @@ saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
 $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 	$(call log_message,"Unpacking S. Aureus cgMLST schema ...")
 	cd $$(dirname $<) \
-		&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
+		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 saureus_prep_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
@@ -407,7 +407,7 @@ ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
 $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Prepping Ecoli cgmlst cgmlst.org schema
@@ -481,7 +481,7 @@ kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta
 $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& unzip -Duq $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
 # Prep Kpneumoniae cgmlst cgmlst.org schema
