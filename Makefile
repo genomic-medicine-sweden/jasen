@@ -261,7 +261,7 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name:
 # -----------------------------
 # S. Aureus
 # -----------------------------
-saureus_all: | saureus_download_reference \
+saureus_all: saureus_download_reference \
 	saureus_index_reference \
 	saureus_download_cgmlst_schema \
 	saureus_unpack_cgmlst_schema \
@@ -311,10 +311,11 @@ $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta: $(SAUR_CGMLST_DIR)/alleles/cgmlst_14
 	cd $$(dirname $<) \
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
 
+saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
-saureus_prep_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
+SAUR_REREFFED_DIR := $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
+$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
 	$(call log_message,"Prepping S. Aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -397,7 +398,7 @@ $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmls
 # Prepping Ecoli cgmlst cgmlst.org schema
 ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
+$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
@@ -412,7 +413,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/a
 # K. pneumoniae
 # -----------------------------
 
-kpneumoniae_all: | kpneumoniae_download_reference \
+kpneumoniae_all: kpneumoniae_download_reference \
 	kpneumoniae_index_reference \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_prep_cgmlst_schema
@@ -463,9 +464,9 @@ $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta: $(KPNEU_CGMLST_DIR)/alleles/cgmls
 
 
 # Prep Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_prep_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
+kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn:
+$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/KP1_RS25725.fasta
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 	&& cd $(KPNEU_CGMLST_DIR) \
