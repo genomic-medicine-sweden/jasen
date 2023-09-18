@@ -281,7 +281,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SAUR_REFSEQ_ACC) \
-		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
+		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
 
 
 saureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
@@ -304,18 +304,19 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
+saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
-$(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
+$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 	$(call log_message,"Unpacking S. Aureus cgMLST schema ...")
 	cd $$(dirname $<) \
-		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
+		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
 saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
 SAUR_REREFFED_DIR := $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/SACOL2694.fasta
+$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. Aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -387,18 +388,19 @@ $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
 
 
 # Unpack Ecoli cgmlst schema
-ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
+ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 
-$(ECOLI_CGMLST_DIR)/alleles/b4383.fasta: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
+$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date +"%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
 
 # Prepping Ecoli cgmlst cgmlst.org schema
 ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/b4383.fasta
+$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
@@ -455,18 +457,19 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
 	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta
+kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 
-$(KPNEU_CGMLST_DIR)/alleles/KP1_RS24625.fasta: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
 
 # Prep Kpneumoniae cgmlst cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/KP1_RS25725.fasta
+$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 	&& cd $(KPNEU_CGMLST_DIR) \
