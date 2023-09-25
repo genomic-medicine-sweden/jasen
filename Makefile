@@ -156,10 +156,10 @@ print_paths:
 	@echo "CONTAINER_DIR:" $(CONTAINER_DIR)
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
-# NOTE: We don't run *_all for kpneumoniae, since prodigal training file is missing
 install: build_containers \
 	update_databases
 
+# NOTE: We don't run *_all for kpneumoniae, since prodigal training file is missing
 update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
@@ -173,6 +173,14 @@ check:	check_chewbbaca \
 	check_bwa \
 	check_blastdb
 
+# ==============================================================================
+# Check and update git submodules
+# ==============================================================================
+check-and-reinit-git-submodules:
+	@if git submodule status | egrep -q '^[-]|^[+]' ; then \
+		echo "Updating / re-initializing git submodules ..." \
+		&& git submodule update --init; \
+	fi
 
 # ==============================================================================
 # Build containers
@@ -238,7 +246,7 @@ KMA_DIR := $(ASSETS_DIR)/kma
 
 update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/stx.name
 
-$(ASSETS_DIR)/virulencefinder_db/stx.name:
+$(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 	$(call log_message,"Starting update of VirulenceFinder database")
 	cd $(ASSETS_DIR)/kma \
 	&& make \
@@ -318,7 +326,7 @@ saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus
 
 SAUR_REREFFED_DIR := $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
+$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping S. Aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -402,7 +410,7 @@ $(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cg
 # Prepping Ecoli cgmlst cgmlst.org schema
 ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
+$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
@@ -471,7 +479,7 @@ $(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_s
 # Prep Kpneumoniae cgmlst cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
+$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 	&& cd $(KPNEU_CGMLST_DIR) \
