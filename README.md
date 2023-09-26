@@ -86,6 +86,14 @@ wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
+## Updating databases
+
+### Update MLST database
+
+```
+bash /path/to/JASEN/assets/mlst_db/update_mlst_db.sh
+```
+
 ## Usage
 
 ### Simple self-test
