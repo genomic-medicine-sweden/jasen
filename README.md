@@ -88,7 +88,7 @@ tar -xf /path/to/kraken_db/krakenmini.tar.gz
 
 ## Updating databases
 
-### Download Kraken database
+### Update MLST database
 
 ```
 bash /path/to/JASEN/assets/mlst_db/update_mlst_db.sh
