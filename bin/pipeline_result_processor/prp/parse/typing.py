@@ -17,7 +17,7 @@ def _process_allele_call(allele):
     elif ',' in allele:
         return allele.split(',')
     elif '?' in allele:
-        return "novel"
+        return "partial"
     elif '~' in allele:
         return "novel"
     elif allele == '-':
