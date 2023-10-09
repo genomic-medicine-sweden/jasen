@@ -41,6 +41,7 @@ Note: The containers that need to be built locally require sudo privileges.
 cd container
 sudo make build_local_containers
 make download_remote_containers
+cd ..
 ```
 
 Note: The containers will be attempted to be built and/or downloaded as part of
@@ -51,7 +52,9 @@ comes to this step.
 
 ### Download references and databases using singularity. 
 
-Run the install make rule:
+First, make sure you stand in the main JASEN folder (so if you cd:ed into the
+`container` folder before, you need to cd back to the main folder with `cd
+..`). Then run the `install` make rule:
 
 ```
 make install
