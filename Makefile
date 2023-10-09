@@ -188,7 +188,8 @@ check-and-reinit-git-submodules:
 
 download_or_build_containers:
 	$(call log_message,"Checking if any containers need to be built ...")
-	@cd $(CONTAINER_DIR) \
+	@set -euo \
+	&& cd $(CONTAINER_DIR) \
 	&& make all; \
 	cd -
 

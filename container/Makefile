@@ -9,8 +9,8 @@ SHELL := /bin/bash
 INSTALL_LOG := ".install.log"
 
 all: \
-	download_remote_containers \
-	build_local_containers
+	build_local_containers \
+	download_remote_containers
 
 # These are containers that will be built locally using the definition files in
 # the current folder
@@ -97,6 +97,9 @@ $(remote_containers):
 build_local_containers: $(local_containers)
 
 $(local_containers):
+ifneq ($(shell id -u), 0)
+	$(error ERROR: You must run the build_local_containers rule as sudo! Please check the README.md file or cd into the container directory and run: `sudo make build_local_containers` followed by `make download_remote_containers`. Current UID: ${curr_uid});
+else
 	$(call log_message,"Building local container $@ ...")
 	$(eval tool := $(basename $@))
 	@tool=${tool} \
@@ -105,6 +108,7 @@ $(local_containers):
 	else \
 		version=$$(grep "VERSION " "${tool}" | sed "s/.* //"); \
 	fi \
-    && output_file="$${tool}_$${version}.sif" \
+	&& output_file="$${tool}_$${version}.sif" \
 	&& sudo singularity build --force "$${output_file}" "$${tool}" \
 	&& ln -sf $${output_file} $@
+endif
