@@ -156,7 +156,7 @@ print_paths:
 	@echo "CONTAINER_DIR:" $(CONTAINER_DIR)
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
-install: build_containers \
+install: download_or_build_containers \
 	update_databases
 
 # NOTE: We don't run *_all for kpneumoniae, since prodigal training file is missing
@@ -186,7 +186,7 @@ check-and-reinit-git-submodules:
 # Build containers
 # ==============================================================================
 
-build_containers:
+download_or_build_containers:
 	$(call log_message,"Checking if any containers need to be built ...")
 	@cd $(CONTAINER_DIR) \
 	&& make all; \
