@@ -6,7 +6,7 @@
 # Make sure bash is used as shell, for consistency and to make some more
 # advanced scripting possible than with /bin/sh
 SHELL := /bin/bash
-INSTALL_LOG := ".install.log"
+INSTALL_LOG := .install.log
 
 all: \
 	build_local_containers \
