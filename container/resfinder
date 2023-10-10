@@ -12,7 +12,7 @@ From:python:3.8
         umask 0002
 
 %post
-     RESFINDER_VERSION=4.1.11
+     RESFINDER_VERSION=4.3.3
      KMA_VERSION=1.3.27
      BLAST_VERSION=2.9.0
 
