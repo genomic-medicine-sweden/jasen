@@ -13,3 +13,8 @@
 [submodule "assets/kma"]
 	path = assets/kma
 	url = https://bitbucket.org/genomicepidemiology/kma.git
+[submodule "assets/chewBBACA"]
+	path = assets/chewBBACA
+	url = ./assets/chewBBACA/
+	sparsecheckout = true
+	shallow = true
