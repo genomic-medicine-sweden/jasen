@@ -15,6 +15,6 @@
 	url = https://bitbucket.org/genomicepidemiology/kma.git
 [submodule "assets/chewBBACA"]
 	path = assets/chewBBACA
-	url = https://github.com/B-UMMI/chewBBACA.git
+	url = https://github.com/B-UMMI/chewBBACA/tree/master/CHEWBBACA/prodigal_training_files
 	sparsecheckout = true
 	shallow = true
