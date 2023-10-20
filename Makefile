@@ -270,10 +270,11 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 # ==============================================================================
 
 # -----------------------------
-# S. Aureus
+# S. aureus
 # -----------------------------
 saureus_all: saureus_download_reference \
 	saureus_index_reference \
+	saureus_download_prodigal_training_file \
 	saureus_download_cgmlst_schema \
 	saureus_unpack_cgmlst_schema \
 	saureus_prep_cgmlst_schema
@@ -286,7 +287,7 @@ SAUR_REFSEQ_ACC := NC_002951.2
 saureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
-	$(call log_message,"Downloading S. Aureus reference genome ...")
+	$(call log_message,"Downloading S. aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
@@ -298,16 +299,27 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 saureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing S. Aureus reference genome ...")
+	$(call log_message,"Indexing S. aureus reference genome ...")
 	cd $(SAUR_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
+saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
+
+$(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
+	$(call log_message,"Downloading S. aureus prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Staphylococcus_aureus.trn \
+		-O $@ \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
 saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 
 $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
-	$(call log_message,"Downloading S. Aureus cgMLST schema ...")
+	$(call log_message,"Downloading S. aureus cgMLST schema ...")
 	mkdir -p $(SAUR_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
 	&& wget https://www.cgmlst.org/ncs/schema/141106/alleles/ \
@@ -318,7 +330,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
 $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
-	$(call log_message,"Unpacking S. Aureus cgMLST schema ...")
+	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
 	cd $$(dirname $<) \
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
 		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
@@ -328,14 +340,14 @@ saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus
 SAUR_REREFFED_DIR := $(SAUR_CGMLST_DIR)/alleles_rereffed
 
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
-	$(call log_message,"Prepping S. Aureus cgMLST schema ...")
+	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-i $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
-		--cpu 1 \
+		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
@@ -343,6 +355,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_D
 # -----------------------------
 
 ecoli_all: ecoli_index_reference \
+	ecoli_download_prodigal_training_file \
 	ecoli_download_wgmlst_schema \
 	ecoli_prep_ecoli_cgmlst_schema
 
@@ -371,6 +384,17 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI
 	cd $(ECOLI_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+ecoli_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
+
+$(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
+	$(call log_message,"Downloading E. coli prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Escherichia_coli.trn \
+		-O $@ \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli wgmlst INNUENDO schema
@@ -418,7 +442,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)
 		chewie PrepExternalSchema \
 		-i $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
-		--cpu 1 \
+		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn |& tee -a $(INSTALL_LOG)
 
 
@@ -428,6 +452,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)
 
 kpneumoniae_all: kpneumoniae_download_reference \
 	kpneumoniae_index_reference \
+	kpnuemoniae_download_prodigal_training_file \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_prep_cgmlst_schema
 
@@ -456,6 +481,17 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU
 	cd $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+kpnuemoniae_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
+
+$(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
+	$(call log_message,"Downloading K. pneumonia prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Klebsiella_pneumoniae.trn \
+		-O $@ \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 # Download Kpneumoniae cgmlst cgmlst.org schema
@@ -488,7 +524,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST
 		chewie PrepExternalSchema \
 		-i $(KPNEU_CGMLST_DIR)/alleles \
 		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
-		--cpu 1 \
+		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG) #TODO: create Kpneumoniae training file
 
 # -----------------------------
