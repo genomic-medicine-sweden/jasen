@@ -1,6 +1,3 @@
-[submodule "assets/prodigal_training_files"]
-	path = assets/prodigal_training_files
-	url = https://github.com/mickaelsilva/prodigal_training_files.git
 [submodule "assets/resfinder_db"]
 	path = assets/resfinder_db
 	url = https://bitbucket.org/genomicepidemiology/resfinder_db.git
@@ -13,8 +10,3 @@
 [submodule "assets/kma"]
 	path = assets/kma
 	url = https://bitbucket.org/genomicepidemiology/kma.git
-[submodule "assets/chewBBACA"]
-	path = assets/chewBBACA
-	url = https://github.com/B-UMMI/chewBBACA/tree/master/CHEWBBACA/prodigal_training_files
-	sparsecheckout = true
-	shallow = true
