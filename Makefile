@@ -166,7 +166,7 @@ update_databases: update_amrfinderplus \
 	update_virulencefinder_db \
 	saureus_all \
 	ecoli_all \
-	kpneumoniae_unpack_cgmlst_schema \
+	kpneumoniae_all \
 	mtuberculosis_all
 
 check:	check_chewbbaca \
