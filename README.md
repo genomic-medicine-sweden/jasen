@@ -86,8 +86,11 @@ Source: `assets/test_data/samplelist.csv`
 ## Setting up temp directories
 Source: `~/.bashrc`
 
+* Add the export line to `~/bashrc`
+* Change `SINGULARITY_TMPDIR` to `APPTAINER_TMPDIR` if you are using apptainer
+
 ```
-export SINGULARITY_TMPDIR="/tmp" #or equivalent
+export SINGULARITY_TMPDIR="/tmp" #or equivalent filepath to tmp dir
 ```
 
 ## Fetching databases
