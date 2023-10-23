@@ -454,6 +454,7 @@ kpneumoniae_all: kpneumoniae_download_reference \
 	kpneumoniae_index_reference \
 	kpnuemoniae_download_prodigal_training_file \
 	kpneumoniae_download_cgmlst_schema \
+	kpneumoniae_unpack_cgmlst_schema \
 	kpneumoniae_prep_cgmlst_schema
 
 
@@ -516,10 +517,12 @@ $(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_s
 # Prep Kpneumoniae cgmlst cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
+KPNEU_REREFFED_DIR := $(KPNEU_CGMLST_DIR)/alleles_rereffed
+
 $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
-	mkdir -p $(KPNEU_CGMLST_DIR)/alleles_rereffed \
-	&& cd $(KPNEU_CGMLST_DIR) \
+	cd $(KPNEU_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-i $(KPNEU_CGMLST_DIR)/alleles \
