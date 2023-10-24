@@ -159,7 +159,6 @@ print_paths:
 install: download_or_build_containers \
 	update_databases
 
-# NOTE: We don't run *_all for kpneumoniae, since prodigal training file is missing
 update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
