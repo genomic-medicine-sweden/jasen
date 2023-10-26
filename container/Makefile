@@ -102,7 +102,8 @@ ifneq ($(shell id -u), 0)
 else
 	$(call log_message,"Building local container $@ ...")
 	$(eval tool := $(basename $@))
-	@tool=${tool} \
+	@chmod o+w $(INSTALL_LOG) \
+	&& tool=${tool} \
 	&& if [ $$(grep -q "$${tool^^}_VERSION=" $${tool} ) ]; then \
 		version=$$(grep $${tool^^}"_VERSION=" $${tool} | sed "s/.*=//"); \
 	else \
