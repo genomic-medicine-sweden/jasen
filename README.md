@@ -86,7 +86,7 @@ Source: `assets/test_data/samplelist.csv`
 ## Setting up temp directories
 Source: `~/.bashrc`
 
-* Add the export line to `~/bashrc`
+* Add the export line to `~/.bashrc`
 * Change `SINGULARITY_TMPDIR` to `APPTAINER_TMPDIR` if you are using apptainer
 
 ```
