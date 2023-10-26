@@ -336,8 +336,6 @@ $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141
 
 saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
-SAUR_REREFFED_DIR := $(SAUR_CGMLST_DIR)/alleles_rereffed
-
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
@@ -516,8 +514,6 @@ $(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_s
 # Prep Kpneumoniae cgmlst cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
-KPNEU_REREFFED_DIR := $(KPNEU_CGMLST_DIR)/alleles_rereffed
-
 $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KPNEU_CGMLST_DIR) \
@@ -527,7 +523,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST
 		-i $(KPNEU_CGMLST_DIR)/alleles \
 		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG) #TODO: create Kpneumoniae training file
+		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # M. tuberculosis
