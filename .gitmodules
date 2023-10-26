@@ -1,12 +1,16 @@
 [submodule "assets/resfinder_db"]
 	path = assets/resfinder_db
 	url = https://bitbucket.org/genomicepidemiology/resfinder_db.git
+	ignore = dirty
 [submodule "assets/pointfinder_db"]
 	path = assets/pointfinder_db
 	url = https://bitbucket.org/genomicepidemiology/pointfinder_db.git
+	ignore = dirty
 [submodule "assets/virulencefinder_db"]
 	path = assets/virulencefinder_db
 	url = https://bitbucket.org/genomicepidemiology/virulencefinder_db.git
+	ignore = dirty
 [submodule "assets/kma"]
 	path = assets/kma
 	url = https://bitbucket.org/genomicepidemiology/kma.git
+	ignore = dirty
