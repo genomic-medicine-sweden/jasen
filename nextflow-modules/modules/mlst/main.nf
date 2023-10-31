@@ -1,6 +1,9 @@
 def getAbbrevSpeciesName(fullName) {
   "Convert the full name to the abbreviated version"
   names = fullName.split(' ')
+  if (fullName == "klebsiella pneumoniae") {
+      return names[0]
+  }
   return names[0][0] + names[1]
 }
 
