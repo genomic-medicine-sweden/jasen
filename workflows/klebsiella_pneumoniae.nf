@@ -21,7 +21,7 @@ include { samtools_index as samtools_index_assembly } from '../nextflow-modules/
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
-workflow CALL_STAPHYLOCOCCUS_AUREUS {
+workflow CALL_KLEBSIELLA_PNEUMONIAE {
     Channel.fromPath(params.csv).splitCsv(header:true)
         .map{ row -> get_meta(row) }
         .branch {
