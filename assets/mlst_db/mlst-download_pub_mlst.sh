@@ -5,7 +5,7 @@ set -e
 MLSTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 OUTDIR="$MLSTDIR/pubmlst"
 mkdir -p "$OUTDIR"
-wget --no-clobber -P "$OUTDIR" http://pubmlst.org/data/dbases.xml
+wget --no-clobber -P "$OUTDIR" http://pubmlst.org/data/dbases.xml --no-check-certificate
 
 for URL in $(grep '<url>' $OUTDIR/dbases.xml); do
 #  echo $URL
@@ -23,14 +23,14 @@ for URL in $(grep '<url>' $OUTDIR/dbases.xml); do
     echo "# $PROFILE "
     PROFILEDIR="$OUTDIR/$PROFILE$NUM"
     eval "mkdir -p '$PROFILEDIR'"
-    eval "(cd '$PROFILEDIR' && echo "$URL" && wget -q '$URL' -O '$PROFILE$NUM.txt')"
+    eval "(cd '$PROFILEDIR' && echo "$URL" && wget -q '$URL' -O '$PROFILE$NUM.txt' --no-check-certificate)"
   elif [ ${URL:(-6)} = "_fasta" ]; then
     if [ $(echo $URL | awk -F'/' '{print $3}')  = "rest.pubmlst.org" ]; then
         ALLELE=$(echo $URL | awk -F'/' '{print $7}')
     else
         ALLELE=$(echo $URL | awk -F'/' '{print $8}')
     fi
-    eval "(cd '$PROFILEDIR' && echo "$URL" && wget -q '$URL' -O '$ALLELE.tfa')"
+    eval "(cd '$PROFILEDIR' && echo "$URL" && wget -q '$URL' -O '$ALLELE.tfa' --no-check-certificate)"
   fi
 done
 
