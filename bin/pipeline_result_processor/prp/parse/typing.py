@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 
 from ..models.sample import MethodIndex
-from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultMlst, TypingResultLineage, TypingSnp, TypingResultSnp
+from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultMlst, TypingResultLineage
 from ..models.typing import TypingSoftware as Software
 
 LOG = logging.getLogger(__name__)
@@ -95,31 +95,6 @@ def parse_cgmlst_results(
         type=TypingMethod.CGMLST, software=Software.CHEWBBACA, result=results
     )
 
-def parse_snippy_results(path: str, method) -> TypingResultMlst:
-    """Parse mlst results from mlst to json object."""
-    LOG.info("Parsing snippy results")
-    snps = []
-    with open(path, "rb") as csvfile:
-        pred_res = pd.read_csv(csvfile).to_dict(orient="records")
-        for prediction in pred_res:
-            snp = TypingSnp(
-                chrom=prediction["CHROM"],
-                pos=prediction["POS"],
-                type=prediction["TYPE"],
-                ref=prediction["REF"],
-                alt=prediction["ALT"],
-                evidence=prediction["EVIDENCE"],
-                ftype=prediction["FTYPE"],
-                strand=prediction["STRAND"],
-                nt_pos=prediction["NT_POS"],
-                aa_pos=prediction["AA_POS"],
-                effect=prediction["EFFECT"],
-                locus_tag=prediction["LOCUS_TAG"],
-                gene=prediction["GENE"],
-                product=prediction["PRODUCT"],
-            )
-            snps.append(snp)
-    return MethodIndex(type=method, software=Software.SNIPPY, result=TypingResultSnp(snps=snps))
 
 def _record_to_index(rec_dict):
     idx_dict = {}

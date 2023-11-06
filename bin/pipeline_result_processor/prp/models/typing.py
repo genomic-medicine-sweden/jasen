@@ -16,33 +16,12 @@ class TypingSoftware(Enum):
     MLST = "mlst"
     TBPROFILER = "tbprofiler"
     MYKROBE = "mykrobe"
-    SNIPPY = "snippy"
 
 
 class TypingMethod(Enum):
     MLST = "mlst"
     CGMLST = "cgmlst"
     LINEAGE = "lineage"
-    SNP = "snp"
-
-
-class TypingSnp(BaseModel):
-    """Base class for storing Snippy-like typing results"""
-
-    chrom: str
-    pos: int
-    type: str
-    ref: str
-    alt: str
-    evidence: str
-    ftype: str
-    strand: str
-    nt_pos: str
-    aa_pos: str
-    effect: str
-    locus_tag: str
-    gene: str
-    product: str
 
 
 class ResultMlstBase(RWModel):
@@ -75,9 +54,3 @@ class TypingResultLineage(ResultLineageBase):
 
     main_lin: str
     sublin: str
-
-
-class TypingResultSnp(BaseModel):
-    """Lineage results"""
-
-    snps: List[TypingSnp]
