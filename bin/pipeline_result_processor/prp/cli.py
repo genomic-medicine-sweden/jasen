@@ -2,6 +2,7 @@ import json
 import logging
 
 import click
+from typing import List
 from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
