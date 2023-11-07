@@ -234,6 +234,19 @@ def _parse_mykrobe_amr_genes(mykrobe_result) -> Tuple[ResistanceGene, ...]:
 def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from mykrobe result."""
     results = []
+    def get_mutation_type(var_nom):
+        ref_idx = re.search(r"\d", var_nom, 1).start()
+        alt_idx = re.search(r"\d(?=[^\d]*$)", var_nom).start()+1
+        ref = var_nom[:ref_idx]
+        alt=var_nom[alt_idx:]
+        position = int(var_nom[ref_idx:alt_idx])
+        if len(ref) > len(alt):
+            mut_type = "deletion"
+        elif len(ref) < len(alt):
+            mut_type = "insertion"
+        else:
+            mut_type = "substitution"
+        return mut_type, ref, alt, position
 
     for element_type in mykrobe_result:
         if mykrobe_result[element_type]["predict"].upper() == "R":
@@ -241,22 +254,23 @@ def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]
             for hit in hits:
                 if hits[hit]["variant"] == None:
                     var_info = hit.split("-")[1]
-                    ref_idx = re.search(r"\d", var_info, 1).start()
-                    alt_idx = re.search(r"\d(?=[^\d]*$)", var_info).start()+1
-                    var_type = "substitution"
+                    _, ref_nt, alt_nt, position = get_mutation_type(var_info)
+                    var_nom = hit.split("-")[0].split("_")[1]
+                    var_type, _, _, _ = get_mutation_type(var_nom)
                     variant = ResistanceVariant(
                         variant_type=var_type,
                         genes=[hit.split("_")[0]],
                         phenotypes=[element_type],
-                        position=int(var_info[ref_idx:alt_idx]),
-                        ref_nt=var_info[:ref_idx],
-                        alt_nt=var_info[alt_idx:],
+                        position=position,
+                        ref_nt=ref_nt,
+                        alt_nt=alt_nt,
                         depth=hits[hit]["info"]["coverage"]["alternate"]["median_depth"],
                         ref_database=None,
                         ref_id=None,
                         type=None,
+                        change=var_nom,
                         nucleotide_change=None,
-                        protein_change=hit.split("-")[0].split("_")[1],
+                        protein_change=None,
                         annotation=None,
                         drugs=None,
                     )
@@ -304,6 +318,7 @@ def _parse_tbprofiler_amr_variants(tbprofiler_result) -> Tuple[ResistanceVariant
             ref_database=tbprofiler_result["db_version"]["name"],
             ref_id=None,
             type=hit["type"],
+            change=hit["change"],
             nucleotide_change=hit["nucleotide_change"],
             protein_change=hit["protein_change"],
             annotation=hit["annotation"],

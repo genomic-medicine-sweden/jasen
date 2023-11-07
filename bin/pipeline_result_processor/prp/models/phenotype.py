@@ -20,6 +20,8 @@ class PredictionSoftware(Enum):
 
 class VariantType(Enum):
     SUBSTITUTION = "substitution"
+    INSERTION = "insertion"
+    DELETION = "deletion"
 
 
 class ElementType(Enum):
@@ -100,6 +102,7 @@ class VariantBase(DatabaseReference):
     method: Union[str, None]
     close_seq_name: Union[str, None]
     type: Union[str, None]
+    change: Union[str, None]
     nucleotide_change: Union[str, None]
     protein_change: Union[str, None]
     annotation: Union[List[Dict], None]
