@@ -235,8 +235,11 @@ def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]
     """Get resistance genes from mykrobe result."""
     results = []
     def get_mutation_type(var_nom):
-        ref_idx = re.search(r"\d", var_nom, 1).start()
-        alt_idx = re.search(r"\d(?=[^\d]*$)", var_nom).start()+1
+        try:
+            ref_idx = re.search(r"\d", var_nom, 1).start()
+            alt_idx = re.search(r"\d(?=[^\d]*$)", var_nom).start()+1
+        except AttributeError:
+            return [None]*4
         ref = var_nom[:ref_idx]
         alt=var_nom[alt_idx:]
         position = int(var_nom[ref_idx:alt_idx])
