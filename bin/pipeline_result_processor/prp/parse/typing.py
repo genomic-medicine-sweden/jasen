@@ -96,7 +96,21 @@ def parse_cgmlst_results(
     )
 
 
+def _create_lineage_array(lineage=None, family=None, spoligotype=None, rd=None, frac=None, variant=None, coverage=None):
+    """Create lineage array for mykrobe info"""
+    return {
+        "lin": lineage,
+        "family": family,
+        "spoligotype": spoligotype,
+        "rd": rd,
+        "frac": frac,
+        "variant": variant,
+        "coverage": coverage,
+    }
+
+
 def _get_lineage_info(lineage_dict):
+    """Create a list of arrays by parsing mykrobe lineage output"""
     lineages = []
     if "calls_summary" in lineage_dict:
         lineage_calls = lineage_dict["calls"]
@@ -107,28 +121,12 @@ def _get_lineage_info(lineage_dict):
             main_lin = genotypes[0]
             if lineage_info[lineage] != None:
                 variant = list(lineage_info[lineage].keys())[0]
-                lin_array = {
-                    "lin": lineage,
-                    "family": None,
-                    "spoligotype": None,
-                    "rd": None,
-                    "frac": None,
-                    "variant": variant,
-                    "coverage": lineage_info[lineage][variant]["info"]["coverage"]["alternate"],
-                }
+                lin_array = _create_lineage_array(lineage=lineage, variant=variant, coverage=lineage_info[lineage][variant]["info"]["coverage"]["alternate"])
                 lineages.append(lin_array)
     else:
         genotypes = list(lineage_dict.keys())
         main_lin, sublin = genotypes[0], genotypes[0]
-        lin_array={
-            "lin": genotypes[0],
-            "family": None,
-            "spoligotype": None,
-            "rd": None,
-            "frac": None,
-            "variant": None,
-            "coverage": lineage_dict[genotypes[0]],
-        }
+        lin_array = _create_lineage_array(lineage=genotypes[0], coverage=lineage_dict[genotypes[0]])
         lineages.append(lin_array)
     return main_lin, sublin, lineages
 
@@ -142,6 +140,7 @@ def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLine
         lineages=pred_res["lineage"],
     )
     return MethodIndex(type=method, software=Software.TBPROFILER, result=result_obj)
+
 
 def parse_mykrobe_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse mykrobe results for lineage object."""
