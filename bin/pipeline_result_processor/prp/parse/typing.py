@@ -119,10 +119,16 @@ def _get_lineage_info(lineage_dict):
         for lineage in lineage_info:
             genotypes = list(list(lineage_dict["calls_summary"].values())[0]["genotypes"].keys())
             main_lin = genotypes[0]
-            if lineage_info[lineage] != None:
+            try:
                 variant = list(lineage_info[lineage].keys())[0]
-                lin_array = _create_lineage_array(lineage=lineage, variant=variant, coverage=lineage_info[lineage][variant]["info"]["coverage"]["alternate"])
-                lineages.append(lin_array)
+            except AttributeError:
+                variant = None
+            try:
+                coverage = lineage_info[lineage][variant]["info"]["coverage"]["alternate"]
+            except KeyError:
+                coverage = None
+            lin_array = _create_lineage_array(lineage=lineage, variant=variant, coverage=coverage)
+            lineages.append(lin_array)
     else:
         genotypes = list(lineage_dict.keys())
         main_lin, sublin = genotypes[0], genotypes[0]
