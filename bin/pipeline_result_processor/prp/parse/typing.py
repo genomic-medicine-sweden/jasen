@@ -96,28 +96,45 @@ def parse_cgmlst_results(
     )
 
 
-def _index_to_record(idx_dict):
-    rec_dict = []
-    for lineage in idx_dict:
-        variant = list(idx_dict[lineage].keys())[0]
-        lin_array = {
-            "lin": lineage,
+def _get_lineage_info(lineage_dict):
+    lineages = []
+    if "calls_summary" in lineage_dict:
+        lineage_calls = lineage_dict["calls"]
+        sublin = list(lineage_calls.keys())[0]
+        lineage_info = lineage_calls[sublin]
+        for lineage in lineage_info:
+            genotypes = list(list(lineage_dict["calls_summary"].values())[0]["genotypes"].keys())
+            main_lin = genotypes[0]
+            variant = list(lineage_info[lineage].keys())[0]
+            lin_array = {
+                "lin": lineage,
+                "family": None,
+                "spoligotype": None,
+                "rd": None,
+                "frac": None,
+                "variant": variant,
+                "coverage": lineage_info[lineage][variant]["info"]["coverage"]["alternate"],
+            }
+            lineages.append(lin_array)
+    else:
+        genotypes = list(lineage_dict.keys())
+        main_lin, sublin = genotypes[0], genotypes[0]
+        lin_array={
+            "lin": genotypes[0],
             "family": None,
             "spoligotype": None,
             "rd": None,
             "frac": None,
-            "variant": variant,
-            "coverage": idx_dict[lineage][variant]["info"]["coverage"]["alternate"],
+            "variant": None,
+            "coverage": lineage_dict[genotypes[0]],
         }
-        rec_dict.append(lin_array)
-    return rec_dict
+        lineages.append(lin_array)
+    return main_lin, sublin, lineages
 
 
 def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse tbprofiler results for lineage object."""
     LOG.info("Parsing lineage results")
-    #lineages = pd.read_json(json.dumps(pred_res["lineage"]), orient="records").to_json(orient="index", index="lin")
-    #print(lineages)
     result_obj = TypingResultLineage(
         main_lin=pred_res["main_lin"],
         sublin=pred_res["sublin"],
@@ -128,28 +145,10 @@ def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLine
 def parse_mykrobe_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse mykrobe results for lineage object."""
     LOG.info("Parsing lineage results")
-    try:
-        genotypes = list(list(pred_res["phylogenetics"]["lineage"]["calls_summary"].values())[0]["genotypes"].keys())
-        lineage_calls = pred_res["phylogenetics"]["lineage"]["calls"]
-        sublin = list(lineage_calls.keys())[0]
-        result_obj = TypingResultLineage(
-            main_lin=genotypes[0],
-            sublin=sublin,
-            lineages=_index_to_record(lineage_calls[sublin]),
-        )
-    except KeyError:
-        genotypes = list(pred_res["phylogenetics"]["lineage"].keys())
-        result_obj = TypingResultLineage(
-            main_lin=genotypes[0],
-            sublin=genotypes[0],
-            lineages=[{
-                "lin": genotypes[0],
-                "family": None,
-                "spoligotype": None,
-                "rd": None,
-                "frac": None,
-                "variant": None,
-                "coverage": pred_res["phylogenetics"]["lineage"][genotypes[0]],
-            }],
-        )
+    main_lin, sublin, lineages = _get_lineage_info(pred_res["phylogenetics"]["lineage"])
+    result_obj = TypingResultLineage(
+        main_lin=main_lin,
+        sublin=sublin,
+        lineages=lineages,
+    )
     return MethodIndex(type=method, software=Software.MYKROBE, result=result_obj)
