@@ -24,15 +24,28 @@ class TypingMethod(Enum):
     LINEAGE = "lineage"
 
 
+class LineageInformation(RWModel):
+    """Base class for storing lineage information typing results"""
+
+    lin: Union[str, None]
+    family: Union[str, None]
+    spoligotype: Union[str, None]
+    rd: Union[str, None]
+    frac: Union[str, None]
+    variant: Union[str, None]
+    coverage: Union[Dict, None]
+
+
 class ResultMlstBase(RWModel):
     """Base class for storing MLST-like typing results"""
 
     alleles: Dict[str, Union[int, str, List, None]]
 
+
 class ResultLineageBase(RWModel):
     """Base class for storing MLST-like typing results"""
 
-    lineages: Dict[str, Any]#Union[int, str, None]]
+    lineages: List[LineageInformation]#Union[int, str, None]]
 
 
 class TypingResultMlst(ResultMlstBase):

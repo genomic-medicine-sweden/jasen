@@ -96,11 +96,21 @@ def parse_cgmlst_results(
     )
 
 
-def _record_to_index(rec_dict):
-    idx_dict = {}
-    for lineage in rec_dict:
-        idx_dict[lineage["lin"]] = {k:v for k, v in lineage.items() if k != "lin"}
-    return idx_dict
+def _index_to_record(idx_dict):
+    rec_dict = []
+    for lineage in idx_dict:
+        variant = list(idx_dict[lineage].keys())[0]
+        lin_array = {
+            "lin": lineage,
+            "family": None,
+            "spoligotype": None,
+            "rd": None,
+            "frac": None,
+            "variant": variant,
+            "coverage": idx_dict[lineage][variant]["info"]["coverage"]["alternate"],
+        }
+        rec_dict.append(lin_array)
+    return rec_dict
 
 
 def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLineage:
@@ -111,17 +121,35 @@ def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLine
     result_obj = TypingResultLineage(
         main_lin=pred_res["main_lin"],
         sublin=pred_res["sublin"],
-        lineages=_record_to_index(pred_res["lineage"]),
+        lineages=pred_res["lineage"],
     )
     return MethodIndex(type=method, software=Software.TBPROFILER, result=result_obj)
 
 def parse_mykrobe_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse mykrobe results for lineage object."""
     LOG.info("Parsing lineage results")
-    genotypes = list(list(pred_res["phylogenetics"]["lineage"]["calls_summary"].values())[0]["genotypes"].keys())
-    result_obj = TypingResultLineage(
-        main_lin=genotypes[0],
-        sublin=genotypes[-1],
-        lineages=pred_res["phylogenetics"]["lineage"]["calls"],
-    )
+    try:
+        genotypes = list(list(pred_res["phylogenetics"]["lineage"]["calls_summary"].values())[0]["genotypes"].keys())
+        lineage_calls = pred_res["phylogenetics"]["lineage"]["calls"]
+        sublin = list(lineage_calls.keys())[0]
+        result_obj = TypingResultLineage(
+            main_lin=genotypes[0],
+            sublin=sublin,
+            lineages=_index_to_record(lineage_calls[sublin]),
+        )
+    except KeyError:
+        genotypes = list(pred_res["phylogenetics"]["lineage"].keys())
+        result_obj = TypingResultLineage(
+            main_lin=genotypes[0],
+            sublin=genotypes[0],
+            lineages=[{
+                "lin": genotypes[0],
+                "family": None,
+                "spoligotype": None,
+                "rd": None,
+                "frac": None,
+                "variant": None,
+                "coverage": pred_res["phylogenetics"]["lineage"][genotypes[0]],
+            }],
+        )
     return MethodIndex(type=method, software=Software.MYKROBE, result=result_obj)
