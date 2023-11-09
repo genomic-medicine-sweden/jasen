@@ -162,7 +162,7 @@ install: download_or_build_containers \
 update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
-	update_virulencefinder_db \
+	update_finder_dbs \
 	saureus_all \
 	ecoli_all \
 	kpneumoniae_all \
@@ -244,7 +244,7 @@ $(MLSTDB_DIR)/blast:
 VIRULENCEFINDERDB_DIR := $(ASSETS_DIR)/virulencefinder_db
 KMA_DIR := $(ASSETS_DIR)/kma
 
-update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/stx.name
+update_finder_dbs: $(VIRULENCEFINDERDB_DIR)/stx.name
 
 $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 	$(call log_message,"Starting update of VirulenceFinder database")
