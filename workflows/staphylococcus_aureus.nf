@@ -10,6 +10,7 @@ include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/
 include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main'
 include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main'
 include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main'
+include { copy_to_cron                              } from '../nextflow-modules/modules/cron/main'
 include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main'
 include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main'
 include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main'
@@ -120,7 +121,6 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
-            .join(ch_empty)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {
@@ -136,6 +136,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             combinedOutput = combinedOutput.join(emptyBrackenOutput)
             create_analysis_result(combinedOutput)
         }
+
+        copy_to_cron(create_analysis_result.out.json)
 
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)

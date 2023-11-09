@@ -4,6 +4,7 @@ nextflow.enable.dsl=2
 
 include { get_meta                  } from '../methods/get_meta'
 include { bracken                   } from '../nextflow-modules/modules/bracken/main'
+include { copy_to_cron              } from '../nextflow-modules/modules/cron/main'
 include { create_analysis_result    } from '../nextflow-modules/modules/prp/main'
 include { kraken                    } from '../nextflow-modules/modules/kraken/main'
 include { mykrobe                   } from '../nextflow-modules/modules/mykrobe/main'
@@ -66,6 +67,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             combinedOutput = combinedOutput.join(emptyBrackenOutput)
             create_analysis_result(combinedOutput)
         }
+
+        copy_to_cron(create_analysis_result.out.json)
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
