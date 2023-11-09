@@ -70,7 +70,10 @@ def parse_cgmlst_results(
         ):
             return None
         elif allele.startswith("INF") and include_novel_alleles:
-            return int(allele.split("-")[1])
+            try:
+                allele = int(allele.split("-")[1])
+            except ValueError:
+                allele = str(allele.split("-")[1])
         try:
             allele = int(allele)
         except ValueError:
