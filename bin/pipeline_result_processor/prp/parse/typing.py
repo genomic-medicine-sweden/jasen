@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 
 from ..models.sample import MethodIndex
-from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultMlst, TypingResultLineage, TypingSnp, TypingResultSnp
+from ..models.typing import TypingMethod, TypingResultCgMlst, TypingResultMlst, TypingResultMlst, TypingResultLineage
 from ..models.typing import TypingSoftware as Software
 
 LOG = logging.getLogger(__name__)
@@ -95,58 +95,66 @@ def parse_cgmlst_results(
         type=TypingMethod.CGMLST, software=Software.CHEWBBACA, result=results
     )
 
-def parse_snippy_results(path: str, method) -> TypingResultMlst:
-    """Parse mlst results from mlst to json object."""
-    LOG.info("Parsing snippy results")
-    snps = []
-    with open(path, "rb") as csvfile:
-        pred_res = pd.read_csv(csvfile).to_dict(orient="records")
-        for prediction in pred_res:
-            snp = TypingSnp(
-                chrom=prediction["CHROM"],
-                pos=prediction["POS"],
-                type=prediction["TYPE"],
-                ref=prediction["REF"],
-                alt=prediction["ALT"],
-                evidence=prediction["EVIDENCE"],
-                ftype=prediction["FTYPE"],
-                strand=prediction["STRAND"],
-                nt_pos=prediction["NT_POS"],
-                aa_pos=prediction["AA_POS"],
-                effect=prediction["EFFECT"],
-                locus_tag=prediction["LOCUS_TAG"],
-                gene=prediction["GENE"],
-                product=prediction["PRODUCT"],
-            )
-            snps.append(snp)
-    return MethodIndex(type=method, software=Software.SNIPPY, result=TypingResultSnp(snps=snps))
 
-def _record_to_index(rec_dict):
-    idx_dict = {}
-    for lineage in rec_dict:
-        idx_dict[lineage["lin"]] = {k:v for k, v in lineage.items() if k != "lin"}
-    return idx_dict
+def _create_lineage_array(lineage=None, family=None, spoligotype=None, rd=None, frac=None, variant=None, coverage=None):
+    """Create lineage array for mykrobe info"""
+    return {
+        "lin": lineage,
+        "family": family,
+        "spoligotype": spoligotype,
+        "rd": rd,
+        "frac": frac,
+        "variant": variant,
+        "coverage": coverage,
+    }
+
+
+def _get_lineage_info(lineage_dict):
+    """Create a list of arrays by parsing mykrobe lineage output"""
+    lineages = []
+    if "calls_summary" in lineage_dict:
+        lineage_calls = lineage_dict["calls"]
+        sublin = list(lineage_calls.keys())[0]
+        lineage_info = lineage_calls[sublin]
+        for lineage in lineage_info:
+            genotypes = list(list(lineage_dict["calls_summary"].values())[0]["genotypes"].keys())
+            main_lin = genotypes[0]
+            try:
+                variant = list(lineage_info[lineage].keys())[0]
+            except AttributeError:
+                variant = None
+            try:
+                coverage = lineage_info[lineage][variant]["info"]["coverage"]["alternate"]
+            except (KeyError, TypeError):
+                coverage = None
+            lin_array = _create_lineage_array(lineage=lineage, variant=variant, coverage=coverage)
+            lineages.append(lin_array)
+    else:
+        genotypes = list(lineage_dict.keys())
+        main_lin, sublin = genotypes[0], genotypes[0]
+        lin_array = _create_lineage_array(lineage=genotypes[0], coverage=lineage_dict[genotypes[0]])
+        lineages.append(lin_array)
+    return main_lin, sublin, lineages
 
 
 def parse_tbprofiler_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse tbprofiler results for lineage object."""
     LOG.info("Parsing lineage results")
-    #lineages = pd.read_json(json.dumps(pred_res["lineage"]), orient="records").to_json(orient="index", index="lin")
-    #print(lineages)
     result_obj = TypingResultLineage(
         main_lin=pred_res["main_lin"],
         sublin=pred_res["sublin"],
-        lineages=_record_to_index(pred_res["lineage"]),
+        lineages=pred_res["lineage"],
     )
     return MethodIndex(type=method, software=Software.TBPROFILER, result=result_obj)
+
 
 def parse_mykrobe_lineage_results(pred_res: dict, method) -> TypingResultLineage:
     """Parse mykrobe results for lineage object."""
     LOG.info("Parsing lineage results")
-    genotypes = list(list(pred_res["phylogenetics"]["lineage"]["calls_summary"].values())[0]["genotypes"].keys())
+    main_lin, sublin, lineages = _get_lineage_info(pred_res["phylogenetics"]["lineage"])
     result_obj = TypingResultLineage(
-        main_lin=genotypes[0],
-        sublin=genotypes[-1],
-        lineages=pred_res["phylogenetics"]["lineage"]["calls"],
+        main_lin=main_lin,
+        sublin=sublin,
+        lineages=lineages,
     )
     return MethodIndex(type=method, software=Software.MYKROBE, result=result_obj)

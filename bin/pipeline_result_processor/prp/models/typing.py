@@ -16,33 +16,24 @@ class TypingSoftware(Enum):
     MLST = "mlst"
     TBPROFILER = "tbprofiler"
     MYKROBE = "mykrobe"
-    SNIPPY = "snippy"
 
 
 class TypingMethod(Enum):
     MLST = "mlst"
     CGMLST = "cgmlst"
     LINEAGE = "lineage"
-    SNP = "snp"
 
 
-class TypingSnp(BaseModel):
-    """Base class for storing Snippy-like typing results"""
+class LineageInformation(RWModel):
+    """Base class for storing lineage information typing results"""
 
-    chrom: str
-    pos: int
-    type: str
-    ref: str
-    alt: str
-    evidence: str
-    ftype: str
-    strand: str
-    nt_pos: str
-    aa_pos: str
-    effect: str
-    locus_tag: str
-    gene: str
-    product: str
+    lin: Union[str, None]
+    family: Union[str, None]
+    spoligotype: Union[str, None]
+    rd: Union[str, None]
+    frac: Union[str, None]
+    variant: Union[str, None]
+    coverage: Union[Dict, None]
 
 
 class ResultMlstBase(RWModel):
@@ -50,10 +41,11 @@ class ResultMlstBase(RWModel):
 
     alleles: Dict[str, Union[int, str, List, None]]
 
+
 class ResultLineageBase(RWModel):
     """Base class for storing MLST-like typing results"""
 
-    lineages: Dict[str, Any]#Union[int, str, None]]
+    lineages: List[LineageInformation]#Union[int, str, None]]
 
 
 class TypingResultMlst(ResultMlstBase):
@@ -75,9 +67,3 @@ class TypingResultLineage(ResultLineageBase):
 
     main_lin: str
     sublin: str
-
-
-class TypingResultSnp(BaseModel):
-    """Lineage results"""
-
-    snps: List[TypingSnp]

@@ -2,6 +2,7 @@ import json
 import logging
 
 import click
+from typing import List
 from pydantic import ValidationError
 
 from .models.metadata import RunInformation, SoupVersion
@@ -23,7 +24,6 @@ from .parse import (
     parse_mykrobe_lineage_results,
     parse_tbprofiler_amr_pred,
     parse_tbprofiler_lineage_results,
-    parse_snippy_results,
 )
 
 logging.basicConfig(
@@ -68,7 +68,6 @@ def cli():
 @click.option("-r", "--resistance", type=click.File(), help="resfinder resistance prediction results")
 @click.option("-p", "--quality", type=click.File(), help="postalignqc qc results")
 @click.option("-k", "--mykrobe", type=click.File(), help="mykrobe results")
-@click.option("-s", "--snippy", type=str, help="snippy results")
 @click.option("-t", "--tbprofiler", type=click.File(), help="tbprofiler results")
 @click.option("--correct_alleles", is_flag=True, help="Correct alleles")
 @click.argument("output", type=click.File("w"))
@@ -85,7 +84,6 @@ def create_output(
     resistance,
     quality,
     mykrobe,
-    snippy,
     tbprofiler,
     correct_alleles,
     output,
@@ -101,8 +99,6 @@ def create_output(
         "qc": [],
         "typing_result": [],
         "element_type_result": [],
-        #"snippy": [],
-        #"tbprofiler": [],
     }
     if process_metadata:
         db_info: List[SoupVersion] = []
@@ -195,12 +191,6 @@ def create_output(
         results["element_type_result"].append(amr_res)
         lin_res: MethodIndex = parse_mykrobe_lineage_results(pred_res[sample_id], TypingMethod.LINEAGE)
         results["typing_result"].append(lin_res)
-
-    # snippy
-    if snippy:
-        LOG.info("Parse snippy results")
-        snp_res: MethodIndex = parse_snippy_results(snippy, TypingMethod.SNP)
-        results["typing_result"].append(snp_res)
 
     # tbprofiler
     if tbprofiler:

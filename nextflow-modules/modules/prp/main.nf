@@ -3,7 +3,7 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(snippy), val(tbprofiler), val(bracken)
+    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(tbprofiler), val(bracken)
 
   output:
     path(output)
@@ -20,7 +20,6 @@ process create_analysis_result {
     resfinderArgs = resistance ? "--resistance ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
-    snippyArgs = snippy ? "--snippy ${snippy}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulence ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
@@ -36,7 +35,6 @@ process create_analysis_result {
       ${quastArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
-      ${snippyArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
       ${output}

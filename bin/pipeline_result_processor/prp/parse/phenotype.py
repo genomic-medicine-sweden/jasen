@@ -1,5 +1,6 @@
 """Parse output of various phenotype predicting tools."""
 
+import re
 import json
 import logging
 import pandas as pd
@@ -127,8 +128,8 @@ def _parse_resfinder_amr_variants(
             genes=igenes,
             phenotypes=info["phenotypes"],
             position=info["ref_start_pos"],
-            ref_codon=info["ref_codon"],
-            alt_codon=info["var_codon"],
+            ref_nt=info["ref_codon"],
+            alt_nt=info["var_codon"],
             depth=info["depth"],
             ref_database=info["ref_database"],
             ref_id=info["ref_id"],
@@ -233,23 +234,48 @@ def _parse_mykrobe_amr_genes(mykrobe_result) -> Tuple[ResistanceGene, ...]:
 def _parse_mykrobe_amr_variants(mykrobe_result) -> Tuple[ResistanceVariant, ...]:
     """Get resistance genes from mykrobe result."""
     results = []
+    def get_mutation_type(var_nom):
+        try:
+            ref_idx = re.search(r"\d", var_nom, 1).start()
+            alt_idx = re.search(r"\d(?=[^\d]*$)", var_nom).start()+1
+        except AttributeError:
+            return [None]*4
+        ref = var_nom[:ref_idx]
+        alt=var_nom[alt_idx:]
+        position = int(var_nom[ref_idx:alt_idx])
+        if len(ref) > len(alt):
+            mut_type = "deletion"
+        elif len(ref) < len(alt):
+            mut_type = "insertion"
+        else:
+            mut_type = "substitution"
+        return mut_type, ref, alt, position
 
     for element_type in mykrobe_result:
         if mykrobe_result[element_type]["predict"].upper() == "R":
             hits = mykrobe_result[element_type]["called_by"]
             for hit in hits:
                 if hits[hit]["variant"] == None:
-                    var_type = "substitution"
+                    var_info = hit.split("-")[1]
+                    _, ref_nt, alt_nt, position = get_mutation_type(var_info)
+                    var_nom = hit.split("-")[0].split("_")[1]
+                    var_type, _, _, _ = get_mutation_type(var_nom)
                     variant = ResistanceVariant(
                         variant_type=var_type,
                         genes=[hit.split("_")[0]],
                         phenotypes=[element_type],
-                        position=int(hit.split("-")[1][3:-3]),
-                        ref_codon=hit.split("-")[1][-3:],
-                        alt_codon=hit.split("-")[1][:3],
+                        position=position,
+                        ref_nt=ref_nt,
+                        alt_nt=alt_nt,
                         depth=hits[hit]["info"]["coverage"]["alternate"]["median_depth"],
                         ref_database=None,
                         ref_id=None,
+                        type=None,
+                        change=var_nom,
+                        nucleotide_change=None,
+                        protein_change=None,
+                        annotation=None,
+                        drugs=None,
                     )
                     results.append(variant)
     if not results:
@@ -289,11 +315,17 @@ def _parse_tbprofiler_amr_variants(tbprofiler_result) -> Tuple[ResistanceVariant
             genes=[hit["gene"]],
             phenotypes=hit["gene_associated_drugs"],
             position=int(hit["genome_pos"]),
-            ref_codon=f"{hit['protein_change'][2:4]}({hit['ref']})",
-            alt_codon=f"{hit['protein_change'][-3:-1]}({hit['alt']})",
+            ref_nt=hit["ref"],
+            alt_nt=hit["alt"],
             depth=hit["depth"],
             ref_database=tbprofiler_result["db_version"]["name"],
             ref_id=None,
+            type=hit["type"],
+            change=hit["change"],
+            nucleotide_change=hit["nucleotide_change"],
+            protein_change=hit["protein_change"],
+            annotation=hit["annotation"],
+            drugs=hit["drugs"],
         )
         results.append(variant)
 
@@ -548,8 +580,8 @@ def _default_variant() -> ElementTypeResult:
         genes=None,
         phenotypes=[],
         position=None,
-        ref_codon=None,
-        alt_codon=None,
+        ref_nt=None,
+        alt_nt=None,
         depth=None,
     )
     mutations = list()

@@ -20,6 +20,8 @@ class PredictionSoftware(Enum):
 
 class VariantType(Enum):
     SUBSTITUTION = "substitution"
+    INSERTION = "insertion"
+    DELETION = "deletion"
 
 
 class ElementType(Enum):
@@ -82,8 +84,8 @@ class VariantBase(DatabaseReference):
     variant_type: Union[VariantType, None] # type of mutation insertion/deletion/substitution
     genes: Union[List[str], None]
     position: Union[int, None]
-    ref_codon: Union[str, None]
-    alt_codon: Union[str, None]
+    ref_nt: Union[str, None]
+    alt_nt: Union[str, None]
     # prediction info
     depth: Union[float, None]
     contig_id: Union[str, None]
@@ -99,6 +101,12 @@ class VariantBase(DatabaseReference):
     res_subclass: Union[str, None]
     method: Union[str, None]
     close_seq_name: Union[str, None]
+    type: Union[str, None]
+    change: Union[str, None]
+    nucleotide_change: Union[str, None]
+    protein_change: Union[str, None]
+    annotation: Union[List[Dict], None]
+    drugs: Union[List[Dict], None]
 
 
 class ResistanceVariant(VariantBase):

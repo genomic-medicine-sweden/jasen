@@ -11,4 +11,4 @@ from .phenotype import (
 )
 from .qc import parse_quast_results, parse_postalignqc_results
 from .species import parse_kraken_result
-from .typing import parse_cgmlst_results, parse_mlst_results, parse_tbprofiler_lineage_results, parse_mykrobe_lineage_results, parse_snippy_results
+from .typing import parse_cgmlst_results, parse_mlst_results, parse_tbprofiler_lineage_results, parse_mykrobe_lineage_results
