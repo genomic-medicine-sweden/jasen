@@ -125,9 +125,7 @@ def _get_lineage_info(lineage_dict):
                 variant = None
             try:
                 coverage = lineage_info[lineage][variant]["info"]["coverage"]["alternate"]
-            except KeyError:
-                coverage = None
-            except TypeError:
+            except (KeyError, TypeError):
                 coverage = None
             lin_array = _create_lineage_array(lineage=lineage, variant=variant, coverage=coverage)
             lineages.append(lin_array)
