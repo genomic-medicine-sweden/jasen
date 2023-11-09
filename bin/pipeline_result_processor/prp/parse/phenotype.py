@@ -70,7 +70,7 @@ def _parse_resfinder_amr_genes(
             coverage=info["coverage"],
             ref_start_pos=info["ref_start_pos"],
             ref_end_pos=info["ref_end_pos"],
-            ref_gene_length=info["ref_seq_length"],
+            ref_gene_length=info["ref_seq_lenght"],
             alignment_length=info["alignment_length"],
             phenotypes=info["phenotypes"],
             ref_database=info["ref_database"][0],
