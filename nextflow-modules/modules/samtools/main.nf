@@ -7,7 +7,7 @@ process samtools_view {
     path fasta
 
   output:
-    path('*.bam'), optional: true, emit: bam
+    path('*.bam'), optional: true , emit: bam
     path('*.cram'), optional: true, emit: cram
     path "*versions.yml"
 

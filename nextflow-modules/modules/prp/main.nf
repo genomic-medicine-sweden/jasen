@@ -6,7 +6,7 @@ process create_analysis_result {
     tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(tbprofiler), val(bracken)
 
   output:
-    path(output)
+    tuple val(sampleName), path(output), emit: json
 
   script:
     output = "${sampleName}_result.json"

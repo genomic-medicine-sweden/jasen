@@ -9,7 +9,7 @@ process bracken {
   output:
     tuple val(sampleName), path(output)      , emit: output
     tuple val(sampleName), path(outputReport), emit: report
-    path "*versions.yml"                          , emit: versions
+    path "*versions.yml"                     , emit: versions
 
   script:
     def args = task.ext.args ?: ''
