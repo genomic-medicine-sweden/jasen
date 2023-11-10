@@ -3,22 +3,24 @@ process export_to_cdm {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(cgmlstMissingLoci), path(quast), path(postQc)
+    tuple val(sampleName), path(quast), path(postQc), path(cgmlst), val(rundir)
+    val species
 
   output:
-    path(output)
+    path(output), emit: cdm
 
   script:
     output = "${sampleName}.cdm"
-    rundir = 'fool'
-
+    rundir = rundir ? rundir : "testdir"
     """
+    cgmlstMissingLoci=\$(grep -n -o -E 'LNF|PLOT3|PLOT5|NIPH|NIPHEM|ALM|ASM' ${cgmlst} | cut -d : -f 1 | uniq -c | cut -d" " -f5)
+
     echo --run-folder ${rundir} \\
          --sample-id ${sampleName} \\
-         --assay microbiology \\
+         --assay ${species} \\
          --qc ${postQc} \\
          --asmqc ${quast} \\
-         --micmisloc ${cgmlstMissingLoci} > ${output}
+         --micmisloc \$cgmlstMissingLoci > ${output}
     """
 
   stub:
