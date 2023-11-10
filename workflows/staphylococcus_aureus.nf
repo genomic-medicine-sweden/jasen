@@ -52,7 +52,6 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
-        CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
 
@@ -105,9 +104,9 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
-        export_to_cdm(chewbbaca_split_results.out.output.join(ch_quast).join(ch_qc))
-
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+
+        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_empty), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -137,8 +136,9 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             create_analysis_result(combinedOutput)
         }
 
-        copy_to_cron(create_analysis_result.out.json)
+        copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
+        ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
@@ -150,7 +150,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit: 
-        pipeline_result = create_analysis_result.output
-        cdm             = export_to_cdm.output
+        pipeline_result = create_analysis_result.out.json
+        cdm             = export_to_cdm.out.cdm
         versions        = ch_versions
 }

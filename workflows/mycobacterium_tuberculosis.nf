@@ -6,6 +6,7 @@ include { get_meta                  } from '../methods/get_meta'
 include { bracken                   } from '../nextflow-modules/modules/bracken/main'
 include { copy_to_cron              } from '../nextflow-modules/modules/cron/main'
 include { create_analysis_result    } from '../nextflow-modules/modules/prp/main'
+include { export_to_cdm             } from '../nextflow-modules/modules/cmd/main'
 include { kraken                    } from '../nextflow-modules/modules/kraken/main'
 include { mykrobe                   } from '../nextflow-modules/modules/mykrobe/main'
 include { snippy                    } from '../nextflow-modules/modules/snippy/main'
@@ -32,15 +33,24 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         CALL_BACTERIAL_BASE( coreLociBed, genomeReference, genomeReferenceDir, ch_meta.iontorrent, ch_meta.illumina )
 
-        mykrobe(CALL_BACTERIAL_BASE.out.reads)
+        CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
+        CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
+        CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
+        CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
+        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
 
-        snippy(CALL_BACTERIAL_BASE.out.reads, genomeReference)
+        mykrobe(ch_reads)
 
-        tbprofiler(CALL_BACTERIAL_BASE.out.reads)
-        
-        CALL_BACTERIAL_BASE.out.reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+        snippy(ch_reads, genomeReference)
 
-        CALL_BACTERIAL_BASE.out.quast
+        tbprofiler(ch_reads)
+
+        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+
+        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_empty), params.speciesDir)
+
+        ch_quast
+            .join(ch_qc)
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
@@ -48,15 +58,14 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
-            .join(ch_empty)
-            .join(CALL_BACTERIAL_BASE.out.metadata)
+            .join(ch_metadata)
             .join(mykrobe.out.json)
             .join(tbprofiler.out.json)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {
             krakenDb = file(params.krakenDb, checkIfExists: true)
-            kraken(CALL_BACTERIAL_BASE.out.reads, krakenDb)
+            kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput = combinedOutput.join(bracken.out.output)
             create_analysis_result(combinedOutput)
@@ -68,7 +77,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput)
         }
 
-        copy_to_cron(create_analysis_result.out.json)
+        copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
@@ -76,6 +85,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler.out.versions)
 
     emit: 
-        //pipeline_result = create_analysis_result.output
+        pipeline_result = create_analysis_result.out.json
+        cdm             = export_to_cdm.out.cdm
         versions        = ch_versions
 }
