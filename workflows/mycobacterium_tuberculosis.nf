@@ -38,6 +38,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
 
         mykrobe(ch_reads)
 
@@ -45,9 +46,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         tbprofiler(ch_reads)
 
-        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+        ch_input_meta.map { sampleName, reads, platform, sequencing_run -> [ sampleName, sequencing_run ] }.set{ ch_sequencing_run }
 
-        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_empty), params.speciesDir)
+        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_sequencing_run), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
