@@ -28,15 +28,16 @@ workflow CALL_BACTERIAL_BASE {
         // reads trim and clean
         assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
         ch_meta_illumina.mix(ch_clean_meta).set{ ch_input_meta }
-        ch_input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
+        ch_input_meta.map { sampleName, reads, platform, sequencing_run -> [ sampleName, reads, platform ] }.set{ ch_input_data }
+        ch_input_data.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
 
         // analysis metadata
-        save_analysis_metadata(ch_input_meta)
+        save_analysis_metadata(ch_input_data)
 
         // assembly
-        skesa(ch_input_meta)
-        spades_illumina(ch_input_meta)
-        spades_iontorrent(ch_input_meta)
+        skesa(ch_input_data)
+        spades_illumina(ch_input_data)
+        spades_iontorrent(ch_input_data)
 
         Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta).set{ ch_assembly }
 
