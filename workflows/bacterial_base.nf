@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_meta'
 include { quast                                 } from '../nextflow-modules/modules/quast/main'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main'
 include { spades_illumina                       } from '../nextflow-modules/modules/spades/main'
@@ -28,16 +27,15 @@ workflow CALL_BACTERIAL_BASE {
         // reads trim and clean
         assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
         ch_meta_illumina.mix(ch_clean_meta).set{ ch_input_meta }
-        ch_input_meta.map { sampleName, reads, platform, sequencing_run -> [ sampleName, reads, platform ] }.set{ ch_input_data }
-        ch_input_data.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
+        ch_input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
 
         // analysis metadata
-        save_analysis_metadata(ch_input_data)
+        save_analysis_metadata(ch_input_meta)
 
         // assembly
-        skesa(ch_input_data)
-        spades_illumina(ch_input_data)
-        spades_iontorrent(ch_input_data)
+        skesa(ch_input_meta)
+        spades_illumina(ch_input_meta)
+        spades_iontorrent(ch_input_meta)
 
         Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta).set{ ch_assembly }
 

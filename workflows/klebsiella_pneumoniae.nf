@@ -3,6 +3,7 @@
 nextflow.enable.dsl=2
 
 include { get_meta                                  } from '../methods/get_meta'
+include { get_seqrun                                } from '../methods/get_seqrun'
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main'
@@ -105,7 +106,15 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
-        ch_input_meta.map { sampleName, reads, platform, sequencing_run -> [ sampleName, sequencing_run ] }.set{ ch_sequencing_run }
+        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+
+        if ( params.cronCopy ) {
+            Channel.fromPath(params.csv).splitCsv(header:true)
+                .map{ row -> get_seqrun(row) }
+                .set{ ch_sequencing_run }
+        } else {
+            ch_empty.set{ ch_sequencing_run }
+        }
 
         export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_sequencing_run), params.speciesDir)
 
@@ -127,13 +136,12 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             krakenDb = file(params.krakenDb, checkIfExists: true)
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
-            combinedOutput = combinedOutput.join(bracken.out.output)
+            combinedOutput.join(bracken.out.output).set{ combinedOutput }
             create_analysis_result(combinedOutput)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
-            emptyBrackenOutput = ch_reads.map { sampleName, reads -> [ sampleName, [] ] }
-            combinedOutput = combinedOutput.join(emptyBrackenOutput)
+            combinedOutput.join(ch_empty).set{ combinedOutput }
             create_analysis_result(combinedOutput)
         }
 
@@ -153,5 +161,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
     emit: 
         pipeline_result = create_analysis_result.out.json
         cdm             = export_to_cdm.out.cdm
+        cron_json       = copy_to_cron.out.json
+        cron_cdm        = copy_to_cron.out.cdm
         versions        = ch_versions
 }
