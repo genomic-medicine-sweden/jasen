@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_meta'
 include { quast                                 } from '../nextflow-modules/modules/quast/main'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main'
 include { spades_illumina                       } from '../nextflow-modules/modules/spades/main'

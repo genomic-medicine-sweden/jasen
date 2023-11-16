@@ -1,2 +1,2 @@
-id,platform,read1,read2
-p1000,illumina,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R1_001.fastq.gz,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R2_001.fastq.gz
+id,platform,sequencing_run,read1,read2
+p1000,illumina,221213_A01111_0101_AHKMN3DRX3,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R1_001.fastq.gz,/path/to/JASEN/assets/test_data/sequencing_data/saureus_100k/saureus_large_R2_001.fastq.gz

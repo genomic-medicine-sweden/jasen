@@ -7,7 +7,7 @@ process export_to_cdm {
     val species
 
   output:
-    path(output), emit: cdm
+    tuple val(sampleName), path(output), emit: cdm
 
   script:
     output = "${sampleName}.cdm"
