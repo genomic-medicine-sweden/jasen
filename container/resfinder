@@ -30,7 +30,7 @@ From:python:3.8
          chmod -R 0777 /tmp/bestfolder
  
          pip3 install tabulate biopython cgecore gitpython python-dateutil
-         pip3 install resfinder
+         pip3 install resfinder==${RESFINDER_VERSION}
 
 
          git clone -b "${KMA_VERSION}" https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
