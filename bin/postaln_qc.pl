@@ -26,6 +26,10 @@ my $BAITS   = ( $ARGV[4] or 0 );
 my $REF_FA  = ( $ARGV[5] or 0 );
 my $PAIRED  = is_PE( $BAM );
 
+# Needed to avoid a certain warning message messing up JSON output:
+# https://github.com/genomic-medicine-sweden/JASEN/issues/226
+my $JVM_OPTS = "-XX:-UsePerfData";
+
 
 if( $BAITS and $REF_FA ) {
     print STDERR "Calculating HS-metrics...\n";
@@ -37,9 +41,9 @@ if( $BAITS and $REF_FA ) {
 	$DICT =~ s/\.(fa|fasta)$/\.dict/;
 	die "Could not find dict file for reference fasta" unless ( -s $DICT );
     }
-    system_p( "picard BedToIntervalList -I $BED -O $BED.interval_list -SD $DICT" ) unless -s "$BED.interval_list";
-    system_p( "picard BedToIntervalList -I $BAITS -O $BAITS.interval_list -SD $DICT" ) unless -s "$BAITS.interval_list";
-    system_p( "picard CollectHsMetrics -I $BAM -O $BAM.hsmetrics -R $REF_FA -BAIT_INTERVALS $BAITS.interval_list -TARGET_INTERVALS $BED.interval_list" );
+    system_p( "picard $JVM_OPTS BedToIntervalList -I $BED -O $BED.interval_list -SD $DICT" ) unless -s "$BED.interval_list";
+    system_p( "picard $JVM_OPTS BedToIntervalList -I $BAITS -O $BAITS.interval_list -SD $DICT" ) unless -s "$BAITS.interval_list";
+    system_p( "picard $JVM_OPTS CollectHsMetrics -I $BAM -O $BAM.hsmetrics -R $REF_FA -BAIT_INTERVALS $BAITS.interval_list -TARGET_INTERVALS $BED.interval_list" );
 
     open( HS, "$BAM.hsmetrics" );
     while( <HS> ) {
@@ -66,7 +70,7 @@ my( $mapped_reads ) = ( $flagstat[4] =~ /^(\d+)/ );
 
 if( $PAIRED ) {
     print STDERR "Collect insert sizes...\n";
-    system_p( "picard CollectInsertSizeMetrics -I $BAM -O $BAM.inssize -H $BAM.ins.pdf -STOP_AFTER 1000000");
+    system_p( "picard $JVM_OPTS CollectInsertSizeMetrics -I $BAM -O $BAM.inssize -H $BAM.ins.pdf -STOP_AFTER 1000000");
     open( INS, "$BAM.inssize" );
     while( <INS> ) {
 	if( /^\#\# METRICS CLASS/ ) {
