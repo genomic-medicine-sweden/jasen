@@ -24,7 +24,7 @@ JASEN has been developed for a small set of microbiota (primarily MRSA), but wil
 ### Copy code locally
 
 ```
-git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/JASEN.git && cd JASEN
+git clone --recurse-submodules --single-branch --branch master  git@github.com:genomic-medicine-sweden/JASEN.git && cd JASEN
 ```
 
 ### Access to OCI registries (Optional)
