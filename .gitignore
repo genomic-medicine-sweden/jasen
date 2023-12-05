@@ -9,7 +9,7 @@ assets/genomes
 assets/mlst_db/blast
 assets/mlst_db/pubmlst
 assets/amrfinder_db
-assets/wgmlst
+assets/wgmlst/*/alleles*
 assets/prodigal_training_files/*
 assets/krakenstd
 work/
