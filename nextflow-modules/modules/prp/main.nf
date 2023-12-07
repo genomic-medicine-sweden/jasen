@@ -10,7 +10,7 @@ process create_analysis_result {
 
   script:
     output = "${sampleName}_result.json"
-    amrfinderArgs = amr ? "--amr ${amr}" : ""
+    amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
