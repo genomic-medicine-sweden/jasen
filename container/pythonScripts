@@ -3,15 +3,12 @@ From:python
 
 %labels
     MAINTAINER Markus Johansson <markus.h.johansson@skane.se>
-    DESCRIPTION Singularity container for CMD microbiology WGS pipeline
-    VERSION 0.0.1
+    DESCRIPTION Singularity container for JASEN python scripts
+    VERSION 0.1.0
 
 %environment
     umask 0002
 
-%files
-    ../bin/pipeline_result_processor/ /
-
 %post
-    pip install -e /pipeline_result_processor
+    git clone --depth 1 --branch v0.1.0 https://github.com/Clinical-Genomics-Lund/bonsai-prp.git && cd bonsai-prp && pip install -e .
     pip install  biopython

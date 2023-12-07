@@ -14,7 +14,7 @@ assets/prodigal_training_files/*
 assets/krakenstd
 work/
 results
-container/*.sif
+*.sif
 *~
 \#*
 nextflow
