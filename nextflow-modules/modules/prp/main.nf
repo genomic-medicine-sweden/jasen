@@ -17,11 +17,11 @@ process create_analysis_result {
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
-    resfinderArgs = resistance ? "--resistance ${resistance}" : ""
+    resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
-    virulenceArgs = virulence ? "--virulence ${virulence}" : ""
+    virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
     prp create-output \\
