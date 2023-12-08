@@ -10,6 +10,7 @@ process create_analysis_result {
 
   script:
     output = "${sampleName}_result.json"
+    qcOutput = "${sampleName}_qc_result.json"
     amrfinderArgs = amr ? "--amr ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
@@ -37,7 +38,8 @@ process create_analysis_result {
       ${runInfoArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
-      ${output}
+      --qc-results ${qcOutput} \\
+      --analysis-results ${output}
     """
 
   stub:
