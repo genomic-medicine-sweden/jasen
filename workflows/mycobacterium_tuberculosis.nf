@@ -49,16 +49,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
-        if ( params.cronCopy ) {
-            Channel.fromPath(params.csv).splitCsv(header:true)
-                .map{ row -> get_seqrun(row) }
-                .set{ ch_sequencing_run }
-        } else {
-            ch_empty.set{ ch_sequencing_run }
-        }
-
-        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_sequencing_run), params.speciesDir)
-
         ch_quast
             .join(ch_qc)
             .join(ch_empty)
@@ -85,6 +75,16 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             combinedOutput.join(ch_empty).set{ combinedOutput }
             create_analysis_result(combinedOutput)
         }
+
+        if ( params.cronCopy ) {
+            Channel.fromPath(params.csv).splitCsv(header:true)
+                .map{ row -> get_seqrun_meta(row) }
+                .set{ ch_seqrun_meta }
+        } else {
+            ch_empty.join(ch_empty).set{ ch_seqrun_meta }
+        }
+
+        export_to_cdm(create_analysis_result.out.qc.join(ch_seqrun_meta), params.speciesDir)
 
         copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
