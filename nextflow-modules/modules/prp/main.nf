@@ -10,7 +10,6 @@ process create_analysis_result {
 
   script:
     output = "${sampleName}_result.json"
-    qcOutput = "${sampleName}_qc_result.json"
     amrfinderArgs = amr ? "--amr ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
@@ -25,7 +24,7 @@ process create_analysis_result {
     virulenceArgs = virulence ? "--virulence ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
-    prp create-output \\
+    prp create-bonsai-input \\
       --sample-id ${sampleName} \\
       ${amrfinderArgs} \\
       ${brackenArgs} \\
@@ -38,12 +37,42 @@ process create_analysis_result {
       ${runInfoArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
-      --qc-results ${qcOutput} \\
-      --analysis-results ${output}
+      --output ${output}
     """
 
   stub:
     output = "${sampleName}_result.json"
+    """
+    touch $output
+    """
+}
+
+process create_cdm_input {
+  tag "${sampleName}"
+  scratch params.scratch
+
+  input:
+    tuple val(sampleName), val(quast), val(postalignqc), val(cgmlst)
+
+  output:
+    tuple val(sampleName), path(output), emit: json
+
+  script:
+    output = "${sampleName}_qc_result.json"
+    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
+    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
+    quastArgs = quast ? "--quast ${quast}" : ""
+    """
+    prp create-cdm-input \\
+      --sample-id ${sampleName} \\
+      ${cgmlstArgs} \\
+      ${postalignqcArgs} \\
+      ${quastArgs} \\
+      --output ${output}
+    """
+
+  stub:
+    output = "${sampleName}_qc_result.json"
     """
     touch $output
     """
