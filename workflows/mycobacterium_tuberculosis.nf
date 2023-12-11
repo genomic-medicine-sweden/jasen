@@ -7,6 +7,7 @@ include { get_seqrun                } from '../methods/get_seqrun'
 include { bracken                   } from '../nextflow-modules/modules/bracken/main'
 include { copy_to_cron              } from '../nextflow-modules/modules/cron/main'
 include { create_analysis_result    } from '../nextflow-modules/modules/prp/main'
+include { create_cdm_input          } from '../nextflow-modules/modules/prp/main'
 include { export_to_cdm             } from '../nextflow-modules/modules/cmd/main'
 include { kraken                    } from '../nextflow-modules/modules/kraken/main'
 include { mykrobe                   } from '../nextflow-modules/modules/mykrobe/main'
@@ -76,6 +77,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput)
         }
 
+        ch_quast
+            .join(ch_qc)
+            .join(chewbbaca_split_results.out.output)
+            .set{ cdmOutput }
+
+        create_cdm_input(cdmOutput)
+
         if ( params.cronCopy ) {
             Channel.fromPath(params.csv).splitCsv(header:true)
                 .map{ row -> get_seqrun_meta(row) }
@@ -84,7 +92,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             ch_empty.join(ch_empty).set{ ch_seqrun_meta }
         }
 
-        export_to_cdm(create_analysis_result.out.qc.join(ch_seqrun_meta), params.speciesDir)
+        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
         copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
