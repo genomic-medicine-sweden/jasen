@@ -18,7 +18,7 @@ process export_to_cdm {
          -sample-id ${sampleName} \\
          -assay ${species} \\
          -qc ${qc} \\
-         ${limsID}
+         ${limsID} > ${output}
     """
 
   stub:
