@@ -64,7 +64,6 @@ process create_cdm_input {
     quastArgs = quast ? "--quast ${quast}" : ""
     """
     prp create-cdm-input \\
-      --sample-id ${sampleName} \\
       ${cgmlstArgs} \\
       ${postalignqcArgs} \\
       ${quastArgs} \\
