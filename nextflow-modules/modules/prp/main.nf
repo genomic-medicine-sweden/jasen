@@ -24,7 +24,7 @@ process create_analysis_result {
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
-    prp create-output \\
+    prp create-bonsai-input \\
       --sample-id ${sampleName} \\
       ${amrfinderArgs} \\
       ${brackenArgs} \\
@@ -37,11 +37,41 @@ process create_analysis_result {
       ${runInfoArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
-      ${output}
+      --output ${output}
     """
 
   stub:
     output = "${sampleName}_result.json"
+    """
+    touch $output
+    """
+}
+
+process create_cdm_input {
+  tag "${sampleName}"
+  scratch params.scratch
+
+  input:
+    tuple val(sampleName), val(quast), val(postalignqc), val(cgmlst)
+
+  output:
+    tuple val(sampleName), path(output), emit: json
+
+  script:
+    output = "${sampleName}_qc_result.json"
+    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
+    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
+    quastArgs = quast ? "--quast ${quast}" : ""
+    """
+    prp create-cdm-input \\
+      ${cgmlstArgs} \\
+      ${postalignqcArgs} \\
+      ${quastArgs} \\
+      --output ${output}
+    """
+
+  stub:
+    output = "${sampleName}_qc_result.json"
     """
     touch $output
     """

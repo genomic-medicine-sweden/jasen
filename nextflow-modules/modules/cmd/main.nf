@@ -3,7 +3,7 @@ process export_to_cdm {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(quast), path(postQc), path(cgmlst), val(rundir)
+    tuple val(sampleName), path(qc), val(sequencingRun), val(limsID)
     val species
 
   output:
@@ -11,16 +11,14 @@ process export_to_cdm {
 
   script:
     output = "${sampleName}.cdm"
-    rundir = rundir ? rundir : "testdir"
+    sequencingRun = sequencingRun ? "-sequencingRun ${sequencingRun}" : ""
+    limsID = limsID ? "-lims-id ${limsID}" : ""
     """
-    cgmlstMissingLoci=\$(grep -n -o -E 'LNF|PLOT3|PLOT5|NIPH|NIPHEM|ALM|ASM' ${cgmlst} | cut -d : -f 1 | uniq -c | cut -d" " -f5)
-
-    echo --run-folder ${rundir} \\
-         --sample-id ${sampleName} \\
-         --assay ${species} \\
-         --qc ${postQc} \\
-         --asmqc ${quast} \\
-         --micmisloc \$cgmlstMissingLoci > ${output}
+    echo ${sequencingRun} \\
+         -sample-id ${sampleName} \\
+         -assay ${species} \\
+         -qc ${qc} \\
+         ${limsID} > ${output}
     """
 
   stub:

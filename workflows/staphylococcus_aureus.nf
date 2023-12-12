@@ -13,6 +13,7 @@ include { chewbbaca_create_batch_list               } from '../nextflow-modules/
 include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main'
 include { copy_to_cron                              } from '../nextflow-modules/modules/cron/main'
 include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main'
+include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main'
 include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main'
 include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main'
 include { kraken                                    } from '../nextflow-modules/modules/kraken/main'
@@ -108,16 +109,6 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
-        if ( params.cronCopy ) {
-            Channel.fromPath(params.csv).splitCsv(header:true)
-                .map{ row -> get_seqrun(row) }
-                .set{ ch_sequencing_run }
-        } else {
-            ch_empty.set{ ch_sequencing_run }
-        }
-
-        export_to_cdm(ch_quast.join(ch_qc).join(chewbbaca_split_results.out.output).join(ch_sequencing_run), params.speciesDir)
-
         ch_quast
             .join(ch_qc)
             .join(mlst.out.json)
@@ -144,6 +135,23 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             combinedOutput.join(ch_empty).set{ combinedOutput }
             create_analysis_result(combinedOutput)
         }
+
+        ch_quast
+            .join(ch_qc)
+            .join(chewbbaca_split_results.out.output)
+            .set{ cdmOutput }
+
+        create_cdm_input(cdmOutput)
+
+        if ( params.cronCopy ) {
+            Channel.fromPath(params.csv).splitCsv(header:true)
+                .map{ row -> get_seqrun_meta(row) }
+                .set{ ch_seqrun_meta }
+        } else {
+            ch_empty.join(ch_empty).set{ ch_seqrun_meta }
+        }
+
+        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
         copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
