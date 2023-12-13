@@ -31,7 +31,7 @@ sub read_fasta {
     while(<FA>) {
 	chomp;
 	next if /^\s*$/;
-	if( /^>(.*?)$/ ) {
+	if( /^>(.*?)(\s.*)?$/ ) {
 	    $id = $1;
 	}
 	else {
