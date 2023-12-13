@@ -3,7 +3,7 @@
 nextflow.enable.dsl=2
 
 include { get_meta                                  } from '../methods/get_meta'
-include { get_seqrun                                } from '../methods/get_seqrun'
+include { get_seqrun_meta                           } from '../methods/get_seqrun_meta'
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main'
