@@ -4,7 +4,7 @@
   </a>
 </p>
 
-_Json producing Assembly driven microbial Sequence analysis pipeline to support Epitypification and Normalize classification decisions_
+_Just Another System for Epityping using NGSs data_
 
 JASEN produces results for epidemiological and surveillance purposes.
 JASEN has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
