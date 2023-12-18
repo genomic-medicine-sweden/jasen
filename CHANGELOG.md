@@ -5,9 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+
+### Fixed
+
+
+### Changed
+
+- Moved PRP to seperate repo
+- Updated PRP to v0.2.0
+
 ## [0.2.0](https://github.com/genomic-medicine-sweden/JASEN/tag/0.2.0-rc)
 
-## Added
+### Added
 
 - The pipeline now supports IonTorrent input data
 - Both Single-End and Paired-End input is now supported
@@ -19,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Readme contains simple usage instructions and more detailed breakdown of components
 - External nextflow-modules are now fully integrated
 
-## Changed
+### Changed
 
 - Extensive Nextflow code refactoring
 - Memory and CPU usage defaults optimised for all modules
@@ -28,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all utilised databases to latest version
 - Various publishDir updates
 
-## Fixed
+### Fixed
 
 - Resolved multiple BLAST database referencing errors
 - Singularity images are now umasked properly
@@ -37,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MLST PRP input issues fixed
 - Metadata is now properly saved
 
-## Removed
+### Removed
 
 - Removed legacy modules (notably ARIBA)
 - Reduction to only two software requirements; Singularity and Nextflow
