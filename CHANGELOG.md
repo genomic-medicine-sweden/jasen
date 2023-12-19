@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.3.0](https://github.com/genomic-medicine-sweden/JASEN/tag/v0.3.0)
+
+### Added
+
+- _E.coli_ STX typing using Virulencefinder
+
+### Changed
+
 - Moved PRP to seperate repo
 - Updated PRP to v0.2.0
 
