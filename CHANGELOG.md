@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added [tbdb](https://github.com/jodyphelan/tbdb) as a submodule.
+- Downloaded new catalogue from WHO and convert to csv required for tbdb creation using [jasentool](https://github.com/ryanjameskennedy/jasentool).
+- DB creation included using `Makefile`.
+- Updated configs.
+- Updated `workflows/mycobacterium_tuberculosis.nf`.
 
 ### Fixed
 
