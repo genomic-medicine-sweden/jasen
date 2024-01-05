@@ -529,9 +529,11 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST
 # M. tuberculosis
 # -----------------------------
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
+MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
+MTUBE_WHO_DIR := $(ASSETS_DIR)/who/mycobacterium_tuberculosis
 MTUBE_REFSEQ_ACC := NC_000962.3
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference
+mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference mtuberculosis_tbdb_who
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
@@ -551,6 +553,15 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 	cd $(MTUBE_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+mtuberculosis_tbdb_who: $(MTUBE_TBDB_DIR)/who.variables.json
+
+$(MTUBE_TBDB_DIR)/who.variables.json: $(MTUBE_WHO_DIR)/who.csv
+	$(call log_message,"Creating WHO TBDB ...")
+	cd $(MTUBE_WHO_DIR) \
+	&& cp $(MTUBE_WHO_DIR)/who.csv $(MTUBE_TBDB_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tbprofiler.sif \
+		tb-profiler create_db --prefix who --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Perform checks
