@@ -4,11 +4,11 @@ From:python
 %labels
     MAINTAINER Markus Johansson <markus.h.johansson@skane.se>
     DESCRIPTION Singularity container for JASEN python scripts
-    VERSION 0.2.0
+    VERSION 0.3.0
 
 %environment
     umask 0002
 
 %post
-    git clone --depth 1 --branch v0.2.0 https://github.com/Clinical-Genomics-Lund/bonsai-prp.git && cd bonsai-prp && pip install -e .
+    git clone --depth 1 --branch v0.3.0 https://github.com/Clinical-Genomics-Lund/bonsai-prp.git && cd bonsai-prp && pip install -e .
     pip install  biopython
