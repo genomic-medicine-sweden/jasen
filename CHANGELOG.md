@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated PRP to verion 0.3.0
+
 ## [0.3.0](https://github.com/genomic-medicine-sweden/JASEN/tag/v0.3.0)
 
 ### Added
