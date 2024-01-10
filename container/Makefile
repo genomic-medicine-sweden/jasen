@@ -56,7 +56,7 @@ URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
-URL_tbprofiler := https://depot.galaxyproject.org/singularity/tb-profiler:4.4.2--pyh7cba7a3_0
+URL_tbprofiler := https://depot.galaxyproject.org/singularity/tb-profiler:5.0.1--pyhdfd78af_1
 
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);
