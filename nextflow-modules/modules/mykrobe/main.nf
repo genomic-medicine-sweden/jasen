@@ -6,13 +6,13 @@ process mykrobe {
     tuple val(sampleName), path(reads)
 
   output:
-    tuple val(sampleName), path(output), emit: json
+    tuple val(sampleName), path(output), emit: csv
     path "*versions.yml"               , emit: versions
 
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
-    output = "${sampleName}_mykrobe.json"
+    output = "${sampleName}_mykrobe.csv"
     """
     mykrobe predict \\
       ${args} \\
@@ -30,7 +30,7 @@ process mykrobe {
     """
 
   stub:
-    output = "${sampleName}_mykrobe.json"
+    output = "${sampleName}_mykrobe.csv"
     """
     touch $output
 

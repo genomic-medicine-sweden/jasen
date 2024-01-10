@@ -6,13 +6,15 @@ process tbprofiler {
     tuple val(sampleName), path(reads)
 
   output:
-    tuple val(sampleName), path(output), emit: json
-    path "*versions.yml"               , emit: versions
+    tuple val(sampleName), path(dellyOutput), emit: delly
+    tuple val(sampleName), path(output)     , emit: json
+    path "*versions.yml"                    , emit: versions
 
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
     output = "${sampleName}_tbprofiler.json"
+    dellyOutput = "${sampleName}_delly.bcf"
     """
     tb-profiler profile \\
       ${args} \\
@@ -21,6 +23,7 @@ process tbprofiler {
       --prefix ${sampleName}
 
     cp results/${sampleName}.results.json $output
+    cp vcf/${sampleName}.delly.bcf $dellyOutput
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -32,9 +35,11 @@ process tbprofiler {
 
   stub:
     output = "${sampleName}_tbprofiler.json"
+    dellyOutput = "${sampleName}_delly.bcf"
     """
     mkdir results
     touch $output
+    touch $dellyOutput
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
