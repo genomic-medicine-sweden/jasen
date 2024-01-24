@@ -19,7 +19,7 @@ jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is in the main repository
-    if: "${{ github.event_name == 'push' && github.repository == 'genomic-medicine-sweden/JASEN' }}"
+    if: "${{ github.event_name == 'push' && github.repository == 'genomic-medicine-sweden/jasen' }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
