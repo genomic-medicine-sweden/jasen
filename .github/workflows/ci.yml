@@ -1,18 +1,44 @@
-name: "Explore GH actions..."
-run-name: ${{ github.actor }} is testing out GitHub Actions (...)
-on: [push]
+name: CI
+# This workflow runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+  release:
+    types: [published]
+
+env:
+  NXF_ANSI_LOG: false
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
 jobs:
-  Try-GH-Action:
+  test:
+    name: Run pipeline with test data
+    # Only run on push if this is in the main repository
+    if: "${{ github.event_name == 'push' && github.repository == 'genomic-medicine-sweden/JASEN' }}"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        NXF_VER:
+          - "23.10.1"
+        parameters:
+          - "-profile staphylococcus_aureus"
+          - "-profile mycobacterium_tuberculosis"
+          - "-profile klebsiella_pneumoniae"
+          - "-profile escherichia_coli"
     steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+      - name: Check out pipeline code
+        uses: actions/checkout@v3
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v1
+        with:
+          version: "${{ matrix.NXF_VER }}"
+
+      - name: Run pipeline with test data
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "This job's status is ${{ job.status }}."
+          nextflow run ${GITHUB_WORKSPACE}/main.nf ${{ matrix.parameters }} -config configs/nextflow.testrun.config --csv assets/test_data/samplelist.testrun.csv
