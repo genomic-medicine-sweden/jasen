@@ -1,7 +1,7 @@
-include { bracken                   } from '../nextflow-modules/modules/bracken/main'
-include { create_analysis_result    } from '../nextflow-modules/modules/prp/main'
-include { export_to_cdm             } from '../nextflow-modules/modules/cmd/main'
-include { kraken                    } from '../nextflow-modules/modules/kraken/main'
+include { bracken                   } from '../nextflow-modules/modules/bracken/main.nf'
+include { create_analysis_result    } from '../nextflow-modules/modules/prp/main.nf'
+include { export_to_cdm             } from '../nextflow-modules/modules/cmd/main.nf'
+include { kraken                    } from '../nextflow-modules/modules/kraken/main.nf'
 
 workflow CALL_POSTPROCESSING {
     take:
