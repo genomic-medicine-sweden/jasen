@@ -1,4 +1,4 @@
-include { sourmash } from '../nextflow-modules/modules/sourmash/main'
+include { sourmash } from '../nextflow-modules/modules/sourmash/main.nf'
 
 workflow CALL_RELATEDNESS {
     take:

@@ -1,6 +1,6 @@
-include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main'
-include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main'
-include { post_align_qc                         } from '../nextflow-modules/modules/qc/main'
+include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
+include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
+include { post_align_qc                         } from '../nextflow-modules/modules/qc/main.nf'
 
 workflow CALL_QUALITY_CONTROL {
     take:

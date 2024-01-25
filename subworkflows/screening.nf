@@ -1,6 +1,6 @@
-include { amrfinderplus     } from '../nextflow-modules/modules/amrfinderplus/main'
-include { resfinder         } from '../nextflow-modules/modules/resfinder/main'
-include { virulencefinder   } from '../nextflow-modules/modules/virulencefinder/main'
+include { amrfinderplus     } from '../nextflow-modules/modules/amrfinderplus/main.nf'
+include { resfinder         } from '../nextflow-modules/modules/resfinder/main.nf'
+include { virulencefinder   } from '../nextflow-modules/modules/virulencefinder/main.nf'
 
 workflow CALL_SCREENING {
     take:

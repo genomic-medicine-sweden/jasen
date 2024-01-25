@@ -2,18 +2,18 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                      } from '../methods/get_meta'
-include { get_seqrun_meta               } from '../methods/get_seqrun_meta'
-include { bracken                       } from '../nextflow-modules/modules/bracken/main'
-include { copy_to_cron                  } from '../nextflow-modules/modules/cron/main'
-include { create_analysis_result        } from '../nextflow-modules/modules/prp/main'
-include { create_cdm_input              } from '../nextflow-modules/modules/prp/main'
-include { export_to_cdm                 } from '../nextflow-modules/modules/cmd/main'
-include { kraken                        } from '../nextflow-modules/modules/kraken/main'
-include { mykrobe                       } from '../nextflow-modules/modules/mykrobe/main'
-include { snippy                        } from '../nextflow-modules/modules/snippy/main'
-include { tbprofiler as tbprofiler_tbdb } from '../nextflow-modules/modules/tbprofiler/main'
-include { tbprofiler as tbprofiler_who  } from '../nextflow-modules/modules/tbprofiler/main'
+include { get_meta                      } from '../methods/get_meta.nf'
+include { get_seqrun_meta               } from '../methods/get_seqrun_meta.nf'
+include { bracken                       } from '../nextflow-modules/modules/bracken/main.nf'
+include { copy_to_cron                  } from '../nextflow-modules/modules/cron/main.nf'
+include { create_analysis_result        } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input              } from '../nextflow-modules/modules/prp/main.nf'
+include { export_to_cdm                 } from '../nextflow-modules/modules/cmd/main.nf'
+include { kraken                        } from '../nextflow-modules/modules/kraken/main.nf'
+include { mykrobe                       } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { snippy                        } from '../nextflow-modules/modules/snippy/main.nf'
+include { tbprofiler as tbprofiler_tbdb } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { tbprofiler as tbprofiler_who  } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { CALL_BACTERIAL_BASE           } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {

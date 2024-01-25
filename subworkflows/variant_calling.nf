@@ -1,9 +1,9 @@
-include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main'
-include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main'
-include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main'
-include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main'
-include { snippy                                    } from '../nextflow-modules/modules/snippy/main'
-include { tbprofiler                                } from '../nextflow-modules/modules/tbprofiler/main'
+include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
+include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main.nf'
+include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
+include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
+include { snippy                                    } from '../nextflow-modules/modules/snippy/main.nf'
+include { tbprofiler                                } from '../nextflow-modules/modules/tbprofiler/main.nf'
 
 workflow CALL_VARIANT_CALLING {
     take:
