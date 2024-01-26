@@ -16,7 +16,7 @@ process resfinder {
     path "*versions.yml"                       , emit: versions
 
   script:
-    def resfinderFinderParams = pointfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
+    def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
     def speciesArgs = species ? "--species '${species}'" : ""
     outputFileJson = "${sampleName}_resfinder.json"
