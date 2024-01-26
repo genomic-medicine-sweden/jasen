@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed to use full file paths in include statements for better navigation in text editors.
+
 ## [0.4.0]
 
 ### Added
