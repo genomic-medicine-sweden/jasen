@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+ - Build prp as singularity image from dockerhub in Makefile
+ - Chewbacca and virulencefinder sif fetched from galaxyproject
+ - Added species to amrfinderplus
+
 ### Fixed
 
 - Fixed config not pointing to the new lowercase repo name: jasen (instead of JASEN)
 
 ### Changed
+
+- Changed pythonScripts.sif filename to bonsai_prp.sif
 
 ## [0.4.0]
 
