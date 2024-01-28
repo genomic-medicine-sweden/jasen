@@ -101,7 +101,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
-        amrfinderplus(ch_assembly, amrfinderDb)
+        amrfinderplus(ch_assembly, params.species, amrfinderDb)
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
