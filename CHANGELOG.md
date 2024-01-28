@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a GitHub workflow to run a basic CI pipeline.
+ - Build prp as singularity image from dockerhub in Makefile
+ - Chewbacca and virulencefinder sif fetched from galaxyproject
+ - Added species to amrfinderplus
 
 ### Fixed
 
@@ -19,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed to use full file paths in include statements for better navigation in text editors.
 - Upgraded the Skesa (container) to v2.5.1 to fix ownership issue with /tmp folder
+- Changed pythonScripts.sif filename to bonsai_prp.sif
 
 ## [0.4.0]
 
