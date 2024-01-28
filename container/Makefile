@@ -14,11 +14,8 @@ all: \
 
 # These are containers that will be built locally using the definition files in
 # the current folder
-local_containers := chewbbaca.sif \
-					postAlignQc.sif \
-					resfinder.sif \
-					virulencefinder.sif \
-					pythonScripts.sif
+local_containers := resfinder.sif \
+					bonsai_prp.sif
 
 # These containers will be downloaded remotely
 remote_containers := abritamr.sif \
@@ -26,6 +23,7 @@ remote_containers := abritamr.sif \
 					blast.sif \
 					bracken.sif \
 					bwakit.sif \
+					chewbbaca.sif \
 					freebayes.sif \
 					kraken2.sif \
 					mlst.sif \
@@ -37,7 +35,11 @@ remote_containers := abritamr.sif \
 					snippy.sif \
 					sourmash.sif \
 					spades.sif \
-					tbprofiler.sif
+					tbprofiler.sif \
+					virulencefinder.sif
+
+# URLs to Docker containers
+DOCKER_bonsai_prp := docker://clinicalgenomicslund/bonsai-prp:0.3.1
 
 # URLs to remote containers
 URL_abritamr := https://depot.galaxyproject.org/singularity/abritamr:1.0.14--pyhdfd78af_0
@@ -45,6 +47,7 @@ URL_amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderp
 URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_0
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
+URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
@@ -57,6 +60,7 @@ URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_tbprofiler := https://depot.galaxyproject.org/singularity/tb-profiler:5.0.1--pyhdfd78af_1
+URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:2.0.4--hdfd78af_0
 
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);
@@ -104,12 +108,14 @@ else
 	$(eval tool := $(basename $@))
 	@chmod o+w $(INSTALL_LOG) \
 	&& tool=${tool} \
-	&& if [ $$(grep -q "$${tool^^}_VERSION=" $${tool} ) ]; then \
-		version=$$(grep $${tool^^}"_VERSION=" $${tool} | sed "s/.*=//"); \
-	else \
+	&& toolName=${tool} \
+	&& if [ $$(grep "VERSION " "${tool}" | sed "s/.* //") ]; then \
 		version=$$(grep "VERSION " "${tool}" | sed "s/.* //"); \
+	else \
+		version=$$(echo $(DOCKER_bonsai_prp) | grep -oP "([0-9]+\.)+[0-9]+") \
+		tool="$(DOCKER_bonsai_prp)"; \
 	fi \
-	&& output_file="$${tool}_$${version}.sif" \
+	&& output_file="$${toolName}_$${version}.sif" \
 	&& sudo singularity build --force "$${output_file}" "$${tool}" \
 	&& ln -sf $${output_file} $@
 endif
