@@ -1,4 +1,4 @@
-# genomic-medicine-sweden/JASEN: Changelog
+# genomic-medicine-sweden/jasen: Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -16,15 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed config not pointing to the new lowercase repo name: jasen (instead of JASEN)
+ - Fixed config not pointing to the new lowercase repo name: jasen (instead of JASEN)
 
 ### Changed
 
 - Changed to use full file paths in include statements for better navigation in text editors.
 - Upgraded the Skesa (container) to v2.5.1 to fix ownership issue with /tmp folder
 - Changed pythonScripts.sif filename to bonsai_prp.sif
+- Postalignqc added to prp and move to prp module
+- Makefile converts bonsai-prp and resfinder from docker image to singularity
 
-## [0.4.0]
+## [0.3.1]
 
 ### Added
 
