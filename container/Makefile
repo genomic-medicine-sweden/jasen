@@ -40,6 +40,7 @@ remote_containers := abritamr.sif \
 
 # URLs to Docker containers
 DOCKER_bonsai_prp := docker://clinicalgenomicslund/bonsai-prp:0.3.1
+DOCKER_resfinder := docker://genomicepidemiology/resfinder:4.4.2
 
 # URLs to remote containers
 URL_abritamr := https://depot.galaxyproject.org/singularity/abritamr:1.0.14--pyhdfd78af_0
@@ -106,16 +107,10 @@ ifneq ($(shell id -u), 0)
 else
 	$(call log_message,"Building local container $@ ...")
 	$(eval tool := $(basename $@))
+	$(eval container_url := ${DOCKER_${tool}})
 	@chmod o+w $(INSTALL_LOG) \
-	&& tool=${tool} \
-	&& toolName=${tool} \
-	&& if [ $$(grep "VERSION " "${tool}" | sed "s/.* //") ]; then \
-		version=$$(grep "VERSION " "${tool}" | sed "s/.* //"); \
-	else \
-		version=$$(echo $(DOCKER_bonsai_prp) | grep -oP "([0-9]+\.)+[0-9]+") \
-		tool="$(DOCKER_bonsai_prp)"; \
-	fi \
-	&& output_file="$${toolName}_$${version}.sif" \
-	&& sudo singularity build --force "$${output_file}" "$${tool}" \
+	&& version=$$(echo ${container_url} | grep -oP "([0-9]+\.)+[0-9]+") \
+	&& output_file="${tool}_$${version}.sif" \
+	&& sudo singularity build --force "$${output_file}" "${container_url}" \
 	&& ln -sf $${output_file} $@
 endif
