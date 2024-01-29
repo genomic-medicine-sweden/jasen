@@ -13,7 +13,7 @@ process post_align_qc {
   script:
     output = "${sampleName}_bwa.qc"
     """
-    postaln_qc.pl ${bam} ${reference} ${sampleName} ${task.cpus} > ${output}
+    prp create-qc-result --bam ${bam} --reference ${reference} --sample-id ${sampleName} --cpus ${task.cpus} --output ${output}
     """
 
   stub:
