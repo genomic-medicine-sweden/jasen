@@ -8,7 +8,7 @@ include { spades_illumina                       } from '../nextflow-modules/modu
 include { spades_iontorrent                     } from '../nextflow-modules/modules/spades/main'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main'
-include { post_align_qc                         } from '../nextflow-modules/modules/qc/main'
+include { post_align_qc                         } from '../nextflow-modules/modules/prp/main'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main'
 include { sourmash                              } from '../nextflow-modules/modules/sourmash/main'
