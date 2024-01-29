@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Build prp as singularity image from dockerhub in Makefile
  - Chewbacca and virulencefinder sif fetched from galaxyproject
  - Added species to amrfinderplus
+ - Added getSpeciesTaxonName to amrfinderplus
 
 ### Fixed
 
