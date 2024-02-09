@@ -21,13 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed to use full file paths in include statements for better navigation in text editors.
-- Upgraded the Skesa (container) to v2.5.1 to fix ownership issue with /tmp folder
-- Changed pythonScripts.sif filename to bonsai_prp.sif
-- Postalignqc added to prp and move to prp module
-- Makefile converts bonsai-prp and resfinder from docker image to singularity
+ - Changed to use full file paths in include statements for better navigation in text editors.
+ - Upgraded the Skesa (container) to v2.5.1 to fix ownership issue with /tmp folder
+ - Changed pythonScripts.sif filename to bonsai_prp.sif
+ - Postalignqc added to prp and move to prp module
+ - Makefile converts bonsai-prp from docker image to singularity
+ - Makefile pulls all containers from online respositories
+ - Configs can also pull images from galaxy project or dockerhub
+ - Move post_align_qc to prp module
 
-## [0.3.1]
+## [0.4.0]
 
 ### Added
 
