@@ -87,7 +87,7 @@ $(remote_containers):
 	version=$$(echo ${container_url} | grep -oP "([0-9]+\.)+[0-9]+") \
 	&& output_file="${tool}_$${version}.sif" \
 	&& echo "Downloading $$tool as $$output_file ..." \
-	&& wget -O $$output_file ${container_url} --no-check-certificate \
+	&& wget -O $$output_file ${container_url} --no-verbose --no-check-certificate \
 	&& ln -sf $$output_file $@
 
 
