@@ -1,6 +1,9 @@
 def getSpeciesTaxonName(fullName) {
   "Convert the full name to the abbreviated version"
   names = fullName.split(' ')
+  if (fullName == "escherichia coli") {
+      return names[0].capitalize()
+  }
   return names[0].capitalize() + "_" + names[1]
 }
 
@@ -27,7 +30,6 @@ process amrfinderplus {
     --nucleotide $assembly \\
     $database_command \\
     $args \\
-    --organism $taxonName \\
     --output $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
