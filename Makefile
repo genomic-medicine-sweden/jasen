@@ -314,6 +314,7 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Staphylococcus_aureus.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -325,6 +326,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
 	&& wget https://www.cgmlst.org/ncs/schema/141106/alleles/ \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -395,6 +397,7 @@ $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Escherichia_coli.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -420,7 +423,10 @@ $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
+	&& wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 # Unpack Ecoli cgmlst schema
@@ -495,6 +501,7 @@ $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Klebsiella_pneumoniae.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -505,7 +512,10 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
+	&& wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
