@@ -14,6 +14,7 @@ assets/prodigal_training_files/*
 assets/krakenstd
 work/
 results
+*.img
 *.sif
 *~
 \#*
