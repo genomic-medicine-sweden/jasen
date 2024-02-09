@@ -1,7 +1,7 @@
-include { quast             } from '../nextflow-modules/modules/quast/main'
-include { skesa             } from '../nextflow-modules/modules/skesa/main'
-include { spades_illumina   } from '../nextflow-modules/modules/spades/main'
-include { spades_iontorrent } from '../nextflow-modules/modules/spades/main'
+include { quast             } from '../nextflow-modules/modules/quast/main.nf'
+include { skesa             } from '../nextflow-modules/modules/skesa/main.nf'
+include { spades_illumina   } from '../nextflow-modules/modules/spades/main.nf'
+include { spades_iontorrent } from '../nextflow-modules/modules/spades/main.nf'
 
 workflow CALL_ASSEMBLY {
     take:

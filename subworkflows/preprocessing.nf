@@ -1,5 +1,5 @@
-include { assembly_trim_clean       } from '../nextflow-modules/modules/clean/main'
-include { save_analysis_metadata    } from '../nextflow-modules/modules/meta/main'
+include { assembly_trim_clean       } from '../nextflow-modules/modules/clean/main.nf'
+include { save_analysis_metadata    } from '../nextflow-modules/modules/meta/main.nf'
 
 workflow CALL_PREPROCESSING {
     take:

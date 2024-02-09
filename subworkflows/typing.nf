@@ -1,8 +1,8 @@
-include { chewbbaca_allelecall          } from '../nextflow-modules/modules/chewbbaca/main'
-include { chewbbaca_create_batch_list   } from '../nextflow-modules/modules/chewbbaca/main'
-include { chewbbaca_split_results       } from '../nextflow-modules/modules/chewbbaca/main'
-include { mlst                          } from '../nextflow-modules/modules/mlst/main'
-include { mask_polymorph_assembly       } from '../nextflow-modules/modules/mask/main'
+include { chewbbaca_allelecall          } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_create_batch_list   } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_split_results       } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { mlst                          } from '../nextflow-modules/modules/mlst/main.nf'
+include { mask_polymorph_assembly       } from '../nextflow-modules/modules/mask/main.nf'
 
 workflow CALL_TYPING {
     take:
