@@ -18,7 +18,6 @@ local_containers := clinicalgenomicslund-bonsai-prp-0.3.1.img
 
 # These containers will be downloaded remotely
 remote_containers := depot.galaxyproject.org-singularity-ncbi-amrfinderplus-3.11.11--h6e70893_0.img \
-					depot.galaxyproject.org-singularity-blast-2.14.0--hf3cf87c_0.img \
 					depot.galaxyproject.org-singularity-bracken-2.8--py39hc16433a_0.img \
 					depot.galaxyproject.org-singularity-bwakit-0.7.17.dev1--hdfd78af_1.img \
 					depot.galaxyproject.org-singularity-chewbbaca-3.3.2--pyhdfd78af_0.img \
@@ -42,7 +41,6 @@ DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.3.1
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
-URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_0
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
