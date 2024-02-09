@@ -83,8 +83,8 @@ process post_align_qc {
 
   input:
     tuple val(sampleName), path(bam)
-    path bai
     path reference
+    path bed
 
   output:
     tuple val(sampleName), path(output), emit: qc
@@ -92,7 +92,7 @@ process post_align_qc {
   script:
     output = "${sampleName}_bwa.qc"
     """
-    prp create-qc-result --bam ${bam} --reference ${reference} --sample-id ${sampleName} --cpus ${task.cpus} --output ${output}
+    prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sampleName} --cpus ${task.cpus} --output ${output}
     """
 
   stub:
