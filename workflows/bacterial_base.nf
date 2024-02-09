@@ -46,15 +46,7 @@ workflow CALL_BACTERIAL_BASE {
         bwa_mem_ref(ch_reads, genomeReferenceDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        bwa_mem_ref.out.bam
-            .join(samtools_index_ref.out.bai)
-            .multiMap { id, bam, bai -> 
-                bam: tuple(id, bam)
-                bai: bai
-            }
-            .set{ post_align_qc_ch }
-
-        post_align_qc(post_align_qc_ch.bam, post_align_qc_ch.bai, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam, params.genomeReference, coreLociBed)
 
         sourmash(ch_assembly)
 
