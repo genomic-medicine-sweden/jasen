@@ -342,7 +342,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_D
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
-		-i $(SAUR_CGMLST_DIR)/alleles \
+		-g $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn |& tee -a $(INSTALL_LOG)
