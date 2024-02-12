@@ -209,7 +209,7 @@ $(AMRFINDERDB_DIR)/latest:
 	$(call log_message,"Starting update of AMRFinderPlus database ...")
 	singularity exec \
 		--bind $(MNT_ROOT) \
-		$(CONTAINER_DIR)/amrfinderplus.sif \
+		$(CONTAINER_DIR)/ncbi-amrfinderplus.sif \
 		amrfinder_update \
 		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -252,15 +252,15 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 	&& make \
 	&& cd $(VIRULENCEFINDERDB_DIR) \
 	&& export PATH=$(ASSETS_DIR)/kma:$$PATH \
-	&& singularity exec	--bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec	--bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/resfinder_db \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/pointfinder_db \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
 
@@ -289,7 +289,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SAUR_REFSEQ_ACC) \
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
@@ -368,7 +368,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. coli genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(ECOLI_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(ECOLI_REFSEQ_ACC) \
 		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -466,7 +466,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading K pneumoniae genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(KPNEU_REFSEQ_ACC) \
 		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -541,7 +541,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading M. tuberculosis genome ...")
 	mkdir -p $(MTUBE_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/pythonScripts.sif \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -560,7 +560,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 # 	$(call log_message,"Creating WHO TBDB ...")
 # 	cd $(MTUBE_TBPROFILER_DBS_DIR) \
 # 	&& cp $(MTUBE_TBPROFILER_DBS_DIR)/who.csv $(MTUBE_TBDB_DIR) \
-# 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tbprofiler.sif \
+# 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 # 		tb-profiler create_db --prefix who --dir $(MTUBE_TBDB_DIR)
 # 	&& 	tb-profiler load_library who --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -570,7 +570,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 # 	$(call log_message,"Creating WHO TBDB ...")
 # 	cd $(MTUBE_TBPROFILER_DBS_DIR) \
 # 	&& cp $(MTUBE_TBPROFILER_DBS_DIR)/fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
-# 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tbprofiler.sif \
+# 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 # 		tb-profiler create_db --prefix fohm_tbdb --dir $(MTUBE_TBDB_DIR)
 # 	&& 	tb-profiler load_library fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
