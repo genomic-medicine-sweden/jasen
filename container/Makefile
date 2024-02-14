@@ -34,7 +34,11 @@ remote_containers := ncbi-amrfinderplus.sif \
 					snippy.sif \
 					sourmash.sif \
 					spades.sif \
-					tbprofiler.sif
+					tbprofiler.sif \
+					virulencefinder.sif
+
+# URLs to Docker containers
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.4.0
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -83,11 +87,9 @@ $(remote_containers):
 	$(call log_message,"Downloading remote container $@ ...")
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${URL_${tool}})
-	version=$$(echo ${container_url} | grep -oP "([0-9]+\.)+[0-9]+") \
-	&& output_file="${tool}_$${version}.sif" \
-	&& echo "Downloading $$tool as $$output_file ..." \
-	&& wget -O $$output_file ${container_url} --no-check-certificate \
-	&& ln -sf $$output_file $@
+	output_file=$$(echo ${container_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
+	&& wget -O $${output_file} ${container_url} --no-check-certificate \
+	&& ln -sf $${output_file} $@ 
 
 
 # ----------------------------------------------------------------
@@ -103,7 +105,7 @@ else
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${DOCKER_${tool}})
 	@chmod o+w $(INSTALL_LOG) \
-	&& output_file=$$(echo ${container_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
+	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& sudo singularity build --force $${output_file} ${container_url} \
 	&& ln -sf $${output_file} $@ 
 endif
