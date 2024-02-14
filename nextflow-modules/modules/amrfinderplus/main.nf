@@ -1,9 +1,19 @@
+def getSpeciesTaxonName(fullName) {
+  "Convert the full name to the abbreviated version"
+  names = fullName.split(' ')
+  if (fullName == "escherichia coli") {
+      return names[0].capitalize()
+  }
+  return names[0].capitalize() + "_" + names[1]
+}
+
 process amrfinderplus {
   tag "${sampleName}"
   scratch params.scratch
 
   input:
     tuple val(sampleName), path(assembly)
+    val species
     path database
 
   output:
@@ -13,6 +23,7 @@ process amrfinderplus {
   script:
     def args = task.ext.args ?: ''
     def database_command = database ? "--database ${database}" : ""
+    taxonName = getSpeciesTaxonName(species)
     output = "${sampleName}_amrfinder.out"
     """
     amrfinder \\
