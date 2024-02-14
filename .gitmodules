@@ -16,4 +16,4 @@
 	ignore = dirty
 [submodule "assets/tbdb"]
 	path = assets/tbdb
-	url = git@github.com:jodyphelan/tbdb.git
+	url = https://github.com/jodyphelan/tbdb.git

@@ -34,11 +34,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					snippy.sif \
 					sourmash.sif \
 					spades.sif \
-					tb-profiler.sif \
-					virulencefinder.sif
-
-# URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.4.0
+					tbprofiler.sif
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -87,9 +83,11 @@ $(remote_containers):
 	$(call log_message,"Downloading remote container $@ ...")
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${URL_${tool}})
-	output_file=$$(echo ${container_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
-	&& wget -O $${output_file} ${container_url} --no-check-certificate \
-	&& ln -sf $${output_file} $@ 
+	version=$$(echo ${container_url} | grep -oP "([0-9]+\.)+[0-9]+") \
+	&& output_file="${tool}_$${version}.sif" \
+	&& echo "Downloading $$tool as $$output_file ..." \
+	&& wget -O $$output_file ${container_url} --no-check-certificate \
+	&& ln -sf $$output_file $@
 
 
 # ----------------------------------------------------------------

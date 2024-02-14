@@ -157,13 +157,15 @@ print_paths:
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
 install: download_or_build_containers \
-	update_databases
+	update_databases \
+	update_organisms
 
 update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
-	update_finder_dbs \
-	saureus_all \
+	update_finder_dbs
+
+update_organisms: staphylococcus_aureus_all \
 	ecoli_all \
 	kpneumoniae_all \
 	mtuberculosis_all
@@ -271,19 +273,19 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 # -----------------------------
 # S. aureus
 # -----------------------------
-saureus_all: saureus_download_reference \
-	saureus_index_reference \
-	saureus_download_prodigal_training_file \
-	saureus_download_cgmlst_schema \
-	saureus_unpack_cgmlst_schema \
-	saureus_prep_cgmlst_schema
+staphylococcus_aureus_all: staphylococcus_aureus_download_reference \
+	staphylococcus_aureus_index_reference \
+	staphylococcus_aureus_download_prodigal_training_file \
+	staphylococcus_aureus_download_cgmlst_schema \
+	staphylococcus_aureus_unpack_cgmlst_schema \
+	staphylococcus_aureus_prep_cgmlst_schema
 
 SAUR_GENOMES_DIR := $(ASSETS_DIR)/genomes/staphylococcus_aureus
 SAUR_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/staphylococcus_aureus
 SAUR_REFSEQ_ACC := NC_002951.2
 
 
-saureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
+staphylococcus_aureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
@@ -295,7 +297,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
 
 
-saureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
+staphylococcus_aureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome ...")
@@ -304,7 +306,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REF
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
-saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
+staphylococcus_aureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
 
 $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 	$(call log_message,"Downloading S. aureus prodigal training file ...")
@@ -312,10 +314,11 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Staphylococcus_aureus.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
+staphylococcus_aureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 
 $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 	$(call log_message,"Downloading S. aureus cgMLST schema ...")
@@ -323,10 +326,11 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
 	&& wget https://www.cgmlst.org/ncs/schema/141106/alleles/ \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
+staphylococcus_aureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
 $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
@@ -334,9 +338,11 @@ $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
 		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
-saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
+staphylococcus_aureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles_rereffed
+
+$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -391,6 +397,7 @@ $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Escherichia_coli.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -416,7 +423,10 @@ $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/5064703/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
+	&& wget https://www.cgmlst.org/ncs/schema/5064703/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 # Unpack Ecoli cgmlst schema
@@ -432,7 +442,9 @@ $(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cg
 # Prepping Ecoli cgmlst cgmlst.org schema
 ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
+
+$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
@@ -489,6 +501,7 @@ $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Klebsiella_pneumoniae.trn \
 		-O $@ \
+		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
@@ -499,7 +512,10 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget -O $$(basename $@) https://www.cgmlst.org/ncs/schema/2187931/alleles/ --no-check-certificate |& tee -a $(INSTALL_LOG)
+	&& wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
@@ -514,7 +530,9 @@ $(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_s
 # Prep Kpneumoniae cgmlst cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: $(KPNEU_CGMLST_DIR)/alleles_rereffed
+
+$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KPNEU_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
