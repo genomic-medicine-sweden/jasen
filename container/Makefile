@@ -34,7 +34,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					snippy.sif \
 					sourmash.sif \
 					spades.sif \
-					tbprofiler.sif \
+					tb-profiler.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
