@@ -265,6 +265,10 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
+	&& cd $(ASSETS_DIR)/serotypefinder_db \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+		python3 INSTALL.py \
+		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Download, index and prep reference genomes for organisms
