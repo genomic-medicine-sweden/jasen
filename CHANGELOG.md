@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chewbacca and virulencefinder sif fetched from galaxyproject
 - Added species to amrfinderplus
 - Added getSpeciesTaxonName to amrfinderplus
+- Add serotypefinder to Makefiles, workflows, modules & configs
 
 ### Fixed
 
@@ -23,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed to use full file paths in include statements for better navigation in text editors.
 - Upgraded the Skesa (container) to v2.5.1 to fix ownership issue with /tmp folder
-- Changed pythonScripts.sif filename to bonsai_prp.sif
+- Changed pythonScripts.sif filename to bonsai-prp.sif
 - Postalignqc added to prp and move to prp module
 - Makefile converts bonsai-prp from docker image to singularity
 - Makefile pulls all containers from online respositories
