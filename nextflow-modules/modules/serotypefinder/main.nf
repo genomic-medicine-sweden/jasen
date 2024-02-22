@@ -18,8 +18,9 @@ process serotypefinder {
     metaFile = "${sampleName}_serotypefinder_meta.json"
     """
     # Get db version
+    DB_HASH=\$(git -C ${serotypeDb} rev-parse HEAD)
     JSON_FMT='{"name": "%s", "version": "%s", "type": "%s"}'
-    printf "\$JSON_FMT" "serotypefinder" "ada62c62a7fa74032448bb2273d1f7045c59fdda" "database" > ${metaFile}
+    printf "\$JSON_FMT" "serotypefinder" "\$DB_HASH" "database" > ${metaFile}
 
     # Run serotypefinder
     serotypefinder              \\
@@ -40,13 +41,14 @@ process serotypefinder {
     outputFile = "${sampleName}_serotypefinder.json"
     metaFile = "${sampleName}_serotypefinder_meta.json"
     """
+    DB_HASH=\$(git -C ${serotypeDb} rev-parse HEAD)
     touch $outputFile
     touch $metaFile
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      serotypefinder_db:
-      version: \$(echo ada62c62a7fa74032448bb2273d1f7045c59fdda | tr -d '\n')
+      version: \$(echo \$DB_HASH | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """
