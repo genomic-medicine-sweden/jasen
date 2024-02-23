@@ -21,6 +21,7 @@ include { mask_polymorph_assembly                   } from '../nextflow-modules/
 include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
+include { serotypefinder                            } from '../nextflow-modules/modules/serotypefinder/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
@@ -44,6 +45,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
     trainingFile = file(params.trainingFile, checkIfExists: true)
     resfinderDb = file(params.resfinderDb, checkIfExists: true)
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
+    serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
     main:
@@ -105,6 +107,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
+        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
@@ -116,6 +119,8 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             .join(amrfinderplus.out.output)
             .join(resfinder.out.json)
             .join(resfinder.out.meta)
+            .join(serotypefinder.out.json)
+            .join(serotypefinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
             .join(ch_metadata)
@@ -163,6 +168,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(mlst.out.versions)
         ch_versions = ch_versions.mix(resfinder.out.versions)
+        ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 

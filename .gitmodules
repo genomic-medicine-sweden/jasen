@@ -17,3 +17,6 @@
 [submodule "assets/tbdb"]
 	path = assets/tbdb
 	url = https://github.com/jodyphelan/tbdb.git
+[submodule "assets/serotypefinder_db"]
+	path = assets/serotypefinder_db
+	url = https://bitbucket.org/genomicepidemiology/serotypefinder_db.git

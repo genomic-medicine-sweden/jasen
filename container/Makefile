@@ -30,6 +30,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					quast.sif \
 					resfinder.sif \
 					samtools.sif \
+					serotypefinder.sif \
 					skesa.sif \
 					snippy.sif \
 					sourmash.sif \
@@ -38,7 +39,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.4.0
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.5.0
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -54,6 +55,7 @@ URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
+URL_serotypefinder := https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
 URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0

@@ -3,7 +3,7 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(tbprofiler), val(bracken)
+    tuple val(sampleName), val(quast), val(postalignqc), val(mlst), val(cgmlst), val(amr), val(resistance), val(resfinderMeta), val(serotype), val(serotypefinderMeta), val(virulence), val(virulencefinderMeta), val(runInfo), val(mykrobe), val(tbprofiler), val(bracken)
 
   output:
     tuple val(sampleName), path(output), emit: json
@@ -20,6 +20,8 @@ process create_analysis_result {
     resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
+    serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
+    serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
@@ -35,6 +37,7 @@ process create_analysis_result {
       ${quastArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
+      ${serotypeArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
       --output ${output}

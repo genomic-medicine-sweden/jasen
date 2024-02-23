@@ -61,6 +61,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
+            .join(ch_empty)
+            .join(ch_empty)
             .join(ch_metadata)
             .join(mykrobe.out.csv)
             .join(tbprofiler_tbdb.out.json)
