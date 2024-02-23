@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [0.5.0]
+
+### Added
+
 - Added a GitHub workflow to run a basic CI pipeline.
 - Build prp as singularity image from dockerhub in Makefile
 - Chewbacca and virulencefinder sif fetched from galaxyproject
