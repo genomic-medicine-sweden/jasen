@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added converged_who_fohm_tbdb.csv
+- Added guide to create tbdb
+
 ### Fixed
 
 ### Changed
+
+- Run with converged/merged db
+- Publish bam & bai from tbprofiler
 
 ## [0.5.0]
 
