@@ -6,8 +6,8 @@
 
 _Just Another System for Epityping using NGSs data_
 
-jasen produces results for epidemiological and surveillance purposes.
-jasen has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
+Jasen produces results for epidemiological and surveillance purposes.
+Jasen has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
