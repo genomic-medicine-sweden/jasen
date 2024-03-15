@@ -13,11 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added guide to create tbdb
 
 ### Fixed
+- Args for cdm
 
 ### Changed
 
 - Run with converged/merged db
 - Publish bam & bai from tbprofiler
+- cronCopy set true in hopper config
+- bonsai-prp version upgraded from v0.5.0 to v0.6.0
 
 ## [0.5.0]
 
