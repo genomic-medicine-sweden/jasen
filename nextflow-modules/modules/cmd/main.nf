@@ -10,19 +10,19 @@ process export_to_cdm {
     tuple val(sampleName), path(output), emit: cdm
 
   script:
-    output = "${sampleName}.cdm"
-    sequencingRun = sequencingRun ? "-sequencingRun ${sequencingRun}" : ""
-    limsID = limsID ? "-lims-id ${limsID}" : ""
+    output = "${sampleName}.cdmpy"
+    sequencingRun = sequencingRun ? "--sequencing-run ${sequencingRun}" : ""
+    limsID = limsID ? "--lims-id ${limsID}" : ""
     """
     echo ${sequencingRun} \\
-         -sample-id ${sampleName} \\
-         -assay ${species} \\
-         -qc ${qc} \\
+         --sample-id ${sampleName} \\
+         --assay ${species} \\
+         --qc ${qc} \\
          ${limsID} > ${output}
     """
 
   stub:
-    output = "${sampleName}.cdm"
+    output = "${sampleName}.cdmpy"
     """
     touch $output
     """
