@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added converged_who_fohm_tbdb.csv
 - Added guide to create tbdb
+- Added `sequencing_run` and `lims_id` to output
+- Added `devMode` flag
+- Added `lims_id` & `sequencing_run` to `meta` module
 
 ### Fixed
 - Args for cdm
@@ -21,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Publish bam & bai from tbprofiler
 - cronCopy set true in hopper config
 - bonsai-prp version upgraded from v0.5.0 to v0.6.0
+- Renamed `nextflow.hopper.config` to `nextflow.dev.config` for hopper development
 
 ## [0.5.0]
 
