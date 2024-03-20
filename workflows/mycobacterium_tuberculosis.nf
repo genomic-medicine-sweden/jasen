@@ -13,6 +13,7 @@ include { mykrobe                           } from '../nextflow-modules/modules/
 include { snippy                            } from '../nextflow-modules/modules/snippy/main.nf'
 include { tbprofiler as tbprofiler_tbdb     } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb  } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { annotate_delly                    } from '../nextflow-modules/modules/prp/main.nf'
 include { CALL_BACTERIAL_BASE               } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
@@ -29,6 +30,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
+    tbdbBed = file(params.tbdbBed, checkIfExists: true)
 
     main:
         ch_versions = Channel.empty()
@@ -50,6 +52,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         tbprofiler_tbdb(ch_reads)
         tbprofiler_mergedb(ch_reads)
 
+        annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed)
+
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
         ch_quast
@@ -64,8 +68,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_metadata)
+            .join(annotate_delly.out.vcf)
             .join(mykrobe.out.csv)
-            .join(tbprofiler_tbdb.out.json)
+            .join(tbprofiler_mergedb.out.json)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {
@@ -93,9 +98,10 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
+        ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
         ch_versions = ch_versions.mix(snippy.out.versions)
-        ch_versions = ch_versions.mix(tbprofiler_tbdb.out.versions)
+        ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
         pipeline_result = create_analysis_result.out.json
