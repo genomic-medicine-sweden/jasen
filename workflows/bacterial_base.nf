@@ -2,6 +2,7 @@
 
 nextflow.enable.dsl=2
 
+include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
 include { spades_illumina                       } from '../nextflow-modules/modules/spades/main.nf'
@@ -29,8 +30,16 @@ workflow CALL_BACTERIAL_BASE {
         ch_meta_illumina.mix(ch_clean_meta).set{ ch_input_meta }
         ch_input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
 
+        if ( params.cronCopy || params.devMode) {
+            Channel.fromPath(params.csv).splitCsv(header:true)
+                .map{ row -> get_seqrun_meta(row) }
+                .set{ ch_seqrun_meta }
+        } else {
+            ch_reads.map { sampleName, reads -> [ sampleName, [], [] ] }.set{ ch_seqrun_meta }
+        }
+
         // analysis metadata
-        save_analysis_metadata(ch_input_meta)
+        save_analysis_metadata(ch_input_meta.join(ch_seqrun_meta))
 
         // assembly
         skesa(ch_input_meta)
@@ -65,6 +74,7 @@ workflow CALL_BACTERIAL_BASE {
         qc          = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         quast       = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads       = ch_reads                          // channel: [ val(meta), path(json)]
+        seqrun_meta = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
         sourmash    = sourmash.out.signature            // channel: [ val(meta), path(signature)]
         versions    = ch_versions                       // channel: [ versions.yml ]
 }

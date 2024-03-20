@@ -3,7 +3,6 @@
 nextflow.enable.dsl=2
 
 include { get_meta                          } from '../methods/get_meta.nf'
-include { get_seqrun_meta                   } from '../methods/get_seqrun_meta.nf'
 include { bracken                           } from '../nextflow-modules/modules/bracken/main.nf'
 include { copy_to_cron                      } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result            } from '../nextflow-modules/modules/prp/main.nf'
@@ -41,6 +40,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
 
         mykrobe(ch_reads)
@@ -87,14 +87,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .set{ cdmOutput }
 
         create_cdm_input(cdmOutput)
-
-        if ( params.cronCopy ) {
-            Channel.fromPath(params.csv).splitCsv(header:true)
-                .map{ row -> get_seqrun_meta(row) }
-                .set{ ch_seqrun_meta }
-        } else {
-            ch_empty.join(ch_empty).set{ ch_seqrun_meta }
-        }
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
