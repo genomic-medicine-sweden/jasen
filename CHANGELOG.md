@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `sequencing_run` and `lims_id` to output
 - Added `devMode` flag
 - Added `lims_id` & `sequencing_run` to `meta` module
+- Added `annotate_delly` module
+- Added prp versions
 
 ### Fixed
 - Args for cdm
