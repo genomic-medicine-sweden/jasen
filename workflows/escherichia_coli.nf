@@ -126,6 +126,7 @@ workflow CALL_ESCHERICHIA_COLI {
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
+            .join(ch_empty)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {

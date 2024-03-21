@@ -126,6 +126,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
+            .join(ch_empty)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {
