@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `lims_id` & `sequencing_run` to `meta` module
 - Added `annotate_delly` module
 - Added prp versions
+- Added bed file, bgzipped format and index for `annotate_delly` input
 
 ### Fixed
 - Args for cdm
