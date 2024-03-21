@@ -129,6 +129,7 @@ process annotate_delly {
   input:
     tuple val(sampleName), path(vcf)
     path bed
+    path bedIdx
 
   output:
     tuple val(sampleName), path(output), emit: vcf

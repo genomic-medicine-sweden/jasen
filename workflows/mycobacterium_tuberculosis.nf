@@ -31,6 +31,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
+    tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
 
     main:
         ch_versions = Channel.empty()
@@ -52,7 +53,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         tbprofiler_tbdb(ch_reads)
         tbprofiler_mergedb(ch_reads)
 
-        annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed)
+        annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
