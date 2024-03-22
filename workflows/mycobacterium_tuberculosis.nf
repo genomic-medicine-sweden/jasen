@@ -50,7 +50,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         snippy(ch_reads, genomeReference)
 
-        tbprofiler_tbdb(ch_reads)
         tbprofiler_mergedb(ch_reads)
 
         annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
