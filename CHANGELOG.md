@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `lims_id` & `sequencing_run` to `meta` module
 - Added `annotate_delly` module
 - Added prp versions
-- Added bed file, bgzipped format and index for `annotate_delly` input
+- Added how-to guide on how to create bed file, bgzipped format and index for `annotate_delly` input
+- Prepare general `Makefile` for incorporation of tbprofiler v6.1.0 to auto create above files and create new tbdb
 
 ### Fixed
 - Args for cdm
