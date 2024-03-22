@@ -139,8 +139,16 @@ jasentool converge --output_dir /path/to/jasen/assets/tbdb
 ### Create tbdb (ensure tb-profiler is installed)
 
 ```
+cd /path/to/jasen/assets/tbdb
 tb-profiler create_db --prefix converged_who_fohm_tbdb
 tb-profiler load_library converged_who_fohm_tbdb
+```
+
+### Bgzip and index gms TBProfiler db
+
+```
+bgzip -c converged_who_fohm_tbdb.bed > /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
+tabix -p bed /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
 ```
 
 ## Usage
