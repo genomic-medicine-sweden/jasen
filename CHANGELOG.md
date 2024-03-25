@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cronCopy set true in hopper config
 - bonsai-prp version upgraded from v0.5.0 to v0.6.0
 - Renamed `nextflow.hopper.config` to `nextflow.dev.config` for hopper development
+- bonsai-prp version upgraded from v0.6.0 to v0.7.0
 
 ## [0.5.0]
 
