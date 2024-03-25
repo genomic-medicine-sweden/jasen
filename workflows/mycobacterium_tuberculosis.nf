@@ -7,6 +7,7 @@ include { bracken                           } from '../nextflow-modules/modules/
 include { copy_to_cron                      } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result            } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                  } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                       } from '../nextflow-modules/modules/yaml/main.nf'
 include { export_to_cdm                     } from '../nextflow-modules/modules/cmd/main.nf'
 include { kraken                            } from '../nextflow-modules/modules/kraken/main.nf'
 include { mykrobe                           } from '../nextflow-modules/modules/mykrobe/main.nf'
@@ -45,6 +46,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
 
         mykrobe(ch_reads)
 
@@ -86,16 +88,18 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput)
         }
 
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+
         ch_quast
             .join(ch_qc)
-            .join(ch_empty)
-            .set{ cdmOutput }
+            .join(chewbbaca_split_results.out.output)
+            .set{ cdmInput }
 
-        create_cdm_input(cdmOutput)
+        create_cdm_input(cdmInput)
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
-        copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
+        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
@@ -106,7 +110,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     emit: 
         pipeline_result = create_analysis_result.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_json       = copy_to_cron.out.json
+        cron_yaml       = copy_to_cron.out.yaml
         cron_cdm        = copy_to_cron.out.cdm
         versions        = ch_versions
 }
