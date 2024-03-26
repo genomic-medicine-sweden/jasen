@@ -10,6 +10,8 @@ process create_yaml {
     tuple val(sampleName), path(output), emit: yaml
 
   script:
+    def prpDir = task.ext.args_prp ?: ""
+    def sourmashDir = task.ext.args_sourmash ?: ""
     output = "${sampleName}_bonsai.yaml"
     """
     #!/usr/bin/env python
@@ -18,8 +20,8 @@ process create_yaml {
     # Define the data
     data = {
         "group_id": "${species}",
-        "prp_result": "${prp}",
-        "minhash_signature": "${signature}"
+        "prp_result": "${prpDir}/${prp}",
+        "minhash_signature": "${sourmashDir}/${signature}"
     }
 
     # Write the data to the YAML file
