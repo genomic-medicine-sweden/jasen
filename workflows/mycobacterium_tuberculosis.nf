@@ -92,7 +92,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         ch_quast
             .join(ch_qc)
-            .join(chewbbaca_split_results.out.output)
+            .join(ch_empty)
             .set{ cdmInput }
 
         create_cdm_input(cdmInput)
