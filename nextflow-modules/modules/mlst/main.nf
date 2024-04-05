@@ -1,19 +1,10 @@
-def getAbbrevSpeciesName(fullName) {
-  "Convert the full name to the abbreviated version"
-  names = fullName.split(' ')
-  if (fullName == "klebsiella pneumoniae") {
-      return names[0]
-  }
-  return names[0][0] + names[1]
-}
-
 process mlst {
   tag "${sampleName}"
   scratch params.scratch
 
   input:
     tuple val(sampleName), path(assembly)
-    val species
+    val scheme
     path blastDb
 
   output:
@@ -25,13 +16,13 @@ process mlst {
   script:
     def args = task.ext.args ?: ''
     outputName = "${sampleName}_mlst"
-    abbrevName = getAbbrevSpeciesName(species)
+    schemeArgs = scheme ? "--scheme ${scheme}" : "" 
     blastDbPath = blastDb ? "--blastdb ${blastDb}/mlst.fa" : ""
     """
     mlst \\
       ${args} \\
       ${blastDbPath} \\
-      --scheme  ${abbrevName} \\
+      ${schemeArgs} \\
       --json ${outputName}.json \\
       --novel ${outputName}.novel \\
       --threads ${task.cpus} \\
