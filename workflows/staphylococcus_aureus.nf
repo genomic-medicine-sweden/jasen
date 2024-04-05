@@ -90,7 +90,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.species, mlstDb)
+        mlst(ch_assembly, params.mlstScheme, mlstDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleName, filePath -> 
