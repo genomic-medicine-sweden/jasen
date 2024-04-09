@@ -39,7 +39,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
     genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
-    mlstDb = file(params.mlstBlastDb, checkIfExists: true)
+    pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     trainingFile = file(params.trainingFile, checkIfExists: true)
@@ -90,7 +90,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.mlstScheme, mlstDb)
+        mlst(ch_assembly, params.mlstScheme, pubMlstDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleName, filePath -> 

@@ -5,7 +5,7 @@ process mlst {
   input:
     tuple val(sampleName), path(assembly)
     val scheme
-    path blastDb
+    path pubMlstDb
 
   output:
     tuple val(sampleName), path('*.tsv')  , optional: true, emit: tsv
@@ -17,11 +17,11 @@ process mlst {
     def args = task.ext.args ?: ''
     outputName = "${sampleName}_mlst"
     schemeArgs = scheme ? "--scheme ${scheme}" : "" 
-    blastDbPath = blastDb ? "--blastdb ${blastDb}/mlst.fa" : ""
+    pubMlstDbArgs = pubMlstDb ? "--datadir ${pubMlstDb}" : ""
     """
     mlst \\
       ${args} \\
-      ${blastDbPath} \\
+      ${pubMlstDbArgs} \\
       ${schemeArgs} \\
       --json ${outputName}.json \\
       --novel ${outputName}.novel \\
