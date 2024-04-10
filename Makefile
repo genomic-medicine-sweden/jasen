@@ -555,7 +555,7 @@ MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 # MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
 MTUBE_REFSEQ_ACC := NC_000962.3
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference #mtuberculosis_converged_who_fohm_tbdb
+mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference #mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
@@ -585,6 +585,20 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 # 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 # 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR)
 # 	&& 	tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
+
+# mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
+
+# $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
+# 	$(call log_message,"Bgzipping converged WHO, FoHM & TBDB bed file ...")
+# 	cd $(MTUBE_TBDB_DIR) \
+# 	&& bgzip $$(basename $<)
+
+# mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
+
+# $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
+# 	$(call log_message,"Indexing converged WHO, FoHM & TBDB bgzipped bed file ...")
+# 	cd $(MTUBE_TBDB_DIR) \
+# 	&& tabix -p bed $$(basename $<)
 
 # ==============================================================================
 # Perform checks

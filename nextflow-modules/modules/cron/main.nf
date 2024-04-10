@@ -3,27 +3,27 @@ process copy_to_cron {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), val(prp), val(cdm)
+    tuple val(sampleName), path(yaml), path(cdm)
 
   output:
-    tuple val(sampleName), path(prpOutput), emit: json
-    tuple val(sampleName), path(cdmOutput), emit: cdm
+    tuple val(sampleName), path(yamlOutput), emit: yaml
+    tuple val(sampleName), path(cdmOutput) , emit: cdm
 
   when:
     params.cronCopy
 
   script:
-    prpOutput = "${sampleName}_result.json"
+    yamlOutput = "${sampleName}_bonsai.yaml"
     cdmOutput = "${sampleName}.cdm"
     """
-    cp ${prp} ${prpOutput}
+    cp ${yaml} ${yamlOutput}
     cp ${cdm} ${cdmOutput}
     """
 
   stub:
-    prpOutput = "${sampleName}_result.json"
+    yamlOutput = "${sampleName}_bonsai.yaml"
     cdmOutput = "${sampleName}.cdm"
     """
-    touch $prpOutput $cdmOutput
+    touch $yamlOutput $cdmOutput
     """
 }
