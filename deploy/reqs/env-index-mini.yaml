@@ -1,8 +1,0 @@
-name: jasen
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - bwa
-  - blast
-  - chewbbaca

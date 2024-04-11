@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [0.6.0]
+
+### Added
+
+- Added converged_who_fohm_tbdb.csv
+- Added guide to create tbdb
+- Added `sequencing_run` and `lims_id` to output
+- Added `devMode` flag
+- Added `lims_id` & `sequencing_run` to `meta` module
+- Added `annotate_delly` module
+- Added prp versions
+- Added how-to guide on how to create bed file, bgzipped format and index for `annotate_delly` input
+- Prepare general `Makefile` for incorporation of tbprofiler v6.1.0 to auto create above files and create new tbdb
+- Add `create_yaml` module for upload to bonsai
+
+### Fixed
+
+- Args for cdm
+
+### Changed
+
+- Run with converged/merged db
+- Publish bam & bai from tbprofiler
+- cronCopy set true in hopper config
+- bonsai-prp version upgraded from v0.5.0 to v0.6.0
+- Renamed `nextflow.hopper.config` to `nextflow.dev.config` for hopper development
+- bonsai-prp version upgraded from v0.6.0 to v0.7.0
+- bonsai-prp version upgraded from v0.7.0 to v0.7.1
+- Changed blastDb to pubMlstDb re mlst
+
+## [0.5.0]
+
+### Added
+
 - Added a GitHub workflow to run a basic CI pipeline.
 - Build prp as singularity image from dockerhub in Makefile
 - Chewbacca and virulencefinder sif fetched from galaxyproject

@@ -1,13 +1,13 @@
 <p align="center">
-  <a href="https://github.com/genomic-medicine-sweden/JASEN">
+  <a href="https://github.com/genomic-medicine-sweden/jasen">
     <img src="artwork/logo.png"/>
   </a>
 </p>
 
 _Just Another System for Epityping using NGSs data_
 
-JASEN produces results for epidemiological and surveillance purposes.
-JASEN has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
+Jasen produces results for epidemiological and surveillance purposes.
+Jasen has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
@@ -24,7 +24,7 @@ JASEN has been developed for a small set of microbiota (primarily MRSA), but wil
 ### Copy code locally
 
 ```
-git clone --recurse-submodules --single-branch --branch master  git@github.com:genomic-medicine-sweden/JASEN.git && cd JASEN
+git clone --recurse-submodules --single-branch --branch master  git@github.com:genomic-medicine-sweden/jasen.git && cd jasen
 ```
 
 ### Access to OCI registries (Optional)
@@ -52,7 +52,7 @@ comes to this step.
 
 ### Download references and databases using singularity. 
 
-First, make sure you stand in the main JASEN folder (so if you cd:ed into the
+First, make sure you stand in the main jasen folder (so if you cd:ed into the
 `container` folder before, you need to cd back to the main folder with `cd
 ..`). Then run the `install` make rule:
 
@@ -122,7 +122,37 @@ tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ### Update MLST database
 
 ```
-bash /path/to/JASEN/assets/mlst_db/update_mlst_db.sh
+bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
+```
+
+## Create personalised TBProfiler database
+
+### Install jasentool
+
+```
+git clone git@github.com:ryanjameskennedy/jasentool.git && cd jasentool
+pip install .
+```
+
+### Create input csv that is used as tbdb input (composed of FoHM, WHO & tbdb variants)
+
+```
+jasentool converge --output_dir /path/to/jasen/assets/tbdb
+```
+
+### Create tbdb (ensure tb-profiler is installed)
+
+```
+cd /path/to/jasen/assets/tbdb
+tb-profiler create_db --prefix converged_who_fohm_tbdb
+tb-profiler load_library converged_who_fohm_tbdb
+```
+
+### Bgzip and index gms TBProfiler db
+
+```
+bgzip -c converged_who_fohm_tbdb.bed > /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
+tabix -p bed /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
 ```
 
 ## Usage
@@ -199,12 +229,12 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 
 ## Report and visualisation
 
-* [Bonsai](https://github.com/Clinical-Genomics-Lund/cgviz): Visualises JASEN outputs.
+* [Bonsai](https://github.com/Clinical-Genomics-Lund/cgviz): Visualises jasen outputs.
 * [graptetree](https://github.com/achtman-lab/GrapeTree): Visualise phylogenetic relationship using cgmlst data.
 
 ## Tips
 
 * Always run the latest versions of the bioinformatical software.
-* Verify you have execution permission for JASENs `*.sif` images.
-* Old Singularity versions may sporadically produce the error `FATAL: could not open image JASEN/container/*.sif: image format not recognized!`
+* Verify you have execution permission for jasens `*.sif` images.
+* Old Singularity versions may sporadically produce the error `FATAL: could not open image jasen/container/*.sif: image format not recognized!`
 

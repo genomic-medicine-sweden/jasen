@@ -2,19 +2,20 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                      } from '../methods/get_meta.nf'
-include { get_seqrun_meta               } from '../methods/get_seqrun_meta.nf'
-include { bracken                       } from '../nextflow-modules/modules/bracken/main.nf'
-include { copy_to_cron                  } from '../nextflow-modules/modules/cron/main.nf'
-include { create_analysis_result        } from '../nextflow-modules/modules/prp/main.nf'
-include { create_cdm_input              } from '../nextflow-modules/modules/prp/main.nf'
-include { export_to_cdm                 } from '../nextflow-modules/modules/cmd/main.nf'
-include { kraken                        } from '../nextflow-modules/modules/kraken/main.nf'
-include { mykrobe                       } from '../nextflow-modules/modules/mykrobe/main.nf'
-include { snippy                        } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler as tbprofiler_tbdb } from '../nextflow-modules/modules/tbprofiler/main.nf'
-include { tbprofiler as tbprofiler_who  } from '../nextflow-modules/modules/tbprofiler/main.nf'
-include { CALL_BACTERIAL_BASE           } from '../workflows/bacterial_base.nf'
+include { get_meta                          } from '../methods/get_meta.nf'
+include { bracken                           } from '../nextflow-modules/modules/bracken/main.nf'
+include { copy_to_cron                      } from '../nextflow-modules/modules/cron/main.nf'
+include { create_analysis_result            } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input                  } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                       } from '../nextflow-modules/modules/yaml/main.nf'
+include { export_to_cdm                     } from '../nextflow-modules/modules/cmd/main.nf'
+include { kraken                            } from '../nextflow-modules/modules/kraken/main.nf'
+include { mykrobe                           } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { snippy                            } from '../nextflow-modules/modules/snippy/main.nf'
+include { tbprofiler as tbprofiler_tbdb     } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { tbprofiler as tbprofiler_mergedb  } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { annotate_delly                    } from '../nextflow-modules/modules/prp/main.nf'
+include { CALL_BACTERIAL_BASE               } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     Channel.fromPath(params.csv).splitCsv(header:true)
@@ -30,6 +31,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
+    tbdbBed = file(params.tbdbBed, checkIfExists: true)
+    tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
 
     main:
         ch_versions = Channel.empty()
@@ -41,14 +44,17 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
 
         mykrobe(ch_reads)
 
         snippy(ch_reads, genomeReference)
 
-        tbprofiler_tbdb(ch_reads)
-        tbprofiler_who(ch_reads)
+        tbprofiler_mergedb(ch_reads)
+
+        annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
@@ -64,8 +70,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_metadata)
+            .join(annotate_delly.out.vcf)
             .join(mykrobe.out.csv)
-            .join(tbprofiler_tbdb.out.json)
+            .join(tbprofiler_mergedb.out.json)
             .set{ combinedOutput }
 
         if ( params.useKraken ) {
@@ -81,34 +88,29 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput)
         }
 
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+
         ch_quast
             .join(ch_qc)
             .join(ch_empty)
-            .set{ cdmOutput }
+            .set{ cdmInput }
 
-        create_cdm_input(cdmOutput)
-
-        if ( params.cronCopy ) {
-            Channel.fromPath(params.csv).splitCsv(header:true)
-                .map{ row -> get_seqrun_meta(row) }
-                .set{ ch_seqrun_meta }
-        } else {
-            ch_empty.join(ch_empty).set{ ch_seqrun_meta }
-        }
+        create_cdm_input(cdmInput)
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
-        copy_to_cron(create_analysis_result.out.json.join(export_to_cdm.out.cdm))
+        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
+        ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
         ch_versions = ch_versions.mix(snippy.out.versions)
-        ch_versions = ch_versions.mix(tbprofiler_tbdb.out.versions)
+        ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
         pipeline_result = create_analysis_result.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_json       = copy_to_cron.out.json
+        cron_yaml       = copy_to_cron.out.yaml
         cron_cdm        = copy_to_cron.out.cdm
         versions        = ch_versions
 }
