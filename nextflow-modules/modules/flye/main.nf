@@ -10,13 +10,15 @@ process flye {
     path "*versions.yml"                                       , emit: versions
 
   when:
-    task.ext.when && platform == "nanopore"
+    // task.ext.when && platform == "nanopore" // process was not launched
+    platform == "nanopore" // process gets launched
 
   script:
     def args = task.ext.args ?: ''
+    def seqmethod = task.ext.seqmethod ?: ''
     outputDir = params.publishDir ? params.publishDir : 'flye'
     """
-    flye ${reads} --out-dir ${outputDir} ${args}
+    flye ${seqmethod} ${reads} --out-dir ${outputDir} ${args}
     mv ${outputDir}/assembly.fasta ${sampleName}_assembly.fasta
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml

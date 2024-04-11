@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-<<<<<<< HEAD
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
 include { spades_illumina                       } from '../nextflow-modules/modules/spades/main.nf'
@@ -13,21 +12,9 @@ include { post_align_qc                         } from '../nextflow-modules/modu
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
 include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
-=======
-include { get_meta                              } from '../methods/get_meta'
-include { flye                                  } from '../nextflow-modules/modules/flye/main'
-include { quast                                 } from '../nextflow-modules/modules/quast/main'
-include { skesa                                 } from '../nextflow-modules/modules/skesa/main'
-include { medaka                                } from '../nextflow-modules/modules/medaka/main'
-include { spades_illumina                       } from '../nextflow-modules/modules/spades/main'
-include { spades_iontorrent                     } from '../nextflow-modules/modules/spades/main'
-include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main'
-include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main'
-include { post_align_qc                         } from '../nextflow-modules/modules/qc/main'
-include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main'
-include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main'
-include { sourmash                              } from '../nextflow-modules/modules/sourmash/main'
->>>>>>> 760346a (add Nanopore support: Flye and Medaka)
+include { get_meta                              } from '../methods/get_meta.nf'
+include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
+include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 
 workflow CALL_BACTERIAL_BASE {
     take:

@@ -4,14 +4,15 @@ process medaka {
 
   input:
     tuple val(sampleName), path(reads), val(platform) 
-    path assembly
-
+    // path assembly 
+    tuple val(sampleName), path(assembly)
   output:
-    tuple val(sampleName), path(output), emit: fasta
+    tuple val(sampleName), path("${sampleName}_consensus.fasta"), emit: fasta
     path "*versions.yml"               , emit: versions
 
   when:
-    task.ext.when && platform == "nanopore"
+    // task.ext.when && platform == "nanopore"
+    platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''
