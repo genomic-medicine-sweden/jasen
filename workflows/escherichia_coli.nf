@@ -141,7 +141,7 @@ workflow CALL_ESCHERICHIA_COLI {
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, genomeReference)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)

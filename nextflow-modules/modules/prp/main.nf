@@ -4,6 +4,7 @@ process create_analysis_result {
 
   input:
     tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    path referenceGenome
 
   output:
     tuple val(sampleName), path(output), emit: json
@@ -19,6 +20,7 @@ process create_analysis_result {
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
+    referenceGenomeArgs = referenceGenome ? "--reference-genome-fasta ${referenceGenome}" : ""
     resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
@@ -38,6 +40,7 @@ process create_analysis_result {
       ${mykrobeArgs} \\
       ${postalignqcArgs} \\
       ${quastArgs} \\
+      ${referenceGenomeArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
       ${serotypeArgs} \\
