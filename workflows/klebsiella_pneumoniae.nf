@@ -136,7 +136,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, genomeReference)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
