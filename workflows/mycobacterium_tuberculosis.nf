@@ -29,6 +29,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // load references 
     genomeReference = file(params.genomeReference, checkIfExists: true)
     genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
+    genomeGff = file(params.genomeGff, checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
@@ -69,6 +70,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
+            .join(tbprofiler_mergedb.out.bam)
+            .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)
             .join(annotate_delly.out.vcf)
             .join(mykrobe.out.csv)
@@ -80,12 +83,12 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference)
+            create_analysis_result(combinedOutput, genomeReference, genomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference)
+            create_analysis_result(combinedOutput, genomeReference, genomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)

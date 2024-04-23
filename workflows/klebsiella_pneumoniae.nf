@@ -37,6 +37,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
     // load references 
     genomeReference = file(params.genomeReference, checkIfExists: true)
     genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
+    genomeGff = file(params.genomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
     pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
@@ -125,6 +126,8 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             .join(serotypefinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
+            .join(ch_empty)
+            .join(ch_empty)
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
@@ -136,12 +139,12 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference)
+            create_analysis_result(combinedOutput, genomeReference, genomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference)
+            create_analysis_result(combinedOutput, genomeReference, genomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
