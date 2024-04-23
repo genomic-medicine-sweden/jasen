@@ -3,8 +3,9 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
+    path referenceGff
 
   output:
     tuple val(sampleName), path(output), emit: json
@@ -14,6 +15,7 @@ process create_analysis_result {
     output = "${sampleName}_result.json"
     amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
+    bamArgs = bam ? "--bam ${bam}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     dellyVcfArgs = dellyVcf ? "--sv-vcf ${dellyVcf}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
@@ -21,6 +23,7 @@ process create_analysis_result {
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
     referenceGenomeArgs = referenceGenome ? "--reference-genome-fasta ${referenceGenome}" : ""
+    referenceGffArgs = referenceGff ? "--reference-genome-gff ${referenceGff}" : ""
     resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
@@ -33,6 +36,7 @@ process create_analysis_result {
     prp create-bonsai-input \\
       --sample-id ${sampleName} \\
       ${amrfinderArgs} \\
+      ${bamArgs} \\
       ${brackenArgs} \\
       ${cgmlstArgs} \\
       ${dellyVcfArgs} \\
@@ -41,6 +45,7 @@ process create_analysis_result {
       ${postalignqcArgs} \\
       ${quastArgs} \\
       ${referenceGenomeArgs} \\
+      ${referenceGffArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
       ${serotypeArgs} \\
