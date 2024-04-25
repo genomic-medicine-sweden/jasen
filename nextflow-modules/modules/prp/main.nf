@@ -1,6 +1,7 @@
 process create_analysis_result {
   tag "${sampleName}"
   scratch params.scratch
+  stageInMode 'symlink'
 
   input:
     tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
@@ -29,6 +30,7 @@ process create_analysis_result {
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
     serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
+    symlinkDirArgs = params.symlinkDir ? "--symlink_dir ${params.symlinkDir}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
@@ -49,6 +51,7 @@ process create_analysis_result {
       ${resfinderArgs} \\
       ${runInfoArgs} \\
       ${serotypeArgs} \\
+      ${symlinkDirArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
       --output ${output}
