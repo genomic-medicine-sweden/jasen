@@ -6,7 +6,8 @@ process create_analysis_result {
   input:
     tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
-    path referenceGff
+    path referenceGenomeIdx
+    path referenceGenomeGff
 
   output:
     tuple val(sampleName), path(output), emit: json
@@ -24,7 +25,7 @@ process create_analysis_result {
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
     referenceGenomeArgs = referenceGenome ? "--reference-genome-fasta ${referenceGenome}" : ""
-    referenceGffArgs = referenceGff ? "--reference-genome-gff ${referenceGff}" : ""
+    referenceGffArgs = referenceGenomeGff ? "--reference-genome-gff ${referenceGenomeGff}" : ""
     resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
