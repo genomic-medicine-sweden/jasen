@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated saureus genome from `NC_002951.2` to `GCF_000012045.1`
+- Updated ecoli genome from `NC_000913.3` to `GCF_000005845.2`
+- Updated mtuberculosis genome from `NC_000962.3` to `GCF_000195955.2`
+- Updated kpneumoniae genome from `NC_016845.1` to `GCF_000240185.1`
+
 ## [0.6.0]
 
 ### Added
