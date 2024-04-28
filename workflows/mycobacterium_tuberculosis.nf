@@ -27,9 +27,10 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .set{ ch_meta }
 
     // load references 
-    genomeReference = file(params.genomeReference, checkIfExists: true)
-    genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
-    genomeGff = file(params.genomeGff, checkIfExists: true)
+    referenceGenome = file(params.referenceGenome, checkIfExists: true)
+    referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
+    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
@@ -38,7 +39,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, genomeReference, genomeReferenceDir, ch_meta.iontorrent, ch_meta.illumina )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -51,7 +52,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         mykrobe(ch_reads)
 
-        snippy(ch_reads, genomeReference)
+        snippy(ch_reads, referenceGenome)
 
         tbprofiler_mergedb(ch_reads)
 
@@ -83,12 +84,12 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference, genomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, genomeReference, genomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
