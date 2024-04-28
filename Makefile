@@ -160,11 +160,11 @@ install: download_or_build_containers \
 	update_databases \
 	update_organisms
 
-update_databases: update_shigapass_db \
-	update_amrfinderplus \
+update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
 	update_finder_dbs
+	# update_shigapass_db
 
 update_organisms: staphylococcus_aureus_all \
 	ecoli_all \
@@ -297,7 +297,8 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 # S. aureus
 # -----------------------------
 staphylococcus_aureus_all: staphylococcus_aureus_download_reference \
-	staphylococcus_aureus_index_reference \
+	staphylococcus_aureus_faidx_reference \
+	staphylococcus_aureus_bwaidx_reference \
 	staphylococcus_aureus_download_prodigal_training_file \
 	staphylococcus_aureus_download_cgmlst_schema \
 	staphylococcus_aureus_unpack_cgmlst_schema \
@@ -305,7 +306,7 @@ staphylococcus_aureus_all: staphylococcus_aureus_download_reference \
 
 SAUR_GENOMES_DIR := $(ASSETS_DIR)/genomes/staphylococcus_aureus
 SAUR_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/staphylococcus_aureus
-SAUR_REFSEQ_ACC := NC_002951.2
+SAUR_REFSEQ_ACC := GCF_000012045.1
 
 
 staphylococcus_aureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
@@ -320,10 +321,19 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
 
 
-staphylococcus_aureus_index_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
+staphylococcus_aureus_faidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai
+
+$(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing S. aureus reference genome using samtools...")
+	cd $(SAUR_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+staphylococcus_aureus_bwaidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing S. aureus reference genome ...")
+	$(call log_message,"Indexing S. aureus reference genome using bwa...")
 	cd $(SAUR_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
@@ -380,7 +390,9 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 # E. coli
 # -----------------------------
 
-ecoli_all: ecoli_index_reference \
+ecoli_all: ecoli_download_reference \
+	ecoli_faidx_reference \
+	ecoli_bwaidx_reference \
 	ecoli_download_prodigal_training_file \
 	ecoli_download_wgmlst_schema \
 	ecoli_prep_ecoli_cgmlst_schema
@@ -388,7 +400,7 @@ ecoli_all: ecoli_index_reference \
 ECOLI_GENOMES_DIR := $(ASSETS_DIR)/genomes/escherichia_coli
 ECOLI_WGMLST_DIR := $(ASSETS_DIR)/wgmlst/escherichia_coli
 ECOLI_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/escherichia_coli
-ECOLI_REFSEQ_ACC := NC_000913.3
+ECOLI_REFSEQ_ACC := GCF_000005845.2
 
 
 ecoli_download_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
@@ -403,10 +415,19 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 
-ecoli_index_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt
+ecoli_faidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai
+
+$(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing E. coli genome using samtools...")
+	cd $(ECOLI_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+ecoli_bwaidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt
 
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing E. coli genome ...")
+	$(call log_message,"Indexing E. coli genome using bwa...")
 	cd $(ECOLI_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
@@ -483,7 +504,8 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 # -----------------------------
 
 kpneumoniae_all: kpneumoniae_download_reference \
-	kpneumoniae_index_reference \
+	kpneumoniae_faidx_reference \
+	kpneumoniae_bwaidx_reference \
 	kpnuemoniae_download_prodigal_training_file \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_unpack_cgmlst_schema \
@@ -492,7 +514,7 @@ kpneumoniae_all: kpneumoniae_download_reference \
 
 KPNEU_GENOMES_DIR := $(ASSETS_DIR)/genomes/klebsiella_pneumoniae
 KPNEU_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/klebsiella_pneumoniae
-KPNEU_REFSEQ_ACC := NC_016845.1
+KPNEU_REFSEQ_ACC := GCF_000240185.1
 
 
 kpneumoniae_download_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
@@ -507,10 +529,19 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
 
-kpneumoniae_index_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
+kpneumoniae_faidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai
+
+$(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing K pneumoniae genome using samtools...")
+	cd $(KPNEU_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+kpneumoniae_bwaidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
 
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing K pneumoniae genome ...")
+	$(call log_message,"Indexing K pneumoniae genome using bwa...")
 	cd $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
@@ -572,9 +603,9 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 # MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
 # MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
-MTUBE_REFSEQ_ACC := NC_000962.3
+MTUBE_REFSEQ_ACC := GCF_000195955.2
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_index_reference #mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
+mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference #mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
@@ -587,10 +618,18 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
-mtuberculosis_index_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
+mtuberculosis_faidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai
+
+$(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing M. tuberculosis genome using samtools...")
+	cd $(MTUBE_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
 
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing M. tuberculosis genome ...")
+	$(call log_message,"Indexing M. tuberculosis genome using bwa...")
 	cd $(MTUBE_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
