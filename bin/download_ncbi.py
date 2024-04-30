@@ -46,6 +46,14 @@ parser.add_argument(
     version='%(prog)s 0.0.1'
     )
 parser.add_argument(
+    '-c',
+    '--clean',
+    help='WARNING: Remove all files in download directory',
+    dest='clean',
+    action='store_true',
+    required=False
+    )
+parser.add_argument(
     '-b',
     '--bwaidx',
     help='run bwa idx',
@@ -92,23 +100,31 @@ def copy_file(source, destination):
     except Exception as error_code:
         print(f"Error copying file: {error_code}")
 
+def mkdir(dirpath):
+    """Create directories recursively if they do not exist."""
+    os.makedirs(dirpath, exist_ok=True)
+
 def remove_file(filepath):
     """Remove file."""
     if os.path.exists(filepath):
         os.remove(filepath)
         print(f"The file '{filepath}' was successfully removed.")
 
-def remove_directory(directory):
+def remove_directory(dirpath):
     """Remove an entire directory."""
     try:
-        shutil.rmtree(directory)
-        print(f"Directory '{directory}' successfully removed.")
+        shutil.rmtree(dirpath)
+        print(f"Directory '{dirpath}' successfully removed.")
     except FileNotFoundError:
-        print(f"Directory '{directory}' does not exist.")
+        print(f"Directory '{dirpath}' does not exist.")
     except PermissionError:
-        print(f"Permission denied to remove directory '{directory}'.")
+        print(f"Permission denied to remove directory '{dirpath}'.")
     except Exception as e:
-        print(f"Error occurred while removing directory '{directory}': {e}")
+        print(f"Error occurred while removing directory '{dirpath}': {e}")
+
+def remove_dir_content(dirpath):
+    remove_directory(dirpath)
+    mkdir(dirpath)
 
 def find_files(search_term, parent_dir):
     """Find files in given directory using regex search term"""
@@ -227,6 +243,8 @@ def download_ncbi_fasta(accns, download_dir, bwaidx, faidx, db="nucleotide"):
                 print(f"samtools is not installed. Please install it and try again.")
 
 def main():
+    if args.clean:
+        remove_dir_content(args.output_dir)
     if any(accn.startswith("NC") for accn in args.accn):
         download_ncbi_fasta(args.accn, args.output_dir, args.bwaidx, args.faidx)
     else:
