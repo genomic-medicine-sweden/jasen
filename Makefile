@@ -642,7 +642,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 # 	&& cp $(MTUBE_TBPROFILER_DBS_DIR)/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
 # 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 # 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) \
-#		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta
+#		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv
 # 	&& 	tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz

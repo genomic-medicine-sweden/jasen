@@ -16,7 +16,7 @@ process tbprofiler {
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
     output = "${sampleName}_tbprofiler.json"
-    dellyOutput = "${sampleName}_delly.bcf"
+    dellyOutput = "${sampleName}_delly.vcf.gz"
     bamOutput = "${sampleName}.bam"
     baiOutput = "${bamOutput}.bai"
     """
@@ -27,7 +27,7 @@ process tbprofiler {
       --prefix ${sampleName}
 
     cp results/${sampleName}.results.json $output
-    cp vcf/${sampleName}.delly.bcf $dellyOutput
+    cp vcf/${sampleName}.targets.vcf.gz $dellyOutput
     cp bam/${sampleName}.bam $bamOutput
     cp bam/${sampleName}.bam.bai $baiOutput
 
@@ -41,7 +41,7 @@ process tbprofiler {
 
   stub:
     output = "${sampleName}_tbprofiler.json"
-    dellyOutput = "${sampleName}_delly.bcf"
+    dellyOutput = "${sampleName}_delly.vcf.gz"
     bamOutput = "${sampleName}.bam"
     baiOutput = "${bamOutput}.bai"
     """
