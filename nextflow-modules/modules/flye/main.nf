@@ -10,8 +10,7 @@ process flye {
     path "*versions.yml"                                       , emit: versions
 
   when:
-    // task.ext.when && platform == "nanopore" // process was not launched
-    platform == "nanopore" // process gets launched
+    platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''

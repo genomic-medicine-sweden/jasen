@@ -4,22 +4,23 @@ process medaka {
 
   input:
     tuple val(sampleName), path(reads), val(platform) 
-    // path assembly 
     tuple val(sampleName), path(assembly)
   output:
-    tuple val(sampleName), path("${sampleName}_consensus.fasta"), emit: fasta
+    tuple val(sampleName), path("${sampleName}_final_consensus.fasta"), emit: fasta
     path "*versions.yml"               , emit: versions
 
   when:
-    // task.ext.when && platform == "nanopore"
     platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''
     outputDir = params.publishDir ? params.publishDir : 'medaka'
     """
-    medaka_consensus -i ${reads} -d ${assembly} -o ${outputDir} ${args}
-    mv ${outputDir}/consensus.fasta ${sampleName}_consensus.fasta
+    medaka_consensus -i ${reads} -d ${assembly} -o medaka_tmp ${args}
+    mv medaka_tmp/consensus.fasta medaka_tmp/${sampleName}_intermediate_consensus.fasta
+
+    medaka_consensus -i ${reads} -d medaka_tmp/${sampleName}_intermediate_consensus.fasta -o ${outputDir} ${args}
+    mv ${outputDir}/consensus.fasta ${sampleName}_final_consensus.fasta
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -30,7 +31,7 @@ process medaka {
     """
 
   stub:
-    output = "${sampleName}_consensus.fasta"
+    output = "${sampleName}_final_consensus.fasta"
     """
     touch $output
 

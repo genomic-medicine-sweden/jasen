@@ -79,7 +79,8 @@ Source: `configs/nextflow.base.config`
 * Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
 
 When analysing Nanopore data:
-* Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`.
+* Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`
+* Edit the `ext.seqmethod`for Flye depending on the input data
 * Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
 
 ### Test data
