@@ -10,6 +10,9 @@ process samtools_view {
     path('*.bam'), optional: true , emit: bam
     path('*.cram'), optional: true, emit: cram
     path "*versions.yml"
+  
+  when:
+    workflow.profile != "mycobacterium_tuberculosis"
 
   script:
     def reference = fasta ? "--reference ${fasta} -C" : ""

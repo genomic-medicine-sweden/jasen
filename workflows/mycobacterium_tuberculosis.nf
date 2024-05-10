@@ -11,6 +11,7 @@ include { create_yaml                       } from '../nextflow-modules/modules/
 include { export_to_cdm                     } from '../nextflow-modules/modules/cmd/main.nf'
 include { kraken                            } from '../nextflow-modules/modules/kraken/main.nf'
 include { mykrobe                           } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { post_align_qc                     } from '../nextflow-modules/modules/prp/main.nf'
 include { snippy                            } from '../nextflow-modules/modules/snippy/main.nf'
 include { tbprofiler as tbprofiler_tbdb     } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb  } from '../nextflow-modules/modules/tbprofiler/main.nf'
@@ -57,6 +58,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         tbprofiler_mergedb(ch_reads)
 
         annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
+
+        post_align_qc(tbprofiler_mergedb.out.bam, params.referenceGenome, coreLociBed)
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 

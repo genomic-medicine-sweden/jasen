@@ -9,6 +9,9 @@ process bwa_index {
     tuple val(sampleName), path("${reference}.*"), emit: idx
     path "*versions.yml"                         , emit: versions
 
+  when:
+    workflow.profile != "mycobacterium_tuberculosis"
+
   script:
     """
     bwa index ${reference} ${reference.baseName}/${reference}
