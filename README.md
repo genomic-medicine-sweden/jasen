@@ -78,6 +78,11 @@ Source: `configs/nextflow.base.config`
 * Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
 * Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
 
+When analysing Nanopore data:
+* Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`
+* Edit the `ext.seqmethod`for Flye depending on the input data
+* Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
+
 ### Test data
 Source: `assets/test_data/samplelist.csv`
 
@@ -190,6 +195,8 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 * [SPAdes](http://cab.spbu.ru/software/spades/): De novo assembly for Ion Torrent.
 * [SKESA](https://www.ridom.de/seqsphere/ug/v60/SKESA_Assembler.html): De novo assembly for Illumina.
 * [QUAST](http://cab.spbu.ru/software/quast/): Extracts QC data (De novo assembly parameters) from the assembly.
+* [Flye](https://github.com/fenderglass/Flye/tree/flye): De novo assembly for Oxford Nanopore Technologies (ONT).
+* [Medaka](https://github.com/nanoporetech/medaka): Creates consensus sequences from ONT data.
 
 ### Epidemiological typing
 

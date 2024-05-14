@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added two modules for assembly of long-read Nanopore data: Flye and Medaka
+
 ### Fixed
 
 ### Changed
