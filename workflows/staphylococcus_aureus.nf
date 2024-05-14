@@ -36,8 +36,10 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         .set{ ch_meta }
 
     // load references 
-    genomeReference = file(params.genomeReference, checkIfExists: true)
-    genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
+    referenceGenome = file(params.referenceGenome, checkIfExists: true)
+    referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
+    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
     pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
@@ -52,10 +54,12 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, genomeReference, genomeReferenceDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
+        CALL_BACTERIAL_BASE.out.bam.set{ch_ref_bam}
+        CALL_BACTERIAL_BASE.out.bai.set{ch_ref_bai}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
@@ -126,6 +130,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .join(serotypefinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
+            .join(ch_empty)
+            .join(ch_empty)
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)
@@ -137,12 +143,12 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)

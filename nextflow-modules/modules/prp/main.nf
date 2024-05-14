@@ -1,9 +1,13 @@
 process create_analysis_result {
   tag "${sampleName}"
   scratch params.scratch
+  stageInMode 'symlink'
 
   input:
-    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    path referenceGenome
+    path referenceGenomeIdx
+    path referenceGenomeGff
 
   output:
     tuple val(sampleName), path(output), emit: json
@@ -13,17 +17,21 @@ process create_analysis_result {
     output = "${sampleName}_result.json"
     amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
+    bamArgs = bam ? "--bam ${bam}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     dellyVcfArgs = dellyVcf ? "--sv-vcf ${dellyVcf}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
+    referenceGenomeArgs = referenceGenome ? "--reference-genome-fasta ${referenceGenome}" : ""
+    referenceGffArgs = referenceGenomeGff ? "--reference-genome-gff ${referenceGenomeGff}" : ""
     resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
     resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
     serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
+    symlinkDirArgs = params.symlinkDir ? "--symlink_dir ${params.symlinkDir}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
@@ -31,6 +39,7 @@ process create_analysis_result {
     prp create-bonsai-input \\
       --sample-id ${sampleName} \\
       ${amrfinderArgs} \\
+      ${bamArgs} \\
       ${brackenArgs} \\
       ${cgmlstArgs} \\
       ${dellyVcfArgs} \\
@@ -38,9 +47,12 @@ process create_analysis_result {
       ${mykrobeArgs} \\
       ${postalignqcArgs} \\
       ${quastArgs} \\
+      ${referenceGenomeArgs} \\
+      ${referenceGffArgs} \\
       ${resfinderArgs} \\
       ${runInfoArgs} \\
       ${serotypeArgs} \\
+      ${symlinkDirArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
       --output ${output}

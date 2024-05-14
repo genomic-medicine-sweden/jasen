@@ -20,8 +20,8 @@ include { medaka                                } from '../nextflow-modules/modu
 workflow CALL_BACTERIAL_BASE {
     take:
         coreLociBed
-        genomeReference
-        genomeReferenceDir
+        referenceGenome
+        referenceGenomeDir
         ch_meta_iontorrent
         ch_meta_illumina
         ch_meta_nanopore
@@ -55,13 +55,13 @@ workflow CALL_BACTERIAL_BASE {
         Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta, medaka.out.fasta).set{ ch_assembly }
 
         // evaluate assembly quality 
-        quast(ch_assembly, genomeReference)
+        quast(ch_assembly, referenceGenome)
 
         // qc processing
-        bwa_mem_ref(ch_reads, genomeReferenceDir)
+        bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        post_align_qc(bwa_mem_ref.out.bam, params.genomeReference, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam, params.referenceGenome, coreLociBed)
 
         sourmash(ch_assembly)
 
@@ -78,6 +78,8 @@ workflow CALL_BACTERIAL_BASE {
     emit:
         assembly    = ch_assembly                       // channel: [ val(meta), path(fasta)]
         input_meta  = ch_input_meta                     // channel: [ val(meta), path(meta)]
+        bam         = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
+        bai         = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
         metadata    = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc          = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         quast       = quast.out.qc                      // channel: [ val(meta), path(qc)]

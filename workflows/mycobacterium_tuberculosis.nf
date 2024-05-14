@@ -11,6 +11,7 @@ include { create_yaml                       } from '../nextflow-modules/modules/
 include { export_to_cdm                     } from '../nextflow-modules/modules/cmd/main.nf'
 include { kraken                            } from '../nextflow-modules/modules/kraken/main.nf'
 include { mykrobe                           } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { post_align_qc                     } from '../nextflow-modules/modules/prp/main.nf'
 include { snippy                            } from '../nextflow-modules/modules/snippy/main.nf'
 include { tbprofiler as tbprofiler_tbdb     } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb  } from '../nextflow-modules/modules/tbprofiler/main.nf'
@@ -27,8 +28,10 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .set{ ch_meta }
 
     // load references 
-    genomeReference = file(params.genomeReference, checkIfExists: true)
-    genomeReferenceDir = file(genomeReference.getParent(), checkIfExists: true)
+    referenceGenome = file(params.referenceGenome, checkIfExists: true)
+    referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
+    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
@@ -37,7 +40,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, genomeReference, genomeReferenceDir, ch_meta.iontorrent, ch_meta.illumina )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -50,11 +53,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         mykrobe(ch_reads)
 
-        snippy(ch_reads, genomeReference)
+        snippy(ch_reads, referenceGenome)
 
         tbprofiler_mergedb(ch_reads)
 
         annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
+
+        post_align_qc(tbprofiler_mergedb.out.bam, params.referenceGenome, coreLociBed)
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
@@ -69,6 +74,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
+            .join(tbprofiler_mergedb.out.bam)
+            .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)
             .join(annotate_delly.out.vcf)
             .join(mykrobe.out.csv)
@@ -80,12 +87,12 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
