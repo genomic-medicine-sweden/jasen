@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `referenceGenome` to `prp create-bonsai-input`
+- create `.fai` files from all genomes in `Makefile`
 
 ### Fixed
 
@@ -19,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ecoli genome from `NC_000913.3` to `GCF_000005845.2`
 - Updated mtuberculosis genome from `NC_000962.3` to `GCF_000195955.2`
 - Updated kpneumoniae genome from `NC_016845.1` to `GCF_000240185.1`
+- Updated tbprofiler to v6.2.0
+- Updated `download_ncbi.py` to include `.gff` files
 
 ## [0.6.0]
 

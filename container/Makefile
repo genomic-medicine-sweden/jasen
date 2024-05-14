@@ -60,7 +60,7 @@ URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
-URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:5.0.1--pyhdfd78af_1
+URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.2.0--pyhdfd78af_0
 URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:2.0.4--hdfd78af_1
 
 define log_message
