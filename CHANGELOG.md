@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Added nanopore to all workflows
+
 ### Changed
 
 - Updated saureus genome from `NC_002951.2` to `GCF_000012045.1`
