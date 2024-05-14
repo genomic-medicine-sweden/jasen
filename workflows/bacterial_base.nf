@@ -3,19 +3,18 @@
 nextflow.enable.dsl=2
 
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
-include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
-include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
-include { spades_illumina                       } from '../nextflow-modules/modules/spades/main.nf'
-include { spades_iontorrent                     } from '../nextflow-modules/modules/spades/main.nf'
-include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
-include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
-include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
-include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
-include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
-include { get_meta                              } from '../methods/get_meta.nf'
+include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
 include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
+include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
+include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
+include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
+include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
+include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
+include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
+include { spades_illumina                       } from '../nextflow-modules/modules/spades/main.nf'
+include { spades_iontorrent                     } from '../nextflow-modules/modules/spades/main.nf'
 
 workflow CALL_BACTERIAL_BASE {
     take:
@@ -66,14 +65,14 @@ workflow CALL_BACTERIAL_BASE {
         sourmash(ch_assembly)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
+        ch_versions = ch_versions.mix(flye.out.versions)
+        ch_versions = ch_versions.mix(medaka.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(skesa.out.versions)
         ch_versions = ch_versions.mix(sourmash.out.versions)
         ch_versions = ch_versions.mix(spades_illumina.out.versions)
         ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
-        ch_versions = ch_versions.mix(flye.out.versions)
-        ch_versions = ch_versions.mix(medaka.out.versions)
 
     emit:
         assembly    = ch_assembly                       // channel: [ val(meta), path(fasta)]
