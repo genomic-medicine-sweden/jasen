@@ -24,6 +24,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .branch {
         iontorrent: it[2] == "iontorrent"
         illumina: it[2] == "illumina"
+        nanopore: it[2] == "nanopore"
         }
         .set{ ch_meta }
 
@@ -40,7 +41,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
