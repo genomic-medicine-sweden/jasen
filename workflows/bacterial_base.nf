@@ -13,6 +13,9 @@ include { post_align_qc                         } from '../nextflow-modules/modu
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
 include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
+include { get_meta                              } from '../methods/get_meta.nf'
+include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
+include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 
 workflow CALL_BACTERIAL_BASE {
     take:
@@ -21,13 +24,14 @@ workflow CALL_BACTERIAL_BASE {
         referenceGenomeDir
         ch_meta_iontorrent
         ch_meta_illumina
+        ch_meta_nanopore
     
     main:
         ch_versions = Channel.empty()
 
         // reads trim and clean
         assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
-        ch_meta_illumina.mix(ch_clean_meta).set{ ch_input_meta }
+        ch_meta_illumina.mix(ch_clean_meta, ch_meta_nanopore).set{ ch_input_meta }
         ch_input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
 
         if ( params.cronCopy || params.devMode) {
@@ -45,8 +49,10 @@ workflow CALL_BACTERIAL_BASE {
         skesa(ch_input_meta)
         spades_illumina(ch_input_meta)
         spades_iontorrent(ch_input_meta)
+        flye(ch_input_meta)
+        medaka(ch_input_meta, flye.out.fasta)
 
-        Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta).set{ ch_assembly }
+        Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta, medaka.out.fasta).set{ ch_assembly }
 
         // evaluate assembly quality 
         quast(ch_assembly, referenceGenome)
@@ -66,6 +72,8 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(sourmash.out.versions)
         ch_versions = ch_versions.mix(spades_illumina.out.versions)
         ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
+        ch_versions = ch_versions.mix(flye.out.versions)
+        ch_versions = ch_versions.mix(medaka.out.versions)
 
     emit:
         assembly    = ch_assembly                       // channel: [ val(meta), path(fasta)]
