@@ -61,7 +61,7 @@ process samtools_sort {
     def prefix = input.simpleName
     def fileType = fasta ? "cram" : "bam"
     """
-    samtools sort ${reference} -@ $task.cpus -o ${prefix}.sorted.${fileType} ${input}
+    samtools sort ${reference} -@ $task.cpus -o ${prefix}.${fileType} ${input}
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
