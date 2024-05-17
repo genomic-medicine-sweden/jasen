@@ -62,13 +62,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
 
-        post_align_qc(tbprofiler_mergedb.out.bam, params.referenceGenome, coreLociBed)
-
-        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
-
         samtools_sort_ref(tbprofiler_mergedb.out.bam)
 
         samtools_index_ref(samtools_sort_ref.out.bam)
+
+        post_align_qc(samtools_sort_ref.out.bam, params.referenceGenome, coreLociBed)
+
+        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
         ch_quast
             .join(ch_qc)

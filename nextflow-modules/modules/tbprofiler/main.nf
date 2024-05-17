@@ -17,7 +17,7 @@ process tbprofiler {
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
     output = "${sampleName}_tbprofiler.json"
     dellyOutput = "${sampleName}_delly.vcf.gz"
-    bamOutput = "${sampleName}.bam"
+    bamOutput = "${sampleName}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
     tb-profiler profile \\
@@ -42,7 +42,7 @@ process tbprofiler {
   stub:
     output = "${sampleName}_tbprofiler.json"
     dellyOutput = "${sampleName}_delly.vcf.gz"
-    bamOutput = "${sampleName}.bam"
+    bamOutput = "${sampleName}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
     mkdir results
