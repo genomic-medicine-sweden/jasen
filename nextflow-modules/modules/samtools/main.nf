@@ -49,19 +49,15 @@ process samtools_sort {
 
   input:
     tuple val(sampleName), path(input)
-    path fasta
 
   output:
-    tuple val(sampleName), path('*.bam') , optional: true, emit: bam
-    tuple val(sampleName), path('*.cram'), optional: true, emit: cram
-    path "*versions.yml"                 , emit: versions
+    tuple val(sampleName), path(output), emit: bam
+    path "*versions.yml"               , emit: versions
 
   script:
-    def reference = fasta ? "--reference ${fasta} -O cram" : "-O bam"
-    def prefix = input.simpleName
-    def fileType = fasta ? "cram" : "bam"
+    output = "${sampleName}.bam"
     """
-    samtools sort ${reference} -@ $task.cpus -o ${prefix}.sorted.${fileType} ${input}
+    samtools sort -@ $task.cpus -o ${output} ${input}
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -74,7 +70,6 @@ process samtools_sort {
   stub:
     """
     touch ${sampleName}.bam
-    touch ${sampleName}.cram
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
