@@ -11,9 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added two modules for assembly of long-read Nanopore data: Flye and Medaka
 - Added `referenceGenome` to `prp create-bonsai-input`
-- create `.fai` files from all genomes in `Makefile`
+- created `.fai` files from all genomes in `Makefile`
+- Added `samtools_sort_ref` to tb workflow with 4GB memory (may need more)
+- Added more cpus to tbprofiler
 
 ### Fixed
+
+- Sort and index tbprofiler bam output
 
 ### Changed
 
@@ -23,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated kpneumoniae genome from `NC_016845.1` to `GCF_000240185.1`
 - Updated tbprofiler to v6.2.0
 - Updated `download_ncbi.py` to include `.gff` files
+- Updated bonsai-prp to v0.8.1
 
 ## [0.6.0]
 
