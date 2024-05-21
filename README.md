@@ -6,6 +6,9 @@
 
 _Just Another System for Epityping using NGSs data_
 
+>[!WARNING]
+>**JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.**
+
 Jasen produces results for epidemiological and surveillance purposes.
 Jasen has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
 
