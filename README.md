@@ -14,7 +14,8 @@ Jasen has been developed for a small set of microbiota (primarily MRSA), but wil
 
 ## Requirements
 
-* Singularity
+* [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html#install-on-windows-or-mac)
+* [JRE 8 - 21](https://www.java.com/en/download/manual.jsp)
 * Nextflow (`curl -s https://get.nextflow.io | bash`)
 
 ### Recommended
