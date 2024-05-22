@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated kpneumoniae genome from `NC_016845.1` to `GCF_000240185.1`
 - Updated tbprofiler to v6.2.0
 - Updated `download_ncbi.py` to include `.gff` files
-- Updated bonsai-prp to v0.8.1
+- Updated bonsai-prp to v0.8.3
 - Removed FoHM variant duplicates
 
 ## [0.6.0]
