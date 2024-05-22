@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [0.7.0]
+
+### Added
+
 - Added two modules for assembly of long-read Nanopore data: Flye and Medaka
 - Added `referenceGenome` to `prp create-bonsai-input`
 - created `.fai` files from all genomes in `Makefile`
