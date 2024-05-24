@@ -104,9 +104,6 @@ $(remote_containers):
 build_local_containers: $(local_containers)
 
 $(local_containers):
-ifneq ($(shell id -u), 0)
-	$(error ERROR: You must run the build_local_containers rule as sudo! Please check the README.md file or cd into the container directory and run: `sudo make build_local_containers` followed by `make download_remote_containers`. Current UID: ${curr_uid});
-else
 	$(call log_message,"Building local container $@ ...")
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${DOCKER_${tool}})
@@ -114,4 +111,4 @@ else
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& sudo singularity build --force $${output_file} ${container_url} \
 	&& ln -sf $${output_file} $@ 
-endif
+
