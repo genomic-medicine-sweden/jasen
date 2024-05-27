@@ -169,7 +169,8 @@ update_databases: update_amrfinderplus \
 update_organisms: staphylococcus_aureus_all \
 	ecoli_all \
 	kpneumoniae_all \
-	mtuberculosis_all
+	mtuberculosis_all \
+	pseudomonas_aeruginosa_all
 
 check:	check_chewbbaca \
 	check_bwa \
@@ -598,9 +599,11 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG)
 
+
 # -----------------------------
 # M. tuberculosis
 # -----------------------------
+
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 # MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
 # MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
@@ -660,6 +663,102 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converge
 	cd $(MTUBE_TBDB_DIR) \
 	&& tabix -p bed $$(basename $<)
 
+
+# -----------------------------
+# Pseudomonas aeruginosa
+# -----------------------------
+
+pseudomonas_aeruginosa_all: pseudomonas_aeruginosa_download_reference \
+	pseudomonas_aeruginosa_faidx_reference \
+	pseudomonas_aeruginosa_bwaidx_reference \
+	pseudomonas_aeruginosa_download_prodigal_training_file \
+	pseudomonas_aeruginosa_download_cgmlst_schema \
+	pseudomonas_aeruginosa_unpack_cgmlst_schema \
+	pseudomonas_aeruginosa_prep_cgmlst_schema
+
+PAER_GENOMES_DIR := $(ASSETS_DIR)/genomes/pseudomonas_aeruginosa
+PAER_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/pseudomonas_aeruginosa
+PAER_REFSEQ_ACC := GCF_000006765.1
+
+
+pseudomonas_aeruginosa_download_reference: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta
+
+$(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta:
+	$(call log_message,"Downloading Pseudomonas aeruginosa reference genome ...")
+	mkdir -p $(PAER_GENOMES_DIR) \
+	&& cd $(SCRIPT_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+		python3 bin/download_ncbi.py \
+		-i $(PAER_REFSEQ_ACC) \
+		-o $(PAER_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
+
+
+pseudomonas_aeruginosa_faidx_reference: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta.fai
+
+$(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta.fai: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing Pseudomonas aeruginosa reference genome using samtools...")
+	cd $(PAER_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+pseudomonas_aeruginosa_bwaidx_reference: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta.bwt
+
+$(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta.bwt: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing Pseudomonas aeruginosa reference genome using bwa...")
+	cd $(PAER_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+pseudomonas_aeruginosa_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn # TODO: Create prodigal training file
+
+$(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
+	$(call log_message,"Downloading Pseudomonas aeruginosa prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Pseudomonas_aeruginos.trn \ # FIXME: Doesn't exist
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+pseudomonas_aeruginosa_download_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/cgmlst_141106.zip
+
+$(PAER_CGMLST_DIR)/alleles/cgmlst_16109812.zip:
+	$(call log_message,"Downloading Pseudomonas aeruginosa cgMLST schema ...")
+	mkdir -p $(PAER_CGMLST_DIR)/alleles &> /dev/null \
+	&& cd $(PAER_CGMLST_DIR)/alleles \
+	&& wget https://www.cgmlst.org/ncs/schema/16109812/alleles \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+pseudomonas_aeruginosa_unpack_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/unpacking.done
+
+$(PAER_CGMLST_DIR)/alleles/unpacking.done: $(PAER_CGMLST_DIR)/alleles/cgmlst_16109812.zip
+	$(call log_message,"Unpacking Pseudomonas aeruginosa cgMLST schema ...")
+	cd $$(dirname $<) \
+		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
+
+pseudomonas_aeruginosa_prep_cgmlst_schema: | $(PAER_CGMLST_DIR)/alleles_rereffed/Pseudomonas_aeruginosa.trn
+
+$(PAER_CGMLST_DIR)/alleles_rereffed/Pseudomonas_aeruginosa.trn: $(PAER_CGMLST_DIR)/alleles_rereffed
+
+$(PAER_CGMLST_DIR)/alleles_rereffed: | $(PAER_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+	$(call log_message,"Prepping Pseudomonas aeruginosa cgMLST schema ...")
+	cd $(PAER_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+		chewie PrepExternalSchema \
+		-g $(PAER_CGMLST_DIR)/alleles \
+		-o $(PAER_CGMLST_DIR)/alleles_rereffed \
+		--cpu 2 \
+		--ptf $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn |& tee -a $(INSTALL_LOG)
+
+
 # ==============================================================================
 # Perform checks
 # ==============================================================================
@@ -673,11 +772,13 @@ check_chewbbaca:
 	&& saureus=$(SAUR_CGMLST_DIR)/alleles_rereffed \
 	&& ecoli=$(ECOLI_CGMLST_DIR)/alleles_rereffed \
 	&& kpneumoniae=$(KPNEU_CGMLST_DIR)/alleles_rereffed \
-	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" ]]; then \
+	&& paeruginosa=$(PAER_CGMLST_DIR)/alleles_rereffed \
+	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" && -d "$$paeruginosa" ]]; then \
 		echo "[✓] PASSED check for chewBBACA: Directories exist:" |& tee -a $(INSTALL_LOG) \
-		&& echo "- "$$saureus |& tee -a $(INSTALL_LOG) \
+		&& echo "- "$$saureus |& tee -a $(INSTALL_LOG)\
 		&& echo "- "$$ecoli |& tee -a $(INSTALL_LOG) \
-		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG); \
+		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$paeruginosa" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for chewBBACA: Some directories do not exist:"; \
 		if [[ ! -d $$saureus ]]; then \
@@ -688,6 +789,9 @@ check_chewbbaca:
 		fi; \
 		if [[ ! -d $$kpneumoniae ]]; then \
 			echo "    Missing directory: $$kpneumoniae" |& tee -a $(INSTALL_LOG);  \
+		fi; \
+		if [[ ! -d $$paeruginosa ]]; then \
+			echo "    Missing directory: $$paeruginosa" |& tee -a $(INSTALL_LOG);  \
 		fi; \
 		echo "    Please report this in an issue on the JASEN repo: https://github.com/genomic-medicine-sweden/JASEN/issues" |& tee -a $(INSTALL_LOG); \
 	fi
