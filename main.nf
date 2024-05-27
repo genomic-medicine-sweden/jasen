@@ -6,6 +6,7 @@ include { CALL_STAPHYLOCOCCUS_AUREUS        } from './workflows/staphylococcus_a
 include { CALL_MYCOBACTERIUM_TUBERCULOSIS   } from './workflows/mycobacterium_tuberculosis.nf'
 include { CALL_KLEBSIELLA_PNEUMONIAE        } from './workflows/klebsiella_pneumoniae.nf'
 include { CALL_ESCHERICHIA_COLI             } from './workflows/escherichia_coli.nf'
+include { CALL_PSEUDOMONAS_AERUGINOSA       } from './workflows/pseudomonas_aeruginosa.nf'
 
 workflow {
     if (workflow.profile == "staphylococcus_aureus") {
@@ -16,5 +17,7 @@ workflow {
         CALL_KLEBSIELLA_PNEUMONIAE()
     } else if (workflow.profile == "escherichia_coli") {
         CALL_ESCHERICHIA_COLI()
+    } else if (workflow.profile == "pseudomonas_aeruginosa") {
+        CALL_PSEUDOMONAS_AERUGINOSA()
     }
 }
