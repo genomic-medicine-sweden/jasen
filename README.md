@@ -17,8 +17,9 @@ will likely work with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
-* Singularity
-* Nextflow (`curl -s https://get.nextflow.io | bash`)
+* [Singularity](https://sylabs.io/docs/) or [Apptainer](https://apptainer.org/)
+* [Nextflow](https://nextflow.io/) (`curl -s https://get.nextflow.io | bash`)
+* [Prodigal](https://github.com/hyattpd/prodigal)
 
 ### Recommended
 

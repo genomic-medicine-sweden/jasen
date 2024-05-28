@@ -673,7 +673,7 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converge
 pseudomonas_aeruginosa_all: pseudomonas_aeruginosa_download_reference \
 	pseudomonas_aeruginosa_faidx_reference \
 	pseudomonas_aeruginosa_bwaidx_reference \
-	pseudomonas_aeruginosa_download_prodigal_training_file \
+	pseudomonas_aeruginosa_generate_prodigal_training_file \
 	pseudomonas_aeruginosa_download_cgmlst_schema \
 	pseudomonas_aeruginosa_unpack_cgmlst_schema \
 	pseudomonas_aeruginosa_prep_cgmlst_schema
@@ -713,16 +713,15 @@ $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta.bwt: $(PAER_GENOMES_DIR)/$(PAER_REF
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
-pseudomonas_aeruginosa_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn # TODO: Create prodigal training file
+pseudomonas_aeruginosa_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn
 
-$(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
-	$(call log_message,"Downloading Pseudomonas aeruginosa prodigal training file ...")
+$(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn: $(PAER_GENOMES_DIR)/$(PAER_REFSEQ_ACC).fasta
+	$(call log_message,"Generating Pseudomonas aeruginosa prodigal training file ...")
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
-	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Pseudomonas_aeruginos.trn \ # FIXME: Doesn't exist
-		-O $@ \
-		--no-verbose \
-		--no-check-certificate |& tee -a $(INSTALL_LOG)
+	&& prodigal \
+		-i $^ \
+		-t $@ |& tee -a $(INSTALL_LOG)
 
 
 pseudomonas_aeruginosa_download_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/cgmlst_141106.zip
