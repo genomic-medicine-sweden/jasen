@@ -7,10 +7,13 @@
 _Just Another System for Epityping using NGSs data_
 
 >[!WARNING]
->**JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.**
+>**JASEN is in beta stage and the results are unverified. There is no guarantee
+that the pipeline can execute, output format consistency, or that it produces
+accurate results until there is an official 1.0 release.**
 
 Jasen produces results for epidemiological and surveillance purposes.
-Jasen has been developed for a small set of microbiota (primarily MRSA), but will likely work with any bacteria with a stable cgMLST scheme.
+Jasen has been developed for a small set of microbiota (primarily MRSA), but
+will likely work with any bacteria with a stable cgMLST scheme.
 
 ## Requirements
 
@@ -84,7 +87,10 @@ Source: `configs/nextflow.base.config`
 When analysing Nanopore data:
 * Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`
 * Edit the `ext.seqmethod`for Flye depending on the input data
-* Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
+* Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently
+  it is set to `r941_min_sup_g507`, but one should always set it based on how
+  the data was produced. More about choosing the right model can be found
+  [here](https://github.com/nanoporetech/medaka#models).
 
 ### Test data
 Source: `assets/test_data/samplelist.csv`
@@ -190,7 +196,10 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 
 * [Kraken2](https://ccb.jhu.edu/software/kraken2/): Species detection.
 * [Bracken](https://ccb.jhu.edu/software/bracken/): Combined with Kraken2 for species detection.
-* [bwa mem](https://github.com/lh3/bwa): Maps reads to cgMLST loci (demarcated by bed file) in order to estimate genome coverage. Low levels of Intra-species contamination or erroneous mapping is removed using bwa and filtering away the heterozygous mapped bases.
+* [bwa mem](https://github.com/lh3/bwa): Maps reads to cgMLST loci (demarcated
+  by bed file) in order to estimate genome coverage. Low levels of
+  Intra-species contamination or erroneous mapping is removed using bwa and
+  filtering away the heterozygous mapped bases.
 * [interquartile range](https://en.wikipedia.org/wiki/Interquartile_range): Calculates evenness of coverage.
 
 ### Assembly
@@ -203,7 +212,9 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 
 ### Epidemiological typing
 
-* [chewBBACA](https://github.com/B-UMMI/chewBBACA/wiki): Calculates cgMLST of extracted alleles decided by schema. Number of missing loci is calculated and used as a QC parameter.
+* [chewBBACA](https://github.com/B-UMMI/chewBBACA/wiki): Calculates cgMLST of
+  extracted alleles decided by schema. Number of missing loci is calculated and
+  used as a QC parameter.
 * [cgmlst.net](https://www.cgmlst.org/ncs/schema/141106/): The cgMLST reference schema.
 * [mlst](https://github.com/tseemann/mlst): Caculates traditional 7-locus MLST.
 
@@ -241,4 +252,3 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 * Always run the latest versions of the bioinformatical software.
 * Verify you have execution permission for jasens `*.sif` images.
 * Old Singularity versions may sporadically produce the error `FATAL: could not open image jasen/container/*.sif: image format not recognized!`
-
