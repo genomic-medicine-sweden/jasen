@@ -20,3 +20,6 @@
 [submodule "assets/serotypefinder_db"]
 	path = assets/serotypefinder_db
 	url = https://bitbucket.org/genomicepidemiology/serotypefinder_db.git
+[submodule "assets/ShigaPass"]
+	path = assets/ShigaPass
+	url = git@github.com:imanyass/ShigaPass.git
