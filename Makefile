@@ -1,16 +1,15 @@
 # ==============================================================================
 # Brief explanation of Makefile syntax
 # ==============================================================================
-# Since Makefiles are a bit special, and there are not a lot of easy to read
-# tutorials out there, here follows a very brief introduction to the syntax in
-# Makefiles.
+# Since Makefiles are a bit special and there are not a lot of easy to read
+# tutorials out there, here follows a brief introduction to the Makefile syntax
 #
 # Basics
 # ------------------------------------------------------------------------------
 #
 # Makefiles are in many ways similar to bash-scripts, but unlike bash-scripts
-# they are not written in a linear sequential fashion, but rather divided into
-# so called rules, that are typically tightly connected to specific output file
+# they are not written in a sequential fashion, but rather divided into so
+# called rules that are typically tightly connected to specific output file
 # paths or file path pattern.
 #
 # Firstly, Makefiles should be named `Makefile` and be put inside a folder
@@ -26,21 +25,21 @@
 #     possibly more commands
 #
 # So, the significant part of the rule syntax is the ':'-character, as well as
-# the indentation of the rows following the head of the rule, to indicate the
+# the indentation of the rows following the head of the rule to indicate the
 # "recipe" or the commands to produce the outputs of the rule.
 #
-# A rule can also have just a name, and no concrete output file. That is, it
+# A rule can also have just a name and no concrete output file. That is, it
 # would have the form:
 #
 # name_of_the_rule : any dependent input files
 #     one commands
 #     more commands
 #
-# Now, there is one big caveat here, related to our scripts: Make will rebuild
-# a target as soon as any of its inputs are updated, or have a newer timestamp
-# than the target. This is typically not desired for us, since we might have
+# Now, there is one big caveat here related to our scripts: Make will rebuild a
+# target as soon as any of its inputs are updated, or have a newer timestamp
+# than the target. This is typically not desired for us since we might have
 # files unpacked with zip with all kinds of different dates, and for a one-run
-# installation, we are mostly interested in wheter an output file already
+# installation we are mostly interested in whether an output file already
 # exists or not, not so much about timestamps.
 #
 # To change so that Make only cares about whether files exist, and not timestamps,
@@ -67,17 +66,17 @@
 #
 # $ make <outputfile>
 #
-# Tip: Type "make" and hit tab twice in the shell, to show available targets to
+# Tip: Type "make" and hit tab twice in the shell to show available targets to
 # run in the current makefile.
 #
 # Special variables and more
 # ------------------------------------------------------------------------------
 #
-# Inside the commands of the rules, one can write pretty much bash, especially
-# if setting `SHELL := /bin/bash` in the beginning of the Makefile which we have
-# done below.
+# Inside the commands of the rules one can write pretty much bash, especially
+# if setting `SHELL := /bin/bash` in the beginning of the Makefile which we
+# have done below.
 #
-# There are a some differences though:
+# There are a few differences though:
 #
 # 1. Variable syntax using only a single $-character refer to MAKE-variables.
 #    Thus, to use variables set in bash, you have to use double-$.
