@@ -719,7 +719,7 @@ $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn: $(PAER_GENOMES_DIR)/$(PAER_
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& prodigal \
-		-i $^ \
+		-i $< \
 		-t $@ |& tee -a $(INSTALL_LOG)
 
 
