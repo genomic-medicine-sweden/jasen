@@ -179,6 +179,7 @@ check:	check_chewbbaca \
 # ==============================================================================
 # Check and update git submodules
 # ==============================================================================
+
 check-and-reinit-git-submodules:
 	@if git submodule status | egrep -q '^[-]|^[+]' ; then \
 		echo "Updating / re-initializing git submodules ..." \
@@ -298,6 +299,7 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 # -----------------------------
 # S. aureus
 # -----------------------------
+
 staphylococcus_aureus_all: staphylococcus_aureus_download_reference \
 	staphylococcus_aureus_faidx_reference \
 	staphylococcus_aureus_bwaidx_reference \
