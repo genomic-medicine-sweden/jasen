@@ -355,9 +355,9 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-staphylococcus_aureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
+staphylococcus_aureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_saureus.zip
 
-$(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
+$(SAUR_CGMLST_DIR)/alleles/cgmlst_saureus.zip:
 	$(call log_message,"Downloading S. aureus cgMLST schema ...")
 	mkdir -p $(SAUR_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
@@ -369,7 +369,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 
 staphylococcus_aureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
-$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
+$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_saureus.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
 	cd $$(dirname $<) \
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -465,9 +465,9 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 
 
 # Download Ecoli cgmlst cgmlst.org schema
-ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
+ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_ecoli.zip
 
-$(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
+$(ECOLI_CGMLST_DIR)/alleles/cgmlst_ecoli.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
@@ -480,7 +480,7 @@ $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip:
 # Unpack Ecoli cgmlst schema
 ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 
-$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/ecoli_cgmlst_alleles_5064703.zip
+$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_ecoli.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -564,9 +564,9 @@ $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 
 
 # Download Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_kpneumoniae.zip
 
-$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
+$(KPNEU_CGMLST_DIR)/alleles/cgmlst_kpneumoniae.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
@@ -578,7 +578,7 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 
-$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_kpneumoniae.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -724,9 +724,9 @@ $(PRODIGAL_TRAINING_DIR)/Pseudomonas_aeruginosa.trn: $(PAER_GENOMES_DIR)/$(PAER_
 		-t $@ |& tee -a $(INSTALL_LOG)
 
 
-pseudomonas_aeruginosa_download_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/cgmlst_141106.zip
+pseudomonas_aeruginosa_download_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/cgmlst_paeruginosa.zip
 
-$(PAER_CGMLST_DIR)/alleles/cgmlst_16109812.zip:
+$(PAER_CGMLST_DIR)/alleles/cgmlst_paeruginosa.zip:
 	$(call log_message,"Downloading Pseudomonas aeruginosa cgMLST schema ...")
 	mkdir -p $(PAER_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(PAER_CGMLST_DIR)/alleles \
@@ -738,7 +738,7 @@ $(PAER_CGMLST_DIR)/alleles/cgmlst_16109812.zip:
 
 pseudomonas_aeruginosa_unpack_cgmlst_schema: $(PAER_CGMLST_DIR)/alleles/unpacking.done
 
-$(PAER_CGMLST_DIR)/alleles/unpacking.done: $(PAER_CGMLST_DIR)/alleles/cgmlst_16109812.zip
+$(PAER_CGMLST_DIR)/alleles/unpacking.done: $(PAER_CGMLST_DIR)/alleles/cgmlst_paeruginosa.zip
 	$(call log_message,"Unpacking Pseudomonas aeruginosa cgMLST schema ...")
 	cd $$(dirname $<) \
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
