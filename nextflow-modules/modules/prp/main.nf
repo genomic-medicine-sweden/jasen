@@ -4,7 +4,7 @@ process create_analysis_result {
   stageInMode 'symlink'
 
   input:
-    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
     path referenceGenomeIdx
     path referenceGenomeGff
@@ -31,6 +31,7 @@ process create_analysis_result {
     runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
     serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
     serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
+    shigapassArgs = shigapass ? "--shigapass ${shigapass}" : ""
     symlinkDirArgs = params.symlinkDir ? "--symlink_dir ${params.symlinkDir}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
@@ -52,6 +53,7 @@ process create_analysis_result {
       ${resfinderArgs} \\
       ${runInfoArgs} \\
       ${serotypeArgs} \\
+      ${shigapassArgs} \\
       ${symlinkDirArgs} \\
       ${tbprofilerArgs} \\
       ${virulenceArgs} \\
