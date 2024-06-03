@@ -163,8 +163,8 @@ install: download_or_build_containers \
 update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
-	update_finder_dbs
-	# update_shigapass_db
+	update_finder_dbs \
+	update_shigapass_db
 
 update_organisms: staphylococcus_aureus_all \
 	ecoli_all \
@@ -202,20 +202,21 @@ download_or_build_containers:
 # -----------------------------
 # Update ShigaPass database
 # -----------------------------
-#SHIGAPASS_DIR := $(ASSETS_DIR)/ShigaPass
-#update_shigapass_db: $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
+SHIGAPASS_DIR := $(ASSETS_DIR)/ShigaPass
+update_shigapass_db: $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
 
-# $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
-# 	$(call log_message,"Starting update of ShigaPass database")
-# 	cd $(SHIGAPASS_DIR) \
-# 	&& chmod +x SCRIPT/ShigaPass.sh \
-# 	&& gunzip $(SHIGAPASS_DIR)/Example/Input/*.fasta.gz \
-# 	&& singularity exec \
-# 		--bind $(MNT_ROOT) \
-# 		bash $(SHIGAPASS_DIR)/SCRIPT/ShigaPass.sh -u \
-# 		-p $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases \
-# 		-l $(SHIGAPASS_DIR)/Example/Input/ShigaPass_test.txt \
-# 		-o $(SHIGAPASS_DIR)/Example/ShigaPass_Results|& tee -a $(INSTALL_LOG)
+$(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
+	$(call log_message,"Starting update of ShigaPass database")
+	cd $(SHIGAPASS_DIR) \
+	&& chmod +x SCRIPT/ShigaPass.sh \
+	&& gunzip $(SHIGAPASS_DIR)/Example/Input/*.fasta.gz \
+	&& singularity exec \
+		--bind $(MNT_ROOT) \
+		$(CONTAINER_DIR)/shigapass.sif \
+		bash ShigaPass.sh -u \
+		-p $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases \
+		-l $(SHIGAPASS_DIR)/Example/Input/ShigaPass_test.txt \
+		-o $(SHIGAPASS_DIR)/Example/ShigaPass_Results |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update AMRFinderPlus database

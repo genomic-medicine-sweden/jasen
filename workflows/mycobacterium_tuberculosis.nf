@@ -81,6 +81,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
+            .join(ch_empty)
             .join(samtools_sort_ref.out.bam)
             .join(samtools_index_ref.out.bai)
             .join(ch_metadata)

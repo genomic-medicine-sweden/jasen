@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ShigaPass
+
 ### Fixed
 
 ### Changed
+
+- Updated bonsai-prp to v0.9.0
 
 ## [0.7.0]
 
