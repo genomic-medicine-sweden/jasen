@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [0.8.0]
+
+### Added
+
 - Added ShigaPass
 - Added mlstBlastDb to mlst
 - Added full path for bam and vcf filepaths 
