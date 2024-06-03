@@ -3,9 +3,11 @@ name: CI
 # it completes without any syntax errors
 on:
   push:
+    branches:
+      - [master, dev]
   pull_request:
     branches:
-      - master
+      - [master, dev]
 
 env:
   NXF_ANSI_LOG: false
