@@ -42,6 +42,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
+    mlstBlastDb = file(params.mlstBlastDb, checkIfExists: true)
     pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
@@ -95,7 +96,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.mlstScheme, pubMlstDb)
+        mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleName, filePath -> 
