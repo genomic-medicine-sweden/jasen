@@ -35,11 +35,12 @@ nextflow run main.nf -profile staphylococcus_aureus -config configs/nextflow.bas
 
 | Argument type | Options                                | Required |
 | ------------- | -------------------------------------- | -------- |
-| -profile      | staphylococcus_aureus/escherichia_coli | True     |
+| -profile      | **staphylococcus_aureus**, escherichia_coli, klebsiella_pneumoniae, mycobacterium_tuberculosis| True     |
+| -config       | **configs/nextflow.base.config**, configs/nextflow.dev.config, configs/nextflow.hopper.config, configs/nextflow.ngp.config| True     |
 | -entry        | bacterial_default                      | True     |
-| -config       | nextflow.base.config                   | True     |
-| -resume       | NA                                     | False    |
-| --output      | user specified                         | False    |
+| --output      | User specified directory                         | False    |
+| -resume       | Not applicable                                     | False    |
+
 
 ### Input file format 
 
