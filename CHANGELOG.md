@@ -11,12 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added ShigaPass
 - Added mlstBlastDb to mlst
+- Added full path for bam and vcf filepaths 
+- Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
+- Added `bamDir` and `vcfDir` to config params
+- Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`
 
 ### Fixed
+
+- Fix qc channel regarding `mycobacterium_tuberculosis`
 
 ### Changed
 
 - Updated bonsai-prp to v0.9.0
+- Fixed output format for tbprofiler
+- Removed `samtools_sort_ref` from configs
+- Changed `--symlink_dir` arg for prp
 
 ## [0.7.0]
 

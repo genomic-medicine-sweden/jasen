@@ -50,12 +50,16 @@ process bwa_mem {
     path referenceIdx
 
   output:
-    tuple val(sampleName), path("${sampleName}.bam") , emit: bam
-    path "*versions.yml"                             , emit: versions
+    tuple val(sampleName), path(output) , emit: bam
+    path "*versions.yml"                , emit: versions
+
+  when:
+    workflow.profile != "mycobacterium_tuberculosis"
 
   script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
+    output = "${sampleName}_bwa.bam"
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
