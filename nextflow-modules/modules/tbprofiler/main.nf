@@ -6,7 +6,7 @@ process tbprofiler {
     tuple val(sampleName), path(reads)
 
   output:
-    tuple val(sampleName), path(dellyOutput), emit: delly
+    tuple val(sampleName), path(vcfOutput)  , emit: vcf
     tuple val(sampleName), path(output)     , emit: json
     tuple val(sampleName), path(bamOutput)  , emit: bam
     tuple val(sampleName), path(baiOutput)  , emit: bai
@@ -16,7 +16,7 @@ process tbprofiler {
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
     output = "${sampleName}_tbprofiler.json"
-    dellyOutput = "${sampleName}_delly.vcf.gz"
+    vcfOutput = "${sampleName}_tbprofiler.vcf.gz"
     bamOutput = "${sampleName}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
@@ -27,7 +27,7 @@ process tbprofiler {
       --prefix ${sampleName}
 
     cp results/${sampleName}.results.json $output
-    cp vcf/${sampleName}.targets.vcf.gz $dellyOutput
+    cp vcf/${sampleName}.targets.vcf.gz $vcfOutput
     cp bam/${sampleName}.bam $bamOutput
     cp bam/${sampleName}.bam.bai $baiOutput
 
@@ -41,13 +41,13 @@ process tbprofiler {
 
   stub:
     output = "${sampleName}_tbprofiler.json"
-    dellyOutput = "${sampleName}_delly.vcf.gz"
+    vcfOutput = "${sampleName}_tbprofiler.vcf.gz"
     bamOutput = "${sampleName}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
     mkdir results
     touch $output
-    touch $dellyOutput
+    touch $vcfOutput
     touch $bamOutput
     touch $baiOutput
 
