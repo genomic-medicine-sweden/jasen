@@ -22,10 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated bonsai-prp to v0.9.0
 - Fixed output format for tbprofiler
 - Removed `samtools_sort_ref` from configs
 - Changed `--symlink_dir` arg for prp
+- Updated bonsai-prp to v0.9.2
 
 ## [0.7.0]
 
