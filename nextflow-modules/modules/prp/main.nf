@@ -1,7 +1,6 @@
 process create_analysis_result {
   tag "${sampleName}"
   scratch params.scratch
-  stageInMode 'symlink'
 
   input:
     tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
@@ -17,9 +16,9 @@ process create_analysis_result {
     output = "${sampleName}_result.json"
     amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
-    bamArgs = bam ? "--bam ${bam}" : ""
+    bamArgs = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    dellyVcfArgs = dellyVcf ? "--sv-vcf ${dellyVcf}" : ""
+    dellyVcfArgs = dellyVcf ? "--sv-vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${dellyVcf}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
@@ -32,7 +31,7 @@ process create_analysis_result {
     serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
     serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
     shigapassArgs = shigapass ? "--shigapass ${shigapass}" : ""
-    symlinkDirArgs = params.symlinkDir ? "--symlink_dir ${params.symlinkDir}" : ""
+    symlinkDirArgs = params.symlinkDir ? "--symlink-dir ${params.symlinkDir}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
