@@ -68,7 +68,7 @@ process bwa_mem {
         -t $task.cpus \\
         \$INDEX \\
         ${reads.join(' ')} \\
-        | samtools sort $args2 --threads ${task.cpus} -o ${sampleName}.bam -
+        | samtools sort $args2 --threads ${task.cpus} -o $output -
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
