@@ -101,15 +101,15 @@ workflow CALL_ESCHERICHIA_COLI {
         mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
 
         mask_polymorph_assembly.out.fasta
-            .multiMap { sampleName, filePath -> 
-                sampleName: sampleName
+            .multiMap { sampleID, filePath -> 
+                sampleID: sampleID
                 filePath: filePath
             }
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleName.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleName, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -122,7 +122,7 @@ workflow CALL_ESCHERICHIA_COLI {
 
         shigapass(ch_assembly, shigapassDb)
 
-        ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
+        ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
         ch_quast
             .join(ch_qc)

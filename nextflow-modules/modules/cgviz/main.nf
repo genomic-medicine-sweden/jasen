@@ -1,18 +1,17 @@
 process export_to_cgviz {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
     path runInfo
     file meta
-    //paths
-    tuple val(sampleName), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
+    tuple val(sampleID), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
 
   output:
     path(output)
 
   script:
-    output = "${sampleName}_cgviz.json"
+    output = "${sampleID}_cgviz.json"
     //--kraken ${bracken} \\
     quastArgs = quast ? "--quast ${quast}" : "" 
     mlstArgs = mlst ? "--mlst ${mlst}" : "" 
@@ -22,7 +21,7 @@ process export_to_cgviz {
     metaArgs = meta ? "--process-metadata  ${meta[1..-1].join(' --process-metadata ')}" : ""
     """
     combine_results.py \\
-      --sample-id ${sampleName} \\
+      --sample-id ${sampleID} \\
       --run-metadata ${runInfo} \\
       ${metaArgs} \\
       ${quastArgs} \\
@@ -34,7 +33,7 @@ process export_to_cgviz {
     """
 
   stub:
-    output = "${sampleName}_cgviz.json"
+    output = "${sampleID}_cgviz.json"
     """
     touch $output
     """

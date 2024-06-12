@@ -1,18 +1,18 @@
 process create_yaml {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(prp), path(signature)
+    tuple val(sampleID), path(prp), path(signature)
     val species
 
   output:
-    tuple val(sampleName), path(output), emit: yaml
+    tuple val(sampleID), path(output), emit: yaml
 
   script:
     def prpDir = task.ext.args_prp ?: ""
     def sourmashDir = task.ext.args_sourmash ?: ""
-    output = "${sampleName}_bonsai.yaml"
+    output = "${sampleID}_bonsai.yaml"
     """
     #!/usr/bin/env python
     import yaml
@@ -30,7 +30,7 @@ process create_yaml {
     """
 
   stub:
-    output = "${sampleName}_bonsai.yaml"
+    output = "${sampleID}_bonsai.yaml"
     """
     touch $output
     """

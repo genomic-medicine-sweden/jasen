@@ -1,18 +1,18 @@
 process shigapass {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(fasta)
+    tuple val(sampleID), path(fasta)
     path shigapassDb
 
   output:
-    tuple val(sampleName), path(outputFile), emit: csv
-    path "*versions.yml"                   , emit: versions
+    tuple val(sampleID), path(outputFile), emit: csv
+    path "*versions.yml"                 , emit: versions
 
   script:
     shigapassDbArgs = shigapassDb ? "-p ${shigapassDb}" : "-p /usr/local/share/shigapass-1.5.0/db/"
-    outputFile = "${sampleName}_shigapass.csv"
+    outputFile = "${sampleID}_shigapass.csv"
     """
     echo ${fasta} > batch_input.txt
 
@@ -24,7 +24,7 @@ process shigapass {
 
     cp ShigaPass_summary.csv ${outputFile}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      shigapass:
       version: \$(echo \$(ShigaPass.sh -v 2>&1) | sed 's/^.*ShigaPass version // ; s/ .*//')
@@ -33,11 +33,11 @@ process shigapass {
     """
 
  stub:
-    outputFile = "${sampleName}_shigapass.csv"
+    outputFile = "${sampleID}_shigapass.csv"
     """
     touch $outputFile
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      shigapass:
       version: \$(echo \$(ShigaPass.sh -v 2>&1) | sed 's/^.*ShigaPass version // ; s/ .*//')

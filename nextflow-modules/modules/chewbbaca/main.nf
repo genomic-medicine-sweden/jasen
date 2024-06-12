@@ -3,13 +3,13 @@ process chewbbaca_allelecall {
   scratch params.scratch
 
   input:
-    val sampleName
+    val sampleID
     path batchInput
     path schemaDir
     path trainingFile
 
   output:
-    val sampleName                        , emit: sampleName
+    val sampleID                          , emit: sampleID
     path('output_dir/results_alleles.tsv'), emit: calls
     path "*versions.yml"                  , emit: versions
 
@@ -70,25 +70,25 @@ process chewbbaca_create_batch_list {
 }
 
 process chewbbaca_split_results {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    each sampleName
+    each sampleID
     path input
 
   output:
-    tuple val(sampleName), path(output), emit: output
+    tuple val(sampleID), path(output), emit: output
 
   script:
-    output = "${sampleName}_chewbbaca.out"
+    output = "${sampleID}_chewbbaca.out"
     """
     head -1 ${input} > ${output}
-    grep ${sampleName} ${input} >> ${output}
+    grep ${sampleID} ${input} >> ${output}
     """
 
   stub:
-    output = "${sampleName}_chewbbaca.out"
+    output = "${sampleID}_chewbbaca.out"
     """
     touch $output
     """

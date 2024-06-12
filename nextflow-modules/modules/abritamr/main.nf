@@ -1,17 +1,17 @@
 process abritamr {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(contigs)
+    tuple val(sampleID), path(contigs)
     val species
     path database
 
   output:
-    tuple val(sampleName), path(matches)  , optional: true, emit: matches
-    tuple val(sampleName), path(partials) , optional: true, emit: partials
-    tuple val(sampleName), path(virulence), optional: true, emit: virulence
-    path "*versions.yml"                  , emit: versions
+    tuple val(sampleID), path(matches)  , optional: true, emit: matches
+    tuple val(sampleID), path(partials) , optional: true, emit: partials
+    tuple val(sampleID), path(virulence), optional: true, emit: virulence
+    path "*versions.yml"                , emit: versions
 
   script:
     def mode = task.ext.mode ?: 'run'
@@ -19,10 +19,10 @@ process abritamr {
     def matches_command = task.ext.mode == 'report' ? "--matches ${matches}" : ""
     def partials_command = task.ext.mode == 'report' ? "--partials ${partials}" : ""
     def args = task.ext.args ?: ''
-    matches = "${sampleName}_matches.tsv"
-    partials = "${sampleName}_partials.tsv"
-    virulence = "${sampleName}_virulence.tsv"
-    output = "${sampleName}_amr.out"
+    matches = "${sampleID}_matches.tsv"
+    partials = "${sampleID}_partials.tsv"
+    virulence = "${sampleID}_virulence.tsv"
+    output = "${sampleID}_amr.out"
     """
     abritamr $mode \\
     --contigs $contigs \\
@@ -32,7 +32,7 @@ process abritamr {
     $partials_command \\
     $args
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      abritamr:
       version: \$(echo \$(abritamr --version 2>&1) | sed 's/^.*abritamr // ; s/ .*//')
@@ -42,7 +42,7 @@ process abritamr {
 
   stub:
     """
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      abritamr:
       version: \$(echo \$(abritamr --version 2>&1) | sed 's/^.*abritamr // ; s/ .*//')

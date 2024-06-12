@@ -1,28 +1,28 @@
 process resfinder {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
     val species
     val resfinderDb
     val pointfinderDb
 
   output:
-    tuple val(sampleName), path(outputFileJson), emit: json
-    tuple val(sampleName), path(metaFile)      , emit: meta
-    path outputFileGene                        , emit: geneTable
-    path outputFilePoint                       , emit: pointTable
-    path "*versions.yml"                       , emit: versions
+    tuple val(sampleID), path(outputFileJson), emit: json
+    tuple val(sampleID), path(metaFile)      , emit: meta
+    path outputFileGene                      , emit: geneTable
+    path outputFilePoint                     , emit: pointTable
+    path "*versions.yml"                     , emit: versions
 
   script:
     def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
     def speciesArgs = species ? "--species '${species}'" : ""
-    outputFileJson = "${sampleName}_resfinder.json"
-    metaFile = "${sampleName}_resfinder_meta.json"
-    outputFileGene = "${sampleName}_pheno_table.txt"
-    outputFilePoint = "${sampleName}_point_table.txt"
+    outputFileJson = "${sampleID}_resfinder.json"
+    metaFile = "${sampleID}_resfinder_meta.json"
+    outputFileGene = "${sampleID}_pheno_table.txt"
+    outputFilePoint = "${sampleID}_point_table.txt"
     """
     # Get db version
     RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
@@ -43,7 +43,7 @@ process resfinder {
     cp pheno_table.txt ${outputFileGene}
     cp PointFinder_results.txt ${outputFilePoint}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
@@ -58,10 +58,10 @@ process resfinder {
     """
 
   stub:
-    outputFileJson = "${sampleName}_resfinder.json"
-    metaFile = "${sampleName}_resfinder_meta.json"
-    outputFileGene = "${sampleName}_pheno_table.txt"
-    outputFilePoint = "${sampleName}_point_table.txt"
+    outputFileJson = "${sampleID}_resfinder.json"
+    metaFile = "${sampleID}_resfinder_meta.json"
+    outputFileGene = "${sampleID}_pheno_table.txt"
+    outputFilePoint = "${sampleID}_point_table.txt"
     """
     RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
     POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
@@ -71,7 +71,7 @@ process resfinder {
     touch $outputFileGene
     touch $outputFilePoint
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )

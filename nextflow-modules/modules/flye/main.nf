@@ -1,13 +1,13 @@
 process flye {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads), val(platform) 
+    tuple val(sampleID), path(reads), val(platform) 
 
   output:
-    tuple val(sampleName), path("${sampleName}_assembly.fasta"), emit: fasta
-    path "*versions.yml"                                       , emit: versions
+    tuple val(sampleID), path(output), emit: fasta
+    path "*versions.yml"             , emit: versions
 
   when:
     platform == "nanopore"
@@ -15,12 +15,13 @@ process flye {
   script:
     def args = task.ext.args ?: ''
     def seqmethod = task.ext.seqmethod ?: ''
-    outputDir = params.publishDir ? params.publishDir : 'flye'
+    outputDir = 'flye_outdir'
+    output = "${sampleID}_flye.fasta"
     """
-    flye ${seqmethod} ${reads} --out-dir ${outputDir} ${args}
-    mv ${outputDir}/assembly.fasta ${sampleName}_assembly.fasta
+    flye $seqmethod $reads --out-dir $outputDir $args
+    mv $outputDir/assembly.fasta $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      flye:
       version: \$(echo \$(flye --version 2>&1))
@@ -29,11 +30,11 @@ process flye {
     """
 
   stub:
-    output = "${sampleName}_assembly.fasta"
+    output = "${sampleID}_flye.fasta"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      flye:
       version: \$(echo \$(flye --version 2>&1))
