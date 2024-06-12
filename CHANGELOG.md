@@ -15,12 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
 - Added `bamDir` and `vcfDir` to config params
 - Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`
+- Added `sample_name` to `get_seqrun_meta`
 
 ### Fixed
 
 - ShigaPass URL fixed
 - Fixed qc channel regarding `mycobacterium_tuberculosis`
 - Fixed bwa output file bug and stub
+- Fixed README re jasentool cmds
+- Fixed `get_seqrun_meta` if statements
 
 ### Changed
 
@@ -28,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `samtools_sort_ref` from configs
 - Changed `--symlink_dir` arg for prp
 - Updated bonsai-prp to v0.9.2
+- Changed sampleName to sampleID
 
 ## [0.7.0]
 
