@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ShigaPass URL fixed
 - Fixed qc channel regarding `mycobacterium_tuberculosis`
-- Fixed bwa output file bug
+- Fixed bwa output file bug and stub
 
 ### Changed
 

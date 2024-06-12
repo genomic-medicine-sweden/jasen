@@ -82,8 +82,9 @@ process bwa_mem {
     """
 
   stub:
+    output = "${sampleName}_bwa.bam"
     """
-    touch ${sampleName}.bam
+    touch $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
