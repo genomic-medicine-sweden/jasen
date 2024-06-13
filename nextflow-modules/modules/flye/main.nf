@@ -15,7 +15,7 @@ process flye {
   script:
     def args = task.ext.args ?: ''
     def seqmethod = task.ext.seqmethod ?: ''
-    outputDir = 'flye_outdir'
+    outputDir = "flye_outdir"
     output = "${sampleID}_flye.fasta"
     """
     flye $seqmethod $reads --out-dir $outputDir $args

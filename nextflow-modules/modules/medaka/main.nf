@@ -15,7 +15,7 @@ process medaka {
 
   script:
     def args = task.ext.args ?: ''
-    outputDir = 'medaka_outdir'
+    outputDir = "medaka_outdir"
     output = "${sampleID}_medaka.fasta"
     """
     medaka_consensus -i $reads -d $assembly -o medaka_tmp $args

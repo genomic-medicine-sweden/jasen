@@ -18,7 +18,7 @@ process spades_iontorrent {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
-    outputDir = 'spades_outdir'
+    outputDir = "spades_outdir"
     output = "${sampleID}_spades.fasta"
     """
     spades.py ${args} ${inputData} -t ${task.cpus} -o $outputDir
@@ -66,10 +66,11 @@ process spades_illumina {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
-    outputDir = params.publishDir ? params.publishDir : 'spades'
+    outputDir = "spades_outdir"
+    output = "${sampleID}_spades.fasta"
     """
-    spades.py ${args} ${inputData} -t ${task.cpus} -o ${outputDir}
-    mv ${outputDir}/contigs.fasta ${sampleID}.fasta
+    spades.py ${args} ${inputData} -t ${task.cpus} -o $outputDir
+    mv $outputDir/contigs.fasta $output
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
@@ -80,7 +81,7 @@ process spades_illumina {
     """
 
   stub:
-    output = "${sampleID}.fasta"
+    output = "${sampleID}_spades.fasta"
     """
     touch $output
 
