@@ -30,8 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed output format for tbprofiler
 - Removed `samtools_sort_ref` from configs
 - Changed `--symlink_dir` arg for prp
-- Updated bonsai-prp to v0.9.2
 - Changed sampleName to sampleID
+- Updated `flye`, `freebayes`, `mask`, `medaka`, `post_align_qc`, `skesa` & `spades`  output filenames
+- Updated bonsai-prp to v0.9.3
 
 ## [0.7.0]
 
