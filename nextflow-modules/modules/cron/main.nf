@@ -14,7 +14,7 @@ process copy_to_cron {
 
   script:
     yamlOutput = "${sampleID}_bonsai.yaml"
-    cdmOutput = "${sampleID}.cdm"
+    cdmOutput = "${sampleID}.cdmpy"
     """
     cp ${yaml} ${yamlOutput}
     cp ${cdm} ${cdmOutput}
@@ -22,7 +22,7 @@ process copy_to_cron {
 
   stub:
     yamlOutput = "${sampleID}_bonsai.yaml"
-    cdmOutput = "${sampleID}.cdm"
+    cdmOutput = "${sampleID}.cdmpy"
     """
     touch $yamlOutput $cdmOutput
     """
