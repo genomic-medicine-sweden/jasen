@@ -50,12 +50,16 @@ process bwa_mem {
     path referenceIdx
 
   output:
-    tuple val(sampleName), path("${sampleName}.bam") , emit: bam
-    path "*versions.yml"                             , emit: versions
+    tuple val(sampleName), path(output) , emit: bam
+    path "*versions.yml"                , emit: versions
+
+  when:
+    workflow.profile != "mycobacterium_tuberculosis"
 
   script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
+    output = "${sampleName}_bwa.bam"
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
@@ -64,7 +68,7 @@ process bwa_mem {
         -t $task.cpus \\
         \$INDEX \\
         ${reads.join(' ')} \\
-        | samtools sort $args2 --threads ${task.cpus} -o ${sampleName}.bam -
+        | samtools sort $args2 --threads ${task.cpus} -o $output -
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
@@ -78,8 +82,9 @@ process bwa_mem {
     """
 
   stub:
+    output = "${sampleName}_bwa.bam"
     """
-    touch ${sampleName}.bam
+    touch $output
 
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:

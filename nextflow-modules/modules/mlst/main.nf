@@ -6,6 +6,7 @@ process mlst {
     tuple val(sampleName), path(assembly)
     val scheme
     path pubMlstDb
+    path mlstBlastDb
 
   output:
     tuple val(sampleName), path('*.tsv')  , optional: true, emit: tsv
@@ -18,6 +19,7 @@ process mlst {
     outputName = "${sampleName}_mlst"
     schemeArgs = scheme ? "--scheme ${scheme}" : "" 
     pubMlstDbArgs = pubMlstDb ? "--datadir ${pubMlstDb}" : ""
+    mlstBlastDbPath = mlstBlastDb ? "--blastdb ${mlstBlastDb}/mlst.fa" : ""
     """
     mlst \\
       ${args} \\

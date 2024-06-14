@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ShigaPass
+- Added mlstBlastDb to mlst
+- Added full path for bam and vcf filepaths 
+- Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
+- Added `bamDir` and `vcfDir` to config params
+- Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`
+
+### Fixed
+
+- ShigaPass URL fixed
+- Fixed qc channel regarding `mycobacterium_tuberculosis`
+- Fixed bwa output file bug and stub
+
+### Changed
+
+- Fixed output format for tbprofiler
+- Removed `samtools_sort_ref` from configs
+- Changed `--symlink_dir` arg for prp
+- Updated bonsai-prp to v0.9.2
+
+## [0.7.0]
+
+### Added
+
 - Added two modules for assembly of long-read Nanopore data: Flye and Medaka
 - Added `referenceGenome` to `prp create-bonsai-input`
 - created `.fai` files from all genomes in `Makefile`
@@ -28,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated kpneumoniae genome from `NC_016845.1` to `GCF_000240185.1`
 - Updated tbprofiler to v6.2.0
 - Updated `download_ncbi.py` to include `.gff` files
-- Updated bonsai-prp to v0.8.1
+- Updated bonsai-prp to v0.8.3
 - Removed FoHM variant duplicates
 
 ## [0.6.0]

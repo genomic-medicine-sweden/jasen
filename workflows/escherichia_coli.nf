@@ -22,6 +22,7 @@ include { mlst                                      } from '../nextflow-modules/
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
 include { serotypefinder                            } from '../nextflow-modules/modules/serotypefinder/main.nf'
+include { shigapass                                 } from '../nextflow-modules/modules/shigapass/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
@@ -42,6 +43,7 @@ workflow CALL_ESCHERICHIA_COLI {
     referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
+    mlstBlastDb = file(params.mlstBlastDb, checkIfExists: true)
     pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
@@ -49,6 +51,7 @@ workflow CALL_ESCHERICHIA_COLI {
     resfinderDb = file(params.resfinderDb, checkIfExists: true)
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
     serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
+    shigapassDb = file(params.shigapassDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
 
     main:
@@ -95,7 +98,7 @@ workflow CALL_ESCHERICHIA_COLI {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.mlstScheme, pubMlstDb)
+        mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleName, filePath -> 
@@ -117,6 +120,8 @@ workflow CALL_ESCHERICHIA_COLI {
         serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
+        shigapass(ch_assembly, shigapassDb)
+
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
         ch_quast
@@ -130,8 +135,9 @@ workflow CALL_ESCHERICHIA_COLI {
             .join(serotypefinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
-            .join(ch_empty)
-            .join(ch_empty)
+            .join(shigapass.out.csv)
+            .join(ch_ref_bam)
+            .join(ch_ref_bai)
             .join(ch_metadata)
             .join(ch_empty)
             .join(ch_empty)

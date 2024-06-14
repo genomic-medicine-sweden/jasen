@@ -13,8 +13,6 @@ include { export_to_cdm                         } from '../nextflow-modules/modu
 include { kraken                                } from '../nextflow-modules/modules/kraken/main.nf'
 include { mykrobe                               } from '../nextflow-modules/modules/mykrobe/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
-include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
-include { samtools_sort as samtools_sort_ref    } from '../nextflow-modules/modules/samtools/main.nf'
 include { snippy                                } from '../nextflow-modules/modules/snippy/main.nf'
 include { tbprofiler as tbprofiler_tbdb         } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modules/tbprofiler/main.nf'
@@ -48,7 +46,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
-        CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
@@ -60,13 +57,10 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         tbprofiler_mergedb(ch_reads)
 
-        annotate_delly(tbprofiler_mergedb.out.delly, tbdbBed, tbdbBedIdx)
+        annotate_delly(tbprofiler_mergedb.out.vcf, tbdbBed, tbdbBedIdx)
 
-        samtools_sort_ref(tbprofiler_mergedb.out.bam)
-
-        samtools_index_ref(samtools_sort_ref.out.bam)
-
-        post_align_qc(samtools_sort_ref.out.bam, params.referenceGenome, coreLociBed)
+        post_align_qc(tbprofiler_mergedb.out.bam, params.referenceGenome, coreLociBed)
+        post_align_qc.out.qc.set{ch_qc}
 
         ch_reads.map { sampleName, reads -> [ sampleName, [] ] }.set{ ch_empty }
 
@@ -81,8 +75,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
-            .join(samtools_sort_ref.out.bam)
-            .join(samtools_index_ref.out.bai)
+            .join(ch_empty)
+            .join(tbprofiler_mergedb.out.bam)
+            .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)
             .join(annotate_delly.out.vcf)
             .join(mykrobe.out.csv)
