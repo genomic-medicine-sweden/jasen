@@ -4,7 +4,7 @@
   </a>
 </p>
 
-_Just Another System for Epityping using NGSs data_
+_Just Another System for Epityping NGS data_
 
 >[!WARNING]
 >**JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.**
@@ -14,7 +14,8 @@ Jasen has been developed for a small set of microbiota (primarily MRSA), but wil
 
 ## Requirements
 
-* Singularity
+* [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html#install-on-windows-or-mac)
+* [JRE 8 - 21](https://www.java.com/en/download/manual.jsp)
 * Nextflow (`curl -s https://get.nextflow.io | bash`)
 
 ### Recommended
@@ -22,59 +23,77 @@ Jasen has been developed for a small set of microbiota (primarily MRSA), but wil
 * Conda
 * Singularity Remote Login
 
-## Development deployment (self-contained)
+## Usage
+
+### Simple self-test
+
+```
+nextflow run main.nf -profile staphylococcus_aureus -config configs/nextflow.base.config --csv assets/test_data/samplelist.csv
+```
+
+#### Usage arguments
+
+| Argument type | Options                                | Required |
+| ------------- | -------------------------------------- | -------- |
+| -profile      | **staphylococcus_aureus**, escherichia_coli, klebsiella_pneumoniae, mycobacterium_tuberculosis| True     |
+| -config       | **configs/nextflow.base.config**, configs/nextflow.dev.config, configs/nextflow.hopper.config, configs/nextflow.ngp.config| True     |
+| -entry        | bacterial_default                      | True     |
+| --output      | User specified directory                         | False    |
+| -resume       | Not applicable                                     | False    |
+
+
+### Input file format 
+
+```csv
+id,platform,read1,read2
+p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+```
+
+### Update databases
+
+#### Update MLST database
+
+```
+bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
+```
+
+
+## Installation
 
 ### Copy code locally
 
 ```
-git clone --recurse-submodules --single-branch --branch master  git@github.com:genomic-medicine-sweden/jasen.git && cd jasen
-```
-
-### Access to OCI registries (Optional)
-
-```
-singularity remote login
+git clone --recurse-submodules --single-branch --branch master  https://github.com/genomic-medicine-sweden/jasen.git && cd jasen
 ```
 
 ### Create singularity images. 
 
-Note: The containers that need to be built locally require sudo privileges.
+The containers will be attempted to be built and downloaded as part of
+the main Makefile (that is, when running `make install` in the main repo
+folder).
 
 ```
 cd container
-sudo make build_local_containers
-make download_remote_containers
-cd ..
+make
 ```
 
-Note: The containers will be attempted to be built and/or downloaded as part of
-the main Makefile (that is, when running `make install` in the main repo
-folder), but building them with sudo before like above means you avoid the main
-script being stopped in the middle, asking you for the sudo password, when it
-comes to this step.
 
 ### Download references and databases using singularity. 
 
-First, make sure you stand in the main jasen folder (so if you cd:ed into the
-`container` folder before, you need to cd back to the main folder with `cd
-..`). Then run the `install` make rule:
+First, make sure you stand in the `container` folder. Then run the `make` commands:
 
 ```
+cd ..
 make install
-```
-
-Finally, run checks:
-
-```
 make check
 ```
 
 Any errors produced during this step will hinder pipeline execution in
 unexpected ways.
 
-## Configuration and test data
+## Configuration
 
-### Config 
+### Nextflow configuration
 Source: `configs/nextflow.base.config`
 
 * Edit the `root` parameter in `configs/nextflow.base.config`
@@ -86,12 +105,12 @@ When analysing Nanopore data:
 * Edit the `ext.seqmethod`for Flye depending on the input data
 * Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
 
-### Test data
+### Test data configuration
 Source: `assets/test_data/samplelist.csv`
 
 * Edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
 
-## Setting up temp directories
+### Temporary directories configuration
 Source: `~/.bashrc`
 
 * Add the export line to `~/.bashrc`
@@ -101,50 +120,42 @@ Source: `~/.bashrc`
 export SINGULARITY_TMPDIR="/tmp" #or equivalent filepath to tmp dir
 ```
 
-## Fetching databases
+### Database configuration
 
-### Choose database
+#### Kraken database configuration
 Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).
 Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
 
-### Download Kraken database
+##### Download standard Kraken database
 
 ```
 wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenstd.tar.gz
 ```
 
-### Download MiniKraken database
+##### (Alternatively) Download miniKraken database
 
 ```
 wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
-## Updating databases
+#### Create TBProfiler database
 
-### Update MLST database
-
-```
-bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
-```
-
-## Create personalised TBProfiler database
-
-### Install jasentool
+##### Install jasentool
 
 ```
 git clone git@github.com:ryanjameskennedy/jasentool.git && cd jasentool
 pip install .
 ```
 
-### Create input csv that is used as tbdb input (composed of FoHM, WHO & tbdb variants)
+##### Create input csv that is used as tbdb input (composed of FoHM, WHO & tbdb variants)
 
 ```
 jasentool converge --output_dir /path/to/jasen/assets/tbdb
 ```
 
-### Create tbdb (ensure tb-profiler is installed)
+##### Create tbdb (ensure tb-profiler is installed)
 
 ```
 cd /path/to/jasen/assets/tbdb
@@ -152,37 +163,13 @@ tb-profiler create_db --prefix converged_who_fohm_tbdb
 tb-profiler load_library converged_who_fohm_tbdb
 ```
 
-### Bgzip and index gms TBProfiler db
+##### Bgzip and index gms TBProfiler db
 
 ```
 bgzip -c converged_who_fohm_tbdb.bed > /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
 tabix -p bed /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
 ```
 
-## Usage
-
-### Simple self-test
-
-```
-nextflow run main.nf -profile staphylococcus_aureus -config configs/nextflow.base.config --csv assets/test_data/samplelist.csv
-```
-
-### Usage arguments
-
-| Argument type | Options                                | Required |
-| ------------- | -------------------------------------- | -------- |
-| -profile      | staphylococcus_aureus/escherichia_coli | True     |
-| -entry        | bacterial_default                      | True     |
-| -config       | nextflow.base.config                   | True     |
-| -resume       | NA                                     | False    |
-| --output      | user specified                         | False    |
-
-### Input file format 
-
-```csv
-id,platform,read1,read2
-p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
-```
 
 ## Component Breakdown
 
@@ -236,7 +223,7 @@ p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fa
 * [Bonsai](https://github.com/Clinical-Genomics-Lund/cgviz): Visualises jasen outputs.
 * [graptetree](https://github.com/achtman-lab/GrapeTree): Visualise phylogenetic relationship using cgmlst data.
 
-## Tips
+## Frequent issues / Tips
 
 * Always run the latest versions of the bioinformatical software.
 * Verify you have execution permission for jasens `*.sif` images.

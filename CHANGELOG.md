@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `samtools_sort_ref` from configs
 - Changed `--symlink_dir` arg for prp
 - Updated bonsai-prp to v0.9.2
+- Removed sudo from make (deprecated)
+- Updated NGP config for new hardware
+- Refined readme instructions
 
 ## [0.7.0]
 
