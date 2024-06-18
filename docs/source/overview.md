@@ -14,7 +14,7 @@ Flowchart depiciting the main workflows, its output, and processes the workflow 
 
 Jasen is being continiously developed with the aim to add support for more species. Therefore can workflows be at different stages of development and evolve at different pace. A workflow can be either of three stages (*development*, *draft*, and *stable*) of development, these reflect the stability and the likelyhood of radical canges being made to the workflow.
 
-Workflows under **development** are being actively worked at. While all workflows should be functional in the *masters* branch and for every release, there are no guarantee that workflows under development produce accurate results and major changes can be introduce without notice. Use a your own descression.
+Workflows under **development** are being actively worked at. While all workflows should be functional in the *masters* branch and for every release, there are no guarantee that workflows under development produce accurate results and major changes can be introduce without notice. Use a your own discretion.
 
 **Draft** workflows are considered feature complete and in the process of being validated. Software versions can still change without notice. Use with descression.
 
