@@ -28,17 +28,11 @@ singularity remote login
 
 ### Create singularity images. 
 
-Note: The containers that need to be built locally require sudo privileges.
+The containers will be attempted to be built and downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder).
 
 ```bash
 cd container
-sudo make build_local_containers
-make download_remote_containers
-cd ..
-```
-
-```{note}
-Note: The containers will be attempted to be built and/or downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder), but building them with sudo before like above means you avoid the main script being stopped in the middle, asking you for the sudo password, when it comes to this step.
+make
 ```
 
 ### Download references and databases using singularity. 
@@ -60,6 +54,7 @@ Any errors produced during this step will hinder pipeline execution in unexpecte
 ## Configuration and test data
 
 ### Config 
+
 Source: `configs/nextflow.base.config`
 
 * Edit the `root` parameter in `configs/nextflow.base.config`
@@ -90,6 +85,7 @@ export SINGULARITY_TMPDIR="/tmp" #or equivalent filepath to tmp dir
 ## Fetching databases
 
 ### Choose database
+
 Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).  Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
 
 ### Download Kraken database
