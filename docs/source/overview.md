@@ -16,7 +16,7 @@ Jasen is being continiously developed with the aim to add support for more speci
 
 Workflows under **development** are being actively worked at. While all workflows should be functional in the *masters* branch and for every release, there are no guarantee that workflows under development produce accurate results and major changes can be introduce without notice. Use a your own discretion.
 
-**Draft** workflows are considered feature complete and in the process of being validated. Software versions can still change without notice. Use with descression.
+**Draft** workflows are considered feature complete and in the process of being validated. Software versions can still change without notice. Use with discretion.
 
 **Stable** workflows are feature complete and have been validated for introduction into clinical routine by one or more partners. Updates to these workflows, and versions of softwares used by these workflows, are introduced periodically after a discussion in the Jasen community.
 
