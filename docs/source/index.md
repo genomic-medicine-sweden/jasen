@@ -39,7 +39,7 @@ The Jasen documentation is distributed under
 
 overview
 install
-useage
+usage
 issues
 ```
 

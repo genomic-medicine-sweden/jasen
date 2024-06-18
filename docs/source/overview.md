@@ -32,7 +32,7 @@ Workflows under **development** are being actively worked at. While all workflow
 
 Jasen is designed for analysis of sequenced whole genomes from bacterial isolates. The pipeline takes short-read sequenced reads, in FastQ format, from Illumina and Ion Torrent as input.
 
-The paths to the reads are defined in a CSV file with sample id, and optionally sequencing run and lims id. See [the usage](./useage.md) page for information on how to start a analysis.
+The paths to the reads are defined in a CSV file with sample id, and optionally sequencing run and lims id. See [the usage](./usage.md) page for information on how to start a analysis.
 
 ## Output
 
