@@ -9,9 +9,16 @@ _Just Another System for Epityping using NGSs data_
 >[!WARNING]
 >**JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.**
 
-Jasen produces results for antibiotic resistance and virulence prediction and epidemiological typing for surveillance purposes. The pipeline has been developed for a small set of microbiota (primarily *Staphylococcus aruesu*, *Mycobacterium tuberculosis*, and *Eschericha coli*), but will likely work with any bacteria with a stable MLST and cgMLST scheme.
+Jasen produces results for antibiotic resistance and virulence prediction and epidemiological typing for surveillance purposes. The pipeline is developed in collaboration with several Swedish hospitals. The development was funded by [Genomic Medicine Sweden](https://genomicmedicine.se/).
 
-Jasen is developed in collaboration with several Swedish hospitals. The development was funded by [Genomic Medicine Sweden](https://genomicmedicine.se/).
+The pipeline currently support a small set of microbiota and the support are in different stages of development. See the documentation of information on the supported analysis for each species and what the development status means.
+
+| Species                      | Development status |
+|------------------------------|--------------------|
+| *Staphylococcus arueus*      | Draft              |
+| *Escherichia coli*           | Draft              |
+| *Mycobacterium tuberculosis* | Draft              |
+
 
 ## Installation
 
