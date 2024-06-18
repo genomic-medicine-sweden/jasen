@@ -123,20 +123,6 @@ git clone git@github.com:ryanjameskennedy/jasentool.git && cd jasentool
 pip install .
 ```
 
-### Create input csv that is used as tbdb input (composed of FoHM, WHO & tbdb variants)
-
-```bash
-jasentool converge --output_dir /path/to/jasen/assets/tbdb
-```
-
-### Create tbdb (ensure tb-profiler is installed)
-
-```bash
-cd /path/to/jasen/assets/tbdb
-tb-profiler create_db --prefix converged_who_fohm_tbdb
-tb-profiler load_library converged_who_fohm_tbdb
-```
-
 ### Bgzip and index gms TBProfiler db
 
 ```bash
