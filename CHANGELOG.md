@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `--symlink_dir` arg for prp
 - Updated bonsai-prp to v0.9.2
 - Updated the pipeline documentation.
+- Removed sudo from make (deprecated)
+- Updated NGP config for new hardware
 
 ## [0.7.0]
 

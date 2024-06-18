@@ -4,7 +4,7 @@
   </a>
 </p>
 
-_Just Another System for Epityping using NGSs data_
+_Just Another System for Epityping NGS data_
 
 >[!WARNING]
 >**JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.**
@@ -18,7 +18,6 @@ The pipeline currently support a small set of microbiota and the support are in 
 | *Staphylococcus arueus*      | Draft              |
 | *Escherichia coli*           | Draft              |
 | *Mycobacterium tuberculosis* | Draft              |
-
 
 ## Installation
 
