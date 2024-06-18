@@ -40,6 +40,7 @@ The Jasen documentation is distributed under
 overview
 install
 useage
+issues
 ```
 
 ```{toctree}
