@@ -15,12 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
 - Added `bamDir` and `vcfDir` to config params
 - Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`
+- Automatically publish the pipeline documentation to read the docs.
 
 ### Fixed
 
 - ShigaPass URL fixed
 - Fixed qc channel regarding `mycobacterium_tuberculosis`
 - Fixed bwa output file bug and stub
+- Fixed getting some software versions
 
 ### Changed
 
@@ -28,9 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `samtools_sort_ref` from configs
 - Changed `--symlink_dir` arg for prp
 - Updated bonsai-prp to v0.9.2
+- Updated the pipeline documentation.
 - Removed sudo from make (deprecated)
 - Updated NGP config for new hardware
-- Refined readme instructions
 
 ## [0.7.0]
 

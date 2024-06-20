@@ -19,7 +19,7 @@ process freebayes {
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      freebayes:
-      version: \$(echo \$(freebayes --version 2>&1) | sed 's/^.*version:  v// ; s/ .*//')
+      version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
@@ -32,7 +32,7 @@ process freebayes {
     cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
     ${task.process}:
      freebayes:
-      version: \$(echo \$(freebayes --version 2>&1) | sed 's/^.*version:  v// ; s/ .*//')
+      version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
