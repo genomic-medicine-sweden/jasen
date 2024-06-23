@@ -57,8 +57,8 @@ process spades_illumina {
     tuple val(sampleID), path(reads), val(platform)
 
   output:
-    tuple val(sampleID), path("${sampleID}.fasta"), emit: fasta
-    path "*versions.yml"                              , emit: versions
+    tuple val(sampleID), path(output), emit: fasta
+    path "*versions.yml"             , emit: versions
 
   when:
     task.ext.when && platform == "illumina"
