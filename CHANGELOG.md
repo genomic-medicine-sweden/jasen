@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `bamDir` and `vcfDir` to config params
 - Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`
 - Added `sample_name` to `get_seqrun_meta`
+- Automatically publish the pipeline documentation to read the docs.
 
 ### Fixed
 
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bwa output file bug and stub
 - Fixed README re jasentool cmds
 - Fixed `get_seqrun_meta` if statements
+- Fixed getting some software versions
 
 ### Changed
 
@@ -33,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed sampleName to sampleID
 - Updated `flye`, `freebayes`, `mask`, `medaka`, `post_align_qc`, `skesa` & `spades`  output filenames
 - Updated bonsai-prp to v0.9.3
+- Updated the pipeline documentation.
+- Removed sudo from make (deprecated)
+- Updated NGP config for new hardware
 
 ## [0.7.0]
 
