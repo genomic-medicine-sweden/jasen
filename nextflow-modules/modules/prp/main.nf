@@ -1,19 +1,19 @@
 process create_analysis_result {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
     path referenceGenomeIdx
     path referenceGenomeGff
 
   output:
-    tuple val(sampleName), path(output), emit: json
-    path "*versions.yml"               , emit: versions
+    tuple val(sampleID), path(output), emit: json
+    path "*versions.yml"             , emit: versions
 
   script:
-    output = "${sampleName}_result.json"
+    output = "${sampleID}_result.json"
     amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     bamArgs = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
@@ -37,7 +37,7 @@ process create_analysis_result {
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
     prp create-bonsai-input \\
-      --sample-id ${sampleName} \\
+      --sample-id ${sampleID} \\
       ${amrfinderArgs} \\
       ${bamArgs} \\
       ${brackenArgs} \\
@@ -58,7 +58,7 @@ process create_analysis_result {
       ${virulenceArgs} \\
       --output ${output}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
@@ -67,11 +67,11 @@ process create_analysis_result {
     """
 
   stub:
-    output = "${sampleName}_result.json"
+    output = "${sampleID}_result.json"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
@@ -81,17 +81,17 @@ process create_analysis_result {
 }
 
 process create_cdm_input {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), val(quast), val(postalignqc), val(cgmlst)
+    tuple val(sampleID), val(quast), val(postalignqc), val(cgmlst)
 
   output:
-    tuple val(sampleName), path(output), emit: json
+    tuple val(sampleID), path(output), emit: json
 
   script:
-    output = "${sampleName}_qc_result.json"
+    output = "${sampleID}_qc_result.json"
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
     quastArgs = quast ? "--quast ${quast}" : ""
@@ -104,57 +104,57 @@ process create_cdm_input {
     """
 
   stub:
-    output = "${sampleName}_qc_result.json"
+    output = "${sampleID}_qc_result.json"
     """
     touch $output
     """
 }
 
 process post_align_qc {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(bam)
+    tuple val(sampleID), path(bam)
     path reference
     path bed
 
   output:
-    tuple val(sampleName), path(output), emit: qc
+    tuple val(sampleID), path(output), emit: qc
 
   script:
-    output = "${sampleName}_bwa.qc"
+    output = "${sampleID}_qc.json"
     """
-    prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sampleName} --cpus ${task.cpus} --output ${output}
+    prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sampleID} --cpus ${task.cpus} --output ${output}
     """
 
   stub:
-    output = "${sampleName}_bwa.qc"
+    output = "${sampleID}_qc.json"
     """
     touch $output
     """
 }
 
 process annotate_delly {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(vcf)
+    tuple val(sampleID), path(vcf)
     path bed
     path bedIdx
 
   output:
-    tuple val(sampleName), path(output), emit: vcf
+    tuple val(sampleID), path(output), emit: vcf
 
   script:
-    output = "${sampleName}_annotated_delly.vcf"
+    output = "${sampleID}_annotated_delly.vcf"
     """
     prp annotate-delly --vcf ${vcf} --bed ${bed} --output ${output}
     """
 
   stub:
-    output = "${sampleName}_annotated_delly.vcf"
+    output = "${sampleID}_annotated_delly.vcf"
     """
     touch $output
     """

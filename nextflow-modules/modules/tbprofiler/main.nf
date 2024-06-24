@@ -1,37 +1,37 @@
 process tbprofiler {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
 
   output:
-    tuple val(sampleName), path(vcfOutput)  , emit: vcf
-    tuple val(sampleName), path(output)     , emit: json
-    tuple val(sampleName), path(bamOutput)  , emit: bam
-    tuple val(sampleName), path(baiOutput)  , emit: bai
-    path "*versions.yml"                    , emit: versions
+    tuple val(sampleID), path(vcfOutput), emit: vcf
+    tuple val(sampleID), path(output)   , emit: json
+    tuple val(sampleID), path(bamOutput), emit: bam
+    tuple val(sampleID), path(baiOutput), emit: bai
+    path "*versions.yml"                , emit: versions
 
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
-    output = "${sampleName}_tbprofiler.json"
-    vcfOutput = "${sampleName}_tbprofiler.vcf.gz"
-    bamOutput = "${sampleName}_tbprofiler.bam"
+    output = "${sampleID}_tbprofiler.json"
+    vcfOutput = "${sampleID}_tbprofiler.vcf.gz"
+    bamOutput = "${sampleID}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
     tb-profiler profile \\
       ${args} \\
       ${inputData} \\
       --threads ${task.cpus} \\
-      --prefix ${sampleName}
+      --prefix ${sampleID}
 
-    cp results/${sampleName}.results.json $output
-    cp vcf/${sampleName}.targets.vcf.gz $vcfOutput
-    cp bam/${sampleName}.bam $bamOutput
-    cp bam/${sampleName}.bam.bai $baiOutput
+    cp results/${sampleID}.results.json $output
+    cp vcf/${sampleID}.targets.vcf.gz $vcfOutput
+    cp bam/${sampleID}.bam $bamOutput
+    cp bam/${sampleID}.bam.bai $baiOutput
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      tbprofiler:
       version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')
@@ -40,9 +40,9 @@ process tbprofiler {
     """
 
   stub:
-    output = "${sampleName}_tbprofiler.json"
-    vcfOutput = "${sampleName}_tbprofiler.vcf.gz"
-    bamOutput = "${sampleName}_tbprofiler.bam"
+    output = "${sampleID}_tbprofiler.json"
+    vcfOutput = "${sampleID}_tbprofiler.vcf.gz"
+    bamOutput = "${sampleID}_tbprofiler.bam"
     baiOutput = "${bamOutput}.bai"
     """
     mkdir results
@@ -51,7 +51,7 @@ process tbprofiler {
     touch $bamOutput
     touch $baiOutput
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      tbprofiler:
       version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')

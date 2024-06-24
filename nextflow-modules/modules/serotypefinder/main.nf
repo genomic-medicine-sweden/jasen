@@ -1,21 +1,21 @@
 process serotypefinder {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
     val databases
     path serotypeDb
 
   output:
-    tuple val(sampleName), path(outputFile), emit: json
-    tuple val(sampleName), path(metaFile)  , emit: meta
-    path "*versions.yml"                   , emit: versions
+    tuple val(sampleID), path(outputFile), emit: json
+    tuple val(sampleID), path(metaFile)  , emit: meta
+    path "*versions.yml"                 , emit: versions
 
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
-    outputFile = "${sampleName}_serotypefinder.json"
-    metaFile = "${sampleName}_serotypefinder_meta.json"
+    outputFile = "${sampleID}_serotypefinder.json"
+    metaFile = "${sampleID}_serotypefinder_meta.json"
     """
     # Get db version
     DB_HASH=\$(git -C ${serotypeDb} rev-parse HEAD)
@@ -29,7 +29,7 @@ process serotypefinder {
     --databasePath ${serotypeDb}
     cp data.json ${outputFile}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      serotypefinder_db:
       version: \$(echo \$DB_HASH | tr -d '\n')
@@ -38,14 +38,14 @@ process serotypefinder {
     """
 
  stub:
-    outputFile = "${sampleName}_serotypefinder.json"
-    metaFile = "${sampleName}_serotypefinder_meta.json"
+    outputFile = "${sampleID}_serotypefinder.json"
+    metaFile = "${sampleID}_serotypefinder_meta.json"
     """
     DB_HASH=\$(git -C ${serotypeDb} rev-parse HEAD)
     touch $outputFile
     touch $metaFile
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      serotypefinder_db:
       version: \$(echo \$DB_HASH | tr -d '\n')

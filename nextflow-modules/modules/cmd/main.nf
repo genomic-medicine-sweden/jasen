@@ -1,16 +1,16 @@
 process export_to_cdm {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(qc), val(sequencingRun), val(limsID)
+    tuple val(sampleID), path(qc), val(sequencingRun), val(limsID), val(sampleName)
     val species
 
   output:
-    tuple val(sampleName), path(output), emit: cdm
+    tuple val(sampleID), path(output), emit: cdm
 
   script:
-    output = "${sampleName}.cdmpy"
+    output = "${sampleID}.cdmpy"
     sequencingRun = sequencingRun ? "--sequencing-run ${sequencingRun}" : ""
     limsID = limsID ? "--lims-id ${limsID}" : ""
     """
@@ -22,7 +22,7 @@ process export_to_cdm {
     """
 
   stub:
-    output = "${sampleName}.cdmpy"
+    output = "${sampleID}.cdmpy"
     """
     touch $output
     """

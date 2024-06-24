@@ -1,16 +1,16 @@
 process spades_iontorrent {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
   publishDir "${params.publishDir}", 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
   input:
-    tuple val(sampleName), path(reads), val(platform)
+    tuple val(sampleID), path(reads), val(platform)
 
   output:
-    tuple val(sampleName), path("${sampleName}.fasta"), emit: fasta
-    path "*versions.yml"                              , emit: versions
+    tuple val(sampleID), path(output), emit: fasta
+    path "*versions.yml"             , emit: versions
 
   when:
     task.ext.when && platform == "iontorrent"
@@ -18,12 +18,13 @@ process spades_iontorrent {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
-    outputDir = params.publishDir ? params.publishDir : 'spades'
+    outputDir = "spades_outdir"
+    output = "${sampleID}_spades.fasta"
     """
-    spades.py ${args} ${inputData} -t ${task.cpus} -o ${outputDir}
-    mv ${outputDir}/contigs.fasta ${sampleName}.fasta
+    spades.py ${args} ${inputData} -t ${task.cpus} -o $outputDir
+    mv $outputDir/contigs.fasta $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -32,11 +33,11 @@ process spades_iontorrent {
     """
 
   stub:
-    output = "${sampleName}.fasta"
+    output = "${sampleID}_spades.fasta"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -46,18 +47,18 @@ process spades_iontorrent {
 }
 
 process spades_illumina {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
   publishDir "${params.publishDir}", 
     mode: params.publishDirMode, 
     overwrite: params.publishDirOverwrite
 
   input:
-    tuple val(sampleName), path(reads), val(platform)
+    tuple val(sampleID), path(reads), val(platform)
 
   output:
-    tuple val(sampleName), path("${sampleName}.fasta"), emit: fasta
-    path "*versions.yml"                              , emit: versions
+    tuple val(sampleID), path(output), emit: fasta
+    path "*versions.yml"             , emit: versions
 
   when:
     task.ext.when && platform == "illumina"
@@ -65,12 +66,13 @@ process spades_illumina {
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
-    outputDir = params.publishDir ? params.publishDir : 'spades'
+    outputDir = "spades_outdir"
+    output = "${sampleID}_spades.fasta"
     """
-    spades.py ${args} ${inputData} -t ${task.cpus} -o ${outputDir}
-    mv ${outputDir}/contigs.fasta ${sampleName}.fasta
+    spades.py ${args} ${inputData} -t ${task.cpus} -o $outputDir
+    mv $outputDir/contigs.fasta $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
@@ -79,11 +81,11 @@ process spades_illumina {
     """
 
   stub:
-    output = "${sampleName}.fasta"
+    output = "${sampleID}_spades.fasta"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      spades:
       version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')

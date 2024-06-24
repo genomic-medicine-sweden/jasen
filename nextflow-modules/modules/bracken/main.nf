@@ -1,20 +1,20 @@
 process bracken {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(report)
+    tuple val(sampleID), path(report)
     path database
 
   output:
-    tuple val(sampleName), path(output)      , emit: output
-    tuple val(sampleName), path(outputReport), emit: report
-    path "*versions.yml"                     , emit: versions
+    tuple val(sampleID), path(output)      , emit: output
+    tuple val(sampleID), path(outputReport), emit: report
+    path "*versions.yml"                   , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleName}_bracken.out"
-    outputReport = "${sampleName}_bracken.report"
+    output = "${sampleID}_bracken.out"
+    outputReport = "${sampleID}_bracken.report"
     """
     bracken \\
     ${args} \\
@@ -23,7 +23,7 @@ process bracken {
     -o ${output} \\
     -w ${outputReport}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bracken:
       version: 2.8
@@ -32,13 +32,13 @@ process bracken {
     """
 
   stub:
-    output = "${sampleName}_bracken.out"
-    outputReport = "${sampleName}_bracken.report"
+    output = "${sampleID}_bracken.out"
+    outputReport = "${sampleID}_bracken.report"
     """
     touch $output
     touch $outputReport
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bracken:
       version: 2.8

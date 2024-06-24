@@ -1,12 +1,12 @@
 process bwa_index {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reference)
+    tuple val(sampleID), path(reference)
 
   output:
-    tuple val(sampleName), path("${reference}.*"), emit: idx
+    tuple val(sampleID), path("${reference}.*"), emit: idx
     path "*versions.yml"                         , emit: versions
 
   when:
@@ -16,7 +16,7 @@ process bwa_index {
     """
     bwa index ${reference} ${reference.baseName}/${reference}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -32,7 +32,7 @@ process bwa_index {
     touch ${reference}.pac
     touch ${reference}.sa
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -42,16 +42,16 @@ process bwa_index {
 }
 
 process bwa_mem {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
     path referenceIdx
 
   output:
-    tuple val(sampleName), path(output) , emit: bam
-    path "*versions.yml"                , emit: versions
+    tuple val(sampleID), path(output), emit: bam
+    path "*versions.yml"             , emit: versions
 
   when:
     workflow.profile != "mycobacterium_tuberculosis"
@@ -59,7 +59,7 @@ process bwa_mem {
   script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
-    output = "${sampleName}_bwa.bam"
+    output = "${sampleID}_bwa.bam"
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
@@ -70,7 +70,7 @@ process bwa_mem {
         ${reads.join(' ')} \\
         | samtools sort $args2 --threads ${task.cpus} -o $output -
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
@@ -82,11 +82,11 @@ process bwa_mem {
     """
 
   stub:
-    output = "${sampleName}_bwa.bam"
+    output = "${sampleID}_bwa.bam"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      bwa:
       version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')

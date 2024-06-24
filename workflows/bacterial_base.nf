@@ -31,14 +31,14 @@ workflow CALL_BACTERIAL_BASE {
         // reads trim and clean
         assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
         ch_meta_illumina.mix(ch_clean_meta, ch_meta_nanopore).set{ ch_input_meta }
-        ch_input_meta.map { sampleName, reads, platform -> [ sampleName, reads ] }.set{ ch_reads }
+        ch_input_meta.map { sampleID, reads, platform -> [ sampleID, reads ] }.set{ ch_reads }
 
         if ( params.cronCopy || params.devMode) {
             Channel.fromPath(params.csv).splitCsv(header:true)
                 .map{ row -> get_seqrun_meta(row) }
                 .set{ ch_seqrun_meta }
         } else {
-            ch_reads.map { sampleName, reads -> [ sampleName, [], [] ] }.set{ ch_seqrun_meta }
+            ch_reads.map { sampleID, reads -> [ sampleID, [], [], [] ] }.set{ ch_seqrun_meta }
         }
 
         // analysis metadata

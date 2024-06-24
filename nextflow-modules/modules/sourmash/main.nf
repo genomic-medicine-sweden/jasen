@@ -1,21 +1,21 @@
 process sourmash {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(assembly)
+    tuple val(sampleID), path(assembly)
 
   output:
-    tuple val(sampleName), path(output), emit: signature
-    path "*versions.yml"               , emit: versions
+    tuple val(sampleID), path(output), emit: signature
+    path "*versions.yml"             , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleName}.sig"
+    output = "${sampleID}.sig"
     """
     sourmash sketch dna $args $assembly -o $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      sourmash:
       version: \$(echo \$(sourmash --version 2>&1) | sed 's/^.*sourmash // ; s/ .*//')
@@ -24,11 +24,11 @@ process sourmash {
     """
 
   stub:
-    output = "${sampleName}.sig"
+    output = "${sampleID}.sig"
     """
     touch $output
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      sourmash:
       version: \$(echo \$(sourmash --version 2>&1) | sed 's/^.*sourmash // ; s/ .*//')

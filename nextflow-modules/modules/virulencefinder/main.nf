@@ -1,21 +1,21 @@
 process virulencefinder {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
     val databases
     path virulenceDb
 
   output:
-    tuple val(sampleName), path(outputFile), emit: json
-    tuple val(sampleName), path(metaFile)  , emit: meta
+    tuple val(sampleID), path(outputFile), emit: json
+    tuple val(sampleID), path(metaFile)  , emit: meta
     path "*versions.yml"                   , emit: versions
 
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
-    outputFile = "${sampleName}_virulencefinder.json"
-    metaFile = "${sampleName}_virulencefinder_meta.json"
+    outputFile = "${sampleID}_virulencefinder.json"
+    metaFile = "${sampleID}_virulencefinder_meta.json"
     """
     # Get db version
     DB_HASH=\$(git -C ${virulenceDb} rev-parse HEAD)
@@ -29,7 +29,7 @@ process virulencefinder {
     --databasePath ${virulenceDb}
     cp data.json ${outputFile}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_HASH | tr -d '\n')
@@ -38,14 +38,14 @@ process virulencefinder {
     """
 
  stub:
-    outputFile = "${sampleName}_virulencefinder.json"
-    metaFile = "${sampleName}_virulencefinder_meta.json"
+    outputFile = "${sampleID}_virulencefinder.json"
+    metaFile = "${sampleID}_virulencefinder_meta.json"
     """
     DB_HASH=\$(git -C ${virulenceDb} rev-parse HEAD)
     touch $outputFile
     touch $metaFile
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_HASH | tr -d '\n')

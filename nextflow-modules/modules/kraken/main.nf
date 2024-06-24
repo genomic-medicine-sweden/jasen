@@ -1,20 +1,20 @@
 process kraken {
-  tag "${sampleName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads)
+    tuple val(sampleID), path(reads)
     path database
 
   output:
-    tuple val(sampleName), path(output), emit: output
-    tuple val(sampleName), path(report), emit: report
-    path "*versions.yml"               , emit: versions
+    tuple val(sampleID), path(output), emit: output
+    tuple val(sampleID), path(report), emit: report
+    path "*versions.yml"             , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleName}_kraken.out"
-    report = "${sampleName}_kraken.report"
+    output = "${sampleID}_kraken.out"
+    report = "${sampleID}_kraken.report"
     """
     kraken2 \\
     ${args} \\
@@ -24,7 +24,7 @@ process kraken {
     --report ${report} \\
     ${reads.join(' ')}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
@@ -33,13 +33,13 @@ process kraken {
     """
 
   stub:
-    output = "${sampleName}_kraken.out"
-    report = "${sampleName}_kraken.report"
+    output = "${sampleID}_kraken.out"
+    report = "${sampleID}_kraken.report"
     """
     touch ${output}
     touch ${report}
 
-    cat <<-END_VERSIONS > ${sampleName}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')

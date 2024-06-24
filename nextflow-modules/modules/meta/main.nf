@@ -3,16 +3,16 @@ process save_analysis_metadata {
   scratch params.scratch
 
   input:
-    tuple val(sampleName), path(reads), val(platform), val(sequencingRun), val(limsID)
+    tuple val(sampleID), path(reads), val(platform), val(sequencingRun), val(limsID), val(sampleName)
 
   output:
-    tuple val(sampleName), path(output), emit: meta
+    tuple val(sampleID), path(output), emit: meta
 
   script:
     def seqType = reads.size() == 2 ? "PE" : "SE"
     sequencingRun = sequencingRun ? "${sequencingRun}" : ""
     limsID = limsID ? "${limsID}" : ""
-    output = "${sampleName}_analysis_meta.json"
+    output = "${sampleID}_analysis_meta.json"
     """
     #!/usr/bin/env python
     import json
@@ -37,7 +37,7 @@ process save_analysis_metadata {
     """
 
   stub:
-    output = "${sampleName}_analysis_meta.json"
+    output = "${sampleID}_analysis_meta.json"
     """
     touch $output
     """
