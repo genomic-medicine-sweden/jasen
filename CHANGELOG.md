@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed README re jasentool cmds
 - Fixed `get_seqrun_meta` if statements
 - Fixed getting some software versions
+- Fixed tb workflow bug
 
 ### Changed
 
