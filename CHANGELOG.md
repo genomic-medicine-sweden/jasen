@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the pipeline documentation.
 - Removed sudo from make (deprecated)
 - Updated NGP config for new hardware
+- Updated tbprofiler memory allocation
 
 ## [0.7.0]
 
