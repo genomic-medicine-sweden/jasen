@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed annotate_delly rule from PRP workflow and from the M. tuberculosis workflow.
+
 ## [0.8.0]
 
 ### Added
