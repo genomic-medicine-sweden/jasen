@@ -17,7 +17,7 @@ process export_to_cdm {
     echo ${sequencingRun} \\
          --sample-id ${sampleName} \\
          --assay ${species} \\
-         --qc ${qc} \\
+         --qc ${params.outdir}/${params.speciesDir}/${params.cdmDir}/${qc} \\
          ${limsID} > ${output}
     """
 
