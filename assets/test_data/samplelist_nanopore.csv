@@ -1,0 +1,2 @@
+id,platform,sequencing_run,read1
+test_mecA,nanopore,20231017_1501_MN39800_ARA658_5ab3fe12,PATH_TO_JASEN/assets/test_data/sequencing_data/saureus_nanopore_1k/saureus_nanopore_1k.fastq.gz
