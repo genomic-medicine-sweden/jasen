@@ -8,12 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Added long-read test data (S. aureus)
 - Added `samplelist_nanopore.csv` for running long-read test data
 - Added location of documentation to `README` 
+- Added `cdmDir` to config
+
 ### Fixed
 
+- Fixed `--qc` argument filepath to be full filepath to output
+
 ### Changed
+
+- Updated TbProfiler to version 6.3
 
 ## [0.8.0]
 
