@@ -3,7 +3,6 @@
 nextflow.enable.dsl=2
 
 include { get_meta                              } from '../methods/get_meta.nf'
-include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
 include { copy_to_cron                          } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
@@ -57,8 +56,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         tbprofiler_mergedb(ch_reads)
 
-        annotate_delly(tbprofiler_mergedb.out.vcf, tbdbBed, tbdbBedIdx)
-
         post_align_qc(tbprofiler_mergedb.out.bam, params.referenceGenome, coreLociBed)
         post_align_qc.out.qc.set{ch_qc}
 
@@ -79,7 +76,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(tbprofiler_mergedb.out.bam)
             .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)
-            .join(annotate_delly.out.vcf)
+            .join(ch_empty)
             .join(mykrobe.out.csv)
             .join(tbprofiler_mergedb.out.json)
             .set{ combinedOutput }
@@ -96,6 +93,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             combinedOutput.join(ch_empty).set{ combinedOutput }
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
+
+        // TODO remove this and remaining input channels
+        //annotate_delly(tbprofiler_mergedb.out.vcf, tbdbBed, tbdbBedIdx)
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
 
