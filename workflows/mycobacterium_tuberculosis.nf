@@ -6,6 +6,8 @@ include { get_meta                              } from '../methods/get_meta.nf'
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
 include { copy_to_cron                          } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_variant_igv_track} from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_locus_igv_track  } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                      } from '../nextflow-modules/modules/prp/main.nf'
 include { create_yaml                           } from '../nextflow-modules/modules/yaml/main.nf'
 include { export_to_cdm                         } from '../nextflow-modules/modules/cmd/main.nf'
@@ -97,6 +99,14 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         // TODO remove this and remaining input channels
         //annotate_delly(tbprofiler_mergedb.out.vcf, tbdbBed, tbdbBedIdx)
 
+        // Add IGV annotation tracks
+        add_variant_igv_track(create_analysis_result.out.json.join(tbprofiler_mergedb.out.vcf), "Variants")
+        // TODO fix how input channels should be handled so the process can take
+        // - VCFs, BAMs specific to a given sample, for insance from tools such as TbProfiler and Prokka
+        // - VCFs, BAMs specific to the analysis_profile, ie a predefined file.
+        // add_locus_igv_track(add_variant_igv_track.out.json.join(tbdbBed), "Resistance locus")
+
+        // Create yaml for uploading results to Bonsai
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
 
         ch_quast
