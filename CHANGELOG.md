@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `cdmDir` to config
+- Added process for adding IGV annotation tracks with PRP.
+- Updated how `mycobacterium_tuberculosis` workflow adds IGV annotation tracks.
 
 ### Fixed
 
