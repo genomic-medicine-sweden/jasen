@@ -159,3 +159,28 @@ process annotate_delly {
     touch $output
     """
 }
+
+process add_igv_track {
+  tag "${sampleID}"
+  scratch params.scratch
+
+  input:
+    tuple val(sampleID), path(bonsai_input), path(annotation_file)
+    val name
+    //path annotation_file
+
+  output:
+    tuple val(sampleID), path(output), emit: json
+
+  script:
+    output = "${sampleID}_result.upd.json"
+    """
+    prp add-igv-annotation-track --name ${name} --annotation-file ${annotation_file} --result ${bonsai_input} ${output}
+    """
+
+  stub:
+    output = "${sampleID}_result.upd.json"
+    """
+    touch $output
+    """
+}
