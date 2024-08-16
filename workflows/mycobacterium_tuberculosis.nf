@@ -96,7 +96,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         }
 
         // Add IGV annotation tracks
-        add_locus_igv_track(create_analysis_result.out.json, tbdbBed, params.resistantLociName)
+        add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
 
         // Create yaml for uploading results to Bonsai
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)

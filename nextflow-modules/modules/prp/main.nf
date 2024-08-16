@@ -141,7 +141,7 @@ process add_igv_track {
 
   input:
     tuple val(sampleID), path(bonsaiInput)
-    path annotation
+    val annotation
     val trackName
 
   output:
