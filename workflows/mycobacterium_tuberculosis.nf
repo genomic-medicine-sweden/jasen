@@ -15,7 +15,6 @@ include { kraken                                } from '../nextflow-modules/modu
 include { mykrobe                               } from '../nextflow-modules/modules/mykrobe/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { snippy                                } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler as tbprofiler_tbdb         } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { CALL_BACTERIAL_BASE                   } from '../workflows/bacterial_base.nf'
 
@@ -78,7 +77,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(tbprofiler_mergedb.out.bam)
             .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)
-            .join(ch_empty)
+            .join(tbprofiler_mergedb.out.vcf)
             .join(mykrobe.out.csv)
             .join(tbprofiler_mergedb.out.json)
             .set{ combinedOutput }
@@ -96,15 +95,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
-        // TODO remove this and remaining input channels
-        //annotate_delly(tbprofiler_mergedb.out.vcf, tbdbBed, tbdbBedIdx)
-
         // Add IGV annotation tracks
-        add_variant_igv_track(create_analysis_result.out.json.join(tbprofiler_mergedb.out.vcf), "Variants")
-        // TODO fix how input channels should be handled so the process can take
-        // - VCFs, BAMs specific to a given sample, for insance from tools such as TbProfiler and Prokka
-        // - VCFs, BAMs specific to the analysis_profile, ie a predefined file.
-        // add_locus_igv_track(add_variant_igv_track.out.json.join(tbdbBed), "Resistance locus")
+        add_locus_igv_track(create_analysis_result.out.json, tbdbBed, params.resistantLociName)
 
         // Create yaml for uploading results to Bonsai
         create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
