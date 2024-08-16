@@ -67,9 +67,10 @@ When analysing Nanopore data:
 * Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
 
 ### Test data
-Source: `assets/test_data/samplelist.csv`
+Source: `assets/test_data/samplelist*.csv`
 
-* Edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
+* For short reads produced with Illumina or IonTorrent technology, edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
+* For long reads produced with ONT technology, edit the read1 column in `assets/test_data/samplelist_nanopore.csv`
 
 ## Setting up temp directories
 

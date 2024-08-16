@@ -29,7 +29,7 @@ See the documentation for installation instructions.
 
 ## Documentation
 
-The documentation is abailable for the latest stable release.
+The documentation `docs/source` is available for the latest stable release.
 
 ## Contributing
 
