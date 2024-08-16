@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated TbProfiler to version 6.3
 - Updated PRP to version 0.10.0
+- Removed delly annotation
 
 ## [0.8.0]
 
