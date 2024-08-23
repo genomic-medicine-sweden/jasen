@@ -99,7 +99,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
 
         // Create yaml for uploading results to Bonsai
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -119,7 +119,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
-        pipeline_result = create_analysis_result.out.json
+        pipeline_result = add_locus_igv_track.out.json
         cdm             = export_to_cdm.out.cdm
         cron_yaml       = copy_to_cron.out.yaml
         cron_cdm        = copy_to_cron.out.cdm
