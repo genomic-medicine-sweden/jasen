@@ -135,6 +135,31 @@ process post_align_qc {
     """
 }
 
+process annotate_delly {
+  tag "${sampleID}"
+  scratch params.scratch
+
+  input:
+    tuple val(sampleID), path(vcf)
+    path bed
+    path bedIdx
+
+  output:
+    tuple val(sampleID), path(output), emit: vcf
+
+  script:
+    output = "${sampleID}_annotated_delly.vcf"
+    """
+    prp annotate-delly --vcf ${vcf} --bed ${bed} --output ${output}
+    """
+
+  stub:
+    output = "${sampleID}_annotated_delly.vcf"
+    """
+    touch $output
+    """
+}
+
 process add_igv_track {
   tag "${sampleID}"
   scratch params.scratch
@@ -150,7 +175,7 @@ process add_igv_track {
   script:
     output = "${sampleID}_result.json"
     """
-    prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} ${output}
+    prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} --output ${output}
     """
 
   stub:
