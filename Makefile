@@ -602,11 +602,11 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 # M. tuberculosis
 # -----------------------------
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
-# MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
-# MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
+MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
+MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
 MTUBE_REFSEQ_ACC := GCF_000195955.2
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference #mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
+mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
