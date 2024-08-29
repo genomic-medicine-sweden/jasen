@@ -7,6 +7,8 @@ include { annotate_delly                        } from '../nextflow-modules/modu
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
 include { copy_to_cron                          } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_variant_igv_track} from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_locus_igv_track  } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                      } from '../nextflow-modules/modules/prp/main.nf'
 include { create_yaml                           } from '../nextflow-modules/modules/yaml/main.nf'
 include { export_to_cdm                         } from '../nextflow-modules/modules/cmd/main.nf'
@@ -14,7 +16,6 @@ include { kraken                                } from '../nextflow-modules/modu
 include { mykrobe                               } from '../nextflow-modules/modules/mykrobe/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { snippy                                } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler as tbprofiler_tbdb         } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modules/tbprofiler/main.nf'
 include { CALL_BACTERIAL_BASE                   } from '../workflows/bacterial_base.nf'
 
@@ -97,7 +98,11 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        // Add IGV annotation tracks
+        add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
+
+        // Create yaml for uploading results to Bonsai
+        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -117,7 +122,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
-        pipeline_result = create_analysis_result.out.json
+        pipeline_result = add_locus_igv_track.out.json
         cdm             = export_to_cdm.out.cdm
         cron_yaml       = copy_to_cron.out.yaml
         cron_cdm        = copy_to_cron.out.cdm

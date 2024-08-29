@@ -13,14 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `samplelist_nanopore.csv` for running long-read test data
 - Added location of documentation to `README` 
 - Added `cdmDir` to config
+- Added process for adding IGV annotation tracks with PRP.
+- Updated how `mycobacterium_tuberculosis` workflow adds IGV annotation tracks.
 
 ### Fixed
 
 - Fixed `--qc` argument filepath to be full filepath to output
+- Fixed tbprofiler url in container Makefile
+- Fixed TB installation steps in main Makefile
 
 ### Changed
 
 - Updated TbProfiler to version 6.3
+- Updated PRP to version 0.10.0
+- Removed delly annotation
+- Updated vcf args in prp module
 
 ## [0.8.0]
 
