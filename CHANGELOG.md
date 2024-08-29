@@ -16,12 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed `--qc` argument filepath to be full filepath to output
+- Fixed tbprofiler url in container Makefile
+- Fixed TB installation steps in main Makefile
 
 ### Changed
 
 - Updated TbProfiler to version 6.3
 - Updated PRP to version 0.10.0
 - Removed delly annotation
+- Updated vcf args in prp module
 
 ## [0.8.0]
 
