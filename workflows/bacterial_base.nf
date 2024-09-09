@@ -7,6 +7,7 @@ include { assembly_trim_clean                   } from '../nextflow-modules/modu
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
 include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
+include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
@@ -62,11 +63,14 @@ workflow CALL_BACTERIAL_BASE {
 
         post_align_qc(bwa_mem_ref.out.bam, params.referenceGenome, coreLociBed)
 
+        nanoplot(ch_input_meta)
+
         sourmash(ch_assembly)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
+        ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(skesa.out.versions)
@@ -79,6 +83,7 @@ workflow CALL_BACTERIAL_BASE {
         input_meta  = ch_input_meta                     // channel: [ val(meta), path(meta)]
         bam         = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
         bai         = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
+        qc_nano     = nanoplot.out.html                 // channel: [ val(meta), path(html)]
         metadata    = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc          = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         quast       = quast.out.qc                      // channel: [ val(meta), path(qc)]
