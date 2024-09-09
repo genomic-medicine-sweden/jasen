@@ -3,7 +3,7 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(dellyVcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
     path referenceGenomeIdx
     path referenceGenomeGff
@@ -18,7 +18,7 @@ process create_analysis_result {
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     bamArgs = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    dellyVcfArgs = dellyVcf ? "--sv-vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${dellyVcf}" : ""
+    vcfArgs = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
@@ -42,7 +42,7 @@ process create_analysis_result {
       ${bamArgs} \\
       ${brackenArgs} \\
       ${cgmlstArgs} \\
-      ${dellyVcfArgs} \\
+      ${vcfArgs} \\
       ${mlstArgs} \\
       ${mykrobeArgs} \\
       ${postalignqcArgs} \\
@@ -155,6 +155,31 @@ process annotate_delly {
 
   stub:
     output = "${sampleID}_annotated_delly.vcf"
+    """
+    touch $output
+    """
+}
+
+process add_igv_track {
+  tag "${sampleID}"
+  scratch params.scratch
+
+  input:
+    tuple val(sampleID), path(bonsaiInput)
+    val annotation
+    val trackName
+
+  output:
+    tuple val(sampleID), path(output), emit: json
+
+  script:
+    output = "${sampleID}_result.json"
+    """
+    prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} --output ${output}
+    """
+
+  stub:
+    output = "${sampleID}_result.json"
     """
     touch $output
     """
