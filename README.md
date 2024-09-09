@@ -11,7 +11,7 @@ _Just Another System for Epityping NGS data_
 
 Jasen produces results for antibiotic resistance and virulence prediction and epidemiological typing for surveillance purposes. The pipeline is developed in collaboration with several Swedish hospitals. The development was funded by [Genomic Medicine Sweden](https://genomicmedicine.se/).
 
-The pipeline currently support a small set of microbiota and the support are in different stages of development. See the documentation of information on the supported analysis for each species and what the development status means.
+The pipeline currently support a small set of microbiota and the support are in different stages of development. See the [documentation](https://jasen.readthedocs.io/en/latest/) of information on the supported analysis for each species and what the development status means.
 
 | Species                      | Development status |
 |------------------------------|--------------------|
@@ -21,7 +21,7 @@ The pipeline currently support a small set of microbiota and the support are in 
 
 ## Installation
 
-See the documentation for installation instructions.
+See the [documentation](https://jasen.readthedocs.io/en/latest/) for installation instructions.
 
 ### Tips
 
