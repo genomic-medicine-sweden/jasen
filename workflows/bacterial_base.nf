@@ -66,6 +66,9 @@ workflow CALL_BACTERIAL_BASE {
 
         sourmash(ch_assembly)
 
+        ska_build(ch_assembly)
+        ska_align(ska_build.out.skf)
+
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)

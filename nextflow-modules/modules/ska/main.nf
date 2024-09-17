@@ -51,7 +51,7 @@ process ska_align {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}/${sampleID}_ska_index.aln"
+    output = "${sampleID}/${sampleID}_ska_alignment.aln"
     """
     ska align $args -o ${output} $skf 
 
@@ -64,7 +64,7 @@ process ska_align {
     """
 
   stub:
-    output = "${sampleID}/${sampleID}_ska_index.aln"
+    output = "${sampleID}/${sampleID}_ska_alignment.aln"
     """
     mkdir ${sampleID}
     touch $output
