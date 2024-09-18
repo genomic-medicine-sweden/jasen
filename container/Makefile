@@ -34,6 +34,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					samtools.sif \
 					serotypefinder.sif \
 					shigapass.sif \
+					ska2.sif \
 					skesa.sif \
 					snippy.sif \
 					sourmash.sif \

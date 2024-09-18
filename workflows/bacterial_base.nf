@@ -11,7 +11,6 @@ include { post_align_qc                         } from '../nextflow-modules/modu
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
-include { ska_align                             } from '../nextflow-modules/modules/ska/main.nf'
 include { ska_build                             } from '../nextflow-modules/modules/ska/main.nf'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
 include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
@@ -66,8 +65,7 @@ workflow CALL_BACTERIAL_BASE {
 
         sourmash(ch_assembly)
 
-        ska_build(ch_assembly)
-        ska_align(ska_build.out.skf)
+        ska_build(ch_reads)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
@@ -75,6 +73,7 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(skesa.out.versions)
+        ch_versions = ch_versions.mix(ska_build.out.versions)
         ch_versions = ch_versions.mix(sourmash.out.versions)
         ch_versions = ch_versions.mix(spades_illumina.out.versions)
         ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
@@ -88,7 +87,6 @@ workflow CALL_BACTERIAL_BASE {
         qc          = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         quast       = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads       = ch_reads                          // channel: [ val(meta), path(json)]
-        ska_align   = ska_align.out.aln                 // channel: [ val(meta), path(aln)]
         ska_build   = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
         seqrun_meta = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
         sourmash    = sourmash.out.signature            // channel: [ val(meta), path(signature)]
