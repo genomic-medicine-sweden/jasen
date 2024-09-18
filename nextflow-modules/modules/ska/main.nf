@@ -11,9 +11,10 @@ process ska_build {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}/${sampleID}_ska_index.skf"
+    output_basename = "${sampleID}_ska_index"
+    output = "${output_basename}.skf"
     """
-    ska build $args -o ${output.baseName} $assembly 
+    ska build $args -o ${output_basename} $assembly 
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
@@ -24,7 +25,7 @@ process ska_build {
     """
 
   stub:
-    output = "${sampleID}/${sampleID}_ska_index.skf"
+    output = "${sampleID}_ska_index.skf"
     """
     mkdir ${sampleID}
     touch $output
@@ -51,7 +52,7 @@ process ska_align {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}/${sampleID}_ska_alignment.aln"
+    output = "${sampleID}_ska_alignment.aln"
     """
     ska align $args -o ${output} $skf 
 
@@ -64,7 +65,7 @@ process ska_align {
     """
 
   stub:
-    output = "${sampleID}/${sampleID}_ska_alignment.aln"
+    output = "${sampleID}_ska_alignment.aln"
     """
     mkdir ${sampleID}
     touch $output
