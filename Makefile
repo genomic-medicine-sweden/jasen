@@ -164,7 +164,12 @@ update_databases: update_amrfinderplus \
 	update_finder_dbs \
 	update_shigapass_db
 
-update_organisms: streptococcus_all
+update_organisms: staphylococcus_aureus_all \
+	ecoli_all \
+	kpneumoniae_all \
+	mtuberculosis_all \
+	spyogenes_all \
+	streptococcus_all
 
 check:	check_chewbbaca \
 	check_bwa \
@@ -703,31 +708,33 @@ streptococcus_all: streptococcus_download_cgmlst_schema \
 STREP_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/streptococcus
 
 # Download Streptococcus cgmlst cgmlst.org schema
-streptococcus_download_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+streptococcus_download_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/index.html
 
-$(STREP_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
+$(STREP_CGMLST_DIR)/alleles/index.html:
 	$(call log_message,"Downloading Streptococcus cgMLST schema ...")
 	mkdir -p $(STREP_CGMLST_DIR)/alleles \
 	&& cd $(STREP_CGMLST_DIR)/alleles \
 	&& wget -r https://enterobase.warwick.ac.uk/schemes/Streptococcus.cgMLSTv1/ \
-		-O $$(basename $@) \
 		-np \
 		-nH \
+		--cut-dirs 2 \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 streptococcus_unpack_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/unpacking.done
 
-$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/profiles.list
 	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
 	cd $(STREP_CGMLST_DIR)/alleles \
-	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
-	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
+	&& gunzip *.gz |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking gz files: " $< > $@
 
 # Prep Streptococcus cgmlst cgmlst.org schema
-streptococcus_prep_cgmlst_schema:
+streptococcus_prep_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
 
-$(STREP_CGMLST_DIR)/alleles_rereffed:
+$(SPYO_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(SPYO_CGMLST_DIR)/alleles_rereffed
+
+$(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Prepping Streptococcus cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(STREP_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -819,8 +826,8 @@ check_chewbbaca:
 		echo "[✓] PASSED check for chewBBACA: Directories exist:" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$saureus" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$ecoli" |& tee -a $(INSTALL_LOG) \
-		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG); \
-		&& echo "- $$spyogenes" |& tee -a $(INSTALL_LOG); \
+		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$spyogenes" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$streptococcus" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for chewBBACA: Some directories do not exist:"; \
