@@ -14,6 +14,9 @@ process mlst {
     tuple val(sampleID), path('*.novel'), optional: true, emit: novel
     path "*versions.yml"                , emit: versions
 
+  when:
+    workflow.profile != "streptococcus"
+
   script:
     def args = task.ext.args ?: ''
     outputName = "${sampleID}_mlst"

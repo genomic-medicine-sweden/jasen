@@ -122,6 +122,9 @@ process post_align_qc {
   output:
     tuple val(sampleID), path(output), emit: qc
 
+  when:
+    workflow.profile != "streptococcus"
+
   script:
     output = "${sampleID}_qc.json"
     """

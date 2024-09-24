@@ -10,6 +10,9 @@ process quast {
     tuple val(sampleID), path(output), emit: qc
     path "*versions.yml"             , emit: versions
 
+  when:
+    workflow.profile != "streptococcus"
+
   script:
     def args = task.ext.args ?: ''
     output = "${sampleID}_quast.tsv"
