@@ -156,7 +156,9 @@ print_paths:
 	@echo "CONTAINER_DIR:" $(CONTAINER_DIR)
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
-install: update_organisms
+install: download_or_build_containers \
+	update_databases \
+	update_organisms
 
 update_databases: update_amrfinderplus \
 	update_mlst_db \
