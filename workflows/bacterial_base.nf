@@ -60,7 +60,7 @@ workflow CALL_BACTERIAL_BASE {
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        post_align_qc(bwa_mem_ref.out.bam, params.referenceGenome, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
         sourmash(ch_assembly)
 
