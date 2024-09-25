@@ -9,6 +9,9 @@ process emmtyper {
     tuple val(sampleID), path(output), emit: txt
     path "*versions.yml"             , emit: versions
 
+  when:
+    workflow.profile == "streptococcus" || workflow.profile == "streptococcus_pyogenes"
+
   script:
     def args = task.ext.args ?: ''
     output = "${sampleID}_emmtyper.txt"

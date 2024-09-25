@@ -14,6 +14,7 @@ include { copy_to_cron                              } from '../nextflow-modules/
 include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
 include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
+include { emmtyper                                  } from '../nextflow-modules/modules/emmtyper/main.nf'
 include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main.nf'
 include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
 include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
@@ -107,6 +108,8 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
         chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
         chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        emmtyper(ch_assembly)
+        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -114,7 +117,6 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
