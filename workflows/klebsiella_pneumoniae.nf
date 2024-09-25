@@ -108,6 +108,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
         chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
         chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -115,7 +116,6 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
