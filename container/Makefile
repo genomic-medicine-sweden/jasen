@@ -34,6 +34,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					samtools.sif \
 					serotypefinder.sif \
 					shigapass.sif \
+					ska2.sif \
 					skesa.sif \
 					snippy.sif \
 					sourmash.sif \
@@ -62,6 +63,7 @@ URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.4.2--py
 URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
 URL_serotypefinder := https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
 URL_shigapass := https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
+URL_ska2 := https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
