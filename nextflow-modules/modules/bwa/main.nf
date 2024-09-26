@@ -10,7 +10,7 @@ process bwa_index {
     path "*versions.yml"                       , emit: versions
 
   when:
-    workflow.profile != "mycobacterium_tuberculosis" && workflow.profile != "streptococcus"
+    workflow.profile != "mycobacterium_tuberculosis"
 
   script:
     """
@@ -54,7 +54,7 @@ process bwa_mem {
     path "*versions.yml"             , emit: versions
 
   when:
-    workflow.profile != "mycobacterium_tuberculosis" && workflow.profile != "streptococcus"
+    task.ext.when && workflow.profile != "mycobacterium_tuberculosis" 
 
   script:
     def args = task.ext.args ?: ''

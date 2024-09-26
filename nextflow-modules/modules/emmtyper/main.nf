@@ -16,7 +16,7 @@ process emmtyper {
     def args = task.ext.args ?: ''
     output = "${sampleID}_emmtyper.txt"
     """
-    emmtyper ${args} --outout ${output} ${fasta}
+    emmtyper ${args} --output ${output} ${fasta}
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
