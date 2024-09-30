@@ -106,8 +106,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
         serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
