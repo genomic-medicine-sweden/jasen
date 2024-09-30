@@ -615,7 +615,7 @@ spyogenes_all: spyogenes_download_reference \
 
 SPYO_GENOMES_DIR := $(ASSETS_DIR)/genomes/streptococcus_pyogenes
 SPYO_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/streptococcus_pyogenes
-SPYO_REFSEQ_ACC := GCF_900475035.1
+SPYO_REFSEQ_ACC := GCF_000006785.2
 
 
 spyogenes_download_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
