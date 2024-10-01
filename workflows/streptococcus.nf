@@ -22,6 +22,8 @@ include { mask_polymorph_assembly                   } from '../nextflow-modules/
 include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
+include { serotypefinder                            } from '../nextflow-modules/modules/serotypefinder/main.nf'
+include { shigapass                                 } from '../nextflow-modules/modules/shigapass/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
@@ -36,21 +38,27 @@ workflow CALL_STREPTOCOCCUS {
         .set{ ch_meta }
 
     // load references
-
-    referenceGenome = params.referenceGenome ? file(params.referenceGenome, checkIfExists: true) : file('/dev/null')
-    referenceGenomeDir = params.referenceGenome ? file(referenceGenome.getParent(), checkIfExists: true) : file('/dev/null/')
-    referenceGenomeIdx = params.referenceGenomeIdx ? file(params.referenceGenomeIdx, checkIfExists: true) : file('/dev/null')
-    referenceGenomeGff = params.referenceGenomeGff ? file(params.referenceGenomeGff, checkIfExists: true) : file('/dev/null')
+    referenceGenome = params.referenceGenome ? file(params.referenceGenome, checkIfExists: true) : Channel.of([])
+    referenceGenomeDir = params.referenceGenome ? file(referenceGenome.getParent(), checkIfExists: true) : Channel.of([])
+    referenceGenomeGff = params.referenceGenomeGff ? file(params.referenceGenomeGff, checkIfExists: true) : Channel.of([])
+    referenceGenomeIdx = params.referenceGenomeIdx ? file(params.referenceGenomeIdx, checkIfExists: true) : Channel.of([])
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
-    mlstBlastDb = params.mlstBlastDb ? file(params.mlstBlastDb, checkIfExists: true) : file('/dev/null')
-    pubMlstDb = params.pubMlstDb ? file(params.pubMlstDb, checkIfExists: true) : file('/dev/null')
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
-    coreLociBed = params.coreLociBed ? file(params.coreLociBed, checkIfExists: true) : file('/dev/null')
-    trainingFile = params.trainingFile ? file(params.trainingFile, checkIfExists: true) : file('/dev/null')
-    resfinderDb = file(params.resfinderDb, checkIfExists: true)
+    coreLociBed = params.coreLociBed ? file(params.coreLociBed, checkIfExists: true) : Channel.of([])
+    krakenDb = params.krakenDb ? file(params.krakenDb, checkIfExists: true) : Channel.of([])
+    mlstBlastDb = params.mlstBlastDb ? file(params.mlstBlastDb, checkIfExists: true) : Channel.of([])
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
+    pubMlstDb = params.pubMlstDb ? file(params.pubMlstDb, checkIfExists: true) : Channel.of([])
+    resfinderDb = file(params.resfinderDb, checkIfExists: true)
+    serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
+    shigapassDb = params.shigapassDb ? file(params.shigapassDb, checkIfExists: true) : Channel.of([])
+    trainingFile = params.trainingFile ? file(params.trainingFile, checkIfExists: true) : Channel.of([])
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
+    // schemas and values
+    mlstScheme = params.mlstScheme ? params.mlstScheme : Channel.of([])
+    species = params.species ? params.species : Channel.of([])
+    speciesDir = params.speciesDir ? params.speciesDir : Channel.of([])
 
     main:
         ch_versions = Channel.empty()
@@ -96,7 +104,7 @@ workflow CALL_STREPTOCOCCUS {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
+        mlst(ch_assembly, mlstScheme, pubMlstDb, mlstBlastDb)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleID, filePath -> 
@@ -106,21 +114,29 @@ workflow CALL_STREPTOCOCCUS {
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
         emmtyper(ch_assembly)
         serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         shigapass(ch_assembly, shigapassDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
-        amrfinderplus(ch_assembly, params.species, amrfinderDb)
+        amrfinderplus(ch_assembly, species, amrfinderDb)
 
         // resistance & virulence prediction
-        resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
+        resfinder(ch_reads, species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
+
+        ch_quast = ch_quast.mix(ch_empty)
+        ch_qc = ch_qc.mix(ch_empty)
+        ch_serotypefinder = serotypefinder.out.json.mix(ch_empty)
+        ch_serotypefinder_meta = serotypefinder.out.meta.mix(ch_empty)
+        ch_shigapass = shigapass.out.csv.mix(ch_empty)
+        ch_ref_bam = ch_ref_bam.mix(ch_empty)
+        ch_ref_bai = ch_ref_bai.mix(ch_empty)
 
         ch_quast
             .join(ch_qc)
@@ -129,11 +145,11 @@ workflow CALL_STREPTOCOCCUS {
             .join(amrfinderplus.out.output)
             .join(resfinder.out.json)
             .join(resfinder.out.meta)
-            .join(ch_empty)
-            .join(ch_empty)
+            .join(ch_serotypefinder)
+            .join(ch_serotypefinder_meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
-            .join(ch_empty)
+            .join(ch_shigapass)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)
@@ -142,20 +158,14 @@ workflow CALL_STREPTOCOCCUS {
             .join(ch_empty)
             .set{ combinedOutput }
 
-        if ( params.useKraken ) {
-            krakenDb = file(params.krakenDb, checkIfExists: true)
-            kraken(ch_reads, krakenDb)
-            bracken(kraken.out.report, krakenDb).output
-            combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
-            ch_versions = ch_versions.mix(kraken.out.versions)
-            ch_versions = ch_versions.mix(bracken.out.versions)
-        } else {
-            combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
-        }
+        kraken(ch_reads, krakenDb)
+        bracken(kraken.out.report, krakenDb)
+        brackenOutput = bracken.out.output ? bracken.out.output : ch_empty
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        combinedOutput.join(bracken.out.output).set{ combinedOutput }
+        create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash), speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -164,20 +174,25 @@ workflow CALL_STREPTOCOCCUS {
 
         create_cdm_input(cdmInput)
 
-        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
+        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), speciesDir)
 
         copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
+        ch_versions = ch_versions.mix(bracken.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
         ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
+        ch_versions = ch_versions.mix(emmtyper.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)
+        ch_versions = ch_versions.mix(kraken.out.versions)
         ch_versions = ch_versions.mix(mlst.out.versions)
         ch_versions = ch_versions.mix(resfinder.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
+        ch_versions = ch_versions.mix(serotypefinder.out.versions)
+        ch_versions = ch_versions.mix(shigapass.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit: 
