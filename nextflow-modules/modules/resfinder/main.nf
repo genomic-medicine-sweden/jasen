@@ -21,7 +21,7 @@ process resfinder {
     def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
     def speciesName = checkTaxon(species)
-    def speciesArgs = speciesName ? "--species $speciesName" : ""
+    def speciesArgs = speciesName ? "--species '$speciesName'" : ""
     outputFileJson = "${sampleID}_resfinder.json"
     metaFile = "${sampleID}_resfinder_meta.json"
     outputFileGene = "${sampleID}_pheno_table.txt"
