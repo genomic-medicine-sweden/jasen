@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ska2 module processes (`ska_build` & `ska_align`)
+- Added ska2 to `bacterial_base.nf`
+
 ### Fixed
 
 - Fixed tbprofiler related installation rules in `Makefile`
