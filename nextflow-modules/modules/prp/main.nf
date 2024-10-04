@@ -3,7 +3,7 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(emmtyper), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
     path referenceGenome
     path referenceGenomeIdx
     path referenceGenomeGff
@@ -18,7 +18,7 @@ process create_analysis_result {
     brackenArgs = bracken ? "--kraken ${bracken}" : ""
     bamArgs = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
     cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    vcfArgs = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
+    emmtyperArgs = emmtyper ? "--emmtyper ${emmtyper}" : ""
     mlstArgs = mlst ? "--mlst ${mlst}" : ""
     mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
     postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
@@ -33,6 +33,7 @@ process create_analysis_result {
     shigapassArgs = shigapass ? "--shigapass ${shigapass}" : ""
     symlinkDirArgs = params.symlinkDir ? "--symlink-dir ${params.symlinkDir}" : ""
     tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
+    vcfArgs = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
     virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
     virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
     """
@@ -42,7 +43,7 @@ process create_analysis_result {
       ${bamArgs} \\
       ${brackenArgs} \\
       ${cgmlstArgs} \\
-      ${vcfArgs} \\
+      ${emmtyperArgs} \\
       ${mlstArgs} \\
       ${mykrobeArgs} \\
       ${postalignqcArgs} \\
@@ -55,6 +56,7 @@ process create_analysis_result {
       ${shigapassArgs} \\
       ${symlinkDirArgs} \\
       ${tbprofilerArgs} \\
+      ${vcfArgs} \\
       ${virulenceArgs} \\
       --output ${output}
 
