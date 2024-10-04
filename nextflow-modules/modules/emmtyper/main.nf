@@ -6,7 +6,7 @@ process emmtyper {
     tuple val(sampleID), path(fasta)
 
   output:
-    tuple val(sampleID), path(output), emit: txt
+    tuple val(sampleID), path(output), emit: tsv
     path "*versions.yml"             , emit: versions
 
   when:
@@ -14,7 +14,7 @@ process emmtyper {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_emmtyper.txt"
+    output = "${sampleID}_emmtyper.tsv"
     """
     emmtyper ${args} --output ${output} ${fasta}
 
@@ -27,7 +27,7 @@ process emmtyper {
     """
 
   stub:
-    output = "${sampleID}_emmtyper.txt"
+    output = "${sampleID}_emmtyper.tsv"
     """
     touch $output
 
