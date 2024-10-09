@@ -12,6 +12,9 @@ process serotypefinder {
     tuple val(sampleID), path(metaFile)  , emit: meta
     path "*versions.yml"                 , emit: versions
 
+  when:
+    workflow.profile != "mycobacterium_tuberculosis" && workflow.profile != "streptococcus" && workflow.profile != "streptococcus_pyogenes"
+
   script:
     databasesArgs = databases ? "--databases ${databases.join(',')}" : ""
     outputFile = "${sampleID}_serotypefinder.json"

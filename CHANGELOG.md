@@ -9,16 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added ska2 module processes (`ska_build` & `ska_align`)
+- Added ska2 module process (`ska_build`)
 - Added ska2 to `bacterial_base.nf`
+- Added emmtyper module process (`emmtyper`)
+- Added emmtyper to `Makefile`
+- Added downloading of Streptococcus & Streptococcus pyogenes files to `makefile`
+- Added `get_taxon` to methods
+- Added `streptococcus` and `streptococcus_pyogenes` workflows and profiles to configs
 
 ### Fixed
 
 - Fixed tbprofiler related installation rules in `Makefile`
+- All modules can be called in one workflow -> profile determines whether they are actually executed using `when` statement
+- Empty channels fixed
+- Chewbbaca collection of input fixed
+- Fixed resfinder `--species` arg
 
 ### Changed
 
 - Updated tbdb submodule
+- Moved taxon related methods to methods directory
+- Changed spyogenes genome from GCF_900475035.1 to GCF_000006785.2
 
 ## [0.9.0]
 
