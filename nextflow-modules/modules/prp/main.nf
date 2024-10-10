@@ -152,6 +152,9 @@ process annotate_delly {
   output:
     tuple val(sampleID), path(output), emit: vcf
 
+  when:
+    workflow.profile == "mtuberculosis"
+
   script:
     output = "${sampleID}_annotated_delly.vcf"
     """

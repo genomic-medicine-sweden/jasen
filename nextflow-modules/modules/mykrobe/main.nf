@@ -9,6 +9,9 @@ process mykrobe {
     tuple val(sampleID), path(output), emit: csv
     path "*versions.yml"             , emit: versions
 
+  when:
+    workflow.profile == "mtuberculosis"
+
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
