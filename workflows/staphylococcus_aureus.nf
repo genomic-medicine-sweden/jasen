@@ -132,6 +132,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
             .join(ch_empty)
+            .join(ch_empty)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)

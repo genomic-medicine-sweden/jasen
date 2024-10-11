@@ -147,6 +147,7 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
             .join(ch_shigapass)
+            .join(ch_emmtyper)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)

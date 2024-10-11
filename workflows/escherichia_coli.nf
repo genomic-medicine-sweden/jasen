@@ -135,6 +135,7 @@ workflow CALL_ESCHERICHIA_COLI {
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
             .join(shigapass.out.csv)
+            .join(ch_empty)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)
