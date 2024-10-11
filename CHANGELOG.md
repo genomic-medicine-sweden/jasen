@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated tbdb submodule
 - Moved taxon related methods to methods directory
 - Changed spyogenes genome from GCF_900475035.1 to GCF_000006785.2
+- Changed `containerDir` filepath for Lund configs
+- Updated PRP to version 0.10.1
 
 ## [0.9.0]
 
