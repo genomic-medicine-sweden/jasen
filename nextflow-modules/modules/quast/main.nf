@@ -13,7 +13,7 @@ process quast {
   script:
     def args = task.ext.args ?: ''
     output = "${sampleID}_quast.tsv"
-    reference_command = reference ? "-r ${reference}" : ''
+    reference_command = reference ? "-r ${reference}" : ""
     outputDir = "quast_outdir"
     """
     quast.py $args $assembly $reference_command -o $outputDir -t ${task.cpus}

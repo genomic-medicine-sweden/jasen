@@ -77,6 +77,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
+            .join(ch_empty)
             .join(tbprofiler_mergedb.out.bam)
             .join(tbprofiler_mergedb.out.bai)
             .join(ch_metadata)

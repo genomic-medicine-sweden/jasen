@@ -1,5 +1,5 @@
 process save_analysis_metadata {
-  tag "${workflow.runName}"
+  tag "${sampleID}"
   scratch params.scratch
 
   input:

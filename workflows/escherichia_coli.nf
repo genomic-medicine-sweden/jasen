@@ -108,8 +108,10 @@ workflow CALL_ESCHERICHIA_COLI {
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
+        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
+        shigapass(ch_assembly, shigapassDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -117,10 +119,7 @@ workflow CALL_ESCHERICHIA_COLI {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
-
-        shigapass(ch_assembly, shigapassDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
@@ -136,6 +135,7 @@ workflow CALL_ESCHERICHIA_COLI {
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
             .join(shigapass.out.csv)
+            .join(ch_empty)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)
