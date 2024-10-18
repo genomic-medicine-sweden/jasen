@@ -1,11 +1,4 @@
-def getSpeciesTaxonName(fullName) {
-  "Convert the full name to the abbreviated version"
-  names = fullName.split(' ')
-  if (fullName == "escherichia coli") {
-      return names[0].capitalize()
-  }
-  return names[0].capitalize() + "_" + names[1]
-}
+include { getSpeciesTaxonName } from '../../../methods/get_taxon.nf'
 
 process amrfinderplus {
   tag "${sampleID}"
@@ -23,14 +16,15 @@ process amrfinderplus {
   script:
     def args = task.ext.args ?: ''
     def database_command = database ? "--database ${database}" : ""
-    taxonName = getSpeciesTaxonName(species)
+    def taxonName = getSpeciesTaxonName(species)
+    def taxon_command = taxonName ? "--organism $taxonName" : ""
     output = "${sampleID}_amrfinder.out"
     """
     amrfinder \\
     --nucleotide $assembly \\
     $database_command \\
     $args \\
-    --organism $taxonName \\
+    $taxon_command \\
     --output $output
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml

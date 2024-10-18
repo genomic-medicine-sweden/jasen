@@ -12,6 +12,9 @@ process snippy {
     tuple val(sampleID), path("${sampleID}/snps.csv"), emit: csv
     path "*versions.yml"                             , emit: versions
 
+  when:
+    workflow.profile == "mycobacterium_tuberculosis"
+
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"

@@ -67,6 +67,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         bwa_index(ch_assembly)
 
@@ -106,8 +107,9 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
+        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -115,7 +117,6 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
@@ -131,6 +132,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             .join(serotypefinder.out.meta)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
+            .join(ch_empty)
             .join(ch_empty)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
@@ -153,7 +155,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
