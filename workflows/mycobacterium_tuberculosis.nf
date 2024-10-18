@@ -51,6 +51,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         mykrobe(ch_reads)
 
@@ -103,7 +104,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
 
         // Create yaml for uploading results to Bonsai
-        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)

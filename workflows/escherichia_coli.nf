@@ -69,6 +69,7 @@ workflow CALL_ESCHERICHIA_COLI {
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         bwa_index(ch_assembly)
 
@@ -157,7 +158,7 @@ workflow CALL_ESCHERICHIA_COLI {
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)

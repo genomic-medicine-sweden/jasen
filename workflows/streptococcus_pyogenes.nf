@@ -73,6 +73,7 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         bwa_index(ch_assembly)
 
@@ -163,7 +164,7 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         combinedOutput.join(bracken.out.output).set{ combinedOutput }
         create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), speciesDir)
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
 
         ch_quast
             .join(ch_qc)
