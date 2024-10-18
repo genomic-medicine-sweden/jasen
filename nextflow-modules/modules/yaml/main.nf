@@ -22,7 +22,7 @@ process create_yaml {
     data = {
         "group_id": "${species}",
         "prp_result": "${prpDir}/${prp}",
-        "minhash_signature": "${sourmashDir}/${signature}"
+        "minhash_signature": "${sourmashDir}/${signature}",
         "ska_index": "${skaDir}/${ska_index}"
     }
 
