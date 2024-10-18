@@ -13,7 +13,7 @@ process snippy {
     path "*versions.yml"                             , emit: versions
 
   when:
-    workflow.profile == "mtuberculosis"
+    workflow.profile == "mycobacterium_tuberculosis"
 
   script:
     def args = task.ext.args ?: ''
