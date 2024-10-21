@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added downloading of Streptococcus & Streptococcus pyogenes files to `makefile`
 - Added `get_taxon` to methods
 - Added `streptococcus` and `streptococcus_pyogenes` workflows and profiles to configs
+- Added ska filepath to yaml
 
 ### Fixed
 
@@ -31,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved taxon related methods to methods directory
 - Changed spyogenes genome from GCF_900475035.1 to GCF_000006785.2
 - Changed `containerDir` filepath for Lund configs
-- Updated PRP to version 0.10.1
+- Updated PRP to version 0.11.0
+- Update `configs/nextflow.dev.config` root fpath
 
 ## [0.9.0]
 
