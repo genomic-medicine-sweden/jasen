@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `containerDir` filepath for Lund configs
 - Updated PRP to version 0.11.0
 - Update `configs/nextflow.dev.config` root fpath
+- Changed the freebayes output directory
 
 ## [0.9.0]
 
