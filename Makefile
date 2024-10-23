@@ -734,7 +734,7 @@ $(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/profiles
 # Prep Streptococcus cgmlst cgmlst.org schema
 streptococcus_prep_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
 
-$(SPYO_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(SPYO_CGMLST_DIR)/alleles_rereffed
+$(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(STREP_CGMLST_DIR)/alleles_rereffed
 
 $(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Prepping Streptococcus cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
