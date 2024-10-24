@@ -1,4 +1,4 @@
-include { getSpeciesTaxonName } from '../../../methods/get_taxon.nf'
+include { get_species_taxon_name } from '../../../methods/get_taxon.nf'
 
 process amrfinderplus {
   tag "${sampleID}"
@@ -16,8 +16,8 @@ process amrfinderplus {
   script:
     def args = task.ext.args ?: ''
     def database_command = database ? "--database ${database}" : ""
-    def taxonName = getSpeciesTaxonName(species)
-    def taxon_command = taxonName ? "--organism $taxonName" : ""
+    def taxon_name = get_species_taxon_name(species)
+    def taxon_command = taxon_name ? "--organism $taxon_name" : ""
     output = "${sampleID}_amrfinder.out"
     """
     amrfinder \\

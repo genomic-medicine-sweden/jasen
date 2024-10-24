@@ -10,7 +10,7 @@ process emmtyper {
     path "*versions.yml"             , emit: versions
 
   when:
-    workflow.profile == "streptococcus" || workflow.profile == "streptococcus_pyogenes"
+    workflow.profile in ["streptococcus", "streptococcus_pyogenes"]
 
   script:
     def args = task.ext.args ?: ''

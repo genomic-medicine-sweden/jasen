@@ -1,4 +1,4 @@
-include { checkTaxon } from '../../../methods/get_taxon.nf'
+include { check_taxon } from '../../../methods/check_taxon.nf'
 
 process resfinder {
   tag "${sampleID}"
@@ -20,7 +20,7 @@ process resfinder {
   script:
     def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
-    def speciesName = checkTaxon(species)
+    def speciesName = check_taxon(species)
     def speciesArgs = speciesName ? "--species '$speciesName'" : ""
     outputFileJson = "${sampleID}_resfinder.json"
     metaFile = "${sampleID}_resfinder_meta.json"
