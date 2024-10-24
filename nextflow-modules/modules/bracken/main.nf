@@ -12,7 +12,7 @@ process bracken {
     path "*versions.yml"                   , emit: versions
 
   when:
-    params.useKraken
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''
