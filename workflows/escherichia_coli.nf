@@ -27,12 +27,13 @@ include { virulencefinder                           } from '../nextflow-modules/
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_ESCHERICHIA_COLI {
-    Channel.fromPath(params.csv).splitCsv(header:true)
+    Channel.fromPath(params.csv)
+        .splitCsv(header:true)
         .map{ row -> get_meta(row) }
         .branch {
-        iontorrent: it[2] == "iontorrent"
-        illumina: it[2] == "illumina"
-        nanopore: it[2] == "nanopore"
+            iontorrent: it[2] == "iontorrent"
+            illumina: it[2] == "illumina"
+            nanopore: it[2] == "nanopore"
         }
         .set{ ch_meta }
 
