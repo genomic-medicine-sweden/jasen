@@ -12,6 +12,9 @@ process tbprofiler {
     tuple val(sampleID), path(baiOutput), emit: bai
     path "*versions.yml"                , emit: versions
 
+  when:
+    workflow.profile == "mycobacterium_tuberculosis"
+
   script:
     def args = task.ext.args ?: ''
     def inputData = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"

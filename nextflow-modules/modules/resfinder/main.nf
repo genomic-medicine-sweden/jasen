@@ -1,3 +1,5 @@
+include { check_taxon } from '../../../methods/check_taxon.nf'
+
 process resfinder {
   tag "${sampleID}"
   scratch params.scratch
@@ -12,13 +14,14 @@ process resfinder {
     tuple val(sampleID), path(outputFileJson), emit: json
     tuple val(sampleID), path(metaFile)      , emit: meta
     path outputFileGene                      , emit: geneTable
-    path outputFilePoint                     , emit: pointTable
+    path outputFilePoint                     , optional: true, emit: pointTable
     path "*versions.yml"                     , emit: versions
 
   script:
     def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
     def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
-    def speciesArgs = species ? "--species '${species}'" : ""
+    def speciesName = check_taxon(species)
+    def speciesArgs = speciesName ? "--species '$speciesName'" : ""
     outputFileJson = "${sampleID}_resfinder.json"
     metaFile = "${sampleID}_resfinder_meta.json"
     outputFileGene = "${sampleID}_pheno_table.txt"
@@ -41,7 +44,9 @@ process resfinder {
 
     cp std_format_under_development.json ${outputFileJson}
     cp pheno_table.txt ${outputFileGene}
-    cp PointFinder_results.txt ${outputFilePoint}
+    if [ -f 'PointFinder_results.txt' ]; then
+      cp PointFinder_results.txt ${outputFilePoint}
+    fi
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
