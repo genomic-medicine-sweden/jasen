@@ -7,7 +7,7 @@ process bwa_index {
 
   output:
     tuple val(sampleID), path("${reference}.*"), emit: idx
-    path "*versions.yml"                         , emit: versions
+    path "*versions.yml"                       , emit: versions
 
   when:
     workflow.profile != "mycobacterium_tuberculosis"
@@ -54,7 +54,7 @@ process bwa_mem {
     path "*versions.yml"             , emit: versions
 
   when:
-    workflow.profile != "mycobacterium_tuberculosis"
+    task.ext.when && workflow.profile != "mycobacterium_tuberculosis" 
 
   script:
     def args = task.ext.args ?: ''

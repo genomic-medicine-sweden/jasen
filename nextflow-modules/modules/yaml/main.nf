@@ -3,7 +3,7 @@ process create_yaml {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(prp), path(signature)
+    tuple val(sampleID), path(prp), path(signature), path(ska_index)
     val species
 
   output:
@@ -12,6 +12,7 @@ process create_yaml {
   script:
     def prpDir = task.ext.args_prp ?: ""
     def sourmashDir = task.ext.args_sourmash ?: ""
+    def skaDir = task.ext.args_ska ?: ""
     output = "${sampleID}_bonsai.yaml"
     """
     #!/usr/bin/env python
@@ -21,7 +22,8 @@ process create_yaml {
     data = {
         "group_id": "${species}",
         "prp_result": "${prpDir}/${prp}",
-        "minhash_signature": "${sourmashDir}/${signature}"
+        "minhash_signature": "${sourmashDir}/${signature}",
+        "ska_index": "${skaDir}/${ska_index}"
     }
 
     # Write the data to the YAML file

@@ -10,6 +10,9 @@ process shigapass {
     tuple val(sampleID), path(outputFile), emit: csv
     path "*versions.yml"                 , emit: versions
 
+  when:
+    workflow.profile == "escherichia_coli"
+
   script:
     shigapassDbArgs = shigapassDb ? "-p ${shigapassDb}" : "-p /usr/local/share/shigapass-1.5.0/db/"
     outputFile = "${sampleID}_shigapass.csv"
