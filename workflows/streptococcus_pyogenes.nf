@@ -50,8 +50,6 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
     pubMlstDb = params.pubMlstDb ? file(params.pubMlstDb, checkIfExists: true) : Channel.of([])
     resfinderDb = file(params.resfinderDb, checkIfExists: true)
-    serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
-    shigapassDb = params.shigapassDb ? file(params.shigapassDb, checkIfExists: true) : Channel.of([])
     trainingFile = params.trainingFile ? file(params.trainingFile, checkIfExists: true) : Channel.of([])
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
     // schemas and values
@@ -117,7 +115,6 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
         chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
         emmtyper(ch_assembly)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -129,14 +126,6 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
-        ch_quast = ch_quast.mix(ch_empty)
-        ch_qc = ch_qc.mix(ch_empty)
-        ch_serotypefinder = serotypefinder.out.json.mix(ch_empty)
-        ch_serotypefinder_meta = serotypefinder.out.meta.mix(ch_empty)
-        ch_shigapass = shigapass.out.csv.mix(ch_empty)
-        ch_ref_bam = ch_ref_bam.mix(ch_empty)
-        ch_ref_bai = ch_ref_bai.mix(ch_empty)
-
         ch_quast
             .join(ch_qc)
             .join(mlst.out.json)
@@ -144,12 +133,12 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
             .join(amrfinderplus.out.output)
             .join(resfinder.out.json)
             .join(resfinder.out.meta)
-            .join(ch_serotypefinder)
-            .join(ch_serotypefinder_meta)
+            .join(ch_empty)
+            .join(ch_empty)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
-            .join(ch_shigapass)
-            .join(ch_emmtyper)
+            .join(ch_empty)
+            .join(emmtyper.out.tsv)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
             .join(ch_metadata)
@@ -187,7 +176,6 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(mlst.out.versions)
         ch_versions = ch_versions.mix(resfinder.out.versions)
-        ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
