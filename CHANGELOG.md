@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty channels fixed
 - Chewbbaca collection of input fixed
 - Fixed resfinder `--species` arg
+- Fixed `nextflow.hopper.config` `symlinkDir`
+- Removed serotypefinder from saureus workflow
 
 ### Changed
 
