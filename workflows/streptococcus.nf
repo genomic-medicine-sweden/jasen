@@ -10,7 +10,6 @@ include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/
 include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { copy_to_cron                              } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
 include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
@@ -187,8 +186,6 @@ workflow CALL_STREPTOCOCCUS {
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), speciesDir)
 
-        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
-
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bracken.out.versions)
@@ -209,7 +206,6 @@ workflow CALL_STREPTOCOCCUS {
     emit: 
         pipeline_result = create_analysis_result.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_yaml       = copy_to_cron.out.yaml
-        cron_cdm        = copy_to_cron.out.cdm
+        yaml            = create_yaml.out.yaml
         versions        = ch_versions
 }

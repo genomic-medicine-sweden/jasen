@@ -5,7 +5,6 @@ nextflow.enable.dsl=2
 include { get_meta                              } from '../methods/get_meta.nf'
 include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
-include { copy_to_cron                          } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
 include { add_igv_track as add_variant_igv_track} from '../nextflow-modules/modules/prp/main.nf'
 include { add_igv_track as add_locus_igv_track  } from '../nextflow-modules/modules/prp/main.nf'
@@ -116,8 +115,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
-        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
-
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
@@ -127,7 +124,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     emit: 
         pipeline_result = add_locus_igv_track.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_yaml       = copy_to_cron.out.yaml
-        cron_cdm        = copy_to_cron.out.cdm
+        yaml            = create_yaml.out.yaml
         versions        = ch_versions
 }
