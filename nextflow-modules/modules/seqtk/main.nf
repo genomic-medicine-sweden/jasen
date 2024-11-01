@@ -3,14 +3,15 @@ process seqtk_sample {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads), val(platform)
+    tuple val(sampleID), path(reads)
+	val sample_size
 
   output:
-    tuple val(sampleID), path("*.fastq.gz"), val(platform), emit: reads
+    tuple val(sampleID), path("*.fastq.gz"), emit: reads
     path "*versions.yml"                   , emit: versions
 
   when:
-    task.ext.when // use when from config
+    task.ext.when
 
   script:
     def args   = task.ext.args ?: ''
@@ -23,13 +24,13 @@ process seqtk_sample {
     """
     printf "%s\\n" $reads | while read f;
     do
-        output_name = \$(basename \$f | sed "s/.fastq/_seqtk.fastq/")
+        output_name=\$(basename \$f | sed "s/.fastq/_seqtk.fastq/")
         seqtk \\
             sample \\
             $args \\
             \$f \\
             $sample_size \\
-            | gzip --no-name > \${ouput_name}
+            | gzip --no-name > \${output_name}
     done
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
