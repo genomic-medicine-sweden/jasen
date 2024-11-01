@@ -26,15 +26,19 @@ include { virulencefinder                           } from '../nextflow-modules/
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_ESCHERICHIA_COLI {
+    // Create channel for sample metadata
     Channel.fromPath(params.csv)
         .splitCsv(header:true)
         .map{ row -> get_meta(row) }
-        .branch {
-            iontorrent: it[2] == "iontorrent"
-            illumina: it[2] == "illumina"
-            nanopore: it[2] == "nanopore"
-        }
+        .map{ row -> [row[0], row[2]] }
         .set{ ch_meta }
+
+    // Create channel for reads
+    Channel.fromPath(params.csv)
+        .splitCsv(header:true)
+        .map{ row -> get_meta(row) }
+        .map{ row -> [row[0], row[1]] }
+        .set{ ch_reads }
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -57,7 +61,7 @@ workflow CALL_ESCHERICHIA_COLI {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta, ch_reads )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -67,7 +71,7 @@ workflow CALL_ESCHERICHIA_COLI {
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
