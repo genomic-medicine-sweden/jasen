@@ -2,6 +2,7 @@
 
 nextflow.enable.dsl=2
 
+include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
@@ -28,11 +29,21 @@ workflow CALL_BACTERIAL_BASE {
     
     main:
         ch_versions = Channel.empty()
+        ch_meta_sample = Channel.empty().mix( ch_meta_iontorrent, ch_meta_illumina, ch_meta_nanopore )
+
+        // remove human reads
+
+        // downsample reads
+        if (params.downsample_reads) {
+            seqtk_sample(ch_meta_sample).set{ ch_subsample_meta_iontorrent }.set( ch_meta_sample )
+        }
 
         // reads trim and clean
-        assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
-        ch_meta_illumina.mix(ch_clean_meta, ch_meta_nanopore).set{ ch_input_meta }
-        ch_input_meta.map { sampleID, reads, platform -> [ sampleID, reads ] }.set{ ch_reads }
+        assembly_trim_clean(ch_meta_sample).set{ ch_clean_meta }
+        ch_meta_sample
+            .mix(ch_clean_meta)                                        // if samples are trimmed
+            .map { sampleID, reads, platform -> [ sampleID, reads ] }  // strip platform info
+            .set{ ch_reads }                                           // rename channel
 
         if ( params.cronCopy || params.devMode) {
             Channel.fromPath(params.csv).splitCsv(header:true)
