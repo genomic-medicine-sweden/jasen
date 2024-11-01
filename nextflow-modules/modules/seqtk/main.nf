@@ -4,7 +4,7 @@ process seqtk_sample {
 
   input:
     tuple val(sampleID), path(reads)
-	val sample_size
+    val sample_size
 
   output:
     tuple val(sampleID), path("*.fastq.gz"), emit: reads

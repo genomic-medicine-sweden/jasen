@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
@@ -12,6 +11,7 @@ include { post_align_qc                         } from '../nextflow-modules/modu
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
+include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
 include { ska_build                             } from '../nextflow-modules/modules/ska/main.nf'
 include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
 include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
@@ -29,29 +29,29 @@ workflow CALL_BACTERIAL_BASE {
     
     main:
         ch_versions = Channel.empty()
-		ch_meta_illumina.view{}
+        ch_meta_illumina.view{}
         Channel.empty().mix( ch_meta_iontorrent, ch_meta_illumina, ch_meta_nanopore ).set{ ch_meta_sample }
-		ch_meta_sample.view()
+        ch_meta_sample.view()
 
         // remove human reads
 
         // downsample reads
-		seqtk_sample(
-		    ch_meta_sample.map{ sampleID, reads, platform -> [ sampleID, reads ] }, 
-			params.targetSampleSize 
-		).reads.concat( ch_meta_sample ).first().set { ch_meta_sample }
-		// todo add back sequencing platform
+        seqtk_sample(
+            ch_meta_sample.map{ sampleID, reads, platform -> [ sampleID, reads ] }, 
+            params.targetSampleSize 
+        ).reads.concat( ch_meta_sample ).first().set { ch_meta_sample }
+        // todo add back sequencing platform
 
         // reads trim and clean
         assembly_trim_clean(ch_meta_sample).set { ch_clean_meta }
         Channel.empty()
             .mix(ch_meta_sample, ch_clean_meta)                       // if samples are trimmed
             .tap{ ch_input_meta }                                     // set new channel
-		    .map{ sampleID, reads, platform -> [ sampleID, reads ] }  // strip platform info
+            .map{ sampleID, reads, platform -> [ sampleID, reads ] }  // strip platform info
             .set{ ch_reads }                                          // set as reads channel
 
-		ch_input_meta.view()
-		ch_reads.view()
+        ch_input_meta.view()
+        ch_reads.view()
         if ( params.cronCopy || params.devMode) {
             Channel.fromPath(params.csv).splitCsv(header:true)
                 .map{ row -> get_seqrun_meta(row) }
