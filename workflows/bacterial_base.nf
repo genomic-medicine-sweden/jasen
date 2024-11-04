@@ -31,9 +31,9 @@ workflow CALL_BACTERIAL_BASE {
 
         // downsample reads
         seqtk_sample( ch_reads.map(row -> [row[0], row[1], params.targetSampleSize]) ).reads
-		    .concat( ch_reads )        // add raw reads channel
-			.first()                   // if seqtk was not run the first row is the raw reads
-			.set { ch_reads }          // overwrite reads channel
+            .concat( ch_reads )        // add raw reads channel
+            .first()                   // if seqtk was not run the first row is the raw reads
+            .set { ch_reads }          // overwrite reads channel
 
         // reads trim and clean and recreate reads channel if the reads were trimmed
         assembly_trim_clean(ch_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
@@ -61,10 +61,10 @@ workflow CALL_BACTERIAL_BASE {
         medaka(ch_reads_w_meta, flye.out.fasta)
 
         Channel.empty()
-		    .mix(
-			    skesa.out.fasta, spades_illumina.out.fasta, 
-				spades_iontorrent.out.fasta, medaka.out.fasta
-			).set{ ch_assembly }
+            .mix(
+                skesa.out.fasta, spades_illumina.out.fasta, 
+                spades_iontorrent.out.fasta, medaka.out.fasta
+            ).set{ ch_assembly }
 
         // evaluate assembly quality 
         quast(ch_assembly, referenceGenome)
