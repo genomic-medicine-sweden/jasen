@@ -3,8 +3,7 @@ process seqtk_sample {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
-    val sample_size
+    tuple val(sampleID), path(reads), val(sample_size)
 
   output:
     tuple val(sampleID), path("*.fastq.gz"), emit: reads
@@ -22,8 +21,12 @@ process seqtk_sample {
         error "SEQTK/SAMPLE must have a sample_size value included"
     }
     """
+<<<<<<< HEAD
     printf "%s\\n" $reads | while read f;
     do
+=======
+    printf "%s\\n" $reads | while read f; do
+>>>>>>> c5624dc39bf9062bd570a19a80548ebc8ee0eb3a
         output_name=\$(basename \$f | sed "s/.fastq/_seqtk.fastq/")
         seqtk \\
             sample \\

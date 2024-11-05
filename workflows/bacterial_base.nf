@@ -2,6 +2,8 @@
 
 nextflow.enable.dsl=2
 
+include { get_meta                              } from '../methods/get_sample_data.nf'
+include { get_read                              } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
@@ -23,9 +25,7 @@ workflow CALL_BACTERIAL_BASE {
         coreLociBed
         referenceGenome
         referenceGenomeDir
-        ch_meta_iontorrent
-        ch_meta_illumina
-        ch_meta_nanopore
+        inputSamples
     
     main:
         ch_versions = Channel.empty()
@@ -42,13 +42,31 @@ workflow CALL_BACTERIAL_BASE {
         ).reads.concat( ch_meta_sample ).first().set { ch_meta_sample }
         // todo add back sequencing platform
 
-        // reads trim and clean
-        assembly_trim_clean(ch_meta_sample).set { ch_clean_meta }
+        // Create channel for sample metadata
+        Channel.fromPath(inputSamples)
+            .splitCsv(header:true)
+            .tap{ ch_raw_input }
+            .map{ row -> get_meta(row) }
+            .set{ ch_meta }
+
+        // Create channel for reads
+        ch_raw_input
+            .map{ row -> get_reads(row) }
+            .set{ ch_reads }
+
+        // downsample reads
+        seqtk_sample( ch_reads.map(row -> [row[0], row[1], params.targetSampleSize]) ).reads
+            .concat( ch_reads )        // add raw reads channel
+            .first()                   // if seqtk was not run the first row is the raw reads
+            .set { ch_reads }          // overwrite reads channel
+
+        // reads trim and clean and recreate reads channel if the reads were trimmed
+        assembly_trim_clean(ch_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
         Channel.empty()
-            .mix(ch_meta_sample, ch_clean_meta)                       // if samples are trimmed
-            .tap{ ch_input_meta }                                     // set new channel
-            .map{ sampleID, reads, platform -> [ sampleID, reads ] }  // strip platform info
-            .set{ ch_reads }                                          // set as reads channel
+            .mix( ch_reads, ch_clean_reads_w_meta )                   // if samples are trimmed
+            .tap{ ch_reads }                                          // overwrite reads channel
+            .join( ch_meta )                                          // add meta info
+            .set{ ch_reads_w_meta }                                   // write as temp channel
 
         ch_input_meta.view()
         ch_reads.view()
@@ -60,16 +78,20 @@ workflow CALL_BACTERIAL_BASE {
             ch_reads.map{ sampleID, reads -> [ sampleID, [], [], [] ] }.set{ ch_seqrun_meta }
         }
         // analysis metadata
-        save_analysis_metadata(ch_input_meta.join(ch_seqrun_meta))
+        save_analysis_metadata(ch_reads_w_meta.join(ch_seqrun_meta))
 
         // assembly
-        skesa(ch_input_meta)
-        spades_illumina(ch_input_meta)
-        spades_iontorrent(ch_input_meta)
-        flye(ch_input_meta)
-        medaka(ch_input_meta, flye.out.fasta)
+        skesa(ch_reads_w_meta)
+        spades_illumina(ch_reads_w_meta)
+        spades_iontorrent(ch_reads_w_meta)
+        flye(ch_reads_w_meta)
+        medaka(ch_reads_w_meta, flye.out.fasta)
 
-        Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta, medaka.out.fasta).set{ ch_assembly }
+        Channel.empty()
+            .mix(
+                skesa.out.fasta, spades_illumina.out.fasta, 
+                spades_iontorrent.out.fasta, medaka.out.fasta
+            ).set{ ch_assembly }
 
         // evaluate assembly quality 
         quast(ch_assembly, referenceGenome)
@@ -97,7 +119,7 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly    = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        input_meta  = ch_input_meta                     // channel: [ val(meta), path(meta)]
+        reads_w_meta  = ch_reads_w_meta                 // channel: [ val(meta), path(meta)]
         bam         = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
         bai         = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
         metadata    = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]

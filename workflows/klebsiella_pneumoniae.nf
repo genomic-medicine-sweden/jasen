@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                                  } from '../methods/get_meta.nf'
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
@@ -25,15 +24,8 @@ include { virulencefinder                           } from '../nextflow-modules/
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_KLEBSIELLA_PNEUMONIAE {
-    Channel.fromPath(params.csv)
-        .splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .branch {
-            iontorrent: it[2] == "iontorrent"
-            illumina: it[2] == "illumina"
-            nanopore: it[2] == "nanopore"
-        }
-        .set{ ch_meta }
+    // set input data
+    inputSamples = file(params.csv, checkIfExists: true)
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -55,7 +47,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -65,7 +57,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 

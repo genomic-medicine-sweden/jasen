@@ -6,7 +6,7 @@ process assembly_trim_clean {
     tuple val(sampleID), path(reads), val(platform)
 
   output:
-    tuple val(sampleID), path(output), val(platform)
+    tuple val(sampleID), path(output)
 
   when:
     platform == "iontorrent"
