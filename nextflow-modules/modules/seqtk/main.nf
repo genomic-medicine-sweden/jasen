@@ -21,12 +21,7 @@ process seqtk_sample {
         error "SEQTK/SAMPLE must have a sample_size value included"
     }
     """
-<<<<<<< HEAD
-    printf "%s\\n" $reads | while read f;
-    do
-=======
     printf "%s\\n" $reads | while read f; do
->>>>>>> c5624dc39bf9062bd570a19a80548ebc8ee0eb3a
         output_name=\$(basename \$f | sed "s/.fastq/_seqtk.fastq/")
         seqtk \\
             sample \\
