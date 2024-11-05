@@ -2,7 +2,8 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_meta.nf'
+include { get_meta                                  } from '../methods/get_sample_data.nf'
+include { get_reads                                 } from '../methods/get_sample_data.nf'
 include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
@@ -22,15 +23,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // Create channel for sample metadata
     Channel.fromPath(params.csv)
         .splitCsv(header:true)
+        .tap{ ch_raw_input }
         .map{ row -> get_meta(row) }
-        .map{ row -> [row[0], row[2]] }
         .set{ ch_meta }
 
     // Create channel for reads
-    Channel.fromPath(params.csv)
-        .splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .map{ row -> [row[0], row[1]] }
+    ch_raw_input
+        .map{ row -> get_reads(row) }
         .set{ ch_reads }
 
     // load references 

@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                                  } from '../methods/get_meta.nf'
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
@@ -24,19 +23,8 @@ include { virulencefinder                           } from '../nextflow-modules/
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_STAPHYLOCOCCUS_AUREUS {
-    // Create channel for sample metadata
-    Channel.fromPath(params.csv)
-        .splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .map{ row -> [row[0], row[2]] }
-        .set{ ch_meta }
-
-    // Create channel for reads
-    Channel.fromPath(params.csv)
-        .splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .map{ row -> [row[0], row[1]] }
-        .set{ ch_reads }
+    // set input data
+    inputSamples = file(params.csv, checkIfExists: true)
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -57,7 +45,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta, ch_reads )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
