@@ -29,18 +29,6 @@ workflow CALL_BACTERIAL_BASE {
     
     main:
         ch_versions = Channel.empty()
-        ch_meta_illumina.view{}
-        Channel.empty().mix( ch_meta_iontorrent, ch_meta_illumina, ch_meta_nanopore ).set{ ch_meta_sample }
-        ch_meta_sample.view()
-
-        // remove human reads
-
-        // downsample reads
-        seqtk_sample(
-            ch_meta_sample.map{ sampleID, reads, platform -> [ sampleID, reads ] }, 
-            params.targetSampleSize 
-        ).reads.concat( ch_meta_sample ).first().set { ch_meta_sample }
-        // todo add back sequencing platform
 
         // Create channel for sample metadata
         Channel.fromPath(inputSamples)
@@ -68,8 +56,6 @@ workflow CALL_BACTERIAL_BASE {
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
 
-        ch_input_meta.view()
-        ch_reads.view()
         if ( params.cronCopy || params.devMode) {
             Channel.fromPath(params.csv).splitCsv(header:true)
                 .map{ row -> get_seqrun_meta(row) }
