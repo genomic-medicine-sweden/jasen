@@ -3,7 +3,7 @@
 nextflow.enable.dsl=2
 
 include { get_meta                              } from '../methods/get_sample_data.nf'
-include { get_read                              } from '../methods/get_sample_data.nf'
+include { get_reads                             } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
