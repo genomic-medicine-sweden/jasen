@@ -2,7 +2,8 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_meta.nf'
+include { get_meta                                  } from '../methods/get_sample_data.nf'
+include { get_reads                                 } from '../methods/get_sample_data.nf'
 include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
 include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
 include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
@@ -19,15 +20,17 @@ include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modu
 include { CALL_BACTERIAL_BASE                   } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
+    // Create channel for sample metadata
     Channel.fromPath(params.csv)
         .splitCsv(header:true)
+        .tap{ ch_raw_input }
         .map{ row -> get_meta(row) }
-        .branch {
-            iontorrent: it[2] == "iontorrent"
-            illumina: it[2] == "illumina"
-            nanopore: it[2] == "nanopore"
-        }
         .set{ ch_meta }
+
+    // Create channel for reads
+    ch_raw_input
+        .map{ row -> get_reads(row) }
+        .set{ ch_reads }
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -42,14 +45,14 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta, ch_reads )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
