@@ -20,17 +20,8 @@ include { tbprofiler as tbprofiler_mergedb          } from '../nextflow-modules/
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
-    // Create channel for sample metadata
-    Channel.fromPath(params.csv)
-        .splitCsv(header:true)
-        .tap{ ch_raw_input }
-        .map{ row -> get_meta(row) }
-        .set{ ch_meta }
-
-    // Create channel for reads
-    ch_raw_input
-        .map{ row -> get_reads(row) }
-        .set{ ch_reads }
+    // set input data
+    inputSamples = file(params.csv, checkIfExists: true)
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -46,7 +37,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta, ch_reads )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
