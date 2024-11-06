@@ -118,7 +118,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
-        pipeline_result = add_locus_igv_track.out.json
+        pipeline_result = add_grading_bed_track.out.json
         cdm             = export_to_cdm.out.cdm
         yaml            = create_yaml.out.yaml
         versions        = ch_versions
