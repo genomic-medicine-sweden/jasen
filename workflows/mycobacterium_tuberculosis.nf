@@ -4,20 +4,20 @@ nextflow.enable.dsl=2
 
 include { get_meta                                  } from '../methods/get_sample_data.nf'
 include { get_reads                                 } from '../methods/get_sample_data.nf'
-include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
-include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
-include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
-include { add_igv_track as add_variant_igv_track} from '../nextflow-modules/modules/prp/main.nf'
-include { add_igv_track as add_locus_igv_track  } from '../nextflow-modules/modules/prp/main.nf'
-include { create_cdm_input                      } from '../nextflow-modules/modules/prp/main.nf'
-include { create_yaml                           } from '../nextflow-modules/modules/yaml/main.nf'
-include { export_to_cdm                         } from '../nextflow-modules/modules/cmd/main.nf'
-include { kraken                                } from '../nextflow-modules/modules/kraken/main.nf'
-include { mykrobe                               } from '../nextflow-modules/modules/mykrobe/main.nf'
-include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
-include { snippy                                } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modules/tbprofiler/main.nf'
-include { CALL_BACTERIAL_BASE                   } from '../workflows/bacterial_base.nf'
+include { annotate_delly                            } from '../nextflow-modules/modules/prp/main.nf'
+include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
+include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_tbdb_bed_track       } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_grading_bed_track    } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
+include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main.nf'
+include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
+include { mykrobe                                   } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { post_align_qc                             } from '../nextflow-modules/modules/prp/main.nf'
+include { snippy                                    } from '../nextflow-modules/modules/snippy/main.nf'
+include { tbprofiler as tbprofiler_mergedb          } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // Create channel for sample metadata
@@ -41,6 +41,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
     tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
+    tbGradingRulesBed = file(params.tbGradingRulesBed, checkIfExists: true)
 
     main:
         ch_versions = Channel.empty()
@@ -104,10 +105,11 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         }
 
         // Add IGV annotation tracks
-        add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
+        add_tbdb_bed_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
+        add_grading_bed_track(add_tbdb_bed_track.out.json, params.tbGradingRulesBed, params.gradingLociName)
 
         // Create yaml for uploading results to Bonsai
-        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
+        create_yaml(add_grading_bed_track.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)

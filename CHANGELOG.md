@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `get_taxon` to methods
 - Added `streptococcus` and `streptococcus_pyogenes` workflows and profiles to configs
 - Added ska filepath to yaml
-- Added optional read downsampling using seqtk.
+- Added optional read downsampling using seqtk
+- Added `tbGradingRulesBed` to IGV track
 
 ### Fixed
 
