@@ -40,19 +40,19 @@ workflow CALL_BACTERIAL_BASE {
         // Create channel for reads
         ch_raw_input
             .map{ row -> get_reads(row) }
-            .set{ ch_reads }
+            .set{ ch_raw_reads }
 
         // downsample reads
-        seqtk_sample( ch_reads.map(row -> [row[0], row[1], params.targetSampleSize]) ).reads
-            .concat( ch_reads )        // add raw reads channel
+        seqtk_sample( ch_raw_reads.map(row -> [row[0], row[1], params.targetSampleSize]) ).reads
+            .concat( ch_raw_reads )    // add raw reads channel
             .first()                   // if seqtk was not run the first row is the raw reads
-            .set { ch_reads }          // overwrite reads channel
+            .set{ ch_sampled_reads }  // create sampled reads channel
 
         // reads trim and clean and recreate reads channel if the reads were trimmed
-        assembly_trim_clean(ch_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
+        assembly_trim_clean(ch_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
         Channel.empty()
-            .mix( ch_reads, ch_clean_reads_w_meta )                   // if samples are trimmed
-            .tap{ ch_reads }                                          // overwrite reads channel
+            .mix( ch_sampled_reads, ch_clean_reads_w_meta )           // if samples are trimmed
+            .tap{ ch_reads }                                          // create reads channel
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
 
