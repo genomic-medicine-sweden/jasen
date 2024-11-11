@@ -21,10 +21,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					blast.sif \
 					bracken.sif \
 					bwakit.sif \
-					emmtyper.sif \
 					chewbbaca.sif \
-					freebayes.sif \
+					emmtyper.sif \
 					flye.sif \
+					freebayes.sif \
 					kraken2.sif \
 					medaka.sif \
 					mlst.sif \
