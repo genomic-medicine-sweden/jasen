@@ -21,10 +21,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					blast.sif \
 					bracken.sif \
 					bwakit.sif \
-					emmtyper.sif \
 					chewbbaca.sif \
-					freebayes.sif \
+					emmtyper.sif \
 					flye.sif \
+					freebayes.sif \
 					kraken2.sif \
 					medaka.sif \
 					mlst.sif \
@@ -45,7 +45,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.11.0
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.11.1
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
