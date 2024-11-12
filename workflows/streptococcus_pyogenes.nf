@@ -47,11 +47,12 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
     mlstScheme = params.mlstScheme ? params.mlstScheme : Channel.of([])
     species = params.species ? params.species : Channel.of([])
     speciesDir = params.speciesDir ? params.speciesDir : Channel.of([])
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}

@@ -45,11 +45,13 @@ workflow CALL_ESCHERICHIA_COLI {
     serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
     shigapassDb = file(params.shigapassDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
+    // schemas and values
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}

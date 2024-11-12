@@ -3,7 +3,8 @@ process seqtk_sample {
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads), val(sample_size)
+    tuple val(sampleID), path(reads)
+    val sample_size
 
   output:
     tuple val(sampleID), path("*.fastq.gz"), emit: reads
