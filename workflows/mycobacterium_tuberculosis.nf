@@ -33,11 +33,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
     tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
     tbGradingRulesBed = file(params.tbGradingRulesBed, checkIfExists: true)
+    // schemas and values
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
