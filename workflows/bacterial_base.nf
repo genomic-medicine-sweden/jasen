@@ -26,6 +26,7 @@ workflow CALL_BACTERIAL_BASE {
         referenceGenome
         referenceGenomeDir
         inputSamples
+        targetSampleSize
     
     main:
         ch_versions = Channel.empty()
@@ -42,11 +43,12 @@ workflow CALL_BACTERIAL_BASE {
             .map{ row -> get_reads(row) }
             .set{ ch_raw_reads }
 
-        // downsample reads
-        seqtk_sample( ch_raw_reads.map(row -> [row[0], row[1], params.targetSampleSize]) ).reads
-            .concat( ch_raw_reads )    // add raw reads channel
-            .first()                   // if seqtk was not run the first row is the raw reads
-            .set{ ch_sampled_reads }  // create sampled reads channel
+        if ( params.targetSampleSize ) {
+            // downsample reads
+            seqtk_sample( ch_raw_reads, targetSampleSize ).reads.set{ ch_sampled_reads }
+        } else {
+            ch_raw_reads.set{ ch_sampled_reads }
+        }
 
         // reads trim and clean and recreate reads channel if the reads were trimmed
         assembly_trim_clean(ch_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
