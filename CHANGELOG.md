@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `nextflow.hopper.config` `symlinkDir`
 - Removed serotypefinder from saureus workflow
 - Fixed jasen running only on the first row/sample in csv
+- Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
 
 ### Changed
 
