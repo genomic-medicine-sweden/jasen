@@ -163,7 +163,7 @@ workflow CALL_STREPTOCOCCUS {
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
 
         ch_quast
-            .join(ch_qc)
+            .join(ch_empty)
             .join(chewbbaca_split_results.out.output)
             .set{ cdmInput }
 
