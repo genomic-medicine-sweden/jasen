@@ -42,7 +42,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
     // schemas and values
-    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()

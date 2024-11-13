@@ -46,7 +46,7 @@ workflow CALL_ESCHERICHIA_COLI {
     shigapassDb = file(params.shigapassDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
     // schemas and values
-    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
