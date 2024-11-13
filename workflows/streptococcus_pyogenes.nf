@@ -28,26 +28,26 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
     inputSamples = file(params.csv, checkIfExists: true)
 
     // load references
-    referenceGenome = params.referenceGenome ? file(params.referenceGenome, checkIfExists: true) : Channel.of([])
-    referenceGenomeDir = params.referenceGenome ? file(referenceGenome.getParent(), checkIfExists: true) : Channel.of([])
-    referenceGenomeGff = params.referenceGenomeGff ? file(params.referenceGenomeGff, checkIfExists: true) : Channel.of([])
-    referenceGenomeIdx = params.referenceGenomeIdx ? file(params.referenceGenomeIdx, checkIfExists: true) : Channel.of([])
+    referenceGenome = params.referenceGenome ? file(params.referenceGenome, checkIfExists: true) : Channel.value([])
+    referenceGenomeDir = params.referenceGenome ? file(referenceGenome.getParent(), checkIfExists: true) : Channel.value([])
+    referenceGenomeGff = params.referenceGenomeGff ? file(params.referenceGenomeGff, checkIfExists: true) : Channel.value([])
+    referenceGenomeIdx = params.referenceGenomeIdx ? file(params.referenceGenomeIdx, checkIfExists: true) : Channel.value([])
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
-    coreLociBed = params.coreLociBed ? file(params.coreLociBed, checkIfExists: true) : Channel.of([])
-    krakenDb = params.krakenDb ? file(params.krakenDb, checkIfExists: true) : Channel.of([])
-    mlstBlastDb = params.mlstBlastDb ? file(params.mlstBlastDb, checkIfExists: true) : Channel.of([])
+    coreLociBed = params.coreLociBed ? file(params.coreLociBed, checkIfExists: true) : Channel.value([])
+    krakenDb = params.krakenDb ? file(params.krakenDb, checkIfExists: true) : Channel.value([])
+    mlstBlastDb = params.mlstBlastDb ? file(params.mlstBlastDb, checkIfExists: true) : Channel.value([])
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
-    pubMlstDb = params.pubMlstDb ? file(params.pubMlstDb, checkIfExists: true) : Channel.of([])
+    pubMlstDb = params.pubMlstDb ? file(params.pubMlstDb, checkIfExists: true) : Channel.value([])
     resfinderDb = file(params.resfinderDb, checkIfExists: true)
-    trainingFile = params.trainingFile ? file(params.trainingFile, checkIfExists: true) : Channel.of([])
+    trainingFile = params.trainingFile ? file(params.trainingFile, checkIfExists: true) : Channel.value([])
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
     // schemas and values
-    mlstScheme = params.mlstScheme ? params.mlstScheme : Channel.of([])
-    species = params.species ? params.species : Channel.of([])
-    speciesDir = params.speciesDir ? params.speciesDir : Channel.of([])
-    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
+    mlstScheme = params.mlstScheme ? params.mlstScheme : Channel.value([])
+    species = params.species ? params.species : Channel.value([])
+    speciesDir = params.speciesDir ? params.speciesDir : Channel.value([])
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
@@ -139,12 +139,18 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
             .join(ch_empty)
             .set{ combinedOutput }
 
-        kraken(ch_reads, krakenDb)
-        bracken(kraken.out.report, krakenDb)
-        brackenOutput = bracken.out.output ? bracken.out.output : ch_empty
-
-        combinedOutput.join(bracken.out.output).set{ combinedOutput }
-        create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+        if ( params.useKraken ) {
+            krakenDb = file(params.krakenDb, checkIfExists: true)
+            kraken(ch_reads, krakenDb)
+            bracken(kraken.out.report, krakenDb).output
+            combinedOutput.join(bracken.out.output).set{ combinedOutput }
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            ch_versions = ch_versions.mix(kraken.out.versions)
+            ch_versions = ch_versions.mix(bracken.out.versions)
+        } else {
+            combinedOutput.join(ch_empty).set{ combinedOutput }
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+        }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
 

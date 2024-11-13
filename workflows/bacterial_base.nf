@@ -106,16 +106,16 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
 
     emit:
-        assembly    = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        reads_w_meta  = ch_reads_w_meta                 // channel: [ val(meta), path(meta)]
-        bam         = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
-        bai         = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
-        metadata    = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
-        qc          = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
-        quast       = quast.out.qc                      // channel: [ val(meta), path(qc)]
-        reads       = ch_reads                          // channel: [ val(meta), path(json)]
-        ska_build   = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
-        seqrun_meta = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
-        sourmash    = sourmash.out.signature            // channel: [ val(meta), path(signature)]
-        versions    = ch_versions                       // channel: [ versions.yml ]
+        assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
+        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
+        bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
+        bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
+        metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
+        qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
+        quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
+        reads           = ch_reads                          // channel: [ val(meta), path(json)]
+        ska_build       = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
+        seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
+        sourmash        = sourmash.out.signature            // channel: [ val(meta), path(signature)]
+        versions        = ch_versions                       // channel: [ versions.yml ]
 }

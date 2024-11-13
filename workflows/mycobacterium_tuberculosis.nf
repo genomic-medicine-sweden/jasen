@@ -34,7 +34,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
     tbGradingRulesBed = file(params.tbGradingRulesBed, checkIfExists: true)
     // schemas and values
-    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.of([])
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
