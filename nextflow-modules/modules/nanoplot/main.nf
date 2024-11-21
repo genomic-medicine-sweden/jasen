@@ -14,7 +14,7 @@ process nanoplot {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}NanoPlot-report.html"
+    output = "${sampleID}_NanoPlot-report.html"
     """
     NanoPlot $args --prefix $sampleID --fastq $reads
 
@@ -27,7 +27,7 @@ process nanoplot {
     """
 
   stub:
-    output = "${sampleID}NanoPlot-report.html"
+    output = "${sampleID}_NanoPlot-report.html"
     """
     touch $output
 
