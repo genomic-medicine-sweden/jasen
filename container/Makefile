@@ -117,5 +117,5 @@ $(local_containers):
 	$(eval container_url := ${DOCKER_${tool}})
 	@chmod o+w $(INSTALL_LOG) \
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
-	&& sudo singularity build --force $${output_file} ${container_url} \
+	&& singularity build --force $${output_file} ${container_url} \
 	&& ln -sf $${output_file} $@ 
