@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `samplelist_nanopore.csv` for running long-read test data
 - Added location of documentation to `README` 
 - Added `cdmDir` to config
+- Added NanoPlot module
 - Added process for adding IGV annotation tracks with PRP.
 - Updated how `mycobacterium_tuberculosis` workflow adds IGV annotation tracks.
 
