@@ -2,32 +2,26 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_meta.nf'
-include { annotate_delly                        } from '../nextflow-modules/modules/prp/main.nf'
-include { bracken                               } from '../nextflow-modules/modules/bracken/main.nf'
-include { copy_to_cron                          } from '../nextflow-modules/modules/cron/main.nf'
-include { create_analysis_result                } from '../nextflow-modules/modules/prp/main.nf'
-include { add_igv_track as add_variant_igv_track} from '../nextflow-modules/modules/prp/main.nf'
-include { add_igv_track as add_locus_igv_track  } from '../nextflow-modules/modules/prp/main.nf'
-include { create_cdm_input                      } from '../nextflow-modules/modules/prp/main.nf'
-include { create_yaml                           } from '../nextflow-modules/modules/yaml/main.nf'
-include { export_to_cdm                         } from '../nextflow-modules/modules/cmd/main.nf'
-include { kraken                                } from '../nextflow-modules/modules/kraken/main.nf'
-include { mykrobe                               } from '../nextflow-modules/modules/mykrobe/main.nf'
-include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
-include { snippy                                } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler as tbprofiler_mergedb      } from '../nextflow-modules/modules/tbprofiler/main.nf'
-include { CALL_BACTERIAL_BASE                   } from '../workflows/bacterial_base.nf'
+include { get_meta                                  } from '../methods/get_sample_data.nf'
+include { get_reads                                 } from '../methods/get_sample_data.nf'
+include { annotate_delly                            } from '../nextflow-modules/modules/prp/main.nf'
+include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
+include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_tbdb_bed_track       } from '../nextflow-modules/modules/prp/main.nf'
+include { add_igv_track as add_grading_bed_track    } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
+include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main.nf'
+include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
+include { mykrobe                                   } from '../nextflow-modules/modules/mykrobe/main.nf'
+include { post_align_qc                             } from '../nextflow-modules/modules/prp/main.nf'
+include { snippy                                    } from '../nextflow-modules/modules/snippy/main.nf'
+include { tbprofiler as tbprofiler_mergedb          } from '../nextflow-modules/modules/tbprofiler/main.nf'
+include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
-    Channel.fromPath(params.csv).splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .branch {
-        iontorrent: it[2] == "iontorrent"
-        illumina: it[2] == "illumina"
-        nanopore: it[2] == "nanopore"
-        }
-        .set{ ch_meta }
+    // set input data
+    inputSamples = file(params.csv, checkIfExists: true)
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -38,19 +32,23 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
     tbdbBedIdx = file(params.tbdbBedIdx, checkIfExists: true)
+    tbGradingRulesBed = file(params.tbGradingRulesBed, checkIfExists: true)
+    // schemas and values
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         mykrobe(ch_reads)
 
@@ -67,6 +65,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         ch_quast
             .join(ch_qc)
+            .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
@@ -99,10 +98,11 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         }
 
         // Add IGV annotation tracks
-        add_locus_igv_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
+        add_tbdb_bed_track(create_analysis_result.out.json, params.tbdbBed, params.resistantLociName)
+        add_grading_bed_track(add_tbdb_bed_track.out.json, params.tbGradingRulesBed, params.gradingLociName)
 
         // Create yaml for uploading results to Bonsai
-        create_yaml(add_locus_igv_track.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(add_grading_bed_track.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -113,8 +113,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
-        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
-
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(mykrobe.out.versions)
@@ -122,9 +120,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
 
     emit: 
-        pipeline_result = add_locus_igv_track.out.json
+        pipeline_result = add_grading_bed_track.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_yaml       = copy_to_cron.out.yaml
-        cron_cdm        = copy_to_cron.out.cdm
+        yaml            = create_yaml.out.yaml
         versions        = ch_versions
 }

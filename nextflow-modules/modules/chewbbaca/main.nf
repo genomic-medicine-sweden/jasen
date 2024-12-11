@@ -3,13 +3,11 @@ process chewbbaca_allelecall {
   scratch params.scratch
 
   input:
-    val sampleID
     path batchInput
     path schemaDir
     path trainingFile
 
   output:
-    val sampleID                          , emit: sampleID
     path('output_dir/results_alleles.tsv'), emit: calls
     path "*versions.yml"                  , emit: versions
 

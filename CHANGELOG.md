@@ -9,9 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ska2 module process (`ska_build`)
+- Added ska2 to `bacterial_base.nf`
+- Added emmtyper module process (`emmtyper`)
+- Added emmtyper to `Makefile`
+- Added downloading of Streptococcus & Streptococcus pyogenes files to `makefile`
+- Added `get_taxon` to methods
+- Added `streptococcus` and `streptococcus_pyogenes` workflows and profiles to configs
+- Added ska filepath to yaml
+- Added optional read downsampling using seqtk
+- Added `tbGradingRulesBed` to IGV track
+
 ### Fixed
 
+- Fixed tbprofiler related installation rules in `Makefile`
+- All modules can be called in one workflow -> profile determines whether they are actually executed using `when` statement
+- Empty channels fixed
+- Chewbbaca collection of input fixed
+- Fixed resfinder `--species` arg
+- Fixed `nextflow.hopper.config` `symlinkDir`
+- Removed serotypefinder from saureus workflow
+- Fixed jasen running only on the first row/sample in csv
+- Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
+
 ### Changed
+
+- Updated tbdb submodule
+- Moved taxon related methods to methods directory
+- Changed spyogenes genome from GCF_900475035.1 to GCF_000006785.2
+- Changed `containerDir` filepath for Lund configs
+- Update `configs/nextflow.dev.config` root fpath
+- Changed the freebayes output directory
+- Remove `copy_to_cron` module
+- Updated PRP to version 0.11.1
 
 ## [0.9.0]
 

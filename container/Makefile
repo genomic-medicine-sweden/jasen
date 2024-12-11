@@ -22,8 +22,9 @@ remote_containers := ncbi-amrfinderplus.sif \
 					bracken.sif \
 					bwakit.sif \
 					chewbbaca.sif \
-					freebayes.sif \
+					emmtyper.sif \
 					flye.sif \
+					freebayes.sif \
 					kraken2.sif \
 					medaka.sif \
 					nanoplot.sif \
@@ -33,8 +34,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					quast.sif \
 					resfinder.sif \
 					samtools.sif \
+					seqtk.sif \
 					serotypefinder.sif \
 					shigapass.sif \
+					ska2.sif \
 					skesa.sif \
 					snippy.sif \
 					sourmash.sif \
@@ -43,7 +46,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.10.0
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.11.1
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -51,6 +54,7 @@ URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
+URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
@@ -62,8 +66,10 @@ URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
+URL_seqtk := https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_2
 URL_serotypefinder := https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
 URL_shigapass := https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
+URL_ska2 := https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0

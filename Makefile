@@ -169,7 +169,9 @@ update_databases: update_amrfinderplus \
 update_organisms: staphylococcus_aureus_all \
 	ecoli_all \
 	kpneumoniae_all \
-	mtuberculosis_all
+	mtuberculosis_all \
+	spyogenes_all \
+	streptococcus_all
 
 check:	check_chewbbaca \
 	check_bwa \
@@ -507,7 +509,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 kpneumoniae_all: kpneumoniae_download_reference \
 	kpneumoniae_faidx_reference \
 	kpneumoniae_bwaidx_reference \
-	kpnuemoniae_download_prodigal_training_file \
+	kpneumoniae_download_prodigal_training_file \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_unpack_cgmlst_schema \
 	kpneumoniae_prep_cgmlst_schema
@@ -521,7 +523,7 @@ KPNEU_REFSEQ_ACC := GCF_000240185.1
 kpneumoniae_download_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
-	$(call log_message,"Downloading K pneumoniae genome ...")
+	$(call log_message,"Downloading K. pneumoniae genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
@@ -533,7 +535,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 kpneumoniae_faidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai
 
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing K pneumoniae genome using samtools...")
+	$(call log_message,"Indexing K. pneumoniae genome using samtools...")
 	cd $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
@@ -542,13 +544,13 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai: $(KPNEU_GENOMES_DIR)/$(KPNEU
 kpneumoniae_bwaidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
 
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
-	$(call log_message,"Indexing K pneumoniae genome using bwa...")
+	$(call log_message,"Indexing K. pneumoniae genome using bwa...")
 	cd $(KPNEU_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
-kpnuemoniae_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
+kpneumoniae_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
 
 $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 	$(call log_message,"Downloading K. pneumonia prodigal training file ...")
@@ -599,11 +601,158 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
+# Streptococcus pyogenes
+# -----------------------------
+
+spyogenes_all: spyogenes_download_reference \
+	spyogenes_faidx_reference \
+	spyogenes_bwaidx_reference \
+	spyogenes_download_prodigal_training_file \
+	spyogenes_download_cgmlst_schema \
+	spyogenes_unpack_cgmlst_schema \
+	spyogenes_prep_cgmlst_schema
+
+
+SPYO_GENOMES_DIR := $(ASSETS_DIR)/genomes/streptococcus_pyogenes
+SPYO_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/streptococcus_pyogenes
+SPYO_REFSEQ_ACC := GCF_000006785.2
+
+
+spyogenes_download_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
+
+$(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta:
+	$(call log_message,"Downloading S. pyogenes genome ...")
+	cd $(SCRIPT_DIR) \
+	&& mkdir -p $(SPYO_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+		python3 bin/download_ncbi.py \
+		-i $(SPYO_REFSEQ_ACC) \
+		-o $(SPYO_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
+
+
+spyogenes_faidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai
+
+$(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing S. pyogenes genome using samtools...")
+	cd $(SPYO_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+spyogenes_bwaidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt
+
+$(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing S. pyogenes genome using bwa...")
+	cd $(SPYO_GENOMES_DIR) \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+spyogenes_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
+
+$(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn:
+	$(call log_message,"Downloading K. pneumonia prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Streptococcus_pyogenes.trn \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+# Download Streptococcus pyogenes cgmlst cgmlst.org schema
+spyogenes_download_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+
+$(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip:
+	$(call log_message,"Downloading S. pyogenes cgMLST schema ...")
+	mkdir -p $(SPYO_CGMLST_DIR)/alleles \
+	&& cd $(SPYO_CGMLST_DIR)/alleles \
+	&& wget https://www.cgmlst.org/ncs/schema/2187931/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+spyogenes_unpack_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/unpacking.done
+
+$(SPYO_CGMLST_DIR)/alleles/unpacking.done: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_2187931.zip
+	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
+	cd $(SPYO_CGMLST_DIR)/alleles \
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
+
+
+# Prep Streptococcus cgmlst cgmlst.org schema
+spyogenes_prep_cgmlst_schema: | $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcus_pyogenes.trn
+
+$(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcus_pyogenes.trn: $(SPYO_CGMLST_DIR)/alleles_rereffed
+
+$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
+	cd $(SPYO_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+		chewie PrepExternalSchema \
+		-g $(SPYO_CGMLST_DIR)/alleles \
+		-o $(SPYO_CGMLST_DIR)/alleles_rereffed \
+		--cpu 2 \
+		--ptf $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn |& tee -a $(INSTALL_LOG)
+
+# -----------------------------
+# Streptococcus
+# -----------------------------
+
+streptococcus_all: streptococcus_download_cgmlst_schema \
+	streptococcus_unpack_cgmlst_schema \
+	streptococcus_prep_cgmlst_schema
+
+
+STREP_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/streptococcus
+
+# Download Streptococcus cgmlst cgmlst.org schema
+streptococcus_download_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/index.html
+
+$(STREP_CGMLST_DIR)/alleles/index.html:
+	$(call log_message,"Downloading Streptococcus cgMLST schema ...")
+	mkdir -p $(STREP_CGMLST_DIR)/alleles \
+	&& cd $(STREP_CGMLST_DIR)/alleles \
+	&& wget -r https://enterobase.warwick.ac.uk/schemes/Streptococcus.cgMLSTv1/ \
+		-np \
+		-nH \
+		--cut-dirs 2 \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+streptococcus_unpack_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/unpacking.done
+
+$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/profiles.list
+	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
+	cd $(STREP_CGMLST_DIR)/alleles \
+	&& gunzip *.gz |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking gz files: " $< > $@
+
+# Prep Streptococcus cgmlst cgmlst.org schema
+streptococcus_prep_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
+
+$(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(STREP_CGMLST_DIR)/alleles_rereffed
+
+$(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
+	$(call log_message,"Prepping Streptococcus cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
+	cd $(STREP_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
+	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+		chewie PrepExternalSchema \
+		-g $(STREP_CGMLST_DIR)/alleles \
+		-o $(STREP_CGMLST_DIR)/alleles_rereffed \
+		--cpu 2 |& tee -a $(INSTALL_LOG)
+
+# -----------------------------
 # M. tuberculosis
 # -----------------------------
+
 MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
-MTUBE_TBPROFILER_DBS_DIR := $(ASSETS_DIR)/tbprofiler_dbs
+MTUBE_TB_INFO_DIR := $(ASSETS_DIR)/tb_info
 MTUBE_REFSEQ_ACC := GCF_000195955.2
 
 mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
@@ -637,28 +786,28 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
 
-$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TBPROFILER_DBS_DIR)/converged_who_fohm_tbdb.csv
+$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv
 	$(call log_message,"Creating WHO FoHM TBDB ...")
-	cd $(MTUBE_TBPROFILER_DBS_DIR) \
-	&& cp $(MTUBE_TBPROFILER_DBS_DIR)/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
+	cd $(MTUBE_TBDB_DIR) \
+	&& cp $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) \
-		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv
-	&& 	tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
+		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv \
+	&& tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
-	$(call log_message,"Bgzipping converged WHO, FoHM & TBDB bed file ...")
+	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& bgzip $$(basename $<)
+	&& bgzip $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
 
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
-	$(call log_message,"Indexing converged WHO, FoHM & TBDB bgzipped bed file ...")
+	$(call log_message,"Indexing converged WHO + FoHM + TBDB bgzipped bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& tabix -p bed $$(basename $<)
+	&& tabix -p bed $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Perform checks
@@ -673,11 +822,15 @@ check_chewbbaca:
 	&& saureus=$(SAUR_CGMLST_DIR)/alleles_rereffed \
 	&& ecoli=$(ECOLI_CGMLST_DIR)/alleles_rereffed \
 	&& kpneumoniae=$(KPNEU_CGMLST_DIR)/alleles_rereffed \
-	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" ]]; then \
+	&& spyogenes=$(SPYO_CGMLST_DIR)/alleles_rereffed \
+	&& streptococcus=$(STREP_CGMLST_DIR)/alleles_rereffed \
+	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" && -d "$$spyogenes" && -d "$$streptococcus" ]]; then \
 		echo "[✓] PASSED check for chewBBACA: Directories exist:" |& tee -a $(INSTALL_LOG) \
-		&& echo "- "$$saureus |& tee -a $(INSTALL_LOG) \
-		&& echo "- "$$ecoli |& tee -a $(INSTALL_LOG) \
-		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG); \
+		&& echo "- $$saureus" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$ecoli" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$spyogenes" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$streptococcus" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for chewBBACA: Some directories do not exist:"; \
 		if [[ ! -d $$saureus ]]; then \
@@ -688,6 +841,12 @@ check_chewbbaca:
 		fi; \
 		if [[ ! -d $$kpneumoniae ]]; then \
 			echo "    Missing directory: $$kpneumoniae" |& tee -a $(INSTALL_LOG);  \
+		fi; \
+		if [[ ! -d $$spyogenes ]]; then \
+			echo "    Missing directory: $$spyogenes" |& tee -a $(INSTALL_LOG);  \
+		fi; \
+		if [[ ! -d $$streptococcus ]]; then \
+			echo "    Missing directory: $$streptococcus" |& tee -a $(INSTALL_LOG);  \
 		fi; \
 		echo "    Please report this in an issue on the JASEN repo: https://github.com/genomic-medicine-sweden/JASEN/issues" |& tee -a $(INSTALL_LOG); \
 	fi

@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                                  } from '../methods/get_meta.nf'
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
@@ -10,7 +9,6 @@ include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/
 include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { copy_to_cron                              } from '../nextflow-modules/modules/cron/main.nf'
 include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
 include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
 include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
@@ -21,19 +19,12 @@ include { mask_polymorph_assembly                   } from '../nextflow-modules/
 include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
-include { serotypefinder                            } from '../nextflow-modules/modules/serotypefinder/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
 workflow CALL_STAPHYLOCOCCUS_AUREUS {
-    Channel.fromPath(params.csv).splitCsv(header:true)
-        .map{ row -> get_meta(row) }
-        .branch {
-        iontorrent: it[2] == "iontorrent"
-        illumina: it[2] == "illumina"
-        nanopore: it[2] == "nanopore"
-        }
-        .set{ ch_meta }
+    // set input data
+    inputSamples = file(params.csv, checkIfExists: true)
 
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
@@ -49,13 +40,14 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     trainingFile = file(params.trainingFile, checkIfExists: true)
     resfinderDb = file(params.resfinderDb, checkIfExists: true)
     pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
-    serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
     virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
+    // schemas and values
+    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, ch_meta.iontorrent, ch_meta.illumina, ch_meta.nanopore )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -65,8 +57,9 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.input_meta.set{ch_input_meta}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
+        CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
         bwa_index(ch_assembly)
 
@@ -106,8 +99,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(maskedAssemblyMap.sampleID.collect(), chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(chewbbaca_allelecall.out.sampleID, chewbbaca_allelecall.out.calls)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
+        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
@@ -115,7 +108,6 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         // resistance & virulence prediction
         resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
@@ -127,10 +119,11 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .join(amrfinderplus.out.output)
             .join(resfinder.out.json)
             .join(resfinder.out.meta)
-            .join(serotypefinder.out.json)
-            .join(serotypefinder.out.meta)
+            .join(ch_empty)
+            .join(ch_empty)
             .join(virulencefinder.out.json)
             .join(virulencefinder.out.meta)
+            .join(ch_empty)
             .join(ch_empty)
             .join(ch_ref_bam)
             .join(ch_ref_bai)
@@ -153,7 +146,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
         }
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash), params.speciesDir)
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
             .join(ch_qc)
@@ -164,8 +157,6 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
 
-        copy_to_cron(create_yaml.out.yaml.join(export_to_cdm.out.cdm))
-
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
@@ -175,14 +166,12 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(mlst.out.versions)
         ch_versions = ch_versions.mix(resfinder.out.versions)
-        ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit: 
         pipeline_result = create_analysis_result.out.json
         cdm             = export_to_cdm.out.cdm
-        cron_yaml       = copy_to_cron.out.yaml
-        cron_cdm        = copy_to_cron.out.cdm
+        yaml            = create_yaml.out.yaml
         versions        = ch_versions
 }
