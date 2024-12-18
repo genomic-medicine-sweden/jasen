@@ -453,7 +453,8 @@ ecoli_download_wgmlst_schema: $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/
 
 $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	$(call log_message,"Downloading E. coli wgMLST schema ...")
-	mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
+	rm -rf $(ECOLI_WGMLST_DIR)/alleles &> /dev/null
+	&& mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
@@ -725,7 +726,7 @@ $(STREP_CGMLST_DIR)/alleles/index.html:
 
 streptococcus_unpack_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/unpacking.done
 
-$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/profiles.list.gz
+$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
 	cd $(STREP_CGMLST_DIR)/alleles \
 	&& gunzip *.gz |& tee -a $(INSTALL_LOG) \
