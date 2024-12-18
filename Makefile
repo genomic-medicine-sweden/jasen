@@ -754,8 +754,9 @@ MTUBE_GENOMES_DIR := $(ASSETS_DIR)/genomes/mycobacterium_tuberculosis
 MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
 MTUBE_TB_INFO_DIR := $(ASSETS_DIR)/tb_info
 MTUBE_REFSEQ_ACC := GCF_000195955.2
+MTUBE_ALLELES_DIR := $(ASSETS_DIR)/cgmlst/streptococcus/alleles
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
+mtuberculosis_all: mtuberculosis_download_reference mtubercolosis__unpack_cgmlst_schema mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
@@ -768,12 +769,20 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
+mtubercolosis__unpack_cgmlst_schema: $(MTUBE_ALLELES_DIR)/unpacking.done
+
+$(MTUBE_ALLELES_DIR)/unpacking.done: $(MTUBE_ALLELES_DIR)/profiles.list
+	$(call log_message,"Unpacking M. tubercolosis cgMLST schema ...")
+	cd $(MTUBE_ALLELES_DIR) \
+        && gunzip *.gz |& tee -a $(INSTALL_LOG) \
+        && echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking gz files: " $< > $@
+
 mtuberculosis_faidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai
 
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using samtools...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+        && singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
@@ -782,7 +791,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 	$(call log_message,"Indexing M. tuberculosis genome using bwa...")
 	cd $(MTUBE_GENOMES_DIR) \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
-		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+        bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
 
@@ -800,7 +809,7 @@ mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/htslib.img bgzip $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/htslib.img bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
 
