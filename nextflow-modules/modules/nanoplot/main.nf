@@ -16,7 +16,7 @@ process nanoplot {
     def args = task.ext.args ?: ''
     output = "${sampleID}_NanoPlot-report.html"
     """
-    NanoPlot $args --prefix $sampleID --fastq $reads
+    NanoPlot $args --prefix ${sampleID}_ --fastq $reads
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:

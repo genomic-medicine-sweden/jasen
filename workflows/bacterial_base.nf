@@ -91,7 +91,7 @@ workflow CALL_BACTERIAL_BASE {
 
         post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
-        nanoplot(ch_input_meta)
+        nanoplot(ch_reads_w_meta)
 
         sourmash(ch_assembly)
 
