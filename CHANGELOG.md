@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `configs/nextflow.dev.config` root fpath
 - Changed the freebayes output directory
 - Remove `copy_to_cron` module
-- Updated PRP to version 0.11.3
+- Updated PRP to version 0.11.4
 
 ## [0.9.0]
 
