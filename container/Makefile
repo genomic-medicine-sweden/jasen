@@ -102,8 +102,9 @@ $(remote_containers):
 	$(call log_message,"Downloading remote container $@ ...")
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${URL_${tool}})
-	output_file=$$(echo ${container_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
-	&& wget -O $${output_file} ${container_url} --no-check-certificate \
+	$(eval sanitized_url := $(shell echo ${container_url} | sed -e 's/%3A/:/g'))
+	output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
+	&& wget -O $${output_file} ${sanitized_url} --no-check-certificate \
 	&& ln -sf $${output_file} $@ 
 
 
