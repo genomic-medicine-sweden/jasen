@@ -453,7 +453,7 @@ ecoli_download_wgmlst_schema: $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/
 
 $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	$(call log_message,"Downloading E. coli wgMLST schema ...")
-	rm -rf $(ECOLI_WGMLST_DIR)/alleles &> /dev/null
+	rm -rf $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
 	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
