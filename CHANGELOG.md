@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Light installation doc updates
+- Updated NGP config file
 - Added ska2 module process (`ska_build`)
 - Added ska2 to `bacterial_base.nf`
 - Added emmtyper module process (`emmtyper`)
@@ -22,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Interrupted installation now hard resets E.Coli. to avoid fragmented installation
+- Installation target file for streptococcus changed, to resolve interrupted installation
+- Included htslib image to natively support tabix and bgzip
+- Fixed a bug that prevented pipeline from correctly guessing misspelled profiles
 - Fixed tbprofiler related installation rules in `Makefile`
 - All modules can be called in one workflow -> profile determines whether they are actually executed using `when` statement
 - Empty channels fixed
@@ -34,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed sudo requirement from apptainer container creation (only required for older versions of apptainer) to streamline installation
 - Updated tbdb submodule
 - Moved taxon related methods to methods directory
 - Changed spyogenes genome from GCF_900475035.1 to GCF_000006785.2
