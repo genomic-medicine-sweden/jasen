@@ -7,6 +7,7 @@ include { get_reads                             } from '../methods/get_sample_da
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
+include { fastqc                                } from '../nextflow-modules/modules/fastqc/main.nf'
 include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
@@ -86,6 +87,7 @@ workflow CALL_BACTERIAL_BASE {
         quast(ch_assembly, referenceGenome)
 
         // qc processing
+        fastqc(ch_reads)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
@@ -111,14 +113,15 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
         bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
+        fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads           = ch_reads                          // channel: [ val(meta), path(json)]
+        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
         ska_build       = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
         seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
         sourmash        = sourmash.out.signature            // channel: [ val(meta), path(signature)]
