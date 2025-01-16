@@ -212,7 +212,7 @@ $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
 	cd $(SHIGAPASS_DIR) \
 	&& chmod +x SCRIPT/ShigaPass.sh \
 	&& gunzip $(SHIGAPASS_DIR)/Example/Input/*.fasta.gz \
-	&& singularity exec \
+	&& apptainer exec \
 		--bind $(MNT_ROOT) \
 		$(CONTAINER_DIR)/shigapass.sif \
 		bash ShigaPass.sh -u \
@@ -231,7 +231,7 @@ update_amrfinderplus: $(AMRFINDERDB_DIR)/latest
 
 $(AMRFINDERDB_DIR)/latest:
 	$(call log_message,"Starting update of AMRFinderPlus database ...")
-	singularity exec \
+	apptainer exec \
 		--bind $(MNT_ROOT) \
 		$(CONTAINER_DIR)/ncbi-amrfinderplus.sif \
 		amrfinder_update \
@@ -257,7 +257,7 @@ update_blast_db: $(MLSTDB_DIR)/blast
 $(MLSTDB_DIR)/blast:
 	$(call log_message,"Starting update of Blast database")
 	cd $(MLSTDB_DIR) \
-	&& singularity exec \
+	&& apptainer exec \
 		--bind $(MNT_ROOT) \
 		$(CONTAINER_DIR)/blast.sif \
 		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh |& tee -a $(INSTALL_LOG)
@@ -276,19 +276,19 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 	&& make \
 	&& cd $(VIRULENCEFINDERDB_DIR) \
 	&& export PATH=$(ASSETS_DIR)/kma:$$PATH \
-	&& singularity exec	--bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec	--bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/resfinder_db \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/pointfinder_db \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/serotypefinder_db \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
 
@@ -318,7 +318,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SAUR_REFSEQ_ACC) \
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
@@ -329,7 +329,7 @@ staphylococcus_aureus_faidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fa
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using samtools...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -338,7 +338,7 @@ staphylococcus_aureus_bwaidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).f
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using bwa...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -382,7 +382,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
@@ -412,7 +412,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. coli genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(ECOLI_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(ECOLI_REFSEQ_ACC) \
 		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -423,7 +423,7 @@ ecoli_faidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using samtools...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -432,7 +432,7 @@ ecoli_bwaidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using bwa...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -455,7 +455,7 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	$(call log_message,"Downloading E. coli wgMLST schema ...")
 	mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
 		-sp 5 \
 		-sc 1 \
@@ -494,7 +494,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/a
 $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
@@ -526,7 +526,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading K. pneumoniae genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(KPNEU_REFSEQ_ACC) \
 		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -537,7 +537,7 @@ kpneumoniae_faidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using samtools...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -546,7 +546,7 @@ kpneumoniae_bwaidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using bwa...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -593,7 +593,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KPNEU_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(KPNEU_CGMLST_DIR)/alleles \
 		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
@@ -624,7 +624,7 @@ $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. pyogenes genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(SPYO_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(SPYO_REFSEQ_ACC) \
 		-o $(SPYO_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -635,7 +635,7 @@ spyogenes_faidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using samtools...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -644,7 +644,7 @@ spyogenes_bwaidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using bwa...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -691,7 +691,7 @@ $(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(SPYO_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(SPYO_CGMLST_DIR)/alleles \
 		-o $(SPYO_CGMLST_DIR)/alleles_rereffed \
@@ -740,7 +740,7 @@ $(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Prepping Streptococcus cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(STREP_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(STREP_CGMLST_DIR)/alleles \
 		-o $(STREP_CGMLST_DIR)/alleles_rereffed \
@@ -763,7 +763,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading M. tuberculosis genome ...")
 	mkdir -p $(MTUBE_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bonsai-prp.sif \
 		python3 bin/download_ncbi.py \
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -773,7 +773,7 @@ mtuberculosis_faidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fa
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using samtools...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
@@ -781,7 +781,7 @@ mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.b
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using bwa...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
@@ -790,17 +790,19 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TB_INFO_DIR)/c
 	$(call log_message,"Creating WHO FoHM TBDB ...")
 	cd $(MTUBE_TBDB_DIR) \
 	&& cp $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
-	&& singularity exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/tb-profiler.sif \
 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) \
 		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv \
 	&& tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 
+
+
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& bgzip $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
 
