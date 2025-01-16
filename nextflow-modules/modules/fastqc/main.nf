@@ -27,9 +27,9 @@ process fastqc {
       -o . \\
       ${reads_arg}
 
-    mv */summary.txt ${summary_output}
-    mv */fastqc_data.txt ${output}
-    mv *_fastqc.html ${html_output}
+    cp */summary.txt ${summary_output}
+    cp */fastqc_data.txt ${output}
+    cp *_fastqc.html ${html_output}
 
     cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
     ${task.process}:
