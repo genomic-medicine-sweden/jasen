@@ -45,17 +45,24 @@ workflow CALL_BACTERIAL_BASE {
             .map{ row -> get_reads(row) }
             .set{ ch_raw_reads }
 
+        if ( params.useHostile ) {
+            // downsample reads
+            hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
+        } else {
+            ch_raw_reads.set{ ch_depleted_reads }
+        }
+
         if ( params.targetSampleSize ) {
             // downsample reads
-            seqtk_sample( ch_raw_reads, targetSampleSize ).reads.set{ ch_sampled_reads }
+            seqtk_sample( ch_depleted_reads, targetSampleSize ).reads.set{ ch_depleted_sampled_reads }
         } else {
-            ch_raw_reads.set{ ch_sampled_reads }
+            ch_depleted_reads.set{ ch_depleted_sampled_reads }
         }
 
         // reads trim and clean and recreate reads channel if the reads were trimmed
-        assembly_trim_clean(ch_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
+        assembly_trim_clean(ch_depleted_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
         Channel.empty()
-            .mix( ch_sampled_reads, ch_clean_reads_w_meta )           // if samples are trimmed
+            .mix( ch_depleted_sampled_reads, ch_clean_reads_w_meta )           // if samples are trimmed
             .tap{ ch_reads }                                          // create reads channel
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel

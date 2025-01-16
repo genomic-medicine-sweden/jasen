@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `tbGradingRulesBed` to IGV track
 - Added module NanoPlot to check quality of raw reads from ONT
 - Added fastq as a process to `bacterial_base.nf`
-- Added hostile module
+- Added hostile as a process to `bacterial_base.nf`
 
 ### Fixed
 
