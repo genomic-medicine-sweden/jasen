@@ -453,7 +453,8 @@ ecoli_download_wgmlst_schema: $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/
 
 $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	$(call log_message,"Downloading E. coli wgMLST schema ...")
-	mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
+	rm -rf $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
+	&& mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
@@ -725,7 +726,7 @@ $(STREP_CGMLST_DIR)/alleles/index.html:
 
 streptococcus_unpack_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/unpacking.done
 
-$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/profiles.list
+$(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
 	cd $(STREP_CGMLST_DIR)/alleles \
 	&& gunzip *.gz |& tee -a $(INSTALL_LOG) \
@@ -802,14 +803,14 @@ mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/htslib.sif bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
 
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 	$(call log_message,"Indexing converged WHO + FoHM + TBDB bgzipped bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& tabix -p bed $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/htslib.sif tabix -p bed $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Perform checks

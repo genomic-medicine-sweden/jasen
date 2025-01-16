@@ -14,7 +14,7 @@
 ### Copy code locally
 
 ```bash
-git clone --recurse-submodules --single-branch --branch master \\ 
+git clone --recurse-submodules --branch master \\ 
     https://github.com/genomic-medicine-sweden/jasen.git &&        \\
 cd jasen
 ```
