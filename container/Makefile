@@ -23,6 +23,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					bwakit.sif \
 					chewbbaca.sif \
 					emmtyper.sif \
+					fastqc.sif \
 					flye.sif \
 					freebayes.sif \
 					kraken2.sif \
@@ -55,6 +56,7 @@ URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
 URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
+URL_fastqc := https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
 URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
