@@ -9,6 +9,9 @@ process hostile {
     tuple val(sampleID), path("${output_dir}/*.fastq.gz")   , emit: reads
     path "*versions.yml"                                    , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def args = task.ext.args ?: ''
     def reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
