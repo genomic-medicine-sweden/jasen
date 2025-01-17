@@ -1,13 +1,13 @@
 process hostile {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
+    tuple val(sample_id), path(reads)
 
   output:
-    tuple val(sampleID), path("${output_dir}/*.fastq.gz")   , emit: reads
-    path "*versions.yml"                                    , emit: versions
+    tuple val(sample_id), path("${output_dir}/*.fastq.gz"), emit: reads
+    path "*versions.yml"                                  , emit: versions
 
   when:
     task.ext.when
@@ -19,7 +19,7 @@ process hostile {
     """
     hostile clean ${args} ${reads_arg} --output ${output_dir}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      hostile:
       version: \$(echo \$(hostile --version 2>&1) )
@@ -31,10 +31,10 @@ process hostile {
     output_dir = "hostile_outdir"
     """
     mkdir ${output_dir}
-    touch ${output_dir}/${sampleID}_R1.fastq.gz
-    touch ${output_dir}/${sampleID}_R2.fastq.gz
+    touch ${output_dir}/${sample_id}_R1.fastq.gz
+    touch ${output_dir}/${sample_id}_R2.fastq.gz
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      hostile:
       version: \$(echo \$(hostile --version 2>&1) )

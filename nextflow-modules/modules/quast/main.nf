@@ -1,25 +1,25 @@
 process quast {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(assembly)
+    tuple val(sample_id), path(assembly)
     path reference
 
   output:
-    tuple val(sampleID), path(output), emit: qc
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: qc
+    path "*versions.yml"              , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_quast.tsv"
+    output = "${sample_id}_quast.tsv"
     reference_command = reference ? "-r ${reference}" : ""
-    outputDir = "quast_outdir"
+    output_dir = "quast_outdir"
     """
-    quast.py $args $assembly $reference_command -o $outputDir -t ${task.cpus}
-    cp $outputDir/transposed_report.tsv $output
+    quast.py ${args} ${assembly} ${reference_command} -o ${output_dir} -t ${task.cpus}
+    cp ${output_dir}/transposed_report.tsv ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      quast:
       version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')
@@ -28,11 +28,11 @@ process quast {
     """
 
   stub:
-    output = "${sampleID}_quast.tsv"
+    output = "${sample_id}_quast.tsv"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      quast:
       version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')

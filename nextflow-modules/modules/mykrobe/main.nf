@@ -1,30 +1,30 @@
 process mykrobe {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
+    tuple val(sample_id), path(reads)
 
   output:
-    tuple val(sampleID), path(output), emit: csv
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: csv
+    path "*versions.yml"              , emit: versions
 
   when:
     workflow.profile == "mycobacterium_tuberculosis"
 
   script:
     def args = task.ext.args ?: ''
-    def inputData = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
-    output = "${sampleID}_mykrobe.csv"
+    def reads_arg = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
+    output = "${sample_id}_mykrobe.csv"
     """
     mykrobe predict \\
       ${args} \\
-      --sample ${sampleID} \\
-      --seq ${inputData} \\
+      --sample ${sample_id} \\
+      --seq ${reads_arg} \\
       --threads ${task.cpus} \\
       --output ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      mykrobe:
       version: \$(echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//')
@@ -33,11 +33,11 @@ process mykrobe {
     """
 
   stub:
-    output = "${sampleID}_mykrobe.csv"
+    output = "${sample_id}_mykrobe.csv"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      mykrobe:
       version: \$(echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//')

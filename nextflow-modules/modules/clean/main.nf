@@ -1,26 +1,26 @@
 process assembly_trim_clean {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads), val(platform)
+    tuple val(sample_id), path(reads), val(platform)
 
   output:
-    tuple val(sampleID), path(output)
+    tuple val(sample_id), path(output), emit: fasta
 
   when:
     platform == "iontorrent"
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_cleaned.fastq.gz"
+    output = "${sample_id}_cleaned.fastq.gz"
     """
     run_assembly_trimClean.pl --numcpus ${task.cpus} ${args} -i ${reads} -o ${output}
     """
 
   stub:
-    output = "${sampleID}_cleaned.fastq.gz"
+    output = "${sample_id}_cleaned.fastq.gz"
     """
-    touch $output
+    touch ${output}
     """
 }

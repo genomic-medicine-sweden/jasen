@@ -1,35 +1,35 @@
 process snippy {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
+    tuple val(sample_id), path(reads)
     path reference
 
   output:
-    tuple val(sampleID), path(output)                , emit: vcf
-    tuple val(sampleID), path("${sampleID}/snps.bam"), emit: bam
-    tuple val(sampleID), path("${sampleID}/snps.csv"), emit: csv
-    path "*versions.yml"                             , emit: versions
+    tuple val(sample_id), path(output)                 , emit: vcf
+    tuple val(sample_id), path("${sample_id}/snps.bam"), emit: bam
+    tuple val(sample_id), path("${sample_id}/snps.csv"), emit: csv
+    path "*versions.yml"                               , emit: versions
 
   when:
     workflow.profile == "mycobacterium_tuberculosis"
 
   script:
     def args = task.ext.args ?: ''
-    def inputData = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
-    output = "${sampleID}_snippy.vcf"
+    def reads_arg = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
+    output = "${sample_id}_snippy.vcf"
     """
     snippy \\
       ${args} \\
-      ${inputData} \\
+      ${reads_arg} \\
       --ref ${reference} \\
       --cpus ${task.cpus} \\
-      --outdir ${sampleID}
+      --outdir ${sample_id}
 
-    cp ${sampleID}/snps.vcf $output
+    cp ${sample_id}/snps.vcf ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      snippy:
       version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
@@ -38,13 +38,13 @@ process snippy {
     """
 
   stub:
-    output = "${sampleID}_snippy.vcf"
+    output = "${sample_id}_snippy.vcf"
     """
-    mkdir ${sampleID}
-    touch $output
-    touch "${sampleID}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}"
+    mkdir ${sample_id}
+    touch ${output}
+    touch "${sample_id}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}"
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      snippy:
       version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
