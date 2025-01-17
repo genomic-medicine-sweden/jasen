@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed the freebayes output directory
 - Remove `copy_to_cron` module
 - Updated PRP to version 0.11.1
+- Updated from Singularity v3.8.7 to Apptainer v1.3.6 in the CI pipeline
 
 ## [0.9.0]
 
