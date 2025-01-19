@@ -17,7 +17,7 @@ process shigapass {
     shigapass_db_arg = shigapass_db ? "-p ${shigapass_db}" : "-p /usr/local/share/shigapass-1.5.0/db/"
     output = "${sample_id}_shigapass.csv"
     """
-    echo ${fasta} > batch_input.txt
+    echo ${assembly} > batch_input.txt
 
     ShigaPass.sh \\
     -l batch_input.txt \\
