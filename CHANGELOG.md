@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove `copy_to_cron` module
 - Updated PRP to version 0.11.4
 - Changed SerotypeFinder input from reads to assembly
+- Changed variable formatting of modules
 
 ## [0.9.0]
 
