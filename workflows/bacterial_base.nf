@@ -9,6 +9,7 @@ include { assembly_trim_clean                   } from '../nextflow-modules/modu
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
 include { fastqc                                } from '../nextflow-modules/modules/fastqc/main.nf'
 include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
+include { hostile                               } from '../nextflow-modules/modules/hostile/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
