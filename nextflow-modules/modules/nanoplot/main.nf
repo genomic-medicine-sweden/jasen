@@ -1,24 +1,24 @@
 process nanoplot {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads), val(platform) 
+    tuple val(sample_id), path(reads), val(platform) 
 
   output:
-    tuple val(sampleID), path(output), emit: html
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: html
+    path "*versions.yml"              , emit: versions
 
   when:
     platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_NanoPlot-report.html"
+    output = "${sample_id}_NanoPlot-report.html"
     """
-    NanoPlot $args --prefix ${sampleID}_ --fastq $reads
+    NanoPlot ${args} --prefix ${sample_id}_ --fastq ${reads}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      nanoplot:
       version: \$(echo \$(NanoPlot --version 2>&1))
@@ -27,11 +27,11 @@ process nanoplot {
     """
 
   stub:
-    output = "${sampleID}_NanoPlot-report.html"
+    output = "${sample_id}_NanoPlot-report.html"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      nanoplot:
       version: \$(echo \$(NanoPlot --version 2>&1))

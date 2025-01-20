@@ -3,9 +3,9 @@ process chewbbaca_allelecall {
   scratch params.scratch
 
   input:
-    path batchInput
-    path schemaDir
-    path trainingFile
+    path batch_input
+    path schema_dir
+    path training_file
 
   output:
     path('output_dir/results_alleles.tsv'), emit: calls
@@ -13,15 +13,15 @@ process chewbbaca_allelecall {
 
   script:
     def args = task.ext.args ?: ''
-    trainingFile = trainingFile ? "--ptf ${trainingFile}" : "" 
+    training_file = training_file ? "--ptf ${training_file}" : "" 
     """
     chewie AlleleCall \\
-    -i ${batchInput} \\
+    -i ${batch_input} \\
     ${args} \\
     --cpu ${task.cpus} \\
     --output-directory output_dir \\
-    ${trainingFile} \\
-    --schema-directory ${schemaDir}
+    ${training_file} \\
+    --schema-directory ${schema_dir}
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
     ${task.process}:
@@ -49,7 +49,7 @@ process chewbbaca_create_batch_list {
   scratch params.scratch
 
   input:
-    path maskedAssembly
+    path masked_assembly
 
   output:
     path "batch_input.list", emit: list
@@ -57,37 +57,37 @@ process chewbbaca_create_batch_list {
   script:
     output = "batch_input.list"
     """
-    realpath $maskedAssembly > $output
+    realpath ${masked_assembly} > ${output}
     """
 
   stub:
     output = "batch_input.list"
     """
-    touch $output
+    touch ${output}
     """
 }
 
 process chewbbaca_split_results {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    each sampleID
+    each sample_id
     path input
 
   output:
-    tuple val(sampleID), path(output), emit: output
+    tuple val(sample_id), path(output), emit: output
 
   script:
-    output = "${sampleID}_chewbbaca.out"
+    output = "${sample_id}_chewbbaca.out"
     """
     head -1 ${input} > ${output}
-    grep ${sampleID} ${input} >> ${output}
+    grep ${sample_id} ${input} >> ${output}
     """
 
   stub:
-    output = "${sampleID}_chewbbaca.out"
+    output = "${sample_id}_chewbbaca.out"
     """
-    touch $output
+    touch ${output}
     """
 }

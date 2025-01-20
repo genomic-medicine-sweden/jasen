@@ -1,22 +1,22 @@
 process mask_polymorph_assembly {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(assembly), path(polymorph)
+    tuple val(sample_id), path(assembly), path(polymorph)
 
   output:
-    tuple val(sampleID), path(output), emit: fasta
+    tuple val(sample_id), path(output), emit: fasta
 
   script:
-    output = "${sampleID}_mask.fasta"
+    output = "${sample_id}_mask.fasta"
     """
     error_corr_assembly.pl ${assembly} ${polymorph} > ${output}
     """
 
   stub:
-    output = "${sampleID}_mask.fasta"
+    output = "${sample_id}_mask.fasta"
     """
-    touch $output
+    touch ${output}
     """
 }

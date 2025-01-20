@@ -1,33 +1,33 @@
 include { get_species_taxon_name } from '../../../methods/get_taxon.nf'
 
 process amrfinderplus {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(assembly)
+    tuple val(sample_id), path(assembly)
     val species
     path database
 
   output:
-    tuple val(sampleID), path(output), emit: output
+    tuple val(sample_id), path(output), emit: output
     path "*versions.yml"             , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    def database_command = database ? "--database ${database}" : ""
+    def database_arg = database ? "--database ${database}" : ""
     def taxon_name = get_species_taxon_name(species)
-    def taxon_command = taxon_name ? "--organism $taxon_name" : ""
-    output = "${sampleID}_amrfinder.out"
+    def taxon_arg = taxon_name ? "--organism ${taxon_name}" : ""
+    output = "${sample_id}_amrfinder.out"
     """
     amrfinder \\
-    --nucleotide $assembly \\
-    $database_command \\
-    $args \\
-    $taxon_command \\
-    --output $output
+    --nucleotide ${assembly} \\
+    ${database_arg} \\
+    ${args} \\
+    ${taxon_arg} \\
+    --output ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      amrfinderplus:
       version: \$(echo \$(amrfinder --version 2>&1))
@@ -36,11 +36,11 @@ process amrfinderplus {
     """
 
   stub:
-    output = "${sampleID}_amrfinder.out"
+    output = "${sample_id}_amrfinder.out"
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      amrfinderplus:
       version: \$(echo \$(amrfinder --version 2>&1))

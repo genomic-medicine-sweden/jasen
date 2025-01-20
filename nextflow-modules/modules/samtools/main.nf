@@ -1,5 +1,5 @@
 process samtools_view {
-  tag "$input"
+  tag "${input}"
   scratch params.scratch
 
   input:
@@ -15,13 +15,13 @@ process samtools_view {
     workflow.profile != "mycobacterium_tuberculosis"
 
   script:
-    def reference = fasta ? "--reference ${fasta} -C" : ""
+    def reference_arg = fasta ? "--reference ${fasta} -C" : ""
     def prefix = input.simpleName
-    def fileType = input.getExtension()
+    def file_ext = input.getExtension()
     """
-    samtools view $reference ${input} > ${prefix}.${fileType}
+    samtools view ${reference_arg} ${input} > ${prefix}.${file_ext}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -31,10 +31,10 @@ process samtools_view {
 
   stub:
     """
-    touch ${sampleID}.bam
-    touch ${sampleID}.cram
+    touch ${sample_id}.bam
+    touch ${sample_id}.cram
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -44,22 +44,22 @@ process samtools_view {
 }
 
 process samtools_sort {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(input)
+    tuple val(sample_id), path(input)
 
   output:
-    tuple val(sampleID), path(output), emit: bam
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: bam
+    path "*versions.yml"              , emit: versions
 
   script:
-    output = "${sampleID}.bam"
+    output = "${sample_id}.bam"
     """
-    samtools sort -@ $task.cpus -o ${output} ${input}
+    samtools sort -@ ${task.cpus} -o ${output} ${input}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -69,9 +69,9 @@ process samtools_sort {
 
   stub:
     """
-    touch ${sampleID}.bam
+    touch ${sample_id}.bam
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -81,22 +81,22 @@ process samtools_sort {
 }
 
 process samtools_index {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(input)
+    tuple val(sample_id), path(input)
 
   output:
-    tuple val(sampleID), path(output), emit: bai
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: bai
+    path "*versions.yml"              , emit: versions
 
   script:
     output = "${input}.bai"
     """
-    samtools index -@ $task.cpus ${input}
+    samtools index -@ ${task.cpus} ${input}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -107,9 +107,9 @@ process samtools_index {
   stub:
     output = "${input}.bai"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -119,7 +119,7 @@ process samtools_index {
 }
 
 process samtools_faidx {
-  tag "$input"
+  tag "${input}"
   scratch params.scratch
 
   input:
@@ -134,7 +134,7 @@ process samtools_faidx {
     """
     samtools faidx ${input}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
@@ -145,9 +145,9 @@ process samtools_faidx {
   stub:
     output = "${input}.fai"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')

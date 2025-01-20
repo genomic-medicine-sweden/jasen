@@ -1,22 +1,22 @@
 process freebayes {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(fasta)
+    tuple val(sample_id), path(assembly)
     tuple path(bam), path(bai) 
 
   output:
-    tuple val(sampleID), path(output), emit: vcf
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: vcf
+    path "*versions.yml"              , emit: versions
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_freebayes.vcf"
+    output = "${sample_id}_freebayes.vcf"
     """
-    freebayes ${args} -f ${fasta} ${bam} > ${output}
+    freebayes ${args} -f ${assembly} ${bam} > ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      freebayes:
       version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')
@@ -25,11 +25,11 @@ process freebayes {
     """
 
   stub:
-    output = "${sampleID}_freebayes.vcf"
+    output = "${sample_id}_freebayes.vcf"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      freebayes:
       version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')

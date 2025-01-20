@@ -1,40 +1,40 @@
 process export_to_cgviz {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    path runInfo
+    path run_info
     file meta
-    tuple val(sampleID), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
+    tuple val(sample_id), val(quast), val(mlst), val(cgmlst), val(virulence), val(resistance)
 
   output:
-    path(output)
+    path(output), emit: json
 
   script:
-    output = "${sampleID}_cgviz.json"
+    output = "${sample_id}_cgviz.json"
     //--kraken ${bracken} \\
-    quastArgs = quast ? "--quast ${quast}" : "" 
-    mlstArgs = mlst ? "--mlst ${mlst}" : "" 
-    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : "" 
-    resfinderArgs = resistance ? "--resistance ${resistance}" : "" 
-    virulenceArgs = virulence ? "--virulence ${virulence}" : "" 
-    metaArgs = meta ? "--process-metadata  ${meta[1..-1].join(' --process-metadata ')}" : ""
+    quast_arg = quast ? "--quast ${quast}" : "" 
+    mlst_arg = mlst ? "--mlst ${mlst}" : "" 
+    cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : "" 
+    resfinder_arg = resistance ? "--resistance ${resistance}" : "" 
+    virulence_arg = virulence ? "--virulence ${virulence}" : "" 
+    meta_arg = meta ? "--process-metadata  ${meta[1..-1].join(' --process-metadata ')}" : ""
     """
     combine_results.py \\
-      --sample-id ${sampleID} \\
-      --run-metadata ${runInfo} \\
-      ${metaArgs} \\
-      ${quastArgs} \\
-      ${mlstArgs} \\
-      ${cgmlstArgs} \\
-      ${virulenceArgs} \\
-      ${resfinderArgs} \\
+      --sample-id ${sample_id} \\
+      --run-metadata ${run_info} \\
+      ${meta_arg} \\
+      ${quast_arg} \\
+      ${mlst_arg} \\
+      ${cgmlst_arg} \\
+      ${virulence_arg} \\
+      ${resfinder_arg} \\
       ${output}
     """
 
   stub:
-    output = "${sampleID}_cgviz.json"
+    output = "${sample_id}_cgviz.json"
     """
-    touch $output
+    touch ${output}
     """
 }

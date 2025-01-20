@@ -1,29 +1,29 @@
 process medaka {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads), val(platform)
-    tuple val(sampleID), path(assembly)
+    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(assembly)
 
   output:
-    tuple val(sampleID), path(output), emit: fasta
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: fasta
+    path "*versions.yml"              , emit: versions
 
   when:
     platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''
-    outputDir = "medaka_outdir"
-    output = "${sampleID}_medaka.fasta"
+    output_dir = "medaka_outdir"
+    output = "${sample_id}_medaka.fasta"
     """
-    medaka_consensus -i $reads -d $assembly -o medaka_tmp $args
+    medaka_consensus -i ${reads} -d ${assembly} -o medaka_tmp ${args}
 
-    medaka_consensus -i $reads -d medaka_tmp/consensus.fasta -o $outputDir $args
-    mv $outputDir/consensus.fasta $output
+    medaka_consensus -i ${reads} -d medaka_tmp/consensus.fasta -o ${output_dir} ${args}
+    mv ${output_dir}/consensus.fasta ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      medaka:
       version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
@@ -32,11 +32,11 @@ process medaka {
     """
 
   stub:
-    output = "${sampleID}_medaka.fasta"
+    output = "${sample_id}_medaka.fasta"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      medaka:
       version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
