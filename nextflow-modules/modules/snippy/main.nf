@@ -17,12 +17,12 @@ process snippy {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "--R1 ${reads[0]} --R2 ${reads[1]}" : "--R1 ${reads[0]}"
     output = "${sample_id}_snippy.vcf"
     """
     snippy \\
       ${args} \\
-      ${reads_arg} \\
+      ${input_reads_arg} \\
       --ref ${reference} \\
       --cpus ${task.cpus} \\
       --outdir ${sample_id}

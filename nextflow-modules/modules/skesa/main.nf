@@ -14,10 +14,10 @@ process skesa {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "${reads[0]},${reads[1]}" : "${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "${reads[0]},${reads[1]}" : "${reads[0]}"
     output = "${sample_id}_skesa.fasta"
     """
-    skesa --reads ${reads_arg} ${args} > ${output}
+    skesa --reads ${input_reads_arg} ${args} > ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

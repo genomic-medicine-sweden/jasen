@@ -14,10 +14,10 @@ process hostile {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
     output_dir = "hostile_outdir"
     """
-    hostile clean ${args} ${reads_arg} --output ${output_dir}
+    hostile clean ${args} ${input_reads_arg} --output ${output_dir}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

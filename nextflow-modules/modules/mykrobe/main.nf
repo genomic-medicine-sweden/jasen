@@ -14,13 +14,13 @@ process mykrobe {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
     output = "${sample_id}_mykrobe.csv"
     """
     mykrobe predict \\
       ${args} \\
       --sample ${sample_id} \\
-      --seq ${reads_arg} \\
+      --seq ${input_reads_arg} \\
       --threads ${task.cpus} \\
       --output ${output}
 

@@ -31,7 +31,7 @@ process fastqc {
       --extract \\
       --threads ${task.cpus} \\
       --memory ${fastqc_memory} \\
-      -o . \\
+      --outdir . \\
       ${renamed_files}
 
     cp ${sample_id}_1_fastqc/summary.txt ${summary_output}

@@ -11,11 +11,11 @@ process ska_build {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "${sample_id}\t${reads[0]}\t${reads[1]}" : "${sample_id}\t${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "${sample_id}\t${reads[0]}\t${reads[1]}" : "${sample_id}\t${reads[0]}"
     output_basename = "${sample_id}_ska_index"
     output = "${output_basename}.skf"
     """
-    echo ${reads_arg} > ${sample_id}_input.txt
+    echo ${input_reads_arg} > ${sample_id}_input.txt
     ska build ${args} -o ${output_basename} -f ${sample_id}_input.txt
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml

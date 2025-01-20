@@ -16,7 +16,7 @@ process kraken {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
     output = "${sample_id}_kraken.out"
     report = "${sample_id}_kraken.report"
     """
@@ -26,7 +26,7 @@ process kraken {
     --db ${database} \\
     --output ${output} \\
     --report ${report} \\
-    ${reads_arg}
+    ${input_reads_arg}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

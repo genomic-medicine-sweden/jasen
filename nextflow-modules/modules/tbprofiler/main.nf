@@ -17,7 +17,7 @@ process tbprofiler {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-1 ${reads[0]}"
     output = "${sample_id}_tbprofiler.json"
     vcf_output = "${sample_id}_tbprofiler.vcf.gz"
     bam_output = "${sample_id}_tbprofiler.bam"
@@ -25,7 +25,7 @@ process tbprofiler {
     """
     tb-profiler profile \\
       ${args} \\
-      ${reads_arg} \\
+      ${input_reads_arg} \\
       --threads ${task.cpus} \\
       --prefix ${sample_id}
 

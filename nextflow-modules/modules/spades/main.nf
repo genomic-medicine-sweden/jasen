@@ -17,11 +17,11 @@ process spades_iontorrent {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
     output_dir = "spades_outdir"
     output = "${sample_id}_spades.fasta"
     """
-    spades.py ${args} ${reads_arg} -t ${task.cpus} -o ${output_dir}
+    spades.py ${args} ${input_reads_arg} -t ${task.cpus} -o ${output_dir}
     mv ${output_dir}/contigs.fasta ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
@@ -65,11 +65,11 @@ process spades_illumina {
 
   script:
     def args = task.ext.args ?: ''
-    def reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
+    def input_reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
     output_dir = "spades_outdir"
     output = "${sample_id}_spades.fasta"
     """
-    spades.py ${args} ${reads_arg} -t ${task.cpus} -o ${output_dir}
+    spades.py ${args} ${input_reads_arg} -t ${task.cpus} -o ${output_dir}
     mv ${output_dir}/contigs.fasta ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml

@@ -34,11 +34,11 @@ process resfinder {
     printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > ${meta_output}
 
     # Run resfinder
-    python -m resfinder             \\
-    --inputfastq ${reads.join(' ')} \\
-    ${species_arg}                  \\
-    ${resfinder_arg}        \\
-    ${pointfinder_arg}            \\
+    python -m resfinder                           \\
+    --inputfastq ${reads.join(' ')}               \\
+    ${species_arg}                                \\
+    ${resfinder_arg}                              \\
+    ${pointfinder_arg}                            \\
     --out_json std_format_under_development.json  \\
     --outputPath .
 
