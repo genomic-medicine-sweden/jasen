@@ -27,6 +27,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					freebayes.sif \
 					kraken2.sif \
 					medaka.sif \
+					nanoplot.sif \
 					mlst.sif \
 					mykrobe.sif \
 					perl-json.sif \
@@ -45,7 +46,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.11.1
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:0.11.4
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -61,6 +62,7 @@ URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321
 URL_medaka := https://depot.galaxyproject.org/singularity/medaka:1.11.3--py39h05d5c5e_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
+URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1
 URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5321hdfd78af_0
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1

@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ska filepath to yaml
 - Added optional read downsampling using seqtk
 - Added `tbGradingRulesBed` to IGV track
+- Added module NanoPlot to check quality of raw reads from ONT
 
 ### Fixed
 
@@ -48,8 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `configs/nextflow.dev.config` root fpath
 - Changed the freebayes output directory
 - Remove `copy_to_cron` module
-- Updated PRP to version 0.11.1
 - Updated from Singularity v3.8.7 to Apptainer v1.3.6 in the CI pipeline
+- Updated PRP to version 0.11.4
 
 ## [0.9.0]
 
@@ -59,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `samplelist_nanopore.csv` for running long-read test data
 - Added location of documentation to `README` 
 - Added `cdmDir` to config
+- Added NanoPlot module
 - Added process for adding IGV annotation tracks with PRP.
 - Updated how `mycobacterium_tuberculosis` workflow adds IGV annotation tracks.
 
