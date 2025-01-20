@@ -47,7 +47,7 @@ workflow CALL_BACTERIAL_BASE {
             .set{ ch_raw_reads }
 
         if ( params.useHostile ) {
-            // downsample reads
+            // remove human reads
             hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
         } else {
             ch_raw_reads.set{ ch_depleted_reads }
@@ -60,10 +60,10 @@ workflow CALL_BACTERIAL_BASE {
             ch_depleted_reads.set{ ch_depleted_sampled_reads }
         }
 
-        // reads trim and clean and recreate reads channel if the reads were trimmed
+        // reads trim and clean and recreate reads channel if the reads were filtered or downsampled
         assembly_trim_clean(ch_depleted_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
         Channel.empty()
-            .mix( ch_depleted_sampled_reads, ch_clean_reads_w_meta )           // if samples are trimmed
+            .mix( ch_depleted_sampled_reads, ch_clean_reads_w_meta )  // if samples are filtered or downsampled
             .tap{ ch_reads }                                          // create reads channel
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
