@@ -64,7 +64,7 @@ jobs:
           df -h
 
       - name: Run Make install only for S. Aureus
-        run:
+        run: |
           SHORT_ORG=$(echo "${{ matrix.organism }}" | awk -F'_' '{print substr($1,1,1) $2}')
           make update_databases && df -h && make ${SHORT_ORG}_all
 
