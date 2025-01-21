@@ -166,14 +166,14 @@ update_databases: update_amrfinderplus \
 	update_finder_dbs \
 	update_shigapass_db
 
-update_organisms: staphylococcus_aureus_all \
+update_organisms: saureus_all \
 	ecoli_all \
 	kpneumoniae_all \
 	mtuberculosis_all \
 	spyogenes_all \
 	streptococcus_all
 
-check:	check_chewbbaca \
+check: check_chewbbaca \
 	check_bwa \
 	check_blastdb
 
@@ -299,20 +299,20 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 # -----------------------------
 # S. aureus
 # -----------------------------
-staphylococcus_aureus_all: staphylococcus_aureus_download_reference \
-	staphylococcus_aureus_faidx_reference \
-	staphylococcus_aureus_bwaidx_reference \
-	staphylococcus_aureus_download_prodigal_training_file \
-	staphylococcus_aureus_download_cgmlst_schema \
-	staphylococcus_aureus_unpack_cgmlst_schema \
-	staphylococcus_aureus_prep_cgmlst_schema
+saureus_all: saureus_download_reference \
+	saureus_faidx_reference \
+	saureus_bwaidx_reference \
+	saureus_download_prodigal_training_file \
+	saureus_download_cgmlst_schema \
+	saureus_unpack_cgmlst_schema \
+	saureus_prep_cgmlst_schema
 
 SAUR_GENOMES_DIR := $(ASSETS_DIR)/genomes/staphylococcus_aureus
 SAUR_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/staphylococcus_aureus
 SAUR_REFSEQ_ACC := GCF_000012045.1
 
 
-staphylococcus_aureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
+saureus_download_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
@@ -324,7 +324,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
 
 
-staphylococcus_aureus_faidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai
+saureus_faidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using samtools...")
@@ -333,7 +333,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai: $(SAUR_GENOMES_DIR)/$(SAUR_REF
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
-staphylococcus_aureus_bwaidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
+saureus_bwaidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
 
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using bwa...")
@@ -342,7 +342,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REF
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
-staphylococcus_aureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
+saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
 
 $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 	$(call log_message,"Downloading S. aureus prodigal training file ...")
@@ -354,7 +354,7 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-staphylococcus_aureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
+saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 
 $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 	$(call log_message,"Downloading S. aureus cgMLST schema ...")
@@ -366,7 +366,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-staphylococcus_aureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
+saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
 $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141106.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
@@ -374,7 +374,7 @@ $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_141
 		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
 		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
-staphylococcus_aureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
+saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles_rereffed
 
