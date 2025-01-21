@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ska filepath to yaml
 - Added optional read downsampling using seqtk
 - Added `tbGradingRulesBed` to IGV track
-- Added module NanoPlot to check quality of raw reads from ONT
+- Added module `nanoplot` to check quality of raw reads from ONT
+- Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
 
 ### Fixed
 
