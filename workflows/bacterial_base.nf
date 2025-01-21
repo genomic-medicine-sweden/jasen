@@ -108,7 +108,9 @@ workflow CALL_BACTERIAL_BASE {
         ska_build(ch_reads)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
+        ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
+        ch_versions = ch_versions.mix(hostile.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
