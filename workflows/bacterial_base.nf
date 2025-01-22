@@ -49,6 +49,7 @@ workflow CALL_BACTERIAL_BASE {
         if ( params.useHostile ) {
             // remove human reads
             hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
+            ch_versions = ch_versions.mix(hostile.out.versions)
         } else {
             ch_raw_reads.set{ ch_depleted_reads }
         }
@@ -56,6 +57,7 @@ workflow CALL_BACTERIAL_BASE {
         if ( params.targetSampleSize ) {
             // downsample reads
             seqtk_sample( ch_depleted_reads, targetSampleSize ).reads.set{ ch_depleted_sampled_reads }
+            ch_versions = ch_versions.mix(seqtk_sample.out.versions)
         } else {
             ch_depleted_reads.set{ ch_depleted_sampled_reads }
         }
@@ -110,7 +112,6 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
-        ch_versions = ch_versions.mix(hostile.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
