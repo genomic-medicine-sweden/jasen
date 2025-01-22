@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added optional read downsampling using seqtk
 - Added `tbGradingRulesBed` to IGV track
 - Added module NanoPlot to check quality of raw reads from ONT
+- Added fastq as a process to `bacterial_base.nf`
+- Added hostile as a process to `bacterial_base.nf`
 
 ### Fixed
 
@@ -51,6 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove `copy_to_cron` module
 - Updated from Singularity v3.8.7 to Apptainer v1.3.6 in the CI pipeline
 - Updated PRP to version 0.11.4
+- Changed SerotypeFinder input from reads to assembly
+- Changed variable formatting of modules
+- Changed ska & sourmash filepath to symlink dir in `nextflow.hopper.config` & `nextflow.dev.config`
+- Updated Kraken db filepath in `nextflow.hopper.config` & `nextflow.dev.config`
+- Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
 
 ## [0.9.0]
 

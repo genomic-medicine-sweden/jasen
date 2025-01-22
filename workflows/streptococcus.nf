@@ -113,7 +113,7 @@ workflow CALL_STREPTOCOCCUS {
         chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
         chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
         emmtyper(ch_assembly)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
+        serotypefinder(ch_assembly, params.useSerotypeDbs, serotypefinderDb)
         shigapass(ch_assembly, shigapassDb)
 
         // SCREENING

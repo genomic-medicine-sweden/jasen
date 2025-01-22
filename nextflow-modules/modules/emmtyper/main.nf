@@ -1,24 +1,24 @@
 process emmtyper {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(fasta)
+    tuple val(sample_id), path(assembly)
 
   output:
-    tuple val(sampleID), path(output), emit: tsv
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: tsv
+    path "*versions.yml"              , emit: versions
 
   when:
     workflow.profile in ["streptococcus", "streptococcus_pyogenes"]
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sampleID}_emmtyper.tsv"
+    output = "${sample_id}_emmtyper.tsv"
     """
-    emmtyper ${args} --output ${output} ${fasta}
+    emmtyper ${args} --output ${output} ${assembly}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      emmtyper:
       version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
@@ -27,11 +27,11 @@ process emmtyper {
     """
 
   stub:
-    output = "${sampleID}_emmtyper.tsv"
+    output = "${sample_id}_emmtyper.tsv"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      emmtyper:
       version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
