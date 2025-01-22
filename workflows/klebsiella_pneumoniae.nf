@@ -103,7 +103,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
         chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
         chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
-        serotypefinder(ch_reads, params.useSerotypeDbs, serotypefinderDb)
+        serotypefinder(ch_assembly, params.useSerotypeDbs, serotypefinderDb)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)

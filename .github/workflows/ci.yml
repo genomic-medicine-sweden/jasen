@@ -49,11 +49,11 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE} && make check-and-reinit-git-submodules
 
-      - name: Install Singularity
-        # For running (locally) with ACT, we use a docker image with Singularity already installed
+      - name: Install Apptainer
+        # For running (locally) with ACT, we use a docker image with Singularity/Apptainer already installed
         if: "${{ ! github.event.act }}"
         run: |
-          wget https://github.com/apptainer/singularity/releases/download/v3.8.7/singularity-container_3.8.7_amd64.deb && sudo dpkg -i singularity-container_3.8.7_amd64.deb
+          wget https://github.com/apptainer/apptainer/releases/download/v1.3.6/apptainer_1.3.6_amd64.deb && sudo dpkg -i apptainer_1.3.6_amd64.deb
 
       - name: Install containers
         run:
@@ -64,8 +64,9 @@ jobs:
           df -h
 
       - name: Run Make install only for S. Aureus
-        run:
-          make update_databases && df -h && make ${{ matrix.organism }}_all
+        run: |
+          SHORT_ORG=$(echo "${{ matrix.organism }}" | awk -F'_' '{print substr($1,1,1) $2}')
+          make update_databases && df -h && make ${SHORT_ORG}_all
 
       - name: Report disk-usage after S. Aureus part
         run:

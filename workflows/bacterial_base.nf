@@ -7,7 +7,9 @@ include { get_reads                             } from '../methods/get_sample_da
 include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
 include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
+include { fastqc                                } from '../nextflow-modules/modules/fastqc/main.nf'
 include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
+include { hostile                               } from '../nextflow-modules/modules/hostile/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
@@ -44,17 +46,26 @@ workflow CALL_BACTERIAL_BASE {
             .map{ row -> get_reads(row) }
             .set{ ch_raw_reads }
 
-        if ( params.targetSampleSize ) {
-            // downsample reads
-            seqtk_sample( ch_raw_reads, targetSampleSize ).reads.set{ ch_sampled_reads }
+        if ( params.useHostile ) {
+            // remove human reads
+            hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
+            ch_versions = ch_versions.mix(hostile.out.versions)
         } else {
-            ch_raw_reads.set{ ch_sampled_reads }
+            ch_raw_reads.set{ ch_depleted_reads }
         }
 
-        // reads trim and clean and recreate reads channel if the reads were trimmed
-        assembly_trim_clean(ch_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
+        if ( params.targetSampleSize ) {
+            // downsample reads
+            seqtk_sample( ch_depleted_reads, targetSampleSize ).reads.set{ ch_depleted_sampled_reads }
+            ch_versions = ch_versions.mix(seqtk_sample.out.versions)
+        } else {
+            ch_depleted_reads.set{ ch_depleted_sampled_reads }
+        }
+
+        // reads trim and clean and recreate reads channel if the reads were filtered or downsampled
+        assembly_trim_clean(ch_depleted_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
         Channel.empty()
-            .mix( ch_sampled_reads, ch_clean_reads_w_meta )           // if samples are trimmed
+            .mix( ch_depleted_sampled_reads, ch_clean_reads_w_meta )  // if samples are filtered or downsampled
             .tap{ ch_reads }                                          // create reads channel
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
@@ -86,6 +97,7 @@ workflow CALL_BACTERIAL_BASE {
         quast(ch_assembly, referenceGenome)
 
         // qc processing
+        fastqc(ch_reads)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
@@ -98,6 +110,7 @@ workflow CALL_BACTERIAL_BASE {
         ska_build(ch_reads)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
+        ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
@@ -111,14 +124,15 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
         bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
+        fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads           = ch_reads                          // channel: [ val(meta), path(json)]
+        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
         ska_build       = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
         seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
         sourmash        = sourmash.out.signature            // channel: [ val(meta), path(signature)]

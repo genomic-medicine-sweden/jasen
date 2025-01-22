@@ -23,6 +23,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					bwakit.sif \
 					chewbbaca.sif \
 					emmtyper.sif \
+					fastqc.sif \
 					flye.sif \
 					freebayes.sif \
 					kraken2.sif \
@@ -56,8 +57,10 @@ URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
 URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
+URL_fastqc := https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
 URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
+URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_medaka := https://depot.galaxyproject.org/singularity/medaka:1.11.3--py39h05d5c5e_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
@@ -105,8 +108,9 @@ $(remote_containers):
 	$(call log_message,"Downloading remote container $@ ...")
 	$(eval tool := $(basename $@))
 	$(eval container_url := ${URL_${tool}})
-	output_file=$$(echo ${container_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
-	&& wget -O $${output_file} ${container_url} --no-check-certificate \
+	$(eval sanitized_url := $(shell echo ${container_url} | sed -e 's/%3A/:/g'))
+	output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
+	&& wget -O $${output_file} ${sanitized_url} --no-check-certificate \
 	&& ln -sf $${output_file} $@ 
 
 
@@ -121,5 +125,5 @@ $(local_containers):
 	$(eval container_url := ${DOCKER_${tool}})
 	@chmod o+w $(INSTALL_LOG) \
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
-	&& sudo singularity build --force $${output_file} ${container_url} \
+	&& apptainer build --force $${output_file} ${container_url} \
 	&& ln -sf $${output_file} $@ 

@@ -1,20 +1,20 @@
 process seqtk_sample {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
+    tuple val(sample_id), path(reads)
     val sample_size
 
   output:
-    tuple val(sampleID), path("*.fastq.gz"), emit: reads
-    path "*versions.yml"                   , emit: versions
+    tuple val(sample_id), path("*.fastq.gz"), emit: reads
+    path "*versions.yml"                    , emit: versions
 
   when:
     task.ext.when
 
   script:
-    def args   = task.ext.args ?: ''
+    def args = task.ext.args ?: ''
     if (!(args ==~ /.*-s[0-9]+.*/)) {
         args += " -s100"
     }
@@ -22,17 +22,17 @@ process seqtk_sample {
         error "SEQTK/SAMPLE must have a sample_size value included"
     }
     """
-    printf "%s\\n" $reads | while read f; do
+    printf "%s\\n" ${reads} | while read f; do
         output_name=\$(basename \$f | sed "s/.fastq/_seqtk.fastq/")
         seqtk \\
             sample \\
-            $args \\
+            ${args} \\
             \$f \\
-            $sample_size \\
+            ${sample_size} \\
             | gzip --no-name > \${output_name}
     done
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      seqtk:
       version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
@@ -41,11 +41,11 @@ process seqtk_sample {
     """
 
   stub:
-    output = "${sampleID}_seqtk.fastq.gz"
+    output = "${sample_id}_seqtk.fastq.gz"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      seqtk:
       version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')

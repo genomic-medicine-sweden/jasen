@@ -1,66 +1,66 @@
 process create_analysis_result {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(emmtyper), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
-    path referenceGenome
-    path referenceGenomeIdx
-    path referenceGenomeGff
+    tuple val(sample_id), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(emmtyper), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
+    path reference_genome
+    path reference_genome_idx
+    path reference_genome_gff
 
   output:
-    tuple val(sampleID), path(output), emit: json
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: json
+    path "*versions.yml"              , emit: versions
 
   script:
-    output = "${sampleID}_result.json"
-    amrfinderArgs = amr ? "--amrfinder ${amr}" : ""
-    brackenArgs = bracken ? "--kraken ${bracken}" : ""
-    bamArgs = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
-    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    emmtyperArgs = emmtyper ? "--emmtyper ${emmtyper}" : ""
-    mlstArgs = mlst ? "--mlst ${mlst}" : ""
-    mykrobeArgs = mykrobe ? "--mykrobe ${mykrobe}" : ""
-    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
-    quastArgs = quast ? "--quast ${quast}" : ""
-    referenceGenomeArgs = referenceGenome ? "--reference-genome-fasta ${referenceGenome}" : ""
-    referenceGffArgs = referenceGenomeGff ? "--reference-genome-gff ${referenceGenomeGff}" : ""
-    resfinderArgs = resistance ? "--resfinder ${resistance}" : ""
-    resfinderArgs = resfinderMeta ? "${resfinderArgs} --process-metadata ${resfinderMeta}" : resfinderArgs
-    runInfoArgs = runInfo ? "--run-metadata ${runInfo}" : ""
-    serotypeArgs = serotype ? "--serotypefinder ${serotype}" : ""
-    serotypeArgs = serotypefinderMeta ? "${serotypeArgs} --process-metadata ${serotypefinderMeta}" : serotypeArgs
-    shigapassArgs = shigapass ? "--shigapass ${shigapass}" : ""
-    symlinkDirArgs = params.symlinkDir ? "--symlink-dir ${params.symlinkDir}" : ""
-    tbprofilerArgs = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
-    vcfArgs = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
-    virulenceArgs = virulence ? "--virulencefinder ${virulence}" : ""
-    virulenceArgs = virulencefinderMeta ? "${virulenceArgs} --process-metadata ${virulencefinderMeta}" : virulenceArgs
+    output = "${sample_id}_result.json"
+    amrfinder_arg = amr ? "--amrfinder ${amr}" : ""
+    bracken_arg = bracken ? "--kraken ${bracken}" : ""
+    bam_arg = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
+    cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : ""
+    emmtyper_arg = emmtyper ? "--emmtyper ${emmtyper}" : ""
+    mlst_arg = mlst ? "--mlst ${mlst}" : ""
+    mykrobe_arg = mykrobe ? "--mykrobe ${mykrobe}" : ""
+    postalignqc_arg = postalignqc ? "--quality ${postalignqc}" : "" 
+    quast_arg = quast ? "--quast ${quast}" : ""
+    reference_genome_arg = reference_genome ? "--reference-genome-fasta ${reference_genome}" : ""
+    reference_gff_arg = reference_genome_gff ? "--reference-genome-gff ${reference_genome_gff}" : ""
+    resfinder_arg = resistance ? "--resfinder ${resistance}" : ""
+    resfinder_arg = resfinderMeta ? "${resfinder_arg} --process-metadata ${resfinderMeta}" : resfinder_arg
+    runInfo_arg = runInfo ? "--run-metadata ${runInfo}" : ""
+    serotype_arg = serotype ? "--serotypefinder ${serotype}" : ""
+    serotype_arg = serotypefinderMeta ? "${serotype_arg} --process-metadata ${serotypefinderMeta}" : serotype_arg
+    shigapass_arg = shigapass ? "--shigapass ${shigapass}" : ""
+    symlink_dir_arg = params.symlinkDir ? "--symlink-dir ${params.symlinkDir}" : ""
+    tbprofiler_arg = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
+    vcf_arg = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
+    virulence_arg = virulence ? "--virulencefinder ${virulence}" : ""
+    virulence_arg = virulencefinderMeta ? "${virulence_arg} --process-metadata ${virulencefinderMeta}" : virulence_arg
     """
     prp create-bonsai-input \\
-      --sample-id ${sampleID} \\
-      ${amrfinderArgs} \\
-      ${bamArgs} \\
-      ${brackenArgs} \\
-      ${cgmlstArgs} \\
-      ${emmtyperArgs} \\
-      ${mlstArgs} \\
-      ${mykrobeArgs} \\
-      ${postalignqcArgs} \\
-      ${quastArgs} \\
-      ${referenceGenomeArgs} \\
-      ${referenceGffArgs} \\
-      ${resfinderArgs} \\
-      ${runInfoArgs} \\
-      ${serotypeArgs} \\
-      ${shigapassArgs} \\
-      ${symlinkDirArgs} \\
-      ${tbprofilerArgs} \\
-      ${vcfArgs} \\
-      ${virulenceArgs} \\
+      --sample-id ${sample_id} \\
+      ${amrfinder_arg} \\
+      ${bam_arg} \\
+      ${bracken_arg} \\
+      ${cgmlst_arg} \\
+      ${emmtyper_arg} \\
+      ${mlst_arg} \\
+      ${mykrobe_arg} \\
+      ${postalignqc_arg} \\
+      ${quast_arg} \\
+      ${reference_genome_arg} \\
+      ${reference_gff_arg} \\
+      ${resfinder_arg} \\
+      ${runInfo_arg} \\
+      ${serotype_arg} \\
+      ${shigapass_arg} \\
+      ${symlink_dir_arg} \\
+      ${tbprofiler_arg} \\
+      ${vcf_arg} \\
+      ${virulence_arg} \\
       --output ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
@@ -69,11 +69,11 @@ process create_analysis_result {
     """
 
   stub:
-    output = "${sampleID}_result.json"
+    output = "${sample_id}_result.json"
     """
-    touch $output
+    touch ${output}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
@@ -83,112 +83,112 @@ process create_analysis_result {
 }
 
 process create_cdm_input {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), val(quast), val(postalignqc), val(cgmlst)
+    tuple val(sample_id), val(quast), val(postalignqc), val(cgmlst)
 
   output:
-    tuple val(sampleID), path(output), emit: json
+    tuple val(sample_id), path(output), emit: json
 
   script:
-    output = "${sampleID}_qc_result.json"
-    cgmlstArgs = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    postalignqcArgs = postalignqc ? "--quality ${postalignqc}" : "" 
-    quastArgs = quast ? "--quast ${quast}" : ""
+    output = "${sample_id}_qc_result.json"
+    cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : ""
+    postalignqc_arg = postalignqc ? "--quality ${postalignqc}" : "" 
+    quast_arg = quast ? "--quast ${quast}" : ""
     """
     prp create-cdm-input \\
-      ${cgmlstArgs} \\
-      ${postalignqcArgs} \\
-      ${quastArgs} \\
+      ${cgmlst_arg} \\
+      ${postalignqc_arg} \\
+      ${quast_arg} \\
       --output ${output}
     """
 
   stub:
-    output = "${sampleID}_qc_result.json"
+    output = "${sample_id}_qc_result.json"
     """
-    touch $output
+    touch ${output}
     """
 }
 
 process post_align_qc {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(bam)
+    tuple val(sample_id), path(bam)
     path reference
     path bed
 
   output:
-    tuple val(sampleID), path(output), emit: qc
+    tuple val(sample_id), path(output), emit: qc
 
   when:
     workflow.profile != "streptococcus"
 
   script:
-    output = "${sampleID}_qc.json"
+    output = "${sample_id}_qc.json"
     """
-    prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sampleID} --cpus ${task.cpus} --output ${output}
+    prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sample_id} --cpus ${task.cpus} --output ${output}
     """
 
   stub:
-    output = "${sampleID}_qc.json"
+    output = "${sample_id}_qc.json"
     """
-    touch $output
+    touch ${output}
     """
 }
 
 process annotate_delly {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(vcf)
+    tuple val(sample_id), path(vcf)
     path bed
     path bedIdx
 
   output:
-    tuple val(sampleID), path(output), emit: vcf
+    tuple val(sample_id), path(output), emit: vcf
 
   when:
     workflow.profile == "mycobacterium_tuberculosis"
 
   script:
-    output = "${sampleID}_annotated_delly.vcf"
+    output = "${sample_id}_annotated_delly.vcf"
     """
     prp annotate-delly --vcf ${vcf} --bed ${bed} --output ${output}
     """
 
   stub:
-    output = "${sampleID}_annotated_delly.vcf"
+    output = "${sample_id}_annotated_delly.vcf"
     """
-    touch $output
+    touch ${output}
     """
 }
 
 process add_igv_track {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(bonsaiInput)
+    tuple val(sample_id), path(bonsaiInput)
     val annotation
     val trackName
 
   output:
-    tuple val(sampleID), path(output), emit: json
+    tuple val(sample_id), path(output), emit: json
 
   script:
-    output = "${sampleID}_result.json"
+    output = "${sample_id}_result.json"
     """
     prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} --output ${output}
     """
 
   stub:
-    output = "${sampleID}_result.json"
+    output = "${sample_id}_result.json"
     """
-    touch $output
+    touch ${output}
     """
 }

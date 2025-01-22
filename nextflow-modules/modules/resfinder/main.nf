@@ -1,91 +1,91 @@
 include { check_taxon } from '../../../methods/check_taxon.nf'
 
 process resfinder {
-  tag "${sampleID}"
+  tag "${sample_id}"
   scratch params.scratch
 
   input:
-    tuple val(sampleID), path(reads)
+    tuple val(sample_id), path(reads)
     val species
-    val resfinderDb
-    val pointfinderDb
+    val resfinder_db
+    val pointfinder_db
 
   output:
-    tuple val(sampleID), path(outputFileJson), emit: json
-    tuple val(sampleID), path(metaFile)      , emit: meta
-    path outputFileGene                      , emit: geneTable
-    path outputFilePoint                     , optional: true, emit: pointTable
-    path "*versions.yml"                     , emit: versions
+    tuple val(sample_id), path(output)     , emit: json
+    tuple val(sample_id), path(meta_output), emit: meta
+    path output_gene                       , emit: gene_table
+    path output_point                      , optional: true, emit: point_table
+    path "*versions.yml"                   , emit: versions
 
   script:
-    def resfinderFinderParams = resfinderDb ? "--acquired --db_path_res ${resfinderDb}" : ""
-    def pointFinderParams = pointfinderDb ? "--point --db_path_point ${pointfinderDb}" : ""
-    def speciesName = check_taxon(species)
-    def speciesArgs = speciesName ? "--species '$speciesName'" : ""
-    outputFileJson = "${sampleID}_resfinder.json"
-    metaFile = "${sampleID}_resfinder_meta.json"
-    outputFileGene = "${sampleID}_pheno_table.txt"
-    outputFilePoint = "${sampleID}_point_table.txt"
+    def resfinder_arg = resfinder_db ? "--acquired --db_path_res ${resfinder_db}" : ""
+    def pointfinder_arg = pointfinder_db ? "--point --db_path_point ${pointfinder_db}" : ""
+    def species_name = check_taxon(species)
+    def species_arg = species_name ? "--species '${species_name}'" : ""
+    output = "${sample_id}_resfinder.json"
+    meta_output = "${sample_id}_resfinder_meta.json"
+    output_gene = "${sample_id}_pheno_table.txt"
+    output_point = "${sample_id}_point_table.txt"
     """
     # Get db version
-    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
-    POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+    RES_DB_VERSION=\$(cat ${resfinder_db}/VERSION | tr -d '\r' | tr -d '\n')
+    POINT_DB_VERSION=\$(cat ${pointfinder_db}/VERSION | tr -d '\n')
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
-    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > $metaFile
+    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > ${meta_output}
 
     # Run resfinder
-    python -m resfinder             \\
-    --inputfastq ${reads.join(' ')} \\
-    ${speciesArgs}                  \\
-    ${resfinderFinderParams}        \\
-    ${pointFinderParams}            \\
+    python -m resfinder                           \\
+    --inputfastq ${reads.join(' ')}               \\
+    ${species_arg}                                \\
+    ${resfinder_arg}                              \\
+    ${pointfinder_arg}                            \\
     --out_json std_format_under_development.json  \\
     --outputPath .
 
-    cp std_format_under_development.json ${outputFileJson}
-    cp pheno_table.txt ${outputFileGene}
+    cp std_format_under_development.json ${output}
+    cp pheno_table.txt ${output_gene}
     if [ -f 'PointFinder_results.txt' ]; then
-      cp PointFinder_results.txt ${outputFilePoint}
+      cp PointFinder_results.txt ${output_point}
     fi
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(cat ${resfinderDb}/VERSION | tr -d '\n')
+      version: \$(cat ${resfinder_db}/VERSION | tr -d '\n')
       container: ${task.container}
      pointfinder_db:
-      version: \$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+      version: \$(cat ${pointfinder_db}/VERSION | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """
 
   stub:
-    outputFileJson = "${sampleID}_resfinder.json"
-    metaFile = "${sampleID}_resfinder_meta.json"
-    outputFileGene = "${sampleID}_pheno_table.txt"
-    outputFilePoint = "${sampleID}_point_table.txt"
+    output = "${sample_id}_resfinder.json"
+    meta_output = "${sample_id}_resfinder_meta.json"
+    output_gene = "${sample_id}_pheno_table.txt"
+    output_point = "${sample_id}_point_table.txt"
     """
-    RES_DB_VERSION=\$(cat ${resfinderDb}/VERSION | tr -d '\r' | tr -d '\n')
-    POINT_DB_VERSION=\$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+    RES_DB_VERSION=\$(cat ${resfinder_db}/VERSION | tr -d '\r' | tr -d '\n')
+    POINT_DB_VERSION=\$(cat ${pointfinder_db}/VERSION | tr -d '\n')
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
-    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > $metaFile
-    touch $outputFileJson
-    touch $outputFileGene
-    touch $outputFilePoint
+    printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > ${meta_output}
+    touch ${output}
+    touch ${output_gene}
+    touch ${output_point}
 
-    cat <<-END_VERSIONS > ${sampleID}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(cat ${resfinderDb}/VERSION | tr -d '\n')
+      version: \$(cat ${resfinder_db}/VERSION | tr -d '\n')
       container: ${task.container}
      pointfinder_db:
-      version: \$(cat ${pointfinderDb}/VERSION | tr -d '\n')
+      version: \$(cat ${pointfinder_db}/VERSION | tr -d '\n')
       container: ${task.container}
     END_VERSIONS
     """

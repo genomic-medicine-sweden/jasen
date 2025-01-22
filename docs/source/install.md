@@ -2,42 +2,46 @@
 
 ## Requirements
 
-* Singularity
+* Apptainer
 * Nextflow (`curl -s https://get.nextflow.io | bash`)
 
 **Recommended**
 
 * Conda
-* Singularity Remote Login
 
 ## Development deployment (self-contained)
 
 ### Copy code locally
 
 ```bash
-git clone --recurse-submodules --single-branch --branch master \\ 
-    git@github.com:genomic-medicine-sweden/jasen.git &&        \\
+git clone --recurse-submodules --branch master              \\ 
+    https://github.com/genomic-medicine-sweden/jasen.git && \\
 cd jasen
 ```
 
-### Access to OCI registries (Optional)
+### Installation requirements
+
+Please note that we assume that your OS has the following command-line tools installed in order for installation of JASEN:
 
 ```bash
-singularity remote login
+unzip
+gcc
+zlib
 ```
 
-### Create singularity images. 
+### Create Apptainer images. 
 
 The containers will be attempted to be built and downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder).
 
 ```bash
-cd container
-make
+cd container && make
 ```
 
-### Download references and databases using singularity. 
+### Download references and databases using Apptainer. 
 
-First, make sure you stand in the main jasen folder (so if you cd:ed into the `container` folder before, you need to cd back to the main folder with `cd ..`). Then run the `install` make rule:
+First, make sure your current working directory is in the main jasen folder (so if you cd:ed into the `container` folder before, you need to cd back to the main folder with `cd ..`). Then run the `install` make rule:
+
+**NOTE**: See below for species-specific installation!
 
 ```bash
 make install
@@ -50,6 +54,23 @@ make check
 ```
 
 Any errors produced during this step will hinder pipeline execution in unexpected ways.
+
+### Species-specific installation
+
+The following species are able be installed independently as to save time and disk usage:
+ * saureus
+ * ecoli
+ * kpneumoniae
+ * mtuberculosis
+
+This is done by executing the following:
+
+**NOTE**: `spyogenes` & `streptococcus` don't have any specific installation requirements, so `make update_databases` should suffice.
+
+```bash
+ORG="saureus"
+make update_databases && make ${ORG}_all
+```
 
 ## Configuration and test data
 
