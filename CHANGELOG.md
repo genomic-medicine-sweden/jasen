@@ -21,9 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ska filepath to yaml
 - Added optional read downsampling using seqtk
 - Added `tbGradingRulesBed` to IGV track
-- Added module NanoPlot to check quality of raw reads from ONT
-- Added fastq as a process to `bacterial_base.nf`
-- Added hostile as a process to `bacterial_base.nf`
+- Added module `nanoplot` to check quality of raw reads from ONT
+- Added module `fastq` to check qc of strep samples
+- Added module `hostile` to remove human reads
+- Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
 
 ### Fixed
 
