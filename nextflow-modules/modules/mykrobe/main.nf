@@ -10,7 +10,7 @@ process mykrobe {
     path "*versions.yml"              , emit: versions
 
   when:
-    workflow.profile == "mycobacterium_tuberculosis"
+    params.species == "mycobacterium tuberculosis"
 
   script:
     def args = task.ext.args ?: ''

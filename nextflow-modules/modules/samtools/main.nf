@@ -12,7 +12,7 @@ process samtools_view {
     path "*versions.yml"          , emit: versions
   
   when:
-    workflow.profile != "mycobacterium_tuberculosis"
+    params.species != "mycobacterium tuberculosis"
 
   script:
     def reference_arg = fasta ? "--reference ${fasta} -C" : ""
