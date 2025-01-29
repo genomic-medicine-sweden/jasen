@@ -20,7 +20,7 @@ process sccmec {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
-      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p')
+      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
@@ -33,7 +33,7 @@ process sccmec {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
-      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p')
+      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
