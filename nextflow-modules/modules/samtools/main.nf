@@ -12,7 +12,7 @@ process samtools_view {
     path "*versions.yml"          , emit: versions
   
   when:
-    params.species != "mycobacterium tuberculosis"
+    task.ext.when
 
   script:
     def reference_arg = fasta ? "--reference ${fasta} -C" : ""

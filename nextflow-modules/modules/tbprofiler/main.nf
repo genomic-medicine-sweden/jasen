@@ -13,7 +13,7 @@ process tbprofiler {
     path "*versions.yml"                   , emit: versions
 
   when:
-    params.species == "mycobacterium tuberculosis"
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''

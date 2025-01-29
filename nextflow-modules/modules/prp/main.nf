@@ -125,7 +125,7 @@ process post_align_qc {
     tuple val(sample_id), path(output), emit: qc
 
   when:
-    params.species != "streptococcus"
+    task.ext.when
 
   script:
     output = "${sample_id}_qc.json"
@@ -153,7 +153,7 @@ process annotate_delly {
     tuple val(sample_id), path(output), emit: vcf
 
   when:
-    params.species == "mycobacterium tuberculosis"
+    task.ext.when
 
   script:
     output = "${sample_id}_annotated_delly.vcf"

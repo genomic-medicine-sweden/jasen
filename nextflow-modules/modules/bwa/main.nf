@@ -10,7 +10,7 @@ process bwa_index {
     path "*versions.yml"                        , emit: versions
 
   when:
-    params.species != "mycobacterium tuberculosis"
+    task.ext.when
 
   script:
     """
@@ -54,7 +54,7 @@ process bwa_mem {
     path "*versions.yml"             , emit: versions
 
   when:
-    task.ext.when && params.species != "mycobacterium tuberculosis" 
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''

@@ -10,7 +10,7 @@ process emmtyper {
     path "*versions.yml"              , emit: versions
 
   when:
-    params.species in ["streptococcus", "streptococcus pyogenes"]
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''
