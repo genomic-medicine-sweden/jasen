@@ -3,13 +3,16 @@ process fastqc {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads)
+    tuple val(sample_id), path(reads), val(platform)
 
   output:
     tuple val(sample_id), path(summary_output), emit: summary
     tuple val(sample_id), path(output)        , emit: output
     tuple val(sample_id), path(html_output)   , emit: html
     path "*versions.yml"                      , emit: versions
+
+  when:
+      platform == "illumina" || platform == "iontorrent"
 
   script:
     def args          = task.ext.args ?: ''
