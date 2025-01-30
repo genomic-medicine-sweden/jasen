@@ -11,7 +11,7 @@ process shigapass {
     path "*versions.yml"              , emit: versions
 
   when:
-    workflow.profile == "escherichia_coli"
+    task.ext.when
 
   script:
     shigapass_db_arg = shigapass_db ? "-p ${shigapass_db}" : "-p /usr/local/share/shigapass-1.5.0/db/"

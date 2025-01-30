@@ -11,6 +11,9 @@ process chewbbaca_allelecall {
     path('output_dir/results_alleles.tsv'), emit: calls
     path "*versions.yml"                  , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def args = task.ext.args ?: ''
     training_file = training_file ? "--ptf ${training_file}" : "" 
@@ -54,6 +57,9 @@ process chewbbaca_create_batch_list {
   output:
     path "batch_input.list", emit: list
 
+  when:
+    task.ext.when
+
   script:
     output = "batch_input.list"
     """
@@ -77,6 +83,9 @@ process chewbbaca_split_results {
 
   output:
     tuple val(sample_id), path(output), emit: output
+
+  when:
+    task.ext.when
 
   script:
     output = "${sample_id}_chewbbaca.out"

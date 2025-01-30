@@ -97,11 +97,11 @@ workflow CALL_BACTERIAL_BASE {
         quast(ch_assembly, referenceGenome)
 
         // qc processing
-        fastqc(ch_reads)
+        fastqc(ch_reads_w_meta)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam.join(ch_meta), referenceGenome, coreLociBed)
 
         nanoplot(ch_reads_w_meta)
 
@@ -127,6 +127,7 @@ workflow CALL_BACTERIAL_BASE {
         bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
         fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
+        seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html)]

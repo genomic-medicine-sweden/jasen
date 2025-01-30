@@ -13,7 +13,7 @@ process serotypefinder {
     path "*versions.yml"                   , emit: versions
 
   when:
-    !(workflow.profile in ["mycobacterium_tuberculosis", "staphylococcus_aureus", "streptococcus", "streptococcus_pyogenes"])
+    task.ext.when
 
   script:
     databases_arg = databases ? "--databases ${databases.join(',')}" : ""

@@ -9,6 +9,9 @@ process sccmec {
     tuple val(sample_id), path(output), emit: tsv 
     path "*versions.yml"              , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_sccmec.tsv"
@@ -20,7 +23,7 @@ process sccmec {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
-      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p')
+      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
@@ -33,7 +36,7 @@ process sccmec {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
-      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p')
+      version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
     END_VERSIONS
     """
