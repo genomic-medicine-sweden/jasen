@@ -20,6 +20,7 @@ include { mlst                                      } from '../nextflow-modules/
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
 include { sccmec                                    } from '../nextflow-modules/modules/sccmec/main.nf'
+include { spatyper                                  } from '../nextflow-modules/modules/spatyper/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
 include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
 
@@ -92,6 +93,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         // TYPING
         mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
         sccmec(ch_assembly)
+        spatyper(ch_assembly)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleID, filePath -> 
@@ -170,6 +172,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(resfinder.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
         ch_versions = ch_versions.mix(sccmec.out.versions)
+        ch_versions = ch_versions.mix(spatyper.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit: 
