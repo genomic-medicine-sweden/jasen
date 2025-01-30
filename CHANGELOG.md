@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added module `fastq` to check qc of strep samples
 - Added module `hostile` to remove human reads
 - Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
+- Added module `spatyper` for typing of Spa gene in Staphylococcus aureus
 
 ### Fixed
 
