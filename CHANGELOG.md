@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed jasen running only on the first row/sample in csv
 - Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
 - Fixed `nextflow.hopper.config` re singularity image path
+- Fixed sccmec version file
 
 ### Changed
 
@@ -60,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ska & sourmash filepath to symlink dir in `nextflow.hopper.config` & `nextflow.dev.config`
 - Updated Kraken db filepath in `nextflow.hopper.config` & `nextflow.dev.config`
 - Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
+- Moved all when commands to configs
+- Update fastqc & sccmec mem settings
 
 ## [0.9.0]
 
