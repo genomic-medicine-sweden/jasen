@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
 - Fixed `nextflow.hopper.config` re singularity image path
 - Fixed sccmec version file
+- Fixed handling of ONT samples re fastqc & postalignqc
 
 ### Changed
 

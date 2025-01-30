@@ -117,7 +117,7 @@ process post_align_qc {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(bam)
+    tuple val(sample_id), path(bam), val(platform)
     path reference
     path bed
 
@@ -125,7 +125,7 @@ process post_align_qc {
     tuple val(sample_id), path(output), emit: qc
 
   when:
-    task.ext.when
+    task.ext.when && platform == "illumina"
 
   script:
     output = "${sample_id}_qc.json"
