@@ -9,6 +9,9 @@ process sccmec {
     tuple val(sample_id), path(output), emit: tsv 
     path "*versions.yml"              , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_sccmec.tsv"

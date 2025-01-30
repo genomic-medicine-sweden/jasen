@@ -91,6 +91,9 @@ process samtools_index {
     tuple val(sample_id), path(output), emit: bai
     path "*versions.yml"              , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     output = "${input}.bai"
     """

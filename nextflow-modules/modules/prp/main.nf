@@ -180,6 +180,9 @@ process add_igv_track {
   output:
     tuple val(sample_id), path(output), emit: json
 
+  when:
+    task.ext.when
+
   script:
     output = "${sample_id}_result.json"
     """
