@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed jasen running only on the first row/sample in csv
 - Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
 - Conditional running of `fastqc` module
+- Fixed medaka by changing `--threads` to `-t` in all the configs
 
 ### Changed
 
