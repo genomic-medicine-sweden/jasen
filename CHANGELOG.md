@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ska & sourmash filepath to symlink dir in `nextflow.hopper.config` & `nextflow.dev.config`
 - Updated Kraken db filepath in `nextflow.hopper.config` & `nextflow.dev.config`
 - Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
+- Changed model that is used in `medaka_consensus` to bacterial model (using `--bacteria` argument) 
 
 ## [0.9.0]
 
