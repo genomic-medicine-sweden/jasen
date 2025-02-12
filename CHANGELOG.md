@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added module `fastq` to check qc of strep samples
 - Added module `hostile` to remove human reads
 - Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
+- Added `when` operators to all modules that aren't in `bacterial_base.nf`
 
 ### Fixed
 
@@ -42,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed jasen running only on the first row/sample in csv
 - Fixed channel problem by changing `Channel.of([])` to `Channel.value([])`
 - Fixed medaka by changing `--threads` to `-t` in all the configs
+- Fixed `nextflow.hopper.config` re singularity image path
+- Fixed sccmec version file
+- Fixed handling of ONT samples re fastqc & postalignqc
 
 ### Changed
 
@@ -60,6 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ska & sourmash filepath to symlink dir in `nextflow.hopper.config` & `nextflow.dev.config`
 - Updated Kraken db filepath in `nextflow.hopper.config` & `nextflow.dev.config`
 - Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
+- Moved all when commands to configs
+- Update fastqc & sccmec mem settings
 
 ## [0.9.0]
 

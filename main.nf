@@ -10,17 +10,17 @@ include { CALL_STREPTOCOCCUS_PYOGENES       } from './workflows/streptococcus_py
 include { CALL_STREPTOCOCCUS                } from './workflows/streptococcus.nf'
 
 workflow {
-    if (workflow.profile == "staphylococcus_aureus") {
+    if (params.species == "staphylococcus aureus") {
         CALL_STAPHYLOCOCCUS_AUREUS()
-    } else if (workflow.profile == "mycobacterium_tuberculosis") {
+    } else if (params.species == "mycobacterium tuberculosis") {
         CALL_MYCOBACTERIUM_TUBERCULOSIS()
-    } else if (workflow.profile == "klebsiella_pneumoniae") {
+    } else if (params.species == "klebesiella pneumoniae") {
         CALL_KLEBSIELLA_PNEUMONIAE()
-    } else if (workflow.profile == "escherichia_coli") {
+    } else if (params.species == "escherichia coli") {
         CALL_ESCHERICHIA_COLI()
-    } else if (workflow.profile == "streptococcus_pyogenes") {
+    } else if (params.species == "streptococcus pyogenes") {
         CALL_STREPTOCOCCUS_PYOGENES()
-    } else if (workflow.profile == "streptococcus") {
+    } else if (params.species == "streptococcus") {
         CALL_STREPTOCOCCUS()
     }
 }
