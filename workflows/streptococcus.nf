@@ -127,11 +127,7 @@ workflow CALL_STREPTOCOCCUS {
 
         ch_reads.map{ sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
         
-        if (species == "streptococcus") {
-            ch_empty.set{ ch_qc_illumina }
-        } else {
-            ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
-        }
+        ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
 
         ch_quast
             .join(ch_qc_illumina)
