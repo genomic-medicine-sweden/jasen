@@ -117,7 +117,7 @@ process post_align_qc {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(bam)
+    tuple val(sample_id), path(bam), val(platform)
     path reference
     path bed
 
@@ -125,7 +125,7 @@ process post_align_qc {
     tuple val(sample_id), path(output), emit: qc
 
   when:
-    workflow.profile != "streptococcus"
+    task.ext.when && platform == "illumina"
 
   script:
     output = "${sample_id}_qc.json"
@@ -153,7 +153,7 @@ process annotate_delly {
     tuple val(sample_id), path(output), emit: vcf
 
   when:
-    workflow.profile == "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     output = "${sample_id}_annotated_delly.vcf"
@@ -179,6 +179,9 @@ process add_igv_track {
 
   output:
     tuple val(sample_id), path(output), emit: json
+
+  when:
+    task.ext.when
 
   script:
     output = "${sample_id}_result.json"

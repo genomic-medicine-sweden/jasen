@@ -12,7 +12,7 @@ process samtools_view {
     path "*versions.yml"          , emit: versions
   
   when:
-    workflow.profile != "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     def reference_arg = fasta ? "--reference ${fasta} -C" : ""
@@ -90,6 +90,9 @@ process samtools_index {
   output:
     tuple val(sample_id), path(output), emit: bai
     path "*versions.yml"              , emit: versions
+
+  when:
+    task.ext.when
 
   script:
     output = "${input}.bai"

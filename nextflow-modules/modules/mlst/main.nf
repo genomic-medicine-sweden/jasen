@@ -8,6 +8,9 @@ process mlst {
     path pbmlst_db
     path blast_db
 
+  when:
+    task.ext.when
+
   output:
     tuple val(sample_id), path('*.tsv')  , optional: true, emit: tsv
     tuple val(sample_id), path('*.json') , optional: true, emit: json
