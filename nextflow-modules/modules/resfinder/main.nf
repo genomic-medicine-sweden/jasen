@@ -17,6 +17,9 @@ process resfinder {
     path output_point                      , optional: true, emit: point_table
     path "*versions.yml"                   , emit: versions
 
+  when:
+    task.ext.when
+
   script:
     def resfinder_arg = resfinder_db ? "--acquired --db_path_res ${resfinder_db}" : ""
     def pointfinder_arg = pointfinder_db ? "--point --db_path_point ${pointfinder_db}" : ""

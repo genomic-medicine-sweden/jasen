@@ -13,7 +13,7 @@ process snippy {
     path "*versions.yml"                               , emit: versions
 
   when:
-    workflow.profile == "mycobacterium_tuberculosis"
+    task.ext.when
 
   script:
     def args = task.ext.args ?: ''
@@ -42,7 +42,7 @@ process snippy {
     """
     mkdir ${sample_id}
     touch ${output}
-    touch "${sample_id}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}"
+    touch ${sample_id}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

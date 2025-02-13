@@ -67,6 +67,7 @@ workflow CALL_STREPTOCOCCUS {
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.seqplat_meta.set{ch_seqplat_meta}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
         CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
@@ -125,9 +126,11 @@ workflow CALL_STREPTOCOCCUS {
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map{ sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
+        
+        ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
 
         ch_quast
-            .join(ch_empty)
+            .join(ch_qc_illumina)
             .join(mlst.out.json)
             .join(chewbbaca_split_results.out.output)
             .join(amrfinderplus.out.output)
@@ -163,7 +166,7 @@ workflow CALL_STREPTOCOCCUS {
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
 
         ch_quast
-            .join(ch_empty)
+            .join(ch_qc_illumina)
             .join(chewbbaca_split_results.out.output)
             .set{ cdmInput }
 
