@@ -10,7 +10,7 @@ process spatyper {
     path "*versions.yml"              , emit: versions
 
   when:
-      platform == "nanopore"
+      task.ext.when
 
   script:
     def args = task.ext.args ?: ''
