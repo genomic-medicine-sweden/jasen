@@ -5,7 +5,7 @@ process resfinder {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads)
+    tuple val(sample_id), path(reads), val(platform)
     val species
     val resfinder_db
     val pointfinder_db
@@ -25,6 +25,7 @@ process resfinder {
     def pointfinder_arg = pointfinder_db ? "--point --db_path_point ${pointfinder_db}" : ""
     def species_name = check_taxon(species)
     def species_arg = species_name ? "--species '${species_name}'" : ""
+    def nanopore_arg = platform == "nanopore" ? task.ext.nanopore_args : ""
     output = "${sample_id}_resfinder.json"
     meta_output = "${sample_id}_resfinder_meta.json"
     output_gene = "${sample_id}_pheno_table.txt"
@@ -42,6 +43,7 @@ process resfinder {
     ${species_arg}                                \\
     ${resfinder_arg}                              \\
     ${pointfinder_arg}                            \\
+    ${nanopore_arg}                               \\
     --out_json std_format_under_development.json  \\
     --outputPath .
 
