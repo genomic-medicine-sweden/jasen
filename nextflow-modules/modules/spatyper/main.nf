@@ -3,8 +3,7 @@ process spatyper {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads), val(platform)
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(assembly), val(platform)
 
   output:
     tuple val(sample_id), path(output), emit: tsv 

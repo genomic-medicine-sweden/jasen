@@ -94,7 +94,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         // TYPING
         mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
         sccmec(ch_assembly)
-        spatyper(ch_input_meta, ch_assembly)
+        spatyper(ch_assembly.join(ch_seqplat_meta))
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleID, filePath -> 
