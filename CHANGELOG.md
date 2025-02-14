@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added module `hostile` to remove human reads
 - Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
 - Added `when` operators to all modules that aren't in `bacterial_base.nf`
+- Added additional arguments for Resfinder when analysing Nanopore data
 - Added module `spatyper` for typing of Spa gene in Staphylococcus aureus
 
 ### Fixed
