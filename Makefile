@@ -216,7 +216,7 @@ $(HOSTILE_DIR)/human-t2t-hla.fa.gz:
 	$(call log_message,"Starting download of Hostile human index")
 	mkdir -p $(HOSTILE_DIR) \
 	&& cd $(HOSTILE_DIR) \
-	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.fa.gz
+	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.fa.gz \
 		-O $@ \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -227,11 +227,11 @@ $(HOSTILE_DIR)/human-t2t-hla.1.bt2:
 	$(call log_message,"Starting download of Hostile human index")
 	mkdir -p $(HOSTILE_DIR) \
 	&& cd $(HOSTILE_DIR) \
-	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.tar
+	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.tar \
 		-O human-t2t-hla.tar \
 		--no-verbose \
-		--no-check-certificate
-	&& tar -xvf human-t2t-hla.tar
+		--no-check-certificate \
+	&& tar -xvf human-t2t-hla.tar \
 	&& rm human-t2t-hla.tar |& tee -a $(INSTALL_LOG)
 
 # -----------------------------

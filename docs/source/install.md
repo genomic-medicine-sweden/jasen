@@ -106,7 +106,7 @@ export SINGULARITY_TMPDIR="/tmp" #or equivalent filepath to tmp dir
 
 ## Fetching databases
 
-### Fetching Kraken DB
+### Choose database
 
 Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).  Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
 
@@ -122,16 +122,6 @@ tar -xf /path/to/kraken_db/krakenstd.tar.gz
 ```bash
 wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
-```
-
-### Fetching Hostile indices
-
-**NOTE**: Conda is required in order to run the setup script (`setup_hostile.sh`) 
-
-### Download Hostile index
-
-```bash
-bash /path/to/jasen/assets/hostile_db/setup_hostile.sh
 ```
 
 ## Updating databases

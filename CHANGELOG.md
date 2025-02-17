@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added module `sccmec` for typing of SCCmec cassettes in assemblies of Staphylococcus species
 - Added `when` operators to all modules that aren't in `bacterial_base.nf`
 - Added additional arguments for Resfinder when analysing Nanopore data
-- Added downloading of hostile index script to `assets/hostile_db`
+- Added downloading of hostile index to `Makefile`
 
 ### Fixed
 
