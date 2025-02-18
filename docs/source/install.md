@@ -21,7 +21,7 @@ cd jasen
 
 ### Installation requirements
 
-Please note that we assume that your OS has the following command-line tools installed in order for installation of JASEN:
+**NOTE**: We assume that your OS has the following command-line tools installed in order for installation of JASEN:
 
 ```bash
 unzip
@@ -80,6 +80,7 @@ Source: `configs/nextflow.base.config`
 
 * Edit the `root` parameter in `configs/nextflow.base.config`
 * Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
+* Edit the `useHostile` parameter in `configs/nextflow.base.config` in order to filter out human reads
 * Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
 
 When analysing Nanopore data:

@@ -164,7 +164,8 @@ update_databases: update_amrfinderplus \
 	update_mlst_db \
 	update_blast_db \
 	update_finder_dbs \
-	update_shigapass_db
+	update_shigapass_db \
+	update_hostile_db
 
 update_organisms: saureus_all \
 	ecoli_all \
@@ -200,6 +201,38 @@ download_or_build_containers:
 # ==============================================================================
 # Update databases
 # ==============================================================================
+
+# -----------------------------
+# Download Hostile human index
+# -----------------------------
+
+update_hostile_db: download_minimap2_index_genome \
+	download_bowtie2_genome_index
+
+HOSTILE_DIR := $(ASSETS_DIR)/hostile_db
+download_minimap2_index_genome: $(HOSTILE_DIR)/human-t2t-hla.fa.gz
+
+$(HOSTILE_DIR)/human-t2t-hla.fa.gz:
+	$(call log_message,"Starting download of Hostile human index")
+	mkdir -p $(HOSTILE_DIR) \
+	&& cd $(HOSTILE_DIR) \
+	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.fa.gz \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+download_bowtie2_genome_index: $(HOSTILE_DIR)/human-t2t-hla.1.bt2
+
+$(HOSTILE_DIR)/human-t2t-hla.1.bt2:
+	$(call log_message,"Starting download of Hostile human index")
+	mkdir -p $(HOSTILE_DIR) \
+	&& cd $(HOSTILE_DIR) \
+	&& wget https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.tar \
+		-O human-t2t-hla.tar \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xvf human-t2t-hla.tar \
+	&& rm human-t2t-hla.tar |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update ShigaPass database
