@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `when` operators to all modules that aren't in `bacterial_base.nf`
 - Added additional arguments for Resfinder when analysing Nanopore data
 - Added downloading of hostile index to `Makefile`
+- Added sw docs for `kpneumonia`, `spyogenes`, & `streptococcus`
 
 ### Fixed
 
