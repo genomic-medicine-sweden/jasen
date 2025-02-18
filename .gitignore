@@ -12,6 +12,7 @@ assets/amrfinder_db
 assets/wgmlst/*/alleles*
 assets/prodigal_training_files/*
 assets/krakenstd
+assets/hostile_db/human-t2t-hla.*
 work/
 results
 *.img

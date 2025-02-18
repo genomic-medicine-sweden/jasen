@@ -3,6 +3,7 @@ amrfinderplus,3.11.11,https://depot.galaxyproject.org/singularity/ncbi-amrfinder
 bracken,2.8,https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 chewbbaca,3.3.2,https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
+emmtyper,0.2.0,https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 fastqc,0.12.1,https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
 freebayes,1.3.6,https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 hostile,2.0.0,https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
@@ -14,9 +15,6 @@ quast,5.2.0,https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321
 resfinder,4.4.2,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 resfinder_db,2.1.1,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 samtools,1.17,https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
-serotypefinder,2.0.2,https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-serotypefinder_db,ada62c62a7fa74032448bb2273d1f7045c59fdda,https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-shigapass,1.5.0,https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
 ska2,0.3.10,https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 skesa,2.4.0,https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0
 sourmash,4.8.2,https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
