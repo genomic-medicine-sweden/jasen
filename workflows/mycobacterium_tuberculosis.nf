@@ -64,10 +64,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
-        ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
-
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
@@ -108,7 +106,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         create_yaml(add_grading_bed_track.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(ch_empty)
             .set{ cdmInput }
 
