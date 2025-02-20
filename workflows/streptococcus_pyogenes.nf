@@ -119,10 +119,8 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
-        ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
-
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(mlst.out.json)
             .join(chewbbaca_split_results.out.output)
             .join(amrfinderplus.out.output)
@@ -158,7 +156,7 @@ workflow CALL_STREPTOCOCCUS_PYOGENES {
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
 
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(chewbbaca_split_results.out.output)
             .set{ cdmInput }
 

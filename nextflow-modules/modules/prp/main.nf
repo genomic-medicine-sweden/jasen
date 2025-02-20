@@ -125,7 +125,7 @@ process post_align_qc {
     tuple val(sample_id), path(output), emit: qc
 
   when:
-    task.ext.when && platform == "illumina"
+    task.ext.when
 
   script:
     output = "${sample_id}_qc.json"

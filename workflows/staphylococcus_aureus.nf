@@ -94,7 +94,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         // TYPING
         mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
         sccmec(ch_assembly)
-        spatyper(ch_assembly.join(ch_seqplat_meta))
+        spatyper(ch_assembly)
 
         mask_polymorph_assembly.out.fasta
             .multiMap { sampleID, filePath -> 
@@ -117,10 +117,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
-        ch_qc_illumina = ch_seqplat_meta.filter { it[1] == 'illumina' } ? ch_qc : ch_empty
-
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(mlst.out.json)
             .join(chewbbaca_split_results.out.output)
             .join(amrfinderplus.out.output)
@@ -156,7 +154,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
 
         ch_quast
-            .join(ch_qc_illumina)
+            .join(ch_qc)
             .join(chewbbaca_split_results.out.output)
             .set{ cdmInput }
 
