@@ -1,10 +1,13 @@
 Software,Version,Container
 bracken,2.8,https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
+hostile,2.0.0,https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 mykrobe,0.12.2,https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 prp,0.11.4,docker://clinicalgenomicslund/bonsai-prp:0.11.4
 quast,5.2.0,https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 samtools,1.17,https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
+seqtk,1.4,https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_2
+ska2,0.3.10,https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 skesa,2.5.1,https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 snippy,4.6.0,https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
 sourmash,4.8.2,https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0

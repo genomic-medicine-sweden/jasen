@@ -139,7 +139,7 @@ bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
 ### Install jasentool
 
 ```bash
-git clone git@github.com:Clinical-Genomics-Lund/jasentool.git && cd jasentool
+git clone git@github.com:SMD-Bioinformatics-Lund/jasentool.git && cd jasentool
 pip install .
 ```
 
