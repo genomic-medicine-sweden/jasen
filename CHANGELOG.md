@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [1.0.0]
+
+### Added
+
 - Light installation doc updates
 - Updated NGP config file
 - Added ska2 module process (`ska_build`)
