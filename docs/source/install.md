@@ -81,6 +81,7 @@ Source: `configs/nextflow.base.config`
 * Edit the `root` parameter in `configs/nextflow.base.config`
 * Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
 * Edit the `useHostile` parameter in `configs/nextflow.base.config` in order to filter out human reads
+* Edit the `targetSampleSize` parameter in `configs/nextflow.base.config` in order to downsample reads
 * Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
 
 When analysing Nanopore data:
@@ -138,7 +139,7 @@ bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
 ### Install jasentool
 
 ```bash
-git clone git@github.com:ryanjameskennedy/jasentool.git && cd jasentool
+git clone git@github.com:Clinical-Genomics-Lund/jasentool.git && cd jasentool
 pip install .
 ```
 

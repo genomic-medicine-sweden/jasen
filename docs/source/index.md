@@ -2,11 +2,6 @@
 
 *Just Another System for Epityping using NGSs data*
 
-```{warning}
-
-JASEN is in beta stage and the results are unverified. There is no guarantee that the pipeline can execute, output format consistency, or that it produces accurate results until there is an official 1.0 release.
-```
-
 Jasen is a pipeline for performing antibiotic resistance prediction and epityping of whole genome sequenced infectious bacteria.
 
 # Get started
