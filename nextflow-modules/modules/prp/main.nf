@@ -117,7 +117,7 @@ process post_align_qc {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(bam), val(platform)
+    tuple val(sample_id), path(bam)
     path reference
     path bed
 

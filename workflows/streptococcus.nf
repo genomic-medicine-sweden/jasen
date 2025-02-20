@@ -122,7 +122,7 @@ workflow CALL_STREPTOCOCCUS {
         amrfinderplus(ch_assembly, species, amrfinderDb)
 
         // resistance & virulence prediction
-        resfinder(ch_reads, species, resfinderDb, pointfinderDb)
+        resfinder(ch_input_meta, species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map{ sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
