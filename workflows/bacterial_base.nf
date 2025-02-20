@@ -101,7 +101,7 @@ workflow CALL_BACTERIAL_BASE {
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        post_align_qc(bwa_mem_ref.out.bam.join(ch_meta), referenceGenome, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
         nanoplot(ch_reads_w_meta)
 

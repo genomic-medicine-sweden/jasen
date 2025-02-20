@@ -111,7 +111,7 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         amrfinderplus(ch_assembly, params.species, amrfinderDb)
 
         // resistance & virulence prediction
-        resfinder(ch_reads, params.species, resfinderDb, pointfinderDb)
+        resfinder(ch_input_meta, params.species, resfinderDb, pointfinderDb)
         virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }

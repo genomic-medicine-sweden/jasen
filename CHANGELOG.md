@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed sccmec version file
 - Fixed handling of ONT samples re fastqc & postalignqc
 - Fixed io of spatyper and turned on postalignqc for ONT
+- Fixed io of resfinder for all workflows but saureus
 
 ### Changed
 
