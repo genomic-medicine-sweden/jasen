@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added spyogenes bed file representing cgmlst targets
+
 ### Fixed
 
 ### Changed
+
+- Changed spyogenes genome from `GCF_000006785.2` to `GCF_005164585.1`
+- Updated `check_taxon` method to include spyogenes
 
 ## [1.0.0]
 
