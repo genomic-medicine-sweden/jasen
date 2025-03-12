@@ -34,6 +34,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					mlst.sif \
 					mykrobe.sif \
 					perl-json.sif \
+					prodigal.sif \
 					quast.sif \
 					resfinder.sif \
 					samtools.sif \
@@ -71,6 +72,7 @@ URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1
 URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5321hdfd78af_0
+URL_prodigal := https://depot.galaxyproject.org/singularity/prodigal:2.6.3--h7b50bb2_10
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
