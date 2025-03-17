@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added missing tools to S. aureus subworkflow tool list
 
 - Added spyogenes bed file representing cgmlst targets
 - Added `prodigal` image download to container `Makefile`
