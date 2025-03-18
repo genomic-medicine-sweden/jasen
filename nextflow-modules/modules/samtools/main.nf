@@ -158,3 +158,42 @@ process samtools_faidx {
     END_VERSIONS
     """
 }
+
+process samtools_coverage {
+  tag "${sample_id}"
+  scratch params.scratch
+
+  input:
+    tuple val(sample_id), path(input)
+
+  output:
+    tuple val(sample_id), path(output), emit: txt
+    path "*versions.yml"              , emit: versions
+
+  script:
+    def args = task.ext.args ?: ''
+    output = "${sample_id}_mapcoverage.txt"
+    output_dir = "postmapqc"
+    """
+    samtools coverage -o ${sample_id}_mapcoverage.txt ${args} ${input}
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        ${task.process}:
+        samtools:
+          version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+          container: ${task.container}
+        END_VERSIONS
+    """
+
+  stub:
+    """
+    touch "${sample_id}_mapcoverage.txt"
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     samtools:
+      version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+      container: ${task.container}
+    END_VERSIONS
+    """
+}
