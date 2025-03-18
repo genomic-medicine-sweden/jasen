@@ -12,9 +12,11 @@ include { flye                                  } from '../nextflow-modules/modu
 include { hostile                               } from '../nextflow-modules/modules/hostile/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
+include { minimap2_to_ref                       } from '../nextflow-modules/modules/minimap2/main.nf'       
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_coverage                     } from '../nextflow-modules/modules/samtools/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
 include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
 include { ska_build                             } from '../nextflow-modules/modules/ska/main.nf'
@@ -28,6 +30,7 @@ workflow CALL_BACTERIAL_BASE {
         coreLociBed
         referenceGenome
         referenceGenomeDir
+        referenceGenomeMmi
         inputSamples
         targetSampleSize
     
@@ -96,14 +99,18 @@ workflow CALL_BACTERIAL_BASE {
         // evaluate assembly quality 
         quast(ch_assembly, referenceGenome)
 
-        // qc processing
-        fastqc(ch_reads_w_meta)
+        // qc processing - short read
+        fastqc(ch_reads)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
         post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
+        // qc processing - long read
         nanoplot(ch_reads_w_meta)
+        minimap2_to_ref(ch_reads_w_meta, referenceGenomeMmi)
+        samtools_coverage(minimap2_to_ref.out.bam)
+
 
         sourmash(ch_assembly)
 
@@ -113,6 +120,7 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
+        ch_versions = ch_versions.mix(minimap2.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
@@ -130,7 +138,8 @@ workflow CALL_BACTERIAL_BASE {
         seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
-        qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html)]
+        qc_nano_raw     = nanoplot.out.html                 // channel: [ val(meta), path(html)]
+        qc_nano_cov     = samtools_coverage.out.txt         // channel: [ val(meta), path(txt)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads           = ch_reads                          // channel: [ val(meta), path(json)]
         reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
