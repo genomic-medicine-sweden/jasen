@@ -50,7 +50,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, referenceGenomeMmi, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
