@@ -17,6 +17,7 @@ include { post_align_qc                         } from '../nextflow-modules/modu
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
 include { samtools_coverage                     } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_sort                         } from '../nextflow-modules/modules/samtools/main.nf'
 include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
 include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
 include { ska_build                             } from '../nextflow-modules/modules/ska/main.nf'
@@ -109,7 +110,10 @@ workflow CALL_BACTERIAL_BASE {
         // qc processing - long read
         nanoplot(ch_reads_w_meta)
         minimap2_to_ref(ch_reads_w_meta, referenceGenomeMmi)
-        samtools_coverage(minimap2_to_ref.out.bam)
+        samtools_sort(minimap2_to_ref.out.sam)
+        //index the sorted bam file
+        //samtools_index_ref(samtools_sort.out.bam) - but then it gets in the same folder as SR bam, which needs to be avoided by blocking bwa_mem_ref for analysis of LR
+        samtools_coverage(samtools_sort.out.bam)
 
 
         sourmash(ch_assembly)
@@ -120,7 +124,7 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
-        ch_versions = ch_versions.mix(minimap2.out.versions)
+        ch_versions = ch_versions.mix(minimap2_to_ref.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
