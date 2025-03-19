@@ -6,7 +6,7 @@ process minimap2_to_ref {
     tuple val(sample_id), path(reads), val(platform)
     path referenceGenomeMmi
   output:
-    tuple val(sample_id), path(output), emit: bam
+    tuple val(sample_id), path(output), emit: sam
     path "*versions.yml"              , emit: versions
 
   when:
@@ -14,10 +14,10 @@ process minimap2_to_ref {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sample_id}_minimap2.bam"
+    output = "${sample_id}_minimap2.sam"
     """
     minimap2 ${args} ${referenceGenomeMmi} ${reads} > ${output}
-
+    
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      minimap2:
@@ -28,7 +28,7 @@ process minimap2_to_ref {
 
   stub:
     """
-    touch "${sample_id}_minimap2.bam"
+    touch "${sample_id}_minimap2.sam"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
