@@ -31,7 +31,7 @@ workflow CALL_ESCHERICHIA_COLI {
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
     referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
-    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeFai = file(params.referenceGenomeFai, checkIfExists: true)
     referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
@@ -145,12 +145,12 @@ workflow CALL_ESCHERICHIA_COLI {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
