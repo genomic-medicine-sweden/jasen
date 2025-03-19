@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added spyogenes bed file representing cgmlst targets
 - Added `prodigal` image download to container `Makefile`
+- Added module for mapping long reads with Minimap2
+- Added Minimap2 refence index `referenceGenomeMmi` for all species
+- Added `samtools coverage` to get stats from mapping long reads to the reference
+
 
 ### Fixed
 
@@ -20,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed spyogenes genome from `GCF_000006785.2` to `GCF_005164585.1`
 - Updated `check_taxon` method to include spyogenes
 - Changed ptf downloading to generation of ptf via prodigal for `ecoli` & `spyogenes`
+- Renamed index created by BWA from `referenceGenomeIdx` to `referenceGenomeFai`
 
 ## [1.0.0]
 
