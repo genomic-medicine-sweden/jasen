@@ -3,7 +3,7 @@ process virulencefinder {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads)
+    tuple val(sample_id), path(reads), val(platform)
     val databases
     path virulence_db
 
@@ -17,6 +17,7 @@ process virulencefinder {
 
   script:
     databases_arg = databases ? "--databases ${databases.join(',')}" : ""
+    nanopore_arg = platform == "nanopore" ? task.ext.nanopore_args : ""
     output = "${sample_id}_virulencefinder.json"
     meta_output = "${sample_id}_virulencefinder_meta.json"
     """
@@ -29,6 +30,7 @@ process virulencefinder {
     virulencefinder.py              \\
     --infile ${reads.join(' ')}     \\
     ${databases_arg}                \\
+    ${nanopore_arg}                 \\
     --databasePath ${virulence_db}
     cp data.json ${output}
 

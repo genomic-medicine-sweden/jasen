@@ -113,7 +113,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
 
         // resistance & virulence prediction
         resfinder(ch_input_meta, params.species, resfinderDb, pointfinderDb)
-        virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
+        virulencefinder(ch_input_meta, params.useVirulenceDbs, virulencefinderDb)
 
         ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
 
