@@ -438,7 +438,6 @@ ecoli_all: ecoli_download_reference \
 	ecoli_faidx_reference \
 	ecoli_bwaidx_reference \
 	ecoli_minimap2idx_reference \
-	ecoli_download_prodigal_training_file \
 	ecoli_generate_prodigal_training_file \
 	ecoli_download_wgmlst_schema \
 	ecoli_prep_ecoli_cgmlst_schema
@@ -488,7 +487,6 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSE
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
-ecoli_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
 ecoli_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
 
 $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
@@ -669,7 +667,6 @@ spyogenes_all: spyogenes_download_reference \
 	spyogenes_faidx_reference \
 	spyogenes_bwaidx_reference \
 	spyogenes_minimap2idx_reference \
-	spyogenes_download_prodigal_training_file \
 	spyogenes_generate_prodigal_training_file \
 	spyogenes_download_cgmlst_schema \
 	spyogenes_unpack_cgmlst_schema \
@@ -720,7 +717,6 @@ $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_AC
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
-spyogenes_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
 spyogenes_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
 
 $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn:
