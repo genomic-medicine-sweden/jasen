@@ -101,7 +101,7 @@ workflow CALL_BACTERIAL_BASE {
         quast(ch_assembly, referenceGenome)
 
         // qc processing - short read
-        fastqc(ch_reads)
+        fastqc(ch_reads_w_meta)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
