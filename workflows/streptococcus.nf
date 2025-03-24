@@ -36,6 +36,7 @@ workflow CALL_STREPTOCOCCUS {
     referenceGenomeDir = params.referenceGenome ? file(referenceGenome.getParent(), checkIfExists: true) : Channel.value([])
     referenceGenomeGff = params.referenceGenomeGff ? file(params.referenceGenomeGff, checkIfExists: true) : Channel.value([])
     referenceGenomeFai = params.referenceGenomeFai ? file(params.referenceGenomeFai, checkIfExists: true) : Channel.value([])
+    referenceGenomeMmi = params.referenceGenomeMmi ? file(params.referenceGenomeMmi, checkIfExists: true) : Channel.value([])
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
     chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
@@ -58,7 +59,7 @@ workflow CALL_STREPTOCOCCUS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, referenceGenomeMmi, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -153,12 +154,12 @@ workflow CALL_STREPTOCOCCUS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), speciesDir)
