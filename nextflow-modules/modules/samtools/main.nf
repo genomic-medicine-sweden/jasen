@@ -55,9 +55,9 @@ process samtools_sort {
     path "*versions.yml"              , emit: versions
 
   script:
-    output = "${sample_id}.bam"
+    output = "${input.baseName}.bam"
     """
-    samtools sort -@ ${task.cpus} -o ${output} ${input}
+    samtools sort -@ ${task.cpus} -O bam -o ${output} ${input}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -69,7 +69,7 @@ process samtools_sort {
 
   stub:
     """
-    touch ${sample_id}.bam
+    touch ${input.baseName}.bam
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

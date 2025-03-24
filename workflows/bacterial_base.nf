@@ -103,7 +103,6 @@ workflow CALL_BACTERIAL_BASE {
         // qc processing - short read
         fastqc(ch_reads_w_meta)
         bwa_mem_ref(ch_reads, referenceGenomeDir)
-        samtools_index_ref(bwa_mem_ref.out.bam)
 
         post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
@@ -111,13 +110,17 @@ workflow CALL_BACTERIAL_BASE {
         nanoplot(ch_reads_w_meta)
         minimap2_ref(ch_reads_w_meta, referenceGenomeMmi)
         samtools_sort(minimap2_ref.out.sam)
-        //index the sorted bam file
-        //samtools_index_ref(samtools_sort.out.bam) - but then it gets in the same folder as SR bam, which needs to be avoided by blocking bwa_mem_ref for analysis of LR
         samtools_coverage(samtools_sort.out.bam)
 
+        Channel.empty()
+            .mix(
+                samtools_sort.out.bam, bwa_mem_ref.out.bam
+            ).set{ ch_sorted_bam }
 
+        samtools_index_ref(ch_sorted_bam)
+
+        // signature
         sourmash(ch_assembly)
-
         ska_build(ch_reads)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
