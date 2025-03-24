@@ -172,10 +172,10 @@ process samtools_coverage {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sample_id}_mapcoverage.txt"
+    output = "${input.baseName}_mapcoverage.txt"
     output_dir = "postmapqc"
     """
-    samtools coverage -o ${sample_id}_mapcoverage.txt ${args} ${input}
+    samtools coverage -o ${output} ${args} ${input}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
@@ -187,7 +187,7 @@ process samtools_coverage {
 
   stub:
     """
-    touch "${sample_id}_mapcoverage.txt"
+    touch "${input.baseName}_mapcoverage.txt"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
