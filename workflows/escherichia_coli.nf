@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
 include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
 include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
-include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main.nf'
+include { bwa_mem as bwa_mem_assembly               } from '../nextflow-modules/modules/bwa/main.nf'
 include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main.nf'
 include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main.nf'
@@ -75,22 +75,17 @@ workflow CALL_ESCHERICHIA_COLI {
                 reads: tuple(id, reads)
                 bai: bai
             }
-            .set { bwa_mem_dedup_ch }
-        bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
-        samtools_index_assembly(bwa_mem_dedup.out.bam)
+            .set { ch_bwa_mem_assembly_map }
+        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads, ch_bwa_mem_assembly_map.bai)
+        samtools_index_assembly(bwa_mem_assembly.out.bam)
 
         // construct freebayes input channels
-        ch_assembly
-            .join(bwa_mem_dedup.out.bam)
+        bwa_mem_assembly.out.bam
             .join(samtools_index_assembly.out.bai)
-            .multiMap { id, fasta, bam, bai -> 
-                assembly: tuple(id, fasta)
-                mapping: tuple(bam, bai)
-            }
-            .set { freebayes_ch }
+            .set{ ch_bam_bai }
 
         // VARIANT CALLING
-        freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
+        freebayes(ch_assembly, ch_bam_bai)
 
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
@@ -168,7 +163,7 @@ workflow CALL_ESCHERICHIA_COLI {
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
-        ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
+        ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
         ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)

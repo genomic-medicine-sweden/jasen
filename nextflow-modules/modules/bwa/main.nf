@@ -47,7 +47,7 @@ process bwa_mem {
 
   input:
     tuple val(sample_id), path(reads)
-    path referenceGenomeDir
+    path referenceIdx
 
   output:
     tuple val(sample_id), path(output), emit: bam

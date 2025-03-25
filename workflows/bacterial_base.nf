@@ -12,7 +12,7 @@ include { flye                                  } from '../nextflow-modules/modu
 include { hostile                               } from '../nextflow-modules/modules/hostile/main.nf'
 include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
 include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
-include { minimap2_ref                          } from '../nextflow-modules/modules/minimap2/main.nf'       
+include { minimap_ref                           } from '../nextflow-modules/modules/minimap/main.nf'       
 include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
 include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
 include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
@@ -108,8 +108,8 @@ workflow CALL_BACTERIAL_BASE {
 
         // qc processing - long read
         nanoplot(ch_reads_w_meta)
-        minimap2_ref(ch_reads_w_meta, referenceGenomeMmi)
-        samtools_sort(minimap2_ref.out.sam)
+        minimap_ref(ch_reads_w_meta, referenceGenomeMmi)
+        samtools_sort(minimap_ref.out.sam)
         samtools_coverage(samtools_sort.out.bam)
 
         samtools_sort.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
@@ -124,7 +124,7 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
-        ch_versions = ch_versions.mix(minimap2_ref.out.versions)
+        ch_versions = ch_versions.mix(minimap_ref.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)

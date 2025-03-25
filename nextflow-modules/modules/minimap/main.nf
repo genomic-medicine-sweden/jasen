@@ -1,4 +1,4 @@
-process minimap2_ref {
+process minimap_ref {
   tag "${sample_id}"
   scratch params.scratch
 
