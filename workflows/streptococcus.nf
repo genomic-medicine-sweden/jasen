@@ -19,9 +19,12 @@ include { export_to_cdm                             } from '../nextflow-modules/
 include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
 include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
 include { mask_polymorph_assembly                   } from '../nextflow-modules/modules/mask/main.nf'
+include { minimap2_align as minimap2_align_assembly } from '../nextflow-modules/modules/minimap2/main.nf'       
+include { minimap2_index                            } from '../nextflow-modules/modules/minimap2/main.nf'       
 include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
 include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
 include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_sort as samtools_sort_assembly   } from '../nextflow-modules/modules/samtools/main.nf'
 include { serotypefinder                            } from '../nextflow-modules/modules/serotypefinder/main.nf'
 include { shigapass                                 } from '../nextflow-modules/modules/shigapass/main.nf'
 include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
@@ -74,20 +77,27 @@ workflow CALL_STREPTOCOCCUS {
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
-        bwa_index(ch_assembly)
+        bwa_index(ch_assembly.join(ch_seqplat_meta))
+        minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
-        ch_reads
+        ch_input_meta
             .join(bwa_index.out.idx)
-            .multiMap { id, reads, bai -> 
-                reads: tuple(id, reads)
+            .multiMap { id, reads, platform, bai -> 
+                reads_w_meta: tuple(id, reads, platform)
                 bai: bai
             }
-            .set { ch_bwa_mem_assembly_map }
-        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads, ch_bwa_mem_assembly_map.bai)
-        samtools_index_assembly(bwa_mem_assembly.out.bam)
+            .set{ ch_bwa_mem_assembly_map }
+        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.bai)
+
+        minimap2_align_assembly(ch_input_meta, minimap2_index.out.index)
+        samtools_sort_assembly(minimap2_align_assembly.out.sam)
+
+        bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
+
+        samtools_index_assembly(ch_bam)
 
         // construct freebayes input channels
-        bwa_mem_assembly.out.bam
+        ch_bam
             .join(samtools_index_assembly.out.bai)
             .set{ ch_bam_bai }
 

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added module for mapping long reads with Minimap2
 - Added Minimap2 refence index `referenceGenomeMmi` for all species
 - Added `samtools coverage` to get stats from mapping long reads to the reference
+- Added `minimap2_align_assembly`
+- Added `minimap2_index` for assembly indexing
 
 ### Fixed
 
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ptf downloading to generation of ptf via prodigal for `ecoli` & `spyogenes`
 - Renamed index created by BWA from `referenceGenomeIdx` to `referenceGenomeFai`
 - Renamed `bwa_mem_dedup` to `bwa_mem_assembly`
+- Split `samtools_sort` into two modules
 
 ## [1.0.0]
 

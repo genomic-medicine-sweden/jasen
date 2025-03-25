@@ -2,29 +2,29 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                              } from '../methods/get_sample_data.nf'
-include { get_reads                             } from '../methods/get_sample_data.nf'
-include { get_seqrun_meta                       } from '../methods/get_seqrun_meta.nf'
-include { assembly_trim_clean                   } from '../nextflow-modules/modules/clean/main.nf'
-include { bwa_mem as bwa_mem_ref                } from '../nextflow-modules/modules/bwa/main.nf'
-include { fastqc                                } from '../nextflow-modules/modules/fastqc/main.nf'
-include { flye                                  } from '../nextflow-modules/modules/flye/main.nf'
-include { hostile                               } from '../nextflow-modules/modules/hostile/main.nf'
-include { medaka                                } from '../nextflow-modules/modules/medaka/main.nf'
-include { nanoplot                              } from '../nextflow-modules/modules/nanoplot/main.nf'
-include { minimap_ref                           } from '../nextflow-modules/modules/minimap/main.nf'       
-include { post_align_qc                         } from '../nextflow-modules/modules/prp/main.nf'
-include { quast                                 } from '../nextflow-modules/modules/quast/main.nf'
-include { samtools_index as samtools_index_ref  } from '../nextflow-modules/modules/samtools/main.nf'
-include { samtools_coverage                     } from '../nextflow-modules/modules/samtools/main.nf'
-include { samtools_sort                         } from '../nextflow-modules/modules/samtools/main.nf'
-include { save_analysis_metadata                } from '../nextflow-modules/modules/meta/main.nf'
-include { seqtk_sample                          } from '../nextflow-modules/modules/seqtk/main.nf'
-include { ska_build                             } from '../nextflow-modules/modules/ska/main.nf'
-include { skesa                                 } from '../nextflow-modules/modules/skesa/main.nf'
-include { sourmash                              } from '../nextflow-modules/modules/sourmash/main.nf'
-include { spades_illumina                       } from '../nextflow-modules/modules/spades/main.nf'
-include { spades_iontorrent                     } from '../nextflow-modules/modules/spades/main.nf'
+include { get_meta                                   } from '../methods/get_sample_data.nf'
+include { get_reads                                  } from '../methods/get_sample_data.nf'
+include { get_seqrun_meta                            } from '../methods/get_seqrun_meta.nf'
+include { assembly_trim_clean                        } from '../nextflow-modules/modules/clean/main.nf'
+include { bwa_mem as bwa_mem_ref                     } from '../nextflow-modules/modules/bwa/main.nf'
+include { fastqc                                     } from '../nextflow-modules/modules/fastqc/main.nf'
+include { flye                                       } from '../nextflow-modules/modules/flye/main.nf'
+include { hostile                                    } from '../nextflow-modules/modules/hostile/main.nf'
+include { medaka                                     } from '../nextflow-modules/modules/medaka/main.nf'
+include { nanoplot                                   } from '../nextflow-modules/modules/nanoplot/main.nf'
+include { minimap2_align as minimap2_align_ref       } from '../nextflow-modules/modules/minimap2/main.nf'       
+include { post_align_qc                              } from '../nextflow-modules/modules/prp/main.nf'
+include { quast                                      } from '../nextflow-modules/modules/quast/main.nf'
+include { samtools_index as samtools_index_ref       } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_coverage as samtools_coverage_ref } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_sort as samtools_sort_ref         } from '../nextflow-modules/modules/samtools/main.nf'
+include { save_analysis_metadata                     } from '../nextflow-modules/modules/meta/main.nf'
+include { seqtk_sample                               } from '../nextflow-modules/modules/seqtk/main.nf'
+include { ska_build                                  } from '../nextflow-modules/modules/ska/main.nf'
+include { skesa                                      } from '../nextflow-modules/modules/skesa/main.nf'
+include { sourmash                                   } from '../nextflow-modules/modules/sourmash/main.nf'
+include { spades_illumina                            } from '../nextflow-modules/modules/spades/main.nf'
+include { spades_iontorrent                          } from '../nextflow-modules/modules/spades/main.nf'
 
 workflow CALL_BACTERIAL_BASE {
     take:
@@ -102,17 +102,17 @@ workflow CALL_BACTERIAL_BASE {
 
         // qc processing - short read
         fastqc(ch_reads_w_meta)
-        bwa_mem_ref(ch_reads, referenceGenomeDir)
+        bwa_mem_ref(ch_reads_w_meta, referenceGenomeDir)
 
         post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
 
         // qc processing - long read
         nanoplot(ch_reads_w_meta)
-        minimap_ref(ch_reads_w_meta, referenceGenomeMmi)
-        samtools_sort(minimap_ref.out.sam)
-        samtools_coverage(samtools_sort.out.bam)
+        minimap2_align_ref(ch_reads_w_meta, referenceGenomeMmi)
+        samtools_sort_ref(minimap2_align_ref.out.sam)
+        samtools_coverage_ref(samtools_sort_ref.out.bam)
 
-        samtools_sort.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
+        samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
 
         samtools_index_ref(ch_ref_bam)
 
@@ -124,7 +124,7 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
-        ch_versions = ch_versions.mix(minimap_ref.out.versions)
+        ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
@@ -136,14 +136,14 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        bam             = ch_ref_bam               // channel: [ val(meta), path(bam)]
+        bam             = ch_ref_bam                        // channel: [ val(meta), path(bam)]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
         fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
         seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         qc_nano_raw     = nanoplot.out.html                 // channel: [ val(meta), path(html)]
-        qc_nano_cov     = samtools_coverage.out.txt         // channel: [ val(meta), path(txt)]
+        qc_nano_cov     = samtools_coverage_ref.out.txt         // channel: [ val(meta), path(txt)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads           = ch_reads                          // channel: [ val(meta), path(json)]
         reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
