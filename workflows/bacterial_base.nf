@@ -112,12 +112,9 @@ workflow CALL_BACTERIAL_BASE {
         samtools_sort(minimap2_ref.out.sam)
         samtools_coverage(samtools_sort.out.bam)
 
-        Channel.empty()
-            .mix(
-                samtools_sort.out.bam, bwa_mem_ref.out.bam
-            ).set{ ch_sorted_bam }
+        samtools_sort.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
 
-        samtools_index_ref(ch_sorted_bam)
+        samtools_index_ref(ch_ref_bam)
 
         // signature
         sourmash(ch_assembly)
@@ -139,7 +136,7 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
+        bam             = ch_ref_bam               // channel: [ val(meta), path(bam)]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
         fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
         seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
