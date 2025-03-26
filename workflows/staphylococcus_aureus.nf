@@ -172,6 +172,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
+        ch_versions = ch_versions.mix(minimap2_index.out.versions)
+        ch_versions = ch_versions.mix(minimap2_align_assembly.out.versions)
         ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)

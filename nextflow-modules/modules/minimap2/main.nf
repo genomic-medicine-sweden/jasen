@@ -49,7 +49,7 @@ process minimap2_index {
 
   output:
     tuple val(sample_id), path("*.mmi"), emit: index
-    path "versions.yml"                , emit: versions
+    path "*versions.yml"               , emit: versions
 
   when:
     platform == "nanopore"
@@ -66,7 +66,7 @@ process minimap2_index {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      minimap2:
-      version: \$(minimap2 --version 2>&1)
+      version: \$(echo \$(minimap2 --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """
@@ -78,7 +78,7 @@ process minimap2_index {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      minimap2:
-      version: \$(minimap2 --version 2>&1)
+      version: \$(echo \$(minimap2 --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """
