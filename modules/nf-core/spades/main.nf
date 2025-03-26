@@ -1,4 +1,4 @@
-process spades_iontorrent {
+process spades {
   tag "${sample_id}"
   scratch params.scratch
   publishDir "${params.publishDir}", 

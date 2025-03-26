@@ -1,4 +1,4 @@
-process skesa {
+process flye {
   tag "${sample_id}"
   scratch params.scratch
 
@@ -10,32 +10,41 @@ process skesa {
     path "*versions.yml"              , emit: versions
 
   when:
-    task.ext.when && platform == "illumina"
+    platform == "nanopore"
 
   script:
     def args = task.ext.args ?: ''
-    def input_reads_arg = reads.size() == 2 ? "${reads[0]},${reads[1]}" : "${reads[0]}"
-    output = "${sample_id}_skesa.fasta"
+    def seqmethod = task.ext.seqmethod ?: ''
+    def input_reads_arg = reads.size() == 2 ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
+    output_dir = "flye_outdir"
+    output = "${sample_id}_flye.fasta"
     """
-    skesa --reads ${input_reads_arg} ${args} > ${output}
+    flye \\
+      ${seqmethod} \\
+      ${input_reads_arg} \\
+      ${args} \\
+      --threads ${task.cpus} \\
+      --out-dir ${output_dir}
+
+    mv ${output_dir}/assembly.fasta ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
-     skesa:
-      version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
+     flye:
+      version: \$(echo \$(flye --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """
 
   stub:
-    output = "${sample_id}_skesa.fasta"
+    output = "${sample_id}_flye.fasta"
     """
     touch ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
-     skesa:
-      version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
+     flye:
+      version: \$(echo \$(flye --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """

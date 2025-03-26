@@ -16,7 +16,7 @@ process ska_build {
     output = "${output_basename}.skf"
     """
     echo ${input_reads_arg} > ${sample_id}_input.txt
-    ska build ${args} -o ${output_basename} -f ${sample_id}_input.txt
+    ska build ${args} --threads ${task.cpus} -o ${output_basename} -f ${sample_id}_input.txt
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
