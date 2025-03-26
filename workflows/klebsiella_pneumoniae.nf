@@ -71,16 +71,25 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         bwa_index(ch_assembly.join(ch_seqplat_meta))
         minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
+        // create input map channels for bwa on assembly
         ch_input_meta
-            .join(bwa_index.out.idx)
-            .multiMap { id, reads, platform, bai -> 
+            .join(bwa_index.out.index)
+            .multiMap { id, reads, platform, index -> 
                 reads_w_meta: tuple(id, reads, platform)
-                bai: bai
+                index: index
             }
             .set{ ch_bwa_mem_assembly_map }
-        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.bai)
+        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
 
-        minimap2_align_assembly(ch_input_meta, minimap2_index.out.index)
+        // create input map channels for minimap2 on assembly
+        ch_input_meta
+            .join(minimap2_index.out.index)
+            .multiMap { id, reads, platform, index -> 
+                reads_w_meta: tuple(id, reads, platform)
+                index: index
+            }
+            .set{ ch_minimap2_align_assembly_map }
+        minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
         samtools_sort_assembly(minimap2_align_assembly.out.sam)
 
         bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
