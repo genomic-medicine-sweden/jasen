@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `prodigal` image download to container `Makefile`
 - Added module for mapping long reads with Minimap2
 - Added Minimap2 refence index `referenceGenomeMmi` for all species
-- Added `samtools coverage` to get stats from mapping long reads to the reference
+- Added `samtools_coverage` to get stats from mapping long reads to the reference and assembly
 - Added `minimap2_align_assembly`
 - Added `minimap2_index` for assembly indexing
 
