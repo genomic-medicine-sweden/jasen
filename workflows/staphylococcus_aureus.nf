@@ -2,30 +2,31 @@
 
 nextflow.enable.dsl=2
 
-include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
-include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
-include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
-include { bwa_mem as bwa_mem_assembly               } from '../nextflow-modules/modules/bwa/main.nf'
-include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
-include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
-include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
-include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main.nf'
-include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
-include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
-include { mask_polymorph_assembly                   } from '../nextflow-modules/modules/mask/main.nf'
-include { minimap2_align as minimap2_align_assembly } from '../nextflow-modules/modules/minimap2/main.nf'       
-include { minimap2_index                            } from '../nextflow-modules/modules/minimap2/main.nf'      
-include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
-include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
-include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
-include { samtools_sort as samtools_sort_assembly   } from '../nextflow-modules/modules/samtools/main.nf'
-include { sccmec                                    } from '../nextflow-modules/modules/sccmec/main.nf'
-include { spatyper                                  } from '../nextflow-modules/modules/spatyper/main.nf'
-include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
-include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
+include { amrfinderplus                                     } from '../nextflow-modules/modules/amrfinderplus/main.nf'
+include { bracken                                           } from '../nextflow-modules/modules/bracken/main.nf'
+include { bwa_index                                         } from '../nextflow-modules/modules/bwa/main.nf'
+include { bwa_mem as bwa_mem_assembly                       } from '../nextflow-modules/modules/bwa/main.nf'
+include { chewbbaca_allelecall                              } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_create_batch_list                       } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_split_results                           } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { create_analysis_result                            } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input                                  } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                                       } from '../nextflow-modules/modules/yaml/main.nf'
+include { export_to_cdm                                     } from '../nextflow-modules/modules/cmd/main.nf'
+include { freebayes                                         } from '../nextflow-modules/modules/freebayes/main.nf'
+include { kraken                                            } from '../nextflow-modules/modules/kraken/main.nf'
+include { mask_polymorph_assembly                           } from '../nextflow-modules/modules/mask/main.nf'
+include { minimap2_align as minimap2_align_assembly         } from '../nextflow-modules/modules/minimap2/main.nf'
+include { minimap2_index                                    } from '../nextflow-modules/modules/minimap2/main.nf'
+include { mlst                                              } from '../nextflow-modules/modules/mlst/main.nf'
+include { resfinder                                         } from '../nextflow-modules/modules/resfinder/main.nf'
+include { samtools_index as samtools_index_assembly         } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_sort as samtools_sort_assembly           } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_coverage as samtools_coverage_assembly   } from '../nextflow-modules/modules/samtools/main.nf'
+include { sccmec                                            } from '../nextflow-modules/modules/sccmec/main.nf'
+include { spatyper                                          } from '../nextflow-modules/modules/spatyper/main.nf'
+include { virulencefinder                                   } from '../nextflow-modules/modules/virulencefinder/main.nf'
+include { CALL_BACTERIAL_BASE                               } from '../workflows/bacterial_base.nf'
 
 workflow CALL_STAPHYLOCOCCUS_AUREUS {
     // set input data
@@ -91,6 +92,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             .set{ ch_minimap2_align_assembly_map }
         minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
         samtools_sort_assembly(minimap2_align_assembly.out.sam)
+        samtools_coverage_assembly(samtools_sort_assembly.out.bam)
 
         bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
 
@@ -192,6 +194,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(sccmec.out.versions)
         ch_versions = ch_versions.mix(spatyper.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
+        ch_versions = ch_versions.mix(samtools_coverage_assembly.out.versions)
 
     emit: 
         pipeline_result = create_analysis_result.out.json
