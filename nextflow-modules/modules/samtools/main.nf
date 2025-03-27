@@ -68,8 +68,9 @@ process samtools_sort {
     """
 
   stub:
+    output = "${input.baseName}.bam"
     """
-    touch ${input.baseName}.bam
+    touch "${output}"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -173,7 +174,6 @@ process samtools_coverage {
   script:
     def args = task.ext.args ?: ''
     output = "${input.baseName}_mapcoverage.txt"
-    output_dir = "postmapqc"
     """
     samtools coverage -o ${output} ${args} ${input}
 
@@ -186,8 +186,9 @@ process samtools_coverage {
     """
 
   stub:
+  output = "${input.baseName}_mapcoverage.txt"
     """
-    touch "${input.baseName}_mapcoverage.txt"
+    touch "${output}"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

@@ -143,7 +143,7 @@ workflow CALL_BACTERIAL_BASE {
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
         qc_nano_raw     = nanoplot.out.html                 // channel: [ val(meta), path(html)]
-        qc_nano_cov     = samtools_coverage_ref.out.txt         // channel: [ val(meta), path(txt)]
+        qc_nano_cov     = samtools_coverage_ref.out.txt     // channel: [ val(meta), path(txt)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
         reads           = ch_reads                          // channel: [ val(meta), path(json)]
         reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]

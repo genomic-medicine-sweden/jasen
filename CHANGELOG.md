@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `minimap2_index` for assembly indexing
 
 ### Fixed
+- Fixed stub-run for S.aureus ONT workflow
 
 ### Changed
 

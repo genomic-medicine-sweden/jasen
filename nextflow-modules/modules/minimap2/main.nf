@@ -29,6 +29,8 @@ process minimap2_align {
     """
 
   stub:
+    def process = task.process.tokenize(':')[-1]
+    output = "${sample_id}_${process}.sam"
     """
     touch "${output}"
 
