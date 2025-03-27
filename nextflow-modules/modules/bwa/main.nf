@@ -6,7 +6,7 @@ process bwa_index {
     tuple val(sample_id), path(fasta), val(platform)
 
   output:
-    tuple val(sample_id), path("${fasta}.*"), emit: idx
+    tuple val(sample_id), path("${fasta}.*"), emit: index
     path "*versions.yml"                    , emit: versions
 
   when:
