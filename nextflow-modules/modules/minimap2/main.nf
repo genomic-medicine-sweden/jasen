@@ -15,11 +15,12 @@ process minimap2_align {
 
   script:
     def args = task.ext.args ?: ''
-    output = "${sample_id}_minimap2.sam"
+    def process = task.process.tokenize(':')[-1]
+    output = "${sample_id}_${process}.sam"
     """
     minimap2 ${args} ${referenceGenomeMmi} ${reads} > ${output}
     
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<-END_VERSIONS > ${sample_id}_${process}_versions.yml
     ${task.process}:
      minimap2:
       version: \$(echo \$(minimap2 --version 2>&1))
@@ -29,7 +30,7 @@ process minimap2_align {
 
   stub:
     """
-    touch "${sample_id}_minimap2.sam"
+    touch "${output}"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
