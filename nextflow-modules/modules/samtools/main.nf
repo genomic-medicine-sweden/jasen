@@ -55,9 +55,9 @@ process samtools_sort {
     path "*versions.yml"              , emit: versions
 
   script:
-    output = "${sample_id}.bam"
+    output = "${input.baseName}.bam"
     """
-    samtools sort -@ ${task.cpus} -o ${output} ${input}
+    samtools sort -@ ${task.cpus} -O bam -o ${output} ${input}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -68,8 +68,9 @@ process samtools_sort {
     """
 
   stub:
+    output = "${input.baseName}.bam"
     """
-    touch ${sample_id}.bam
+    touch "${output}"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -154,6 +155,45 @@ process samtools_faidx {
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
+      container: ${task.container}
+    END_VERSIONS
+    """
+}
+
+process samtools_coverage {
+  tag "${sample_id}"
+  scratch params.scratch
+
+  input:
+    tuple val(sample_id), path(input)
+
+  output:
+    tuple val(sample_id), path(output), emit: txt
+    path "*versions.yml"              , emit: versions
+
+  script:
+    def args = task.ext.args ?: ''
+    output = "${input.baseName}_mapcoverage.txt"
+    """
+    samtools coverage -o ${output} ${args} ${input}
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        ${task.process}:
+        samtools:
+          version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+          container: ${task.container}
+        END_VERSIONS
+    """
+
+  stub:
+  output = "${input.baseName}_mapcoverage.txt"
+    """
+    touch "${output}"
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     samtools:
+      version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
       container: ${task.container}
     END_VERSIONS
     """

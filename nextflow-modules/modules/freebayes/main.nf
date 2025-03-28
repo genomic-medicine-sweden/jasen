@@ -4,7 +4,7 @@ process freebayes {
 
   input:
     tuple val(sample_id), path(assembly)
-    tuple path(bam), path(bai) 
+    tuple val(sample_id), path(bam), path(bai) 
 
   output:
     tuple val(sample_id), path(output), emit: vcf

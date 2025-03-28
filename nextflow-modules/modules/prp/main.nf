@@ -5,7 +5,8 @@ process create_analysis_result {
   input:
     tuple val(sample_id), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(emmtyper), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
     path reference_genome
-    path reference_genome_idx
+    path reference_genome_fai
+    path reference_genome_mmi
     path reference_genome_gff
 
   output:

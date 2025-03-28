@@ -335,6 +335,7 @@ $(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
 saureus_all: saureus_download_reference \
 	saureus_faidx_reference \
 	saureus_bwaidx_reference \
+	saureus_minimap2idx_reference \
 	saureus_download_prodigal_training_file \
 	saureus_download_cgmlst_schema \
 	saureus_unpack_cgmlst_schema \
@@ -374,6 +375,13 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REF
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
+saureus_minimap2idx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi
+
+$(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing S. aureus reference genome using minimap2...")
+	cd $(SAUR_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
 
@@ -429,6 +437,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 ecoli_all: ecoli_download_reference \
 	ecoli_faidx_reference \
 	ecoli_bwaidx_reference \
+	ecoli_minimap2idx_reference \
 	ecoli_generate_prodigal_training_file \
 	ecoli_download_wgmlst_schema \
 	ecoli_prep_ecoli_cgmlst_schema
@@ -467,6 +476,15 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI
 	cd $(ECOLI_GENOMES_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+ecoli_minimap2idx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi
+
+$(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing E. coli genome using minimap2...")
+	cd $(ECOLI_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
 ecoli_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
@@ -541,6 +559,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 kpneumoniae_all: kpneumoniae_download_reference \
 	kpneumoniae_faidx_reference \
 	kpneumoniae_bwaidx_reference \
+	kpneumoniae_minimap2idx_reference \
 	kpneumoniae_download_prodigal_training_file \
 	kpneumoniae_download_cgmlst_schema \
 	kpneumoniae_unpack_cgmlst_schema \
@@ -580,6 +599,14 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU
 	cd $(KPNEU_GENOMES_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+kpneumoniae_minimap2idx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi
+
+$(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing K. pneumoniae genome using minimap2...")
+	cd $(KPNEU_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
 kpneumoniae_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
@@ -639,6 +666,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 spyogenes_all: spyogenes_download_reference \
 	spyogenes_faidx_reference \
 	spyogenes_bwaidx_reference \
+	spyogenes_minimap2idx_reference \
 	spyogenes_generate_prodigal_training_file \
 	spyogenes_download_cgmlst_schema \
 	spyogenes_unpack_cgmlst_schema \
@@ -678,6 +706,15 @@ $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt: $(SPYO_GENOMES_DIR)/$(SPYO_REF
 	cd $(SPYO_GENOMES_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+spyogenes_minimap2idx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi
+
+$(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing S. pyogenes genome using minimap2...")
+	cd $(SPYO_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
 spyogenes_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
@@ -785,7 +822,13 @@ MTUBE_TBDB_DIR := $(ASSETS_DIR)/tbdb
 MTUBE_TB_INFO_DIR := $(ASSETS_DIR)/tb_info
 MTUBE_REFSEQ_ACC := GCF_000195955.2
 
-mtuberculosis_all: mtuberculosis_download_reference mtuberculosis_faidx_reference mtuberculosis_bwaidx_reference mtuberculosis_converged_who_fohm_tbdb mtuberculosis_bgzip_bed mtuberculosis_index_bed
+mtuberculosis_all: mtuberculosis_download_reference \
+	mtuberculosis_faidx_reference \
+	mtuberculosis_bwaidx_reference \
+	mtuberculosis_miniamp2idx_reference \
+	mtuberculosis_converged_who_fohm_tbdb \
+	mtuberculosis_bgzip_bed \
+	mtuberculosis_index_bed
 
 mtuberculosis_download_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 
@@ -813,6 +856,15 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE
 	cd $(MTUBE_GENOMES_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+mtuberculosis_minimap2idx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi
+
+$(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing M. tuberculosis genome using minimap2...")
+	cd $(MTUBE_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
+
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
 
@@ -904,6 +956,18 @@ check_bwa:
 		echo "[✓] PASSED check for bwa: Indexes exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for bwa: Indexes do not exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
+	fi
+
+check_minimap2:
+	@cd $(SCRIPT_DIR) \
+	&& ref=$(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta; \
+		refmmi=$${ref}.mmi \
+	&& if [[ -f $$ref \
+		&& -f $${refmmi} \
+	]]; then \
+		echo "[✓] PASSED check for minimap2: Indexes exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
+	else \
+		echo "[!] FAILED check for minimap2: Indexes do not exist in $(SAUR_GENOMES_DIR)" |& tee -a $(INSTALL_LOG); \
 	fi
 
 # -----------------------------

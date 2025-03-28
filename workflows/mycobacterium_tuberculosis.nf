@@ -26,8 +26,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
     referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
-    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeFai = file(params.referenceGenomeFai, checkIfExists: true)
     referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
+    referenceGenomeMmi = file(params.referenceGenomeMmi, checkIfExists: true)
     // databases
     coreLociBed = file(params.coreLociBed, checkIfExists: true)
     tbdbBed = file(params.tbdbBed, checkIfExists: true)
@@ -39,7 +40,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, referenceGenomeMmi, inputSamples, targetSampleSize )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -90,12 +91,12 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
         }
 
         // Add IGV annotation tracks

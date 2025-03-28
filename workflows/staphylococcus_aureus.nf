@@ -2,27 +2,31 @@
 
 nextflow.enable.dsl=2
 
-include { amrfinderplus                             } from '../nextflow-modules/modules/amrfinderplus/main.nf'
-include { bracken                                   } from '../nextflow-modules/modules/bracken/main.nf'
-include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
-include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main.nf'
-include { chewbbaca_allelecall                      } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list               } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { chewbbaca_split_results                   } from '../nextflow-modules/modules/chewbbaca/main.nf'
-include { create_analysis_result                    } from '../nextflow-modules/modules/prp/main.nf'
-include { create_cdm_input                          } from '../nextflow-modules/modules/prp/main.nf'
-include { create_yaml                               } from '../nextflow-modules/modules/yaml/main.nf'
-include { export_to_cdm                             } from '../nextflow-modules/modules/cmd/main.nf'
-include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
-include { kraken                                    } from '../nextflow-modules/modules/kraken/main.nf'
-include { mask_polymorph_assembly                   } from '../nextflow-modules/modules/mask/main.nf'
-include { mlst                                      } from '../nextflow-modules/modules/mlst/main.nf'
-include { resfinder                                 } from '../nextflow-modules/modules/resfinder/main.nf'
-include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
-include { sccmec                                    } from '../nextflow-modules/modules/sccmec/main.nf'
-include { spatyper                                  } from '../nextflow-modules/modules/spatyper/main.nf'
-include { virulencefinder                           } from '../nextflow-modules/modules/virulencefinder/main.nf'
-include { CALL_BACTERIAL_BASE                       } from '../workflows/bacterial_base.nf'
+include { amrfinderplus                                     } from '../nextflow-modules/modules/amrfinderplus/main.nf'
+include { bracken                                           } from '../nextflow-modules/modules/bracken/main.nf'
+include { bwa_index                                         } from '../nextflow-modules/modules/bwa/main.nf'
+include { bwa_mem as bwa_mem_assembly                       } from '../nextflow-modules/modules/bwa/main.nf'
+include { chewbbaca_allelecall                              } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_create_batch_list                       } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { chewbbaca_split_results                           } from '../nextflow-modules/modules/chewbbaca/main.nf'
+include { create_analysis_result                            } from '../nextflow-modules/modules/prp/main.nf'
+include { create_cdm_input                                  } from '../nextflow-modules/modules/prp/main.nf'
+include { create_yaml                                       } from '../nextflow-modules/modules/yaml/main.nf'
+include { export_to_cdm                                     } from '../nextflow-modules/modules/cmd/main.nf'
+include { freebayes                                         } from '../nextflow-modules/modules/freebayes/main.nf'
+include { kraken                                            } from '../nextflow-modules/modules/kraken/main.nf'
+include { mask_polymorph_assembly                           } from '../nextflow-modules/modules/mask/main.nf'
+include { minimap2_align as minimap2_align_assembly         } from '../nextflow-modules/modules/minimap2/main.nf'
+include { minimap2_index                                    } from '../nextflow-modules/modules/minimap2/main.nf'
+include { mlst                                              } from '../nextflow-modules/modules/mlst/main.nf'
+include { resfinder                                         } from '../nextflow-modules/modules/resfinder/main.nf'
+include { samtools_index as samtools_index_assembly         } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_sort as samtools_sort_assembly           } from '../nextflow-modules/modules/samtools/main.nf'
+include { samtools_coverage as samtools_coverage_assembly   } from '../nextflow-modules/modules/samtools/main.nf'
+include { sccmec                                            } from '../nextflow-modules/modules/sccmec/main.nf'
+include { spatyper                                          } from '../nextflow-modules/modules/spatyper/main.nf'
+include { virulencefinder                                   } from '../nextflow-modules/modules/virulencefinder/main.nf'
+include { CALL_BACTERIAL_BASE                               } from '../workflows/bacterial_base.nf'
 
 workflow CALL_STAPHYLOCOCCUS_AUREUS {
     // set input data
@@ -31,7 +35,8 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     // load references 
     referenceGenome = file(params.referenceGenome, checkIfExists: true)
     referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
-    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
+    referenceGenomeFai = file(params.referenceGenomeFai, checkIfExists: true)
+    referenceGenomeMmi = file(params.referenceGenomeMmi, checkIfExists: true)
     referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
     // databases
     amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
@@ -49,7 +54,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
+        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, referenceGenomeMmi, inputSamples, targetSampleSize )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -64,30 +69,42 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
 
-        bwa_index(ch_assembly)
+        bwa_index(ch_assembly.join(ch_seqplat_meta))
+        minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
-        ch_reads
-            .join(bwa_index.out.idx)
-            .multiMap { id, reads, bai -> 
-                reads: tuple(id, reads)
-                bai: bai
+        // create input map channels for bwa on assembly
+        ch_input_meta
+            .join(bwa_index.out.index)
+            .multiMap { id, reads, platform, index -> 
+                reads_w_meta: tuple(id, reads, platform)
+                index: index
             }
-            .set { bwa_mem_dedup_ch }
-        bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
-        samtools_index_assembly(bwa_mem_dedup.out.bam)
+            .set{ ch_bwa_mem_assembly_map }
+        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
+
+        // create input map channels for minimap2 on assembly
+        ch_input_meta
+            .join(minimap2_index.out.index)
+            .multiMap { id, reads, platform, index -> 
+                reads_w_meta: tuple(id, reads, platform)
+                index: index
+            }
+            .set{ ch_minimap2_align_assembly_map }
+        minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
+        samtools_sort_assembly(minimap2_align_assembly.out.sam)
+        samtools_coverage_assembly(samtools_sort_assembly.out.bam)
+
+        bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
+
+        samtools_index_assembly(ch_bam)
 
         // construct freebayes input channels
-        ch_assembly
-            .join(bwa_mem_dedup.out.bam)
+        ch_bam
             .join(samtools_index_assembly.out.bai)
-            .multiMap { id, fasta, bam, bai -> 
-                assembly: tuple(id, fasta)
-                mapping: tuple(bam, bai)
-            }
-            .set { freebayes_ch }
+            .set{ ch_bam_bai }
 
         // VARIANT CALLING
-        freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
+        freebayes(ch_assembly, ch_bam_bai)
 
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
@@ -143,12 +160,12 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
             kraken(ch_reads, krakenDb)
             bracken(kraken.out.report, krakenDb).output
             combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
             ch_versions = ch_versions.mix(kraken.out.versions)
             ch_versions = ch_versions.mix(bracken.out.versions)
         } else {
             combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
+            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeFai, referenceGenomeMmi, referenceGenomeGff)
         }
 
         create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
@@ -165,7 +182,9 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
-        ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
+        ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
+        ch_versions = ch_versions.mix(minimap2_index.out.versions)
+        ch_versions = ch_versions.mix(minimap2_align_assembly.out.versions)
         ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)
@@ -175,6 +194,7 @@ workflow CALL_STAPHYLOCOCCUS_AUREUS {
         ch_versions = ch_versions.mix(sccmec.out.versions)
         ch_versions = ch_versions.mix(spatyper.out.versions)
         ch_versions = ch_versions.mix(virulencefinder.out.versions)
+        ch_versions = ch_versions.mix(samtools_coverage_assembly.out.versions)
 
     emit: 
         pipeline_result = create_analysis_result.out.json

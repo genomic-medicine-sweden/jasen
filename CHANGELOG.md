@@ -8,18 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added missing tools to S. aureus subworkflow tool list
 
+- Added missing tools to S. aureus subworkflow tool list
 - Added spyogenes bed file representing cgmlst targets
 - Added `prodigal` image download to container `Makefile`
+- Added module for mapping long reads with Minimap2
+- Added Minimap2 refence index `referenceGenomeMmi` for all species
+- Added `samtools_coverage` to get stats from mapping long reads to the reference and assembly
+- Added `minimap2_align_assembly`
+- Added `minimap2_index` for assembly indexing
 
 ### Fixed
+- Fixed stub-run for S.aureus ONT workflow
 
 ### Changed
 
 - Changed spyogenes genome from `GCF_000006785.2` to `GCF_005164585.1`
 - Updated `check_taxon` method to include spyogenes
 - Changed ptf downloading to generation of ptf via prodigal for `ecoli` & `spyogenes`
+- Renamed index created by BWA from `referenceGenomeIdx` to `referenceGenomeFai`
+- Renamed `bwa_mem_dedup` to `bwa_mem_assembly`
+- Split `samtools_sort` into two modules
 
 ## [1.0.0]
 
