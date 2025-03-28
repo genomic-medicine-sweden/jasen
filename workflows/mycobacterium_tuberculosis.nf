@@ -45,6 +45,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.empty.set{ch_empty}
+        CALL_BACTERIAL_BASE.out.id_meta.set{ch_id_meta}
         CALL_BACTERIAL_BASE.out.kraken.set{ch_kraken}
         CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
@@ -66,7 +67,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         post_align_qc(tbprofiler_mergedb.out.bam, params.reference_genome, core_loci_bed)
         post_align_qc.out.qc.set{ch_qc}
 
-        ch_quast
+        ch_id_meta
+            .join(ch_quast)
             .join(ch_qc)
             .join(ch_empty)
             .join(ch_empty)
@@ -86,16 +88,13 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
             .join(mykrobe.out.csv)
             .join(tbprofiler_mergedb.out.json)
             .join(ch_kraken)
+            .join(ch_sourmash)
+            .join(ch_ska)
             .set{ combined_output }
 
-        create_analysis_result(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
+        create_prp_yaml(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
 
-        // Add IGV annotation tracks
-        add_tbdb_bed_track(create_analysis_result.out.json, params.tbdb_bed, params.resistantLociName)
-        add_grading_bed_track(add_tbdb_bed_track.out.json, params.tb_grading_rules_bed, params.gradingLociName)
-
-        // Create yaml for uploading results to Bonsai
-        create_yaml(add_grading_bed_track.out.json.join(ch_sourmash).join(ch_ska), params.species_dir)
+        create_analysis_result(create_prp_yaml.out.yaml)
 
         ch_quast
             .join(ch_qc)
@@ -115,6 +114,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     emit: 
         pipeline_result = add_grading_bed_track.out.json
         cdm             = export_to_cdm.out.cdm
-        yaml            = create_yaml.out.yaml
+        yaml            = create_prp_yaml.out.yaml
         versions        = ch_versions
 }

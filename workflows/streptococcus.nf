@@ -69,8 +69,9 @@ workflow CALL_STREPTOCOCCUS {
         CALL_BACTERIAL_BASE.out.bam.set{ch_ref_bam}
         CALL_BACTERIAL_BASE.out.bai.set{ch_ref_bai}
         CALL_BACTERIAL_BASE.out.empty.set{ch_empty}
-        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.id_meta.set{ch_id_meta}
         CALL_BACTERIAL_BASE.out.kraken.set{ch_kraken}
+        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
         CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
@@ -134,7 +135,8 @@ workflow CALL_STREPTOCOCCUS {
 
         ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
         
-        ch_quast
+        ch_id_meta
+            .join(ch_quast)
             .join(ch_empty)
             .join(mlst.out.json)
             .join(chewbbaca_split_results.out.output)
@@ -154,11 +156,13 @@ workflow CALL_STREPTOCOCCUS {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_kraken)
+            .join(ch_sourmash)
+            .join(ch_ska)
             .set{ combined_output }
 
-        create_analysis_result(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
+        create_prp_yaml(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), species_dir)
+        create_analysis_result(create_prp_yaml.out.yaml)
 
         ch_quast
             .join(ch_empty)

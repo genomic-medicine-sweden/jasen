@@ -3,7 +3,7 @@ process create_analysis_result {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(quast), path(postalignqc), path(mlst), path(cgmlst), path(amr), path(resistance), path(resfinderMeta), path(serotype), path(serotypefinderMeta), path(virulence), path(virulencefinderMeta), path(shigapass), path(emmtyper), path(bam), path(bai), path(runInfo), path(vcf), path(mykrobe), path(tbprofiler), path(bracken)
+    tuple val(sample_id), path(yaml)
     path reference_genome
     path reference_genome_idx
     path reference_genome_gff
@@ -14,50 +14,9 @@ process create_analysis_result {
 
   script:
     output = "${sample_id}_result.json"
-    amrfinder_arg = amr ? "--amrfinder ${amr}" : ""
-    bracken_arg = bracken ? "--kraken ${bracken}" : ""
-    bam_arg = bam ? "--bam ${params.outdir}/${params.speciesDir}/${params.bamDir}/${bam}" : ""
-    cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    emmtyper_arg = emmtyper ? "--emmtyper ${emmtyper}" : ""
-    mlst_arg = mlst ? "--mlst ${mlst}" : ""
-    mykrobe_arg = mykrobe ? "--mykrobe ${mykrobe}" : ""
-    postalignqc_arg = postalignqc ? "--quality ${postalignqc}" : "" 
-    quast_arg = quast ? "--quast ${quast}" : ""
-    reference_genome_arg = reference_genome ? "--reference-genome-fasta ${reference_genome}" : ""
-    reference_gff_arg = reference_genome_gff ? "--reference-genome-gff ${reference_genome_gff}" : ""
-    resfinder_arg = resistance ? "--resfinder ${resistance}" : ""
-    resfinder_arg = resfinderMeta ? "${resfinder_arg} --process-metadata ${resfinderMeta}" : resfinder_arg
-    runInfo_arg = runInfo ? "--run-metadata ${runInfo}" : ""
-    serotype_arg = serotype ? "--serotypefinder ${serotype}" : ""
-    serotype_arg = serotypefinderMeta ? "${serotype_arg} --process-metadata ${serotypefinderMeta}" : serotype_arg
-    shigapass_arg = shigapass ? "--shigapass ${shigapass}" : ""
-    symlink_dir_arg = params.symlinkDir ? "--symlink-dir ${params.symlinkDir}" : ""
-    tbprofiler_arg = tbprofiler ? "--tbprofiler ${tbprofiler}" : ""
-    vcf_arg = vcf ? "--vcf ${params.outdir}/${params.speciesDir}/${params.vcfDir}/${vcf}" : ""
-    virulence_arg = virulence ? "--virulencefinder ${virulence}" : ""
-    virulence_arg = virulencefinderMeta ? "${virulence_arg} --process-metadata ${virulencefinderMeta}" : virulence_arg
     """
-    prp create-bonsai-input \\
-      --sample-id ${sample_id} \\
-      ${amrfinder_arg} \\
-      ${bam_arg} \\
-      ${bracken_arg} \\
-      ${cgmlst_arg} \\
-      ${emmtyper_arg} \\
-      ${mlst_arg} \\
-      ${mykrobe_arg} \\
-      ${postalignqc_arg} \\
-      ${quast_arg} \\
-      ${reference_genome_arg} \\
-      ${reference_gff_arg} \\
-      ${resfinder_arg} \\
-      ${runInfo_arg} \\
-      ${serotype_arg} \\
-      ${shigapass_arg} \\
-      ${symlink_dir_arg} \\
-      ${tbprofiler_arg} \\
-      ${vcf_arg} \\
-      ${virulence_arg} \\
+    prp parse \\
+      --sample ${yaml} \\
       --output ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml

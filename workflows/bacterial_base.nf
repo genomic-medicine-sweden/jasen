@@ -76,13 +76,11 @@ workflow CALL_BACTERIAL_BASE {
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
 
-        if ( params.copy_to_cron || params.dev_mode) {
-            Channel.fromPath(params.csv).splitCsv(header:true)
-                .map{ row -> get_seqrun_meta(row) }
-                .set{ ch_seqrun_meta }
-        } else {
-            ch_reads.map{ sample_id, reads -> [ sample_id, [], [], [] ] }.set{ ch_seqrun_meta }
-        }
+        Channel.fromPath(params.csv).splitCsv(header:true)
+            .map{ row -> get_seqrun_meta(row) }
+            .tap{ ch_seqrun_meta }
+            .map{ id, sequencing_run, lims_id, sample_name -> [ id, lims_id, sample_name ]}
+            .set{ ch_id_meta }
 
         // create empty channel containing only sample_id
         ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
@@ -148,6 +146,7 @@ workflow CALL_BACTERIAL_BASE {
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai) ]
         empty           = ch_empty                          // channel: [ val(meta) ]
         fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt) ]
+        id_meta         = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta) ]
         kraken          = ch_kraken                         // channel: [ val(meta), path(bai) ]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json) ]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta) ]
