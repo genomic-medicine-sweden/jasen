@@ -6,10 +6,12 @@ include { get_meta                                   } from '../methods/get_samp
 include { get_reads                                  } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta                            } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean                        } from '../modules/local/clean/main.nf'
+include { bracken                                    } from '../modules/nf-core/bracken/main.nf'
 include { bwa_mem as bwa_mem_ref                     } from '../modules/nf-core/bwa/main.nf'
 include { fastqc                                     } from '../modules/nf-core/fastqc/main.nf'
 include { flye                                       } from '../modules/nf-core/flye/main.nf'
 include { hostile                                    } from '../modules/nf-core/hostile/main.nf'
+include { kraken                                     } from '../modules/nf-core/kraken/main.nf'
 include { medaka                                     } from '../modules/nf-core/medaka/main.nf'
 include { nanoplot                                   } from '../modules/nf-core/nanoplot/main.nf'
 include { minimap2_align as minimap2_align_ref       } from '../modules/nf-core/minimap2/main.nf'       
@@ -28,17 +30,18 @@ include { spades as spades_iontorrent                } from '../modules/nf-core/
 
 workflow CALL_BACTERIAL_BASE {
     take:
-        coreLociBed
-        referenceGenome
-        referenceGenomeDir
-        inputSamples
-        targetSampleSize
+        core_loci_bed
+        reference_genome
+        reference_genome_dir
+        input_samples
+        kraken_db
+        target_sample_size
     
     main:
         ch_versions = Channel.empty()
 
         // Create channel for sample metadata
-        Channel.fromPath(inputSamples)
+        Channel.fromPath(input_samples)
             .splitCsv(header:true)
             .tap{ ch_raw_input }
             .map{ row -> get_meta(row) }
@@ -47,9 +50,9 @@ workflow CALL_BACTERIAL_BASE {
         // Create channel for reads
         ch_raw_input
             .map{ row -> get_reads(row) }
-            .set{ ch_raw_reads }
+            .set{ ch_raw_reads }        
 
-        if ( params.useHostile ) {
+        if ( params.use_hostile ) {
             // remove human reads
             hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
             ch_versions = ch_versions.mix(hostile.out.versions)
@@ -57,9 +60,9 @@ workflow CALL_BACTERIAL_BASE {
             ch_raw_reads.set{ ch_depleted_reads }
         }
 
-        if ( params.targetSampleSize ) {
+        if ( params.target_sample_size ) {
             // downsample reads
-            seqtk_sample( ch_depleted_reads, targetSampleSize ).reads.set{ ch_depleted_sampled_reads }
+            seqtk_sample( ch_depleted_reads, target_sample_size ).reads.set{ ch_depleted_sampled_reads }
             ch_versions = ch_versions.mix(seqtk_sample.out.versions)
         } else {
             ch_depleted_reads.set{ ch_depleted_sampled_reads }
@@ -73,13 +76,17 @@ workflow CALL_BACTERIAL_BASE {
             .join( ch_meta )                                          // add meta info
             .set{ ch_reads_w_meta }                                   // write as temp channel
 
-        if ( params.cronCopy || params.devMode) {
+        if ( params.copy_to_cron || params.dev_mode) {
             Channel.fromPath(params.csv).splitCsv(header:true)
                 .map{ row -> get_seqrun_meta(row) }
                 .set{ ch_seqrun_meta }
         } else {
-            ch_reads.map{ sampleID, reads -> [ sampleID, [], [], [] ] }.set{ ch_seqrun_meta }
+            ch_reads.map{ sample_id, reads -> [ sample_id, [], [], [] ] }.set{ ch_seqrun_meta }
         }
+
+        // create empty channel containing only sample_id
+        ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
+
         // analysis metadata
         save_analysis_metadata(ch_reads_w_meta.join(ch_seqrun_meta))
 
@@ -97,16 +104,26 @@ workflow CALL_BACTERIAL_BASE {
             ).set{ ch_assembly }
 
         // evaluate assembly quality 
-        quast(ch_assembly, referenceGenome)
+        quast(ch_assembly, reference_genome)
 
         // qc processing
         fastqc(ch_reads_w_meta)
-        bwa_mem_ref(ch_reads, referenceGenomeDir)
+        bwa_mem_ref(ch_reads, reference_genome_dir)
         samtools_index_ref(bwa_mem_ref.out.bam)
 
-        post_align_qc(bwa_mem_ref.out.bam, referenceGenome, coreLociBed)
+        post_align_qc(bwa_mem_ref.out.bam, reference_genome, core_loci_bed)
 
         nanoplot(ch_reads_w_meta)
+
+        if ( params.use_kraken ) {
+            kraken(ch_reads, kraken_db)
+            bracken(kraken.out.report, kraken_db)
+            bracken.out.output.set{ ch_kraken }
+            ch_versions = ch_versions.mix(kraken.out.versions)
+            ch_versions = ch_versions.mix(bracken.out.versions)
+        } else {
+            ch_empty.set{ ch_kraken }
+        }
 
         sourmash(ch_assembly)
 
@@ -126,19 +143,21 @@ workflow CALL_BACTERIAL_BASE {
         ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
 
     emit:
-        assembly        = ch_assembly                       // channel: [ val(meta), path(fasta)]
-        bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam)]
-        bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai)]
-        fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt)]
-        seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
-        metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
-        qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta)]
-        qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html)]
-        quast           = quast.out.qc                      // channel: [ val(meta), path(qc)]
-        reads           = ch_reads                          // channel: [ val(meta), path(json)]
-        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
-        ska_build       = ska_build.out.skf                 // channel: [ val(meta), path(skf)]
-        seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
-        sourmash        = sourmash.out.signature            // channel: [ val(meta), path(signature)]
+        assembly        = ch_assembly                       // channel: [ val(meta), path(fasta) ]
+        bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam) ]
+        bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai) ]
+        empty           = ch_empty                          // channel: [ val(meta) ]
+        fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt) ]
+        kraken          = ch_kraken                         // channel: [ val(meta), path(bai) ]
+        metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json) ]
+        qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta) ]
+        qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html) ]
+        quast           = quast.out.qc                      // channel: [ val(meta), path(qc) ]
+        reads           = ch_reads                          // channel: [ val(meta), path(json) ]
+        reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta) ]
+        seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str) ]
+        ska_build       = ska_build.out.skf                 // channel: [ val(meta), path(skf) ]
+        seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
+        sourmash        = sourmash.out.signature            // channel: [ val(meta), path(signature) ]
         versions        = ch_versions                       // channel: [ versions.yml ]
 }

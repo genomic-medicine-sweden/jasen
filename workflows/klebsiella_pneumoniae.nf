@@ -11,7 +11,7 @@ include { chewbbaca_create_batch_list               } from '../modules/local/che
 include { chewbbaca_split_results                   } from '../modules/local/chewbbaca/split/main.nf'
 include { create_analysis_result                    } from '../modules/local/prp/main.nf'
 include { create_cdm_input                          } from '../modules/local/prp/main.nf'
-include { create_yaml                               } from '../modules/local/yaml/main.nf'
+include { create_prp_yaml                           } from '../modules/local/yaml/prp/main.nf'
 include { export_to_cdm                             } from '../modules/local/cmd/main.nf'
 include { freebayes                                 } from '../modules/nf-core/freebayes/main.nf'
 include { kraken                                    } from '../modules/nf-core/kraken/main.nf'
@@ -28,44 +28,53 @@ include { CALL_BACTERIAL_BASE                       } from '../workflows/bacteri
 
 workflow CALL_KLEBSIELLA_PNEUMONIAE {
     // set input data
-    inputSamples = file(params.csv, checkIfExists: true)
+    input_samples       = file(params.csv, checkIfExists: true)
 
     // load references 
-    referenceGenome = file(params.referenceGenome, checkIfExists: true)
-    referenceGenomeDir = file(referenceGenome.getParent(), checkIfExists: true)
-    referenceGenomeIdx = file(params.referenceGenomeIdx, checkIfExists: true)
-    referenceGenomeGff = file(params.referenceGenomeGff, checkIfExists: true)
+    reference_genome     = params.reference_genome ? file(params.reference_genome, checkIfExists: true) : Channel.value([])
+    reference_genome_dir = params.reference_genome ? file(reference_genome.getParent(), checkIfExists: true) : Channel.value([])
+    reference_genome_gff = params.reference_genome_gff ? file(params.reference_genome_gff, checkIfExists: true) : Channel.value([])
+    reference_genome_idx = params.reference_genome_idx ? file(params.reference_genome_idx, checkIfExists: true) : Channel.value([])
+
     // databases
-    amrfinderDb = file(params.amrfinderDb, checkIfExists: true)
-    mlstBlastDb = file(params.mlstBlastDb, checkIfExists: true)
-    pubMlstDb = file(params.pubMlstDb, checkIfExists: true)
-    chewbbacaDb = file(params.chewbbacaDb, checkIfExists: true)
-    coreLociBed = file(params.coreLociBed, checkIfExists: true)
-    trainingFile = file(params.trainingFile, checkIfExists: true)
-    resfinderDb = file(params.resfinderDb, checkIfExists: true)
-    pointfinderDb = file(params.pointfinderDb, checkIfExists: true)
-    serotypefinderDb = file(params.serotypefinderDb, checkIfExists: true)
-    virulencefinderDb = file(params.virulencefinderDb, checkIfExists: true)
+    amrfinder_db        = params.amrfinder_db ? file(params.amrfinder_db, checkIfExists: true) : Channel.value([])
+    chewbbaca_db        = params.chewbbaca_db ? file(params.chewbbaca_db, checkIfExists: true) : Channel.value([])
+    core_loci_bed       = params.core_loci_bed ? file(params.core_loci_bed, checkIfExists: true) : Channel.value([])
+    kraken_db           = params.kraken_db ? file(params.kraken_db, checkIfExists: true) : Channel.value([])
+    mlst_blast_db       = params.mlst_blast_db ? file(params.mlst_blast_db, checkIfExists: true) : Channel.value([])
+    pointfinder_db      = params.pointfinder_db ? file(params.pointfinder_db, checkIfExists: true) : Channel.value([])
+    pubmlst_db          = params.pubmlst_db ? file(params.pubmlst_db, checkIfExists: true) : Channel.value([])
+    resfinder_db        = params.resfinder_db ? file(params.resfinder_db, checkIfExists: true) : Channel.value([])
+    serotypefinder_db   = params.serotypefinder_db ? file(params.serotypefinder_db, checkIfExists: true) : Channel.value([])
+    shigapass_db        = params.shigapass_db ? file(params.shigapass_db, checkIfExists: true) : Channel.value([])
+    training_file       = params.training_file ? file(params.training_file, checkIfExists: true) : Channel.value([])
+    virulencefinder_db  = params.virulencefinder_db ? file(params.virulencefinder_db, checkIfExists: true) : Channel.value([])
+
     // schemas and values
-    targetSampleSize = params.targetSampleSize ? params.targetSampleSize : Channel.value([])
+    mlst_scheme         = params.mlst_scheme ? params.mlst_scheme : Channel.value([])
+    species             = params.species ? params.species : Channel.value([])
+    species_dir         = params.species_dir ? params.species_dir : Channel.value([])
+    target_sample_size  = params.target_sample_size ? params.target_sample_size : Channel.value([])
 
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( coreLociBed, referenceGenome, referenceGenomeDir, inputSamples, targetSampleSize )
+        CALL_BACTERIAL_BASE( core_loci_bed, reference_genome, reference_genome_dir, input_samples, kraken_db, target_sample_size )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
-        CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
         CALL_BACTERIAL_BASE.out.bam.set{ch_ref_bam}
         CALL_BACTERIAL_BASE.out.bai.set{ch_ref_bai}
+        CALL_BACTERIAL_BASE.out.empty.set{ch_empty}
+        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.kraken.set{ch_kraken}
         CALL_BACTERIAL_BASE.out.quast.set{ch_quast}
         CALL_BACTERIAL_BASE.out.qc.set{ch_qc}
-        CALL_BACTERIAL_BASE.out.metadata.set{ch_metadata}
+        CALL_BACTERIAL_BASE.out.reads.set{ch_reads}
+        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
         CALL_BACTERIAL_BASE.out.seqplat_meta.set{ch_seqplat_meta}
         CALL_BACTERIAL_BASE.out.seqrun_meta.set{ch_seqrun_meta}
-        CALL_BACTERIAL_BASE.out.reads_w_meta.set{ch_input_meta}
-        CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
+        CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
 
         bwa_index(ch_assembly)
 
@@ -95,29 +104,27 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
         // TYPING
-        mlst(ch_assembly, params.mlstScheme, pubMlstDb, mlstBlastDb)
+        mlst(ch_assembly, params.mlst_scheme, pubmlst_db, mlst_blast_db)
 
         mask_polymorph_assembly.out.fasta
-            .multiMap { sampleID, filePath -> 
-                sampleID: sampleID
+            .multiMap { sample_id, filePath -> 
+                sample_id: sample_id
                 filePath: filePath
             }
             .set{ maskedAssemblyMap }
 
         chewbbaca_create_batch_list(maskedAssemblyMap.filePath.collect())
-        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbacaDb, trainingFile)
-        chewbbaca_split_results(maskedAssemblyMap.sampleID.collect(), chewbbaca_allelecall.out.calls)
-        serotypefinder(ch_assembly, params.useSerotypeDbs, serotypefinderDb)
+        chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
+        chewbbaca_split_results(maskedAssemblyMap.sample_id.collect(), chewbbaca_allelecall.out.calls)
+        serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
 
         // SCREENING
         // antimicrobial detection (amrfinderplus)
-        amrfinderplus(ch_assembly, params.species, amrfinderDb)
+        amrfinderplus(ch_assembly, params.species, amrfinder_db)
 
         // resistance & virulence prediction
-        resfinder(ch_input_meta, params.species, resfinderDb, pointfinderDb)
-        virulencefinder(ch_reads, params.useVirulenceDbs, virulencefinderDb)
-
-        ch_reads.map { sampleID, reads -> [ sampleID, [] ] }.set{ ch_empty }
+        resfinder(ch_input_meta, params.species, resfinder_db, pointfinder_db)
+        virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
         ch_quast
             .join(ch_qc)
@@ -138,31 +145,21 @@ workflow CALL_KLEBSIELLA_PNEUMONIAE {
             .join(ch_empty)
             .join(ch_empty)
             .join(ch_empty)
-            .set{ combinedOutput }
+            .join(ch_kraken)
+            .set{ combined_output }
 
-        if ( params.useKraken ) {
-            krakenDb = file(params.krakenDb, checkIfExists: true)
-            kraken(ch_reads, krakenDb)
-            bracken(kraken.out.report, krakenDb).output
-            combinedOutput.join(bracken.out.output).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
-            ch_versions = ch_versions.mix(kraken.out.versions)
-            ch_versions = ch_versions.mix(bracken.out.versions)
-        } else {
-            combinedOutput.join(ch_empty).set{ combinedOutput }
-            create_analysis_result(combinedOutput, referenceGenome, referenceGenomeIdx, referenceGenomeGff)
-        }
+        create_analysis_result(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
 
-        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.speciesDir)
+        create_yaml(create_analysis_result.out.json.join(ch_sourmash).join(ch_ska), params.species_dir)
 
         ch_quast
             .join(ch_qc)
             .join(chewbbaca_split_results.out.output)
-            .set{ cdmInput }
+            .set{ ch_cdm_input }
 
-        create_cdm_input(cdmInput)
+        create_cdm_input(ch_cdm_input)
 
-        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.speciesDir)
+        export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.species_dir)
 
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
