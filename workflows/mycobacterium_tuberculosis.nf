@@ -41,7 +41,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( core_loci_bed, reference_genome, reference_genome_dir, input_samples, kraken_db, target_sample_size )
+        CALL_BACTERIAL_BASE( core_loci_bed, reference_genome, reference_genome_dir, reference_genome_idx, input_samples, kraken_db, target_sample_size )
 
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.empty.set{ch_empty}

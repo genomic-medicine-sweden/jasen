@@ -3,18 +3,18 @@ process bwa_index {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reference)
+    tuple val(sample_id), path(fasta), val(platform)
 
   output:
-    tuple val(sample_id), path("${reference}.*"), emit: idx
-    path "*versions.yml"                        , emit: versions
+    tuple val(sample_id), path("${fasta}.*"), emit: index
+    path "*versions.yml"                    , emit: versions
 
   when:
-    task.ext.when
+    task.ext.when && platform == "illumina"
 
   script:
     """
-    bwa index ${reference} ${reference.baseName}/${reference}
+    bwa index ${fasta} ${fasta.baseName}/${fasta}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -26,11 +26,11 @@ process bwa_index {
 
   stub:
     """
-    touch ${reference}.amb
-    touch ${reference}.ann
-    touch ${reference}.bwt
-    touch ${reference}.pac
-    touch ${reference}.sa
+    touch ${fasta}.amb
+    touch ${fasta}.ann
+    touch ${fasta}.bwt
+    touch ${fasta}.pac
+    touch ${fasta}.sa
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -46,15 +46,15 @@ process bwa_mem {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads)
+    tuple val(sample_id), path(reads), val(platform)
     path referenceIdx
 
   output:
     tuple val(sample_id), path(output), emit: bam
-    path "*versions.yml"             , emit: versions
+    path "*versions.yml"              , emit: versions
 
   when:
-    task.ext.when
+    task.ext.when && platform == "illumina"
 
   script:
     def args = task.ext.args ?: ''

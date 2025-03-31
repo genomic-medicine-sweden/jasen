@@ -3,7 +3,7 @@ process skesa {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), path(reads), val(platform) 
+    tuple val(sample_id), path(reads), val(platform)
 
   output:
     tuple val(sample_id), path(output), emit: fasta

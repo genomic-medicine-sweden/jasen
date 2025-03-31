@@ -60,7 +60,7 @@ workflow CALL_ESCHERICHIA_COLI {
     main:
         ch_versions = Channel.empty()
 
-        CALL_BACTERIAL_BASE( core_loci_bed, reference_genome, reference_genome_dir, input_samples, kraken_db, target_sample_size )
+        CALL_BACTERIAL_BASE( core_loci_bed, reference_genome, reference_genome_dir, reference_genome_idx, input_samples, kraken_db, target_sample_size )
         
         CALL_BACTERIAL_BASE.out.assembly.set{ch_assembly}
         CALL_BACTERIAL_BASE.out.bam.set{ch_ref_bam}
@@ -78,30 +78,41 @@ workflow CALL_ESCHERICHIA_COLI {
         CALL_BACTERIAL_BASE.out.ska_build.set{ch_ska}
         CALL_BACTERIAL_BASE.out.sourmash.set{ch_sourmash}
 
-        bwa_index(ch_assembly)
+        bwa_index(ch_assembly.join(ch_seqplat_meta))
+        minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
-        ch_reads
-            .join(bwa_index.out.idx)
-            .multiMap { id, reads, bai -> 
-                reads: tuple(id, reads)
-                bai: bai
+        // create input map channels for bwa on assembly
+        ch_input_meta
+            .join(bwa_index.out.index)
+            .multiMap { id, reads, platform, index -> 
+                reads_w_meta: tuple(id, reads, platform)
+                index: index
             }
-            .set { bwa_mem_dedup_ch }
-        bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
-        samtools_index_assembly(bwa_mem_dedup.out.bam)
+            .set{ ch_bwa_mem_assembly_map }
+        bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
+
+        // create input map channels for minimap2 on assembly
+        ch_input_meta
+            .join(minimap2_index.out.index)
+            .multiMap { id, reads, platform, index -> 
+                reads_w_meta: tuple(id, reads, platform)
+                index: index
+            }
+            .set{ ch_minimap2_align_assembly_map }
+        minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
+        samtools_sort_assembly(minimap2_align_assembly.out.sam)
+
+        bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
+
+        samtools_index_assembly(ch_bam)
 
         // construct freebayes input channels
-        ch_assembly
-            .join(bwa_mem_dedup.out.bam)
+        ch_bam
             .join(samtools_index_assembly.out.bai)
-            .multiMap { id, fasta, bam, bai -> 
-                assembly: tuple(id, fasta)
-                mapping: tuple(bam, bai)
-            }
-            .set { freebayes_ch }
+            .set{ ch_bam_bai }
 
         // VARIANT CALLING
-        freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
+        freebayes(ch_assembly, ch_bam_bai)
 
         mask_polymorph_assembly(ch_assembly.join(freebayes.out.vcf))
 
@@ -170,7 +181,7 @@ workflow CALL_ESCHERICHIA_COLI {
         ch_versions = ch_versions.mix(CALL_BACTERIAL_BASE.out.versions)
         ch_versions = ch_versions.mix(amrfinderplus.out.versions)
         ch_versions = ch_versions.mix(bwa_index.out.versions)
-        ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
+        ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
         ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
         ch_versions = ch_versions.mix(create_analysis_result.out.versions)
         ch_versions = ch_versions.mix(freebayes.out.versions)

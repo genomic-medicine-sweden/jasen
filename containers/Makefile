@@ -30,9 +30,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					htslib.sif \
 					kraken2.sif \
 					medaka.sif \
-					nanoplot.sif \
+					minimap2.sif \
 					mlst.sif \
 					mykrobe.sif \
+					nanoplot.sif \
 					perl-json.sif \
 					quast.sif \
 					resfinder.sif \
@@ -67,6 +68,7 @@ URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
+URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1

@@ -3,6 +3,7 @@ bracken,2.8,https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433
 bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 flye,2.9.3,https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
 hostile,2.0.0,https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
+minimiap2,2.28,https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4
 medaka,2.0.1,https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
 mykrobe,0.12.2,https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 nanoplot,1.43.0,https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1

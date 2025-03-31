@@ -33,6 +33,7 @@ workflow CALL_BACTERIAL_BASE {
         core_loci_bed
         reference_genome
         reference_genome_dir
+        reference_genome_idx
         input_samples
         kraken_db
         target_sample_size
@@ -104,14 +105,22 @@ workflow CALL_BACTERIAL_BASE {
         // evaluate assembly quality 
         quast(ch_assembly, reference_genome)
 
-        // qc processing
+        // qc processing - short read
         fastqc(ch_reads_w_meta)
-        bwa_mem_ref(ch_reads, reference_genome_dir)
-        samtools_index_ref(bwa_mem_ref.out.bam)
+        bwa_mem_ref(ch_reads_w_meta, reference_genome_dir)
 
         post_align_qc(bwa_mem_ref.out.bam, reference_genome, core_loci_bed)
 
+        // qc processing - long read
         nanoplot(ch_reads_w_meta)
+
+        minimap2_align_ref(ch_reads_w_meta, reference_genome_idx)
+        samtools_sort_ref(minimap2_align_ref.out.sam)
+        samtools_coverage_ref(samtools_sort_ref.out.bam)
+
+        samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
+
+        samtools_index_ref(ch_ref_bam)
 
         if ( params.use_kraken ) {
             kraken(ch_reads, kraken_db)
@@ -123,14 +132,15 @@ workflow CALL_BACTERIAL_BASE {
             ch_empty.set{ ch_kraken }
         }
 
+        // signature
         sourmash(ch_assembly)
-
         ska_build(ch_reads)
 
         ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
         ch_versions = ch_versions.mix(fastqc.out.versions)
         ch_versions = ch_versions.mix(flye.out.versions)
         ch_versions = ch_versions.mix(medaka.out.versions)
+        ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
         ch_versions = ch_versions.mix(nanoplot.out.versions)
         ch_versions = ch_versions.mix(quast.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
@@ -142,15 +152,16 @@ workflow CALL_BACTERIAL_BASE {
 
     emit:
         assembly        = ch_assembly                       // channel: [ val(meta), path(fasta) ]
-        bam             = bwa_mem_ref.out.bam               // channel: [ val(meta), path(bam) ]
+        bam             = ch_ref_bam                        // channel: [ val(meta), path(bam) ]
         bai             = samtools_index_ref.out.bai        // channel: [ val(meta), path(bai) ]
         empty           = ch_empty                          // channel: [ val(meta) ]
         fastqc          = fastqc.out.output                 // channel: [ val(meta), path(txt) ]
         id_meta         = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta) ]
-        kraken          = ch_kraken                         // channel: [ val(meta), path(bai) ]
+        kraken          = ch_kraken                         // channel: [ val(meta), path(txt) ]
         metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json) ]
         qc              = post_align_qc.out.qc              // channel: [ val(meta), path(fasta) ]
-        qc_nano         = nanoplot.out.html                 // channel: [ val(meta), path(html) ]
+        qc_nano_raw     = nanoplot.out.html                 // channel: [ val(meta), path(html) ]
+        qc_nano_cov     = samtools_coverage_ref.out.txt     // channel: [ val(meta), path(txt)]
         quast           = quast.out.qc                      // channel: [ val(meta), path(qc) ]
         reads           = ch_reads                          // channel: [ val(meta), path(json) ]
         reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta) ]

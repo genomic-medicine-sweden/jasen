@@ -4,9 +4,6 @@ process create_analysis_result {
 
   input:
     tuple val(sample_id), path(yaml)
-    path reference_genome
-    path reference_genome_idx
-    path reference_genome_gff
 
   output:
     tuple val(sample_id), path(output), emit: json
