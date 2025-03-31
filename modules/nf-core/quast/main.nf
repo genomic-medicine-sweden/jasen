@@ -7,7 +7,7 @@ process quast {
     path reference
 
   output:
-    tuple val(sample_id), path(output), emit: qc
+    tuple val(sample_id), path(output), emit: tsv
     path "*versions.yml"              , emit: versions
 
   script:

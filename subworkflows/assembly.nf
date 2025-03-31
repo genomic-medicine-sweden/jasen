@@ -1,34 +1,39 @@
-include { quast             } from '../nextflow-modules/modules/quast/main.nf'
-include { skesa             } from '../nextflow-modules/modules/skesa/main.nf'
-include { spades_illumina   } from '../nextflow-modules/modules/spades/main.nf'
-include { spades_iontorrent } from '../nextflow-modules/modules/spades/main.nf'
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+include { flye                          } from '../modules/nf-core/flye/main.nf'
+include { medaka                        } from '../modules/nf-core/medaka/main.nf'
+include { skesa                         } from '../modules/nf-core/skesa/main.nf'
+include { spades as spades_illumina     } from '../modules/nf-core/spades/main.nf'
+include { spades as spades_iontorrent   } from '../modules/nf-core/spades/main.nf'
 
 workflow CALL_ASSEMBLY {
     take:
-        genomeReference
-        ch_input_meta // channel: [ val(meta), val(input_meta) ]
+    ch_reads_w_meta
+    ch_versions
 
     main:
-        ch_versions = Channel.empty()
+    // ASSEMBLY
+    skesa(ch_reads_w_meta)
+    spades_illumina(ch_reads_w_meta)
+    spades_iontorrent(ch_reads_w_meta)
+    flye(ch_reads_w_meta)
+    medaka(ch_reads_w_meta, flye.out.fasta)
 
-        // assembly
-        skesa(ch_input_meta)
-        spades_illumina(ch_input_meta)
-        spades_iontorrent(ch_input_meta)
+    Channel.empty()
+        .mix(
+            skesa.out.fasta, spades_illumina.out.fasta, 
+            spades_iontorrent.out.fasta, medaka.out.fasta
+        ).set{ ch_assembly }
 
-        Channel.empty().mix(skesa.out.fasta, spades_illumina.out.fasta, spades_iontorrent.out.fasta).set{ ch_assembly }
-
-        // evaluate assembly quality 
-        quast(ch_assembly, genomeReference)
-
-        ch_versions = ch_versions.mix(skesa.out.versions)
-        ch_versions = ch_versions.mix(spades_illumina.out.versions)
-        ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
-        ch_versions = ch_versions.mix(quast.out.versions)
+    ch_versions = ch_versions.mix(flye.out.versions)
+    ch_versions = ch_versions.mix(medaka.out.versions)
+    ch_versions = ch_versions.mix(skesa.out.versions)
+    ch_versions = ch_versions.mix(spades_illumina.out.versions)
+    ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
 
     emit:
-        assembly    = ch_assembly   // channel: [ val(meta), path(fasta)]
-        qc          = quast.out.qc  // channel: [ val(meta), path(qc)]
-        versions    = ch_versions   // channel: [ versions.yml ]
-
+    assembly    = ch_assembly   // channel: [ val(meta), path(fasta)]
+    versions    = ch_versions   // channel: [ versions.yml ]
 }

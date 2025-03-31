@@ -1,52 +1,69 @@
-include { bwa_index                                 } from '../nextflow-modules/modules/bwa/main.nf'
-include { bwa_mem as bwa_mem_dedup                  } from '../nextflow-modules/modules/bwa/main.nf'
-include { freebayes                                 } from '../nextflow-modules/modules/freebayes/main.nf'
-include { samtools_index as samtools_index_assembly } from '../nextflow-modules/modules/samtools/main.nf'
-include { snippy                                    } from '../nextflow-modules/modules/snippy/main.nf'
-include { tbprofiler                                } from '../nextflow-modules/modules/tbprofiler/main.nf'
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+include { bwa_index                                 } from '../modules/nf-core/bwa/main.nf'
+include { bwa_mem as bwa_mem_assembly               } from '../modules/nf-core/bwa/main.nf'
+include { freebayes                                 } from '../modules/nf-core/freebayes/main.nf'
+include { minimap2_align as minimap2_align_assembly } from '../modules/nf-core/minimap2/main.nf'       
+include { minimap2_index                            } from '../modules/nf-core/minimap2/main.nf'       
+include { samtools_index as samtools_index_assembly } from '../modules/nf-core/samtools/main.nf'
+include { samtools_sort as samtools_sort_assembly   } from '../modules/nf-core/samtools/main.nf'
 
 workflow CALL_VARIANT_CALLING {
     take:
-        ch_assembly     // channel: [ val(meta), val(fasta) ]
-        ch_input_meta   // channel: [ val(meta), val(input_meta) ]
-        ch_reads        // channel: [ val(meta), val(reads) ]
+    ch_assembly
+    ch_input_meta
+    ch_reads
+    ch_seqplat_meta
+    ch_versions
 
     main:
-        ch_versions = Channel.empty()
+    // VARIANT CALLING
+    bwa_index(ch_assembly.join(ch_seqplat_meta))
+    minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
-        // mask polymorph regions
-        bwa_index(ch_assembly)
-
-        ch_reads
-            .join(bwa_index.out.idx)
-            .multiMap { id, reads, bai -> 
-                reads: tuple(id, reads)
-                bai: bai
-            }
-            .set { bwa_mem_dedup_ch }
-        bwa_mem_dedup(bwa_mem_dedup_ch.reads, bwa_mem_dedup_ch.bai)
-        samtools_index_assembly(bwa_mem_dedup.out.bam)
-
-        // construct freebayes input channels
-        ch_assembly
-        .join(bwa_mem_dedup.out.bam)
-        .join(samtools_index_assembly.out.bai)
-        .multiMap { id, fasta, bam, bai -> 
-            assembly: tuple(id, fasta)
-            mapping: tuple(bam, bai)
+    // create input map channels for bwa on assembly
+    ch_input_meta
+        .join(bwa_index.out.index)
+        .multiMap { id, reads, platform, index -> 
+            reads_w_meta: tuple(id, reads, platform)
+            index: index
         }
-        .set { freebayes_ch }
+        .set{ ch_bwa_mem_assembly_map }
+    bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
 
-        freebayes(freebayes_ch.assembly, freebayes_ch.mapping)
+    // create input map channels for minimap2 on assembly
+    ch_input_meta
+        .join(minimap2_index.out.index)
+        .multiMap { id, reads, platform, index -> 
+            reads_w_meta: tuple(id, reads, platform)
+            index: index
+        }
+        .set{ ch_minimap2_align_assembly_map }
+    minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
+    samtools_sort_assembly(minimap2_align_assembly.out.sam)
 
-        ch_versions = ch_versions.mix(bwa_index.out.versions)
-        ch_versions = ch_versions.mix(bwa_mem_dedup.out.versions)
-        ch_versions = ch_versions.mix(freebayes.out.versions)
-        ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
+    bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }
+
+    samtools_index_assembly(ch_bam)
+
+    // construct freebayes input channels
+    ch_bam
+        .join(samtools_index_assembly.out.bai)
+        .set{ ch_bam_bai }
+
+    freebayes(ch_assembly, ch_bam_bai)
+
+    ch_versions = ch_versions.mix(bwa_index.out.versions)
+    ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
+    ch_versions = ch_versions.mix(freebayes.out.versions)
+    ch_versions = ch_versions.mix(minimap2_align_assembly.out.versions)
+    ch_versions = ch_versions.mix(minimap2_index.out.versions)
+    ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
+    ch_versions = ch_versions.mix(samtools_sort_assembly.out.versions)
 
     emit:
-        vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf)]
-        snippy_vcf  = snippy.out.vcf        // channel: [ val(meta), path(vcf)]
-        json        = tbprofiler.out.json   // channel: [ val(meta), path(vcf)]
-        versions    = ch_versions           // channel: [ versions.yml ]
+    vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf)]
+    versions    = ch_versions           // channel: [ versions.yml ]
 }

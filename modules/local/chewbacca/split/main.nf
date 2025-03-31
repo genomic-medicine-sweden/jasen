@@ -7,20 +7,20 @@ process chewbbaca_split_results {
     path input
 
   output:
-    tuple val(sample_id), path(output), emit: output
+    tuple val(sample_id), path(output), emit: tsv
 
   when:
     task.ext.when
 
   script:
-    output = "${sample_id}_chewbbaca.out"
+    output = "${sample_id}_chewbbaca.tsv"
     """
     head -1 ${input} > ${output}
     grep ${sample_id} ${input} >> ${output}
     """
 
   stub:
-    output = "${sample_id}_chewbbaca.out"
+    output = "${sample_id}_chewbbaca.tsv"
     """
     touch ${output}
     """

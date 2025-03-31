@@ -78,7 +78,7 @@ process post_align_qc {
     path bed
 
   output:
-    tuple val(sample_id), path(output), emit: qc
+    tuple val(sample_id), path(output), emit: json
 
   when:
     task.ext.when

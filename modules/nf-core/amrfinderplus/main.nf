@@ -10,8 +10,8 @@ process amrfinderplus {
     path database
 
   output:
-    tuple val(sample_id), path(output), emit: output
-    path "*versions.yml"             , emit: versions
+    tuple val(sample_id), path(output), emit: tsv
+    path "*versions.yml"              , emit: versions
 
   when:
     task.ext.when
@@ -21,7 +21,7 @@ process amrfinderplus {
     def database_arg = database ? "--database ${database}" : ""
     def taxon_name = get_species_taxon_name(species)
     def taxon_arg = taxon_name ? "--organism ${taxon_name}" : ""
-    output = "${sample_id}_amrfinder.out"
+    output = "${sample_id}_amrfinder.tsv"
     """
     amrfinder \\
     --nucleotide ${assembly} \\
@@ -39,7 +39,7 @@ process amrfinderplus {
     """
 
   stub:
-    output = "${sample_id}_amrfinder.out"
+    output = "${sample_id}_amrfinder.tsv"
     """
     touch ${output}
 
