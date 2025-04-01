@@ -9,19 +9,26 @@ workflow CALL_RELATEDNESS {
     take:
     ch_assembly
     ch_reads
-    ch_versions
 
     main:
+
+    ch_versions = Channel.empty()
+
     // RELATEDNESS
     sourmash(ch_assembly)
 
     ska_build(ch_reads)
 
+    sourmash.out.skf
+        .join(sourmash.out.signature)
+        .set{ ch_combined_output }
+
     ch_versions = ch_versions.mix(ska_build.out.versions)
     ch_versions = ch_versions.mix(sourmash.out.versions)
 
     emit:
-    ska         = sourmash.out.skf          // channel: [ val(meta), path(skf)]
-    sourmash    = sourmash.out.signature    // channel: [ val(meta), path(signature)]
-    versions    = ch_versions               // channel: [ versions.yml ]
+    combined_output = ch_combined_output        // channel: [ val(meta), path(skf), path(signature) ]
+    ska             = sourmash.out.skf          // channel: [ val(meta), path(skf) ]
+    sourmash        = sourmash.out.signature    // channel: [ val(meta), path(signature) ]
+    versions        = ch_versions               // channel: [ versions.yml ]
 }

@@ -11,9 +11,11 @@ include { spades as spades_iontorrent   } from '../modules/nf-core/spades/main.n
 workflow CALL_ASSEMBLY {
     take:
     ch_reads_w_meta
-    ch_versions
 
     main:
+
+    ch_versions = Channel.empty()
+
     // ASSEMBLY
     skesa(ch_reads_w_meta)
     spades_illumina(ch_reads_w_meta)
@@ -34,6 +36,6 @@ workflow CALL_ASSEMBLY {
     ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
 
     emit:
-    assembly    = ch_assembly   // channel: [ val(meta), path(fasta)]
+    assembly    = ch_assembly   // channel: [ val(meta), path(fasta) ]
     versions    = ch_versions   // channel: [ versions.yml ]
 }

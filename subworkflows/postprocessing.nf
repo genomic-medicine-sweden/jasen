@@ -11,8 +11,11 @@ workflow CALL_POSTPROCESSING {
     reference_genome
     reference_genome_idx
     reference_genome_gff
+    species_dir
+    ch_chewbbaca
     ch_post_align_qc
     ch_preprocessing_combined_output
+    ch_profiling_combined_output
     ch_qc_combined_output
     ch_quast
     ch_relatedness_combined_output
@@ -20,19 +23,23 @@ workflow CALL_POSTPROCESSING {
     ch_seqrun_meta
     ch_typing_combined_output
     ch_variant_calling_combined_output
-    ch_versions
 
     main:
-    // POSTPROCESSING
-    ch_preprocessing_combined_output
-        .join(ch_qc_combined_output)
-        .join(ch_typing_combined_output)
-        .join(ch_screening_combined_output)
-        .join(ch_relatedness_combined_output)
-        .join(ch_variant_calling_combined_output)
-        .set{ combined_output }
 
-    create_prp_yaml(combined_output, reference_genome, reference_genome_idx, reference_genome_gff)
+    ch_versions = Channel.empty()
+
+    // POSTPROCESSING
+    create_prp_yaml(
+        ch_preprocessing_combined_output,
+        ch_qc_combined_output,
+        ch_typing_combined_output,
+        ch_screening_combined_output,
+        ch_relatedness_combined_output,
+        ch_variant_calling_combined_output,
+        reference_genome,
+        reference_genome_idx,
+        reference_genome_gff
+    )
 
     create_analysis_result(create_prp_yaml.out.yaml)
 
@@ -43,10 +50,11 @@ workflow CALL_POSTPROCESSING {
 
     create_cdm_input(ch_cdm_input)
 
-    export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), params.species_dir)
+    export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), species_dir)
 
     emit:
     pipeline_result = create_analysis_result.output // channel: [ path(json) ]
     cdm             = export_to_cdm.output          // channel: [ path(txt) ]
+    yaml            = create_prp_yaml.out.yaml      // channel: [ path(yaml) ]
     versions        = ch_versions                   // channel: [ versions.yml ]
 }

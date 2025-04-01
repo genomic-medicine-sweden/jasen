@@ -13,18 +13,20 @@ include { samtools_sort as samtools_sort_assembly   } from '../modules/nf-core/s
 workflow CALL_VARIANT_CALLING {
     take:
     ch_assembly
-    ch_input_meta
+    ch_reads_w_meta
     ch_reads
     ch_seqplat_meta
-    ch_versions
 
     main:
+
+    ch_versions = Channel.empty()
+
     // VARIANT CALLING
     bwa_index(ch_assembly.join(ch_seqplat_meta))
     minimap2_index(ch_assembly.join(ch_seqplat_meta))
 
     // create input map channels for bwa on assembly
-    ch_input_meta
+    ch_reads_w_meta
         .join(bwa_index.out.index)
         .multiMap { id, reads, platform, index -> 
             reads_w_meta: tuple(id, reads, platform)
@@ -34,7 +36,7 @@ workflow CALL_VARIANT_CALLING {
     bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
 
     // create input map channels for minimap2 on assembly
-    ch_input_meta
+    ch_reads_w_meta
         .join(minimap2_index.out.index)
         .multiMap { id, reads, platform, index -> 
             reads_w_meta: tuple(id, reads, platform)
@@ -64,6 +66,6 @@ workflow CALL_VARIANT_CALLING {
     ch_versions = ch_versions.mix(samtools_sort_assembly.out.versions)
 
     emit:
-    vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf)]
+    vcf         = freebayes.out.vcf     // channel: [ val(meta), path(vcf) ]
     versions    = ch_versions           // channel: [ versions.yml ]
 }

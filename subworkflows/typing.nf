@@ -26,9 +26,11 @@ workflow CALL_TYPING {
     ch_assembly
     ch_empty
     ch_vcf
-    ch_versions
 
     main:
+
+    ch_versions = Channel.empty()
+
     // TYPING
     mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
 
@@ -48,19 +50,23 @@ workflow CALL_TYPING {
     // Call species-specific typing
     // ecoli
     if (params.species == "escherichia coli") {
-        serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db).set{ ch_serotypefinder }
-        shigapass(ch_assembly, shigapass_db).set{ ch_shigapass }
+        // serot
+        serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
+        serotypefinder.json.set{ ch_serotypefinder }
+        serotypefinder.out.meta.set{ ch_serotypefinder_meta }
+        shigapass(ch_assembly, shigapass_db).csv.set{ ch_shigapass }
         ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(shigapass.out.versions)
     } else {
         ch_empty.set{ ch_serotypefinder }
+        ch_empty.set{ ch_serotypefinder_meta }
         ch_empty.set{ ch_shigapass }
     }
 
     // saureus
     if (params.species == "staphylococcus aureus") {
-        sccmec(ch_assembly).set{ ch_sccmec }
-        spatyper(ch_assembly).set{ ch_spatyper }
+        sccmec(ch_assembly).tsv.set{ ch_sccmec }
+        spatyper(ch_assembly).tsv.set{ ch_spatyper }
         ch_versions = ch_versions.mix(sccmec.out.versions)
         ch_versions = ch_versions.mix(spatyper.out.versions)
     } else {
@@ -70,21 +76,34 @@ workflow CALL_TYPING {
 
     // strep
     if (params.species in ["streptococcus", "streptococcus pyogenes"]) {
-        emmtyper(ch_assembly).set{ ch_emmtyper }
+        emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
         ch_versions = ch_versions.mix(emmtyper.out.versions)
     } else {
         ch_empty.set{ ch_emmtyper }
     }
 
+    chewbbaca_split_results.out.tsv
+        .join(ch_emmtyper)
+        .join(mlst.out.json)
+        .join(ch_empty) //sccmec not incorporated into prp
+        .join(ch_serotypefinder)
+        .join(ch_serotypefinder_meta)
+        .join(ch_shigapass)
+        .join(ch_empty) //spatyper not incorporated into prp
+        .set{ ch_combined_output }
+
     ch_versions = ch_versions.mix(mlst.out.versions)
     ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
 
     emit:
-    chewbbaca       = chewbbaca_split_results.out.tsv     // channel: [ val(meta), path(tsv)]
-    mlst            = mlst.out.json                       // channel: [ val(meta), path(json)]
-    sccmec          = ch_sccmec                           // channel: [ val(meta), path(tsv)]
-    serotypefinder  = ch_serotypefinder                   // channel: [ val(meta), path(json)]
-    shigapass       = ch_shigapass                        // channel: [ val(meta), path(csv)]
-    spatyper        = ch_spatyper                         // channel: [ val(meta), path(tsv)]
+    chewbbaca       = chewbbaca_split_results.out.tsv     // channel: [ val(meta), path(tsv) ]
+    combined_output = ch_combined_output                  // channel: [ val(meta), path(tsv), path(tsv), path(json), path(tsv), path(json), path(json), path(csv), path(tsv) ]
+    emmtyper        = ch_emmtyper                         // channel: [ val(meta), path(tsv) ]
+    mlst            = mlst.out.json                       // channel: [ val(meta), path(json) ]
+    sccmec          = ch_sccmec                           // channel: [ val(meta), path(tsv) ]
+    serotypefinder  = ch_serotypefinder                   // channel: [ val(meta), path(json) ]
+    serotypefinder  = ch_serotypefinder_meta              // channel: [ val(meta), path(json) ]
+    shigapass       = ch_shigapass                        // channel: [ val(meta), path(csv) ]
+    spatyper        = ch_spatyper                         // channel: [ val(meta), path(tsv) ]
     versions        = ch_versions                         // channel: [ versions.yml ]
 }

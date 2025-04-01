@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-include { get_meta                  } from '../methods/get_sample_data.nf'
+include { get_seqplat_meta              } from '../methods/get_sample_data.nf'
 include { get_reads                 } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta           } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean       } from '../modules/local/clean/main.nf'
@@ -13,16 +13,18 @@ include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
 workflow CALL_PREPROCESSING {
     take:
     input_samples
-    ch_versions
 
     main:
+
+    ch_versions = Channel.empty()
+
     // PREPROCESSING
     // Create channel for sample metadata
     Channel.fromPath(input_samples)
         .splitCsv(header:true)
         .tap{ ch_raw_input }
-        .map{ row -> get_meta(row) }
-        .set{ ch_meta }
+        .map{ row -> get_seqplat_meta(row) }
+        .set{ ch_seqplat_meta }
 
     // Create channel for reads
     ch_raw_input
@@ -46,25 +48,18 @@ workflow CALL_PREPROCESSING {
     }
 
     // reads trim and clean and recreate reads channel if the reads were filtered or downsampled
-    assembly_trim_clean(ch_depleted_sampled_reads.join(ch_meta)).set { ch_clean_reads_w_meta }
+    assembly_trim_clean(ch_depleted_sampled_reads.join(ch_seqplat_meta)).set { ch_clean_reads }
     Channel.empty()
-        .mix( ch_depleted_sampled_reads, ch_clean_reads_w_meta )  // if samples are filtered or downsampled
+        .mix( ch_depleted_sampled_reads, ch_clean_reads )  // if samples are filtered or downsampled
         .tap{ ch_reads }                                          // create reads channel
-        .join( ch_meta )                                          // add meta info
+        .join( ch_seqplat_meta )                                  // add meta info
         .set{ ch_reads_w_meta }                                   // write as temp channel
 
-    if ( params.copy_to_cron || params.dev_mode) {
-        Channel.fromPath(params.csv).splitCsv(header:true)
-            .map{ row -> get_seqrun_meta(row) }
-            .set{ ch_seqrun_meta }
-    } else {
-        ch_reads.map{ sample_id, reads -> [ sample_id, [], [], [] ] }.set{ ch_seqrun_meta }
-    }
-
-    // reads trim and clean
-    assembly_trim_clean(ch_meta_iontorrent).set{ ch_clean_meta }
-    ch_meta_illumina.mix(ch_clean_meta).set{ ch_input_meta }
-    ch_input_meta.map { sample_name, reads, platform -> [ sample_name, reads ] }.set{ ch_clean_reads }
+    Channel.fromPath(input_samples).splitCsv(header:true)
+        .map{ row -> get_seqrun_meta(row) }
+        .tap{ ch_seqrun_meta }
+        .map{ id, sequencing_run, lims_id, sample_name -> [ id, lims_id, sample_name ]}
+        .set{ ch_id_meta }
 
     // create empty channel containing only sample_id
     ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
@@ -72,12 +67,16 @@ workflow CALL_PREPROCESSING {
     // analysis metadata
     save_analysis_metadata(ch_reads_w_meta.join(ch_seqrun_meta))
 
+    ch_id_meta.join(save_analysis_metadata.out.json).set{ ch_combined_output }
+
     emit:
-    empty           = ch_empty                          // channel: [ val(meta) ]
-    metadata        = save_analysis_metadata.out.meta   // channel: [ val(meta), path(json)]
-    reads           = ch_reads                          // channel: [ val(meta), path(json)]
-    reads_w_meta    = ch_reads_w_meta                   // channel: [ val(meta), path(meta)]
-    seqplat_meta    = ch_meta                           // channel: [ val(meta), val(str)]
-    seqrun_meta     = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json)]
-    versions        = ch_versions                       // channel: [ versions.yml ]
+    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), path(json) ]
+    empty               = ch_empty                          // channel: [ val(meta) ]
+    id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
+    nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
+    reads               = ch_reads                          // channel: [ val(meta), path(json) ]
+    reads_w_meta        = ch_reads_w_meta                   // channel: [ val(meta), path(meta) ]
+    seqplat_meta        = ch_seqplat_meta                   // channel: [ val(meta), val(str) ]
+    seqrun_meta         = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
+    versions            = ch_versions                       // channel: [ versions.yml ]
 }
