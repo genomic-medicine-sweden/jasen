@@ -6,7 +6,7 @@ process assembly_trim_clean {
     tuple val(sample_id), path(reads), val(platform)
 
   output:
-    tuple val(sample_id), path(output), emit: fasta
+    tuple val(sample_id), path(output), emit: reads
 
   when:
     platform == "iontorrent"

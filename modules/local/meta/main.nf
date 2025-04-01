@@ -6,7 +6,7 @@ process save_analysis_metadata {
     tuple val(sample_id), path(reads), val(platform), val(sequencing_run), val(lims_id), val(sampleName)
 
   output:
-    tuple val(sample_id), path(output), emit: meta
+    tuple val(sample_id), path(output), emit: json
 
   script:
     def sequencing_type = reads.size() == 2 ? "PE" : "SE"

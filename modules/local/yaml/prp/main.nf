@@ -3,7 +3,13 @@ process create_prp_yaml {
   scratch params.scratch
 
   input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(quast), path(postalignqc), path(mlst), path(chewbbaca), path(amrfinder), path(resistance), path(resfinder_meta), path(serotypefinder), path(serotypefinder_meta), path(virulence), path(virulencefinder_meta), path(shigapass), path(emmtyper), path(bam), path(bai), path(nextflow_run_info), path(vcf), path(mykrobe), path(tbprofiler), path(bracken), path(bracken), path(bracken)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info)
+    tuple val(sample_id), path(bam), path(bai), path(kraken) path(postalignqc), path(quast)
+    tuple val(sample_id), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta)
+    tuple val(sample_id), path(chewbbaca), path(emmtyper), path(mlst), path(serotypefinder), path(serotypefinder_meta), path(shigapass)
+    tuple val(sample_id), path(ch_ska), path(sourmash)
+    tuple val(sample_id), path(vcf)
+    tuple val(sample_id), path(mykrobe), path(tbprofiler)
     path reference_genome
     path reference_genome_idx
     path reference_genome_gff
@@ -15,7 +21,7 @@ process create_prp_yaml {
     output = "${sample_id}_prp.yaml"
     def access_dir = params.symlink_dir ? params.symlink_dir : params.outdir
     def amrfinder_kv = amrfinder ? "'amrfinder': '${amrfinder}'," : ""
-    def bracken_kv = bracken ? "'kraken': '${bracken}'," : ""
+    def kraken_kv = kraken ? "'kraken': '${kraken}'," : ""
     def bam_kv = bam ? "'uri': '${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}'," : ""
     def bai_kv = bai ? "'index_uri': '${access_dir}/${params.species_dir}/${params.bam_dir}/${bai}'," : ""
     def chewbbaca_kv = chewbbaca ? "'chewbbaca': '${chewbbaca}'," : ""
@@ -27,7 +33,7 @@ process create_prp_yaml {
     def quast_kv = quast ? "'quast': '${quast}'," : ""
     def reference_genome_kv = reference_genome ? "'ref_genome_sequence': '${reference_genome}'," : ""
     def reference_genome_gff_kv = reference_genome_gff ? "'ref_genome_annotation': '${reference_genome_gff}'," : ""
-    def resfinder_kv = resistance ? "'resfinder': '${resistance}'," : ""
+    def resfinder_kv = resfinder ? "'resfinder': '${resfinder}'," : ""
     def resfinder_meta_lv = resfinder_meta ? "'${resfinder_meta}, " : ""
     def nextflow_run_info_kv = nextflow_run_info ? "'nextflow_run_info': '${nextflow_run_info}'," : ""
     def serotypefinder_kv = serotypefinder ? "'serotypefinder': '${serotypefinder}'," : ""
@@ -41,7 +47,7 @@ process create_prp_yaml {
     def tbdb_bed_array = tbdb_bed ? "{'name': 'tbdb bed', 'type': 'bed', 'uri': '${tbdb_bed}'}," : ""
     def tbprofiler_kv = tbprofiler ? "'tbprofiler': '${tbprofiler}'," : ""
     def vcf_kv = vcf ? "'uri': '${access_dir}/${params.species_dir}/${params.vcfDir}/${vcf}'," : ""
-    def virulencefinder_kv = virulence ? "'virulencefinder': '${virulence}'," : ""
+    def virulencefinder_kv = virulencefinder ? "'virulencefinder': '${virulencefinder}'," : ""
     def virulencefinder_meta_lv = virulencefinder_meta ?: ""
     """
     #!/usr/bin/env python
@@ -67,7 +73,7 @@ process create_prp_yaml {
             ${tb_grading_rules_bed_array}
             ${tbdb_bed_array}
         ],
-        ${bracken_kv}
+        ${kraken_kv}
         ${emmtyper_kv}
         ${lims_id_kv}
         ${mlst_kv}
