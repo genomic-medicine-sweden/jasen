@@ -3,8 +3,8 @@
 nextflow.enable.dsl=2
 
 include { chewbbaca_allelecall          } from '../modules/nf-core/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/main.nf'
-include { chewbbaca_split_results       } from '../modules/local/chewbbaca/main.nf'
+include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/batch/main.nf'
+include { chewbbaca_split_results       } from '../modules/local/chewbbaca/split/main.nf'
 include { emmtyper                      } from '../modules/nf-core/emmtyper/main.nf'
 include { mlst                          } from '../modules/nf-core/mlst/main.nf'
 include { mask_polymorph_assembly       } from '../modules/local/mask/main.nf'
@@ -52,7 +52,7 @@ workflow CALL_TYPING {
     if (params.species == "escherichia coli") {
         // serot
         serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
-        serotypefinder.json.set{ ch_serotypefinder }
+        serotypefinder.out.json.set{ ch_serotypefinder }
         serotypefinder.out.meta.set{ ch_serotypefinder_meta }
         shigapass(ch_assembly, shigapass_db).csv.set{ ch_shigapass }
         ch_versions = ch_versions.mix(serotypefinder.out.versions)

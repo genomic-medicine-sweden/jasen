@@ -11,7 +11,6 @@ include { CALL_SCREENING        } from '../subworkflows/screening.nf'
 include { CALL_TYPING           } from '../subworkflows/typing.nf'
 include { CALL_VARIANT_CALLING  } from '../subworkflows/variant_calling.nf'
 
-
 workflow CALL_BACTERIAL_GENERAL {
     // set input data
     input_samples           = file(params.csv, checkIfExists: true)
@@ -106,7 +105,7 @@ workflow CALL_BACTERIAL_GENERAL {
         .set{ ch_profiling_combined_output }
 
     CALL_POSTPROCESSING (
-        reference_genome
+        reference_genome,
         reference_genome_idx,
         reference_genome_gff,
         species_dir,

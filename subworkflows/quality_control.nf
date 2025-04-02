@@ -49,6 +49,9 @@ workflow CALL_QUALITY_CONTROL {
         samtools_index_ref(ch_ref_bam).bai.set{ ch_ref_bai }
         post_align_qc(ch_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
         samtools_coverage_ref(samtools_sort_ref.out.bam).txt.set{ ch_samtools_cov_ref }
+        ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
+        ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
+        ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
         ch_empty.set{ ch_ref_bam }
         ch_empty.set{ ch_ref_bai }
@@ -67,7 +70,7 @@ workflow CALL_QUALITY_CONTROL {
     }
 
     ch_ref_bam
-        .join(samtools_index_ref.out.bai)
+        .join(ch_ref_bai)
         .join(ch_kraken)
         .join(ch_post_align_qc)
         .join(quast.out.tsv)
@@ -77,10 +80,6 @@ workflow CALL_QUALITY_CONTROL {
     ch_versions = ch_versions.mix(fastqc.out.versions)
     ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
     ch_versions = ch_versions.mix(nanoplot.out.versions)
-    ch_versions = ch_versions.mix(post_align_qc.out.versions)
-    ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
-    ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
-    ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
 
     emit:
     combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv) ]

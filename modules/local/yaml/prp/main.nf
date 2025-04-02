@@ -4,12 +4,12 @@ process create_prp_yaml {
 
   input:
     tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info)
-    tuple val(sample_id), path(bam), path(bai), path(kraken) path(postalignqc), path(quast)
-    tuple val(sample_id), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta)
-    tuple val(sample_id), path(chewbbaca), path(emmtyper), path(mlst), path(serotypefinder), path(serotypefinder_meta), path(shigapass)
-    tuple val(sample_id), path(ch_ska), path(sourmash)
-    tuple val(sample_id), path(vcf)
     tuple val(sample_id), path(mykrobe), path(tbprofiler)
+    tuple val(sample_id), path(bam), path(bai), path(kraken), path(postalignqc), path(quast)
+    tuple val(sample_id), path(ch_ska), path(sourmash)
+    tuple val(sample_id), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta)
+    tuple val(sample_id), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper)
+    tuple val(sample_id), path(vcf)
     path reference_genome
     path reference_genome_idx
     path reference_genome_gff
@@ -36,6 +36,7 @@ process create_prp_yaml {
     def resfinder_kv = resfinder ? "'resfinder': '${resfinder}'," : ""
     def resfinder_meta_lv = resfinder_meta ? "'${resfinder_meta}, " : ""
     def nextflow_run_info_kv = nextflow_run_info ? "'nextflow_run_info': '${nextflow_run_info}'," : ""
+    def sccmec_kv = sccmec ? "'sccmec': '${sccmec}'," : ""
     def serotypefinder_kv = serotypefinder ? "'serotypefinder': '${serotypefinder}'," : ""
     def serotypefinder_meta_lv = serotypefinder_meta ? "'${serotypefinder_meta}, " : ""
     def shigapass_kv = shigapass ? "'shigapass': '${shigapass}'," : ""
@@ -43,10 +44,11 @@ process create_prp_yaml {
     def ska_index_kv = ska_index ? "'ska_index': '${ska_dir}/${ska_index}'," : ""
     def sourmash_dir = task.ext.args_sourmash ?: ""
     def sourmash_signature_kv = sourmash_signature ? "'sourmash_signature': '${ska_dir}/${sourmash_signature}'," : ""
+    def spatyper_kv = spatyper ? "'spatyper': '${spatyper}'," : ""
     def tb_grading_rules_bed_array = tb_grading_rules_bed ? "{'name': 'tbdb grading rules bed', 'type': 'bed', 'uri': '${tb_grading_rules_bed}'}," : ""
     def tbdb_bed_array = tbdb_bed ? "{'name': 'tbdb bed', 'type': 'bed', 'uri': '${tbdb_bed}'}," : ""
     def tbprofiler_kv = tbprofiler ? "'tbprofiler': '${tbprofiler}'," : ""
-    def vcf_kv = vcf ? "'uri': '${access_dir}/${params.species_dir}/${params.vcfDir}/${vcf}'," : ""
+    def vcf_kv = vcf ? "'uri': '${access_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}'," : ""
     def virulencefinder_kv = virulencefinder ? "'virulencefinder': '${virulencefinder}'," : ""
     def virulencefinder_meta_lv = virulencefinder_meta ?: ""
     """
@@ -86,11 +88,13 @@ process create_prp_yaml {
         ${resfinder_kv}
         "sample_id": ${sample_id},
         "sample_name": ${sample_name},
+        ${sccmec_kv}
         ${serotypefinder_kv}
         ${shigapass_kv}
         ${ska_index_kv}
         "software_info": [ ${resfinder_meta_lv}${serotypefinder_meta_lv}${virulencefinder_meta_lv} ],
         ${sourmash_signature_kv}
+        ${spatyper_kv}
         ${tbprofiler_kv}
         ${virulencefinder_kv}
     }

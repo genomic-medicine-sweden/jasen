@@ -31,7 +31,7 @@ workflow CALL_PREPROCESSING {
         .map{ row -> get_reads(row) }
         .set{ ch_raw_reads }
 
-    if ( params.useHostile ) {
+    if ( params.use_hostile ) {
         // remove human reads
         hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
         ch_versions = ch_versions.mix(hostile.out.versions)

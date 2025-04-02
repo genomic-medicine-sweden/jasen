@@ -1,9 +1,6 @@
 process spades {
   tag "${sample_id}"
   scratch params.scratch
-  publishDir "${params.publishDir}", 
-    mode: params.publishDirMode, 
-    overwrite: params.publishDirOverwrite
 
   input:
     tuple val(sample_id), path(reads), val(platform)

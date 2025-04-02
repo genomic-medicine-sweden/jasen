@@ -19,7 +19,7 @@ workflow CALL_RELATEDNESS {
 
     ska_build(ch_reads)
 
-    sourmash.out.skf
+    ska_build.out.skf
         .join(sourmash.out.signature)
         .set{ ch_combined_output }
 
@@ -28,7 +28,7 @@ workflow CALL_RELATEDNESS {
 
     emit:
     combined_output = ch_combined_output        // channel: [ val(meta), path(skf), path(signature) ]
-    ska             = sourmash.out.skf          // channel: [ val(meta), path(skf) ]
+    ska             = ska_build.out.skf         // channel: [ val(meta), path(skf) ]
     sourmash        = sourmash.out.signature    // channel: [ val(meta), path(signature) ]
     versions        = ch_versions               // channel: [ versions.yml ]
 }

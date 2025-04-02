@@ -33,7 +33,6 @@ workflow CALL_PROFILING {
         .join(tbprofiler_mergedb.out.json)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(annotate_delly.out.versions)
     ch_versions = ch_versions.mix(mykrobe.out.versions)
     ch_versions = ch_versions.mix(snippy.out.versions)
     ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)

@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed dirname `nextflow-modules` to `modules`
 - Changed importing of `spades`
 - Updated `Makefile` re dir name changes
+- Updated subworkflows
+- Grouped most workflows into one (`bacterial_general.nf`) to remove duplicate code
+- Changed to have only one main config `nexflow.config`
+- Changed `cmd` module name to `cdm`
+- Update bonsai-prp to v1.0.0
 
 ## [1.0.0]
 
