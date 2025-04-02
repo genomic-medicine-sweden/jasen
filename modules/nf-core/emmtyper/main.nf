@@ -1,18 +1,18 @@
 process emmtyper {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: tsv
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_emmtyper.tsv"
     """
@@ -26,7 +26,7 @@ process emmtyper {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_emmtyper.tsv"
     """
     touch ${output}

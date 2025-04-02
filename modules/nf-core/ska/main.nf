@@ -1,15 +1,15 @@
 process ska_build {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: skf
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "${sample_id}\t${reads[0]}\t${reads[1]}" : "${sample_id}\t${reads[0]}"
     output_basename = "${sample_id}_ska_index"
@@ -26,7 +26,7 @@ process ska_build {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_ska_index.skf"
     """
     mkdir ${sample_id}

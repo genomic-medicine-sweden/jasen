@@ -1,20 +1,20 @@
 process samtools_view {
-  tag "${input}"
-  scratch params.scratch
+    tag "${input}"
+    scratch params.scratch
 
-  input:
+    input:
     path input
     path fasta
 
-  output:
+    output:
     path('*.bam'), optional: true , emit: bam
     path('*.cram'), optional: true, emit: cram
     path "*versions.yml"          , emit: versions
   
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def reference_arg = fasta ? "--reference ${fasta} -C" : ""
     def prefix = input.simpleName
     def file_ext = input.getExtension()
@@ -29,7 +29,7 @@ process samtools_view {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     """
     touch ${sample_id}.bam
     touch ${sample_id}.cram
@@ -44,17 +44,17 @@ process samtools_view {
 }
 
 process samtools_sort {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(input)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: bam
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     output = "${input.baseName}.bam"
     """
     samtools sort -@ ${task.cpus} -O bam -o ${output} ${input}
@@ -67,7 +67,7 @@ process samtools_sort {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${input.baseName}.bam"
     """
     touch "${output}"
@@ -82,20 +82,20 @@ process samtools_sort {
 }
 
 process samtools_index {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(input)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: bai
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${input}.bai"
     """
     samtools index -@ ${task.cpus} ${input}
@@ -108,7 +108,7 @@ process samtools_index {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${input}.bai"
     """
     touch ${output}
@@ -123,17 +123,17 @@ process samtools_index {
 }
 
 process samtools_faidx {
-  tag "${input}"
-  scratch params.scratch
+    tag "${input}"
+    scratch params.scratch
 
-  input:
+    input:
     path input
 
-  output:
+    output:
     path output         , emit: fai
     path "*versions.yml", emit: versions
 
-  script:
+    script:
     output = "${input}.fai"
     """
     samtools faidx ${input}
@@ -146,7 +146,7 @@ process samtools_faidx {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${input}.fai"
     """
     touch ${output}
@@ -161,17 +161,17 @@ process samtools_faidx {
 }
 
 process samtools_coverage {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(input)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: txt
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${input.baseName}_mapcoverage.txt"
     """
@@ -185,8 +185,8 @@ process samtools_coverage {
         END_VERSIONS
     """
 
-  stub:
-  output = "${input.baseName}_mapcoverage.txt"
+    stub:
+    output = "${input.baseName}_mapcoverage.txt"
     """
     touch "${output}"
 

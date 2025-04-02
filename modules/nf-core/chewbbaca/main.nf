@@ -1,20 +1,20 @@
 process chewbbaca_allelecall {
-  tag "${workflow.runName}"
-  scratch params.scratch
+    tag "${workflow.runName}"
+    scratch params.scratch
 
-  input:
+    input:
     path batch_input
     path schema_dir
     path training_file
 
-  output:
+    output:
     path('output_dir/results_alleles.tsv'), emit: calls
     path "*versions.yml"                  , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     training_file = training_file ? "--ptf ${training_file}" : "" 
     """
@@ -34,7 +34,7 @@ process chewbbaca_allelecall {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     """
     mkdir output_dir
     touch output_dir/results_alleles.tsv

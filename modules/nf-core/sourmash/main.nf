@@ -1,15 +1,15 @@
 process sourmash {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: signature
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${sample_id}.sig"
     """
@@ -23,7 +23,7 @@ process sourmash {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}.sig"
     """
     touch ${output}

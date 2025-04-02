@@ -1,14 +1,14 @@
 process save_analysis_metadata {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform), val(sequencing_run), val(lims_id), val(sampleName)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: json
 
-  script:
+    script:
     def sequencing_type = reads.size() == 2 ? "PE" : "SE"
     sequencing_run = sequencing_run ? "${sequencing_run}" : ""
     lims_id = lims_id ? "${lims_id}" : ""
@@ -36,7 +36,7 @@ process save_analysis_metadata {
         json.dump(res, out, indent=2)
     """
 
-  stub:
+    stub:
     output = "${sample_id}_analysis_meta.json"
     """
     touch ${output}

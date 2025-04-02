@@ -1,19 +1,19 @@
 process minimap2_align {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
     path referenceGenomeMmi
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: sam
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     platform == "nanopore"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def process = task.process.tokenize(':')[-1]
     output = "${sample_id}_${process}.sam"
@@ -28,7 +28,7 @@ process minimap2_align {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     def process = task.process.tokenize(':')[-1]
     output = "${sample_id}_${process}.sam"
     """
@@ -44,20 +44,20 @@ process minimap2_align {
 }
 
 process minimap2_index {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(fasta), val(platform)
 
-  output:
+    output:
     tuple val(sample_id), path("*.mmi"), emit: index
     path "*versions.yml"               , emit: versions
 
-  when:
+    when:
     platform == "nanopore"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     """
     minimap2 \\
@@ -74,7 +74,7 @@ process minimap2_index {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     """
     touch ${fasta.baseName}.mmi
 

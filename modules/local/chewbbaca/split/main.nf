@@ -1,25 +1,25 @@
 process chewbbaca_split_results {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     each sample_id
     path input
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: tsv
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${sample_id}_chewbbaca.tsv"
     """
     head -1 ${input} > ${output}
     grep ${sample_id} ${input} >> ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_chewbbaca.tsv"
     """
     touch ${output}

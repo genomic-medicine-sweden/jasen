@@ -1,21 +1,21 @@
 process virulencefinder {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
     val databases
     path virulence_db
 
-  output:
+    output:
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(meta_output), emit: meta
     path "*versions.yml"                   , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     databases_arg = databases ? "--databases ${databases.join(',')}" : ""
     output = "${sample_id}_virulencefinder.json"
     meta_output = "${sample_id}_virulencefinder_meta.json"

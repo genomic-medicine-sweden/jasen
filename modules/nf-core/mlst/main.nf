@@ -1,23 +1,23 @@
 process mlst {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
     val scheme
     path pbmlst_db
     path blast_db
 
-  when:
+    when:
     task.ext.when
 
-  output:
+    output:
     tuple val(sample_id), path('*.tsv')  , optional: true, emit: tsv
     tuple val(sample_id), path('*.json') , optional: true, emit: json
     tuple val(sample_id), path('*.novel'), optional: true, emit: novel
     path "*versions.yml"                 , emit: versions
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     outputName = "${sample_id}_mlst"
     scheme_arg = scheme ? "--scheme ${scheme}" : "" 
@@ -41,7 +41,7 @@ process mlst {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     outputName = "${sample_id}_mlst"
     """
     touch ${outputName}.tsv

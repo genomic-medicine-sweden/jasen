@@ -1,18 +1,18 @@
 process hostile {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
 
-  output:
+    output:
     tuple val(sample_id), path("${output_dir}/*.fastq.gz"), emit: reads
     path "*versions.yml"                                  , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
     output_dir = "hostile_outdir"
@@ -27,7 +27,7 @@ process hostile {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output_dir = "hostile_outdir"
     """
     mkdir ${output_dir}

@@ -1,18 +1,18 @@
 process spades {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: fasta
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "-1 ${reads[0]} -2 ${reads[1]}" : "-s ${reads[0]}"
     output_dir = "spades_outdir"
@@ -29,7 +29,7 @@ process spades {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_spades.fasta"
     """
     touch ${output}

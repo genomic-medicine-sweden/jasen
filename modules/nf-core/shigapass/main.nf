@@ -1,19 +1,19 @@
 process shigapass {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
     path shigapass_db
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: csv
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     shigapass_db_arg = shigapass_db ? "-p ${shigapass_db}" : "-p /usr/local/share/shigapass-1.5.0/db/"
     output = "${sample_id}_shigapass.csv"
     """

@@ -1,18 +1,18 @@
 process mykrobe {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: csv
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "${reads.join(' ')}" : "${reads[0]}"
     output = "${sample_id}_mykrobe.csv"
@@ -32,7 +32,7 @@ process mykrobe {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_mykrobe.csv"
     """
     touch ${output}

@@ -1,15 +1,15 @@
 process create_analysis_result {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(yaml)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: json
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     output = "${sample_id}_result.json"
     """
     prp parse \\
@@ -24,7 +24,7 @@ process create_analysis_result {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_result.json"
     """
     touch ${output}
@@ -39,16 +39,16 @@ process create_analysis_result {
 }
 
 process create_cdm_input {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), val(quast), val(postalignqc), val(cgmlst)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: json
 
-  script:
+    script:
     output = "${sample_id}_qc_result.json"
     cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : ""
     postalignqc_arg = postalignqc ? "--quality ${postalignqc}" : "" 
@@ -61,7 +61,7 @@ process create_cdm_input {
       --output ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_qc_result.json"
     """
     touch ${output}
@@ -69,27 +69,27 @@ process create_cdm_input {
 }
 
 process post_align_qc {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(bam)
     path reference
     path bed
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: json
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${sample_id}_qc.json"
     """
     prp create-qc-result --bam ${bam} --reference ${reference} --bed ${bed} --sample-id ${sample_id} --cpus ${task.cpus} --output ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_qc.json"
     """
     touch ${output}
@@ -97,27 +97,27 @@ process post_align_qc {
 }
 
 process annotate_delly {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(vcf)
     path bed
     path bedIdx
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: vcf
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${sample_id}_annotated_delly.vcf"
     """
     prp annotate-delly --vcf ${vcf} --bed ${bed} --output ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_annotated_delly.vcf"
     """
     touch ${output}
@@ -125,27 +125,27 @@ process annotate_delly {
 }
 
 process add_igv_track {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(bonsaiInput)
     val annotation
     val trackName
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: json
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${sample_id}_result.json"
     """
     prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} --output ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_result.json"
     """
     touch ${output}

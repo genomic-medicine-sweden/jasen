@@ -1,20 +1,20 @@
 process fastqc {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
 
-  output:
+    output:
     tuple val(sample_id), path(summary_output), emit: summary
     tuple val(sample_id), path(output)        , emit: output
     tuple val(sample_id), path(html_output)   , emit: html
     path "*versions.yml"                      , emit: versions
 
-  when:
+    when:
     platform == "illumina"
 
-  script:
+    script:
     def args          = task.ext.args ?: ''
     def old_new_pairs = reads instanceof Path || reads.size() == 1 ? [[ reads, "${sample_id}.${reads.extension}" ]] : reads.withIndex().collect { entry, index -> [ entry, "${sample_id}_${index + 1}.${entry.extension}" ] }
     def rename_to     = old_new_pairs*.join(' ').join(' ')

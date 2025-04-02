@@ -1,18 +1,18 @@
 process skesa {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: fasta
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when && platform == "illumina"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "${reads[0]},${reads[1]}" : "${reads[0]}"
     output = "${sample_id}_skesa.fasta"
@@ -27,7 +27,7 @@ process skesa {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_skesa.fasta"
     """
     touch ${output}

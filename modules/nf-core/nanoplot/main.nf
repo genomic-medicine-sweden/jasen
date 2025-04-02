@@ -1,18 +1,18 @@
 process nanoplot {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform) 
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: html
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     platform == "nanopore"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_NanoPlot-report.html"
     """
@@ -26,7 +26,7 @@ process nanoplot {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_NanoPlot-report.html"
     """
     touch ${output}

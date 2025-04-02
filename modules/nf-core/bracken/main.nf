@@ -1,20 +1,20 @@
 process bracken {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(report)
     path database
 
-  output:
+    output:
     tuple val(sample_id), path(output)       , emit: output
     tuple val(sample_id), path(output_report), emit: report
     path "*versions.yml"                     , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_bracken.out"
     output_report = "${sample_id}_bracken.report"
@@ -34,7 +34,7 @@ process bracken {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_bracken.out"
     output_report = "${sample_id}_bracken.report"
     """

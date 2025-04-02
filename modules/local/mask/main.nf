@@ -1,23 +1,23 @@
 process mask_polymorph_assembly {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly), path(polymorph)
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: fasta
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "${sample_id}_mask.fasta"
     """
     error_corr_assembly.pl ${assembly} ${polymorph} > ${output}
     """
 
-  stub:
+    stub:
     output = "${sample_id}_mask.fasta"
     """
     touch ${output}

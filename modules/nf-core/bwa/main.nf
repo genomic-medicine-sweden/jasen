@@ -1,18 +1,18 @@
 process bwa_index {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(fasta), val(platform)
 
-  output:
+    output:
     tuple val(sample_id), path("${fasta}.*"), emit: index
     path "*versions.yml"                    , emit: versions
 
-  when:
+    when:
     task.ext.when && platform == "illumina"
 
-  script:
+    script:
     """
     bwa index ${fasta} ${fasta.baseName}/${fasta}
 
@@ -24,7 +24,7 @@ process bwa_index {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     """
     touch ${fasta}.amb
     touch ${fasta}.ann
@@ -42,21 +42,21 @@ process bwa_index {
 }
 
 process bwa_mem {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
     path referenceIdx
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: bam
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when && platform == "illumina"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     output = "${sample_id}_bwa.bam"
@@ -81,7 +81,7 @@ process bwa_mem {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_bwa.bam"
     """
     touch ${output}

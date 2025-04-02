@@ -1,8 +1,8 @@
 process create_prp_yaml {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info)
     tuple val(sample_id), path(mykrobe), path(tbprofiler)
     tuple val(sample_id), path(bam), path(bai), path(kraken), path(postalignqc), path(quast)
@@ -14,10 +14,10 @@ process create_prp_yaml {
     path reference_genome_idx
     path reference_genome_gff
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: yaml
 
-  script:
+    script:
     output = "${sample_id}_prp.yaml"
     def access_dir = params.symlink_dir ? params.symlink_dir : params.outdir
     def amrfinder_kv = amrfinder ? "'amrfinder': '${amrfinder}'," : ""
@@ -103,7 +103,7 @@ process create_prp_yaml {
         yaml.dump(prp_input, fout, default_flow_style=False)
     """
 
-  stub:
+    stub:
     output = "${sample_id}_prp.yaml"
     """
     touch ${output}

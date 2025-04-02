@@ -1,19 +1,19 @@
 process seqtk_sample {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
     val sample_size
 
-  output:
+    output:
     tuple val(sample_id), path("*.fastq.gz"), emit: reads
     path "*versions.yml"                    , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     if (!(args ==~ /.*-s[0-9]+.*/)) {
         args += " -s100"
@@ -40,7 +40,7 @@ process seqtk_sample {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_seqtk.fastq.gz"
     """
     touch ${output}

@@ -1,26 +1,26 @@
 include { check_taxon } from '../../../methods/check_taxon.nf'
 
 process resfinder {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform)
     val species
     val resfinder_db
     val pointfinder_db
 
-  output:
+    output:
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(meta_output), emit: meta
     path output_gene                       , emit: gene_table
     path output_point                      , optional: true, emit: point_table
     path "*versions.yml"                   , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def resfinder_arg = resfinder_db ? "--acquired --db_path_res ${resfinder_db}" : ""
     def pointfinder_arg = pointfinder_db ? "--point --db_path_point ${pointfinder_db}" : ""
     def species_name = check_taxon(species)
@@ -67,7 +67,7 @@ process resfinder {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_resfinder.json"
     meta_output = "${sample_id}_resfinder_meta.json"
     output_gene = "${sample_id}_pheno_table.txt"

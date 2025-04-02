@@ -1,22 +1,22 @@
 process chewbbaca_create_batch_list {
-  scratch params.scratch
+    scratch params.scratch
 
-  input:
+    input:
     path masked_assembly
 
-  output:
+    output:
     path "batch_input.list", emit: list
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     output = "batch_input.list"
     """
     realpath ${masked_assembly} > ${output}
     """
 
-  stub:
+    stub:
     output = "batch_input.list"
     """
     touch ${output}

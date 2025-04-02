@@ -1,22 +1,22 @@
 include { get_species_taxon_name } from '../../../methods/get_taxon.nf'
 
 process amrfinderplus {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
     val species
     path database
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: tsv
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def database_arg = database ? "--database ${database}" : ""
     def taxon_name = get_species_taxon_name(species)
@@ -38,7 +38,7 @@ process amrfinderplus {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_amrfinder.tsv"
     """
     touch ${output}

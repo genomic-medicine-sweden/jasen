@@ -1,16 +1,16 @@
 process quast {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(assembly)
     path reference
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: tsv
     path "*versions.yml"              , emit: versions
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_quast.tsv"
     reference_command = reference ? "-r ${reference}" : ""
@@ -27,7 +27,7 @@ process quast {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_quast.tsv"
     """
     touch ${output}

@@ -1,20 +1,20 @@
 process kraken {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads)
     path database
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: output
     tuple val(sample_id), path(report), emit: report
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     task.ext.when
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def input_reads_arg = reads.size() == 2 ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
     output = "${sample_id}_kraken.out"
@@ -36,7 +36,7 @@ process kraken {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_kraken.out"
     report = "${sample_id}_kraken.report"
     """

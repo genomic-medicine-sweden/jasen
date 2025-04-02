@@ -1,18 +1,18 @@
 process flye {
-  tag "${sample_id}"
-  scratch params.scratch
+    tag "${sample_id}"
+    scratch params.scratch
 
-  input:
+    input:
     tuple val(sample_id), path(reads), val(platform) 
 
-  output:
+    output:
     tuple val(sample_id), path(output), emit: fasta
     path "*versions.yml"              , emit: versions
 
-  when:
+    when:
     platform == "nanopore"
 
-  script:
+    script:
     def args = task.ext.args ?: ''
     def seqmethod = task.ext.seqmethod ?: ''
     def input_reads_arg = reads.size() == 2 ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
@@ -36,7 +36,7 @@ process flye {
     END_VERSIONS
     """
 
-  stub:
+    stub:
     output = "${sample_id}_flye.fasta"
     """
     touch ${output}
