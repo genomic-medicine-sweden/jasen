@@ -57,7 +57,7 @@ jobs:
 
       - name: Install containers
         run:
-          cd ${GITHUB_WORKSPACE}/container && sudo make build_local_containers && make download_remote_containers
+          cd ${GITHUB_WORKSPACE}/containers && sudo make build_local_containers && make download_remote_containers
 
       - name: Report disk-usage after building containers
         run:
@@ -80,4 +80,4 @@ jobs:
 
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE}/main.nf -profile ${{ matrix.organism }},illumina,ci, -config nextflow.config --csv assets/test_data/samplelist.csv
+          nextflow run ${GITHUB_WORKSPACE}/main.nf -profile ${{ matrix.organism }},illumina,ci -config nextflow.config --csv assets/test_data/samplelist.csv
