@@ -13,6 +13,8 @@ include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
 workflow CALL_PREPROCESSING {
     take:
     input_samples
+    hostile_dir
+    hostile_idx
 
     main:
 
@@ -33,7 +35,7 @@ workflow CALL_PREPROCESSING {
 
     if ( params.use_hostile ) {
         // remove human reads
-        hostile( ch_raw_reads ).reads.set{ ch_depleted_reads }
+        hostile( ch_raw_reads, hostile_dir, hostile_idx ).reads.set{ ch_depleted_reads }
         ch_versions = ch_versions.mix(hostile.out.versions)
     } else {
         ch_raw_reads.set{ ch_depleted_reads }

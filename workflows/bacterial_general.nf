@@ -36,6 +36,8 @@ workflow CALL_BACTERIAL_GENERAL {
     virulencefinder_db      = params.virulencefinder_db ? file(params.virulencefinder_db, checkIfExists: true) : Channel.value([])
 
     // schemas and values
+    hostile_dir             = params.hostile_dir ? file(params.hostile_dir, checkIfExists: true) : Channel.value([])
+    hostile_idx             = params.hostile_idx ? params.hostile_idx : Channel.value([])
     mlst_scheme             = params.mlst_scheme ? params.mlst_scheme : Channel.value([])
     species                 = params.species ? params.species : Channel.value([])
     species_dir             = params.species_dir ? params.species_dir : Channel.value([])
@@ -45,7 +47,9 @@ workflow CALL_BACTERIAL_GENERAL {
     ch_versions = Channel.empty()
 
     CALL_PREPROCESSING (
-        input_samples
+        input_samples,
+        hostile_dir,
+        hostile_idx
     )
 
     CALL_ASSEMBLY (

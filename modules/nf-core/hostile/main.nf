@@ -4,6 +4,8 @@ process hostile {
 
     input:
     tuple val(sample_id), path(reads)
+    path hostile_dir
+    val hostile_idx
 
     output:
     tuple val(sample_id), path("${output_dir}/*.fastq.gz"), emit: reads
@@ -17,7 +19,18 @@ process hostile {
     def input_reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
     output_dir = "hostile_outdir"
     """
-    hostile clean ${args} ${input_reads_arg} --output ${output_dir}
+    export HOSTILE_CACHE_DIR=${hostile_dir}
+    mkdir ${output_dir}
+
+    hostile \\
+        clean \\
+        ${args} \\
+        --threads ${task.cpus} \\
+        ${input_reads_arg} \\
+        --index ${hostile_dir}/${hostile_idx} \\
+        --reorder \\
+        --airplane \\
+        --output ${output_dir}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

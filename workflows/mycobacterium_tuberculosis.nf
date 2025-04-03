@@ -47,7 +47,9 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     ch_versions = Channel.empty()
 
     CALL_PREPROCESSING (
-        input_samples
+        input_samples,
+        hostile_dir,
+        hostile_idx
     )
 
     CALL_ASSEMBLY (
