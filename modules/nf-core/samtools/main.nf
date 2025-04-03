@@ -54,6 +54,9 @@ process samtools_sort {
     tuple val(sample_id), path(output), emit: bam
     path "*versions.yml"              , emit: versions
 
+    when:
+    task.ext.when
+
     script:
     output = "${input.baseName}.bam"
     """
