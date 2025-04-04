@@ -10,18 +10,18 @@ include { spades as spades_iontorrent   } from '../modules/nf-core/spades/main.n
 
 workflow CALL_ASSEMBLY {
     take:
-    ch_reads_w_meta
+    ch_reads
 
     main:
 
     ch_versions = Channel.empty()
 
     // ASSEMBLY
-    skesa(ch_reads_w_meta)
-    spades_illumina(ch_reads_w_meta)
-    spades_iontorrent(ch_reads_w_meta)
-    flye(ch_reads_w_meta)
-    medaka(ch_reads_w_meta, flye.out.fasta)
+    skesa(ch_reads)
+    spades_illumina(ch_reads)
+    spades_iontorrent(ch_reads)
+    flye(ch_reads)
+    medaka(ch_reads, flye.out.fasta)
 
     Channel.empty()
         .mix(

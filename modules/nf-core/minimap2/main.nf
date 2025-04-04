@@ -3,7 +3,7 @@ process minimap2_align {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(reads)
     path referenceGenomeMmi
 
     output:
@@ -11,7 +11,7 @@ process minimap2_align {
     path "*versions.yml"              , emit: versions
 
     when:
-    platform == "nanopore"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''
@@ -48,14 +48,14 @@ process minimap2_index {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(fasta), val(platform)
+    tuple val(sample_id), path(fasta)
 
     output:
     tuple val(sample_id), path("*.mmi"), emit: index
     path "*versions.yml"               , emit: versions
 
     when:
-    platform == "nanopore"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''

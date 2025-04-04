@@ -3,14 +3,14 @@ process skesa {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path(output), emit: fasta
     path "*versions.yml"              , emit: versions
 
     when:
-    task.ext.when && platform == "illumina"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''

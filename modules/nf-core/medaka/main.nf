@@ -3,7 +3,7 @@ process medaka {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(reads)
     tuple val(sample_id), path(assembly)
 
     output:
@@ -11,7 +11,7 @@ process medaka {
     path "*versions.yml"              , emit: versions
 
     when:
-    platform == "nanopore"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''

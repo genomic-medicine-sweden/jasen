@@ -3,7 +3,7 @@ process fastqc {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path(summary_output), emit: summary
@@ -12,7 +12,7 @@ process fastqc {
     path "*versions.yml"                      , emit: versions
 
     when:
-    platform == "illumina"
+    task.ext.when
 
     script:
     def args          = task.ext.args ?: ''
@@ -30,12 +30,12 @@ process fastqc {
     done
 
     fastqc \\
-      ${args} \\
-      --extract \\
-      --threads ${task.cpus} \\
-      --memory ${fastqc_memory} \\
-      --outdir . \\
-      ${renamed_files}
+        ${args} \\
+        --extract \\
+        --threads ${task.cpus} \\
+        --memory ${fastqc_memory} \\
+        --outdir . \\
+        ${renamed_files}
 
     cp ${sample_id}_1_fastqc/summary.txt ${summary_output}
     cp ${sample_id}_1_fastqc/fastqc_data.txt ${output}

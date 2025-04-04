@@ -13,37 +13,35 @@ include { samtools_sort as samtools_sort_assembly   } from '../modules/nf-core/s
 workflow CALL_VARIANT_CALLING {
     take:
     ch_assembly
-    ch_reads_w_meta
     ch_reads
-    ch_seqplat_meta
 
     main:
 
     ch_versions = Channel.empty()
 
     // VARIANT CALLING
-    bwa_index(ch_assembly.join(ch_seqplat_meta))
-    minimap2_index(ch_assembly.join(ch_seqplat_meta))
+    bwa_index(ch_assembly)
+    minimap2_index(ch_assembly)
 
     // create input map channels for bwa on assembly
-    ch_reads_w_meta
+    ch_reads
         .join(bwa_index.out.index)
-        .multiMap { id, reads, platform, index -> 
-            reads_w_meta: tuple(id, reads, platform)
+        .multiMap { id, reads, index -> 
+            reads: tuple(id, reads)
             index: index
         }
         .set{ ch_bwa_mem_assembly_map }
-    bwa_mem_assembly(ch_bwa_mem_assembly_map.reads_w_meta, ch_bwa_mem_assembly_map.index)
+    bwa_mem_assembly(ch_bwa_mem_assembly_map.reads, ch_bwa_mem_assembly_map.index)
 
     // create input map channels for minimap2 on assembly
-    ch_reads_w_meta
+    ch_reads
         .join(minimap2_index.out.index)
-        .multiMap { id, reads, platform, index -> 
-            reads_w_meta: tuple(id, reads, platform)
+        .multiMap { id, reads, index -> 
+            reads: tuple(id, reads)
             index: index
         }
         .set{ ch_minimap2_align_assembly_map }
-    minimap2_align_assembly(ch_minimap2_align_assembly_map.reads_w_meta, ch_minimap2_align_assembly_map.index)
+    minimap2_align_assembly(ch_minimap2_align_assembly_map.reads, ch_minimap2_align_assembly_map.index)
     samtools_sort_assembly(minimap2_align_assembly.out.sam)
 
     bwa_mem_assembly.out.bam.mix(samtools_sort_assembly.out.bam).set{ ch_bam }

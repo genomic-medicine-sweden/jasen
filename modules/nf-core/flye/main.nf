@@ -3,14 +3,14 @@ process flye {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform) 
+    tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path(output), emit: fasta
     path "*versions.yml"              , emit: versions
 
     when:
-    platform == "nanopore"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''
@@ -20,11 +20,11 @@ process flye {
     output = "${sample_id}_flye.fasta"
     """
     flye \\
-      ${seqmethod} \\
-      ${input_reads_arg} \\
-      ${args} \\
-      --threads ${task.cpus} \\
-      --out-dir ${output_dir}
+        ${seqmethod} \\
+        ${input_reads_arg} \\
+        ${args} \\
+        --threads ${task.cpus} \\
+        --out-dir ${output_dir}
 
     mv ${output_dir}/assembly.fasta ${output}
 

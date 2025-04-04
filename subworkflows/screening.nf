@@ -14,7 +14,6 @@ workflow CALL_SCREENING {
     virulencefinder_db
     ch_assembly
     ch_reads
-    ch_reads_w_meta
 
     main:
 
@@ -25,7 +24,7 @@ workflow CALL_SCREENING {
     amrfinderplus(ch_assembly, params.species, amrfinder_db)
 
     // resistance & virulence prediction
-    resfinder(ch_reads_w_meta, params.species, resfinder_db, pointfinder_db)
+    resfinder(ch_reads, params.species, resfinder_db, pointfinder_db)
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
     amrfinderplus.out.tsv

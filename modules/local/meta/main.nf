@@ -3,7 +3,8 @@ process save_analysis_metadata {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform), val(sequencing_run), val(lims_id), val(sampleName)
+    tuple val(sample_id), path(reads), val(sequencing_run), val(lims_id), val(sampleName)
+    val platform
 
     output:
     tuple val(sample_id), path(output), emit: json

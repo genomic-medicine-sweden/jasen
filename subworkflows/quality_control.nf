@@ -24,7 +24,6 @@ workflow CALL_QUALITY_CONTROL {
     ch_assembly
     ch_empty
     ch_reads
-    ch_reads_w_meta
 
     main:
 
@@ -34,14 +33,14 @@ workflow CALL_QUALITY_CONTROL {
     quast(ch_assembly, reference_genome)
 
     // qc processing - short read
-    fastqc(ch_reads_w_meta)
+    fastqc(ch_reads)
 
-    bwa_mem_ref(ch_reads_w_meta, reference_genome_dir)
+    bwa_mem_ref(ch_reads, reference_genome_dir)
 
     // qc processing - long read
-    nanoplot(ch_reads_w_meta)
+    nanoplot(ch_reads)
 
-    minimap2_align_ref(ch_reads_w_meta, reference_genome_idx)
+    minimap2_align_ref(ch_reads, reference_genome_idx)
     samtools_sort_ref(minimap2_align_ref.out.sam)
 
     if (params.reference_genome) {

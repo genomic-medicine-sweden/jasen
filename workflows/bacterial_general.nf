@@ -39,6 +39,7 @@ workflow CALL_BACTERIAL_GENERAL {
     hostile_dir             = params.hostile_dir ? file(params.hostile_dir, checkIfExists: true) : Channel.value([])
     hostile_idx             = params.hostile_idx ? params.hostile_idx : Channel.value([])
     mlst_scheme             = params.mlst_scheme ? params.mlst_scheme : Channel.value([])
+    platform                = params.platform ? params.platform : Channel.value([])
     species                 = params.species ? params.species : Channel.value([])
     species_dir             = params.species_dir ? params.species_dir : Channel.value([])
     target_sample_size      = params.target_sample_size ? params.target_sample_size : Channel.value([])
@@ -47,13 +48,14 @@ workflow CALL_BACTERIAL_GENERAL {
     ch_versions = Channel.empty()
 
     CALL_PREPROCESSING (
-        input_samples,
         hostile_dir,
-        hostile_idx
+        hostile_idx,
+        input_samples,
+        platform
     )
 
     CALL_ASSEMBLY (
-        CALL_PREPROCESSING.out.reads_w_meta
+        CALL_PREPROCESSING.out.reads
     )
 
     CALL_QUALITY_CONTROL (
@@ -64,8 +66,7 @@ workflow CALL_BACTERIAL_GENERAL {
         reference_genome_idx,
         CALL_ASSEMBLY.out.assembly,
         CALL_PREPROCESSING.out.empty,
-        CALL_PREPROCESSING.out.reads,
-        CALL_PREPROCESSING.out.reads_w_meta
+        CALL_PREPROCESSING.out.reads
     )
 
     CALL_RELATEDNESS (
@@ -75,9 +76,7 @@ workflow CALL_BACTERIAL_GENERAL {
 
     CALL_VARIANT_CALLING (
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.reads_w_meta,
         CALL_PREPROCESSING.out.reads,
-        CALL_PREPROCESSING.out.seqplat_meta
     )
 
     CALL_TYPING (
@@ -100,8 +99,7 @@ workflow CALL_BACTERIAL_GENERAL {
         resfinder_db,
         virulencefinder_db,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.reads,
-        CALL_PREPROCESSING.out.reads_w_meta
+        CALL_PREPROCESSING.out.reads
     )
 
     CALL_PREPROCESSING.out.empty

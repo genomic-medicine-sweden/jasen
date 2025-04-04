@@ -6,7 +6,7 @@ process create_prp_yaml {
     tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info)
     tuple val(sample_id), path(mykrobe), path(tbprofiler)
     tuple val(sample_id), path(bam), path(bai), path(kraken), path(postalignqc), path(quast)
-    tuple val(sample_id), path(ch_ska), path(sourmash)
+    tuple val(sample_id), path(ska), path(sourmash)
     tuple val(sample_id), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta)
     tuple val(sample_id), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper)
     tuple val(sample_id), path(vcf)
@@ -41,9 +41,9 @@ process create_prp_yaml {
     def serotypefinder_meta_lv = serotypefinder_meta ? "'${serotypefinder_meta}, " : ""
     def shigapass_kv = shigapass ? "'shigapass': '${shigapass}'," : ""
     def ska_dir = task.ext.args_ska ?: ""
-    def ska_index_kv = ska_index ? "'ska_index': '${ska_dir}/${ska_index}'," : ""
+    def ska_kv = ska ? "'ska': '${ska_dir}/${ska}'," : ""
     def sourmash_dir = task.ext.args_sourmash ?: ""
-    def sourmash_signature_kv = sourmash_signature ? "'sourmash_signature': '${ska_dir}/${sourmash_signature}'," : ""
+    def sourmash_kv = sourmash ? "'sourmash': '${sourmash_dir}/${sourmash}'," : ""
     def spatyper_kv = spatyper ? "'spatyper': '${spatyper}'," : ""
     def tb_grading_rules_bed_array = tb_grading_rules_bed ? "{'name': 'tbdb grading rules bed', 'type': 'bed', 'uri': '${tb_grading_rules_bed}'}," : ""
     def tbdb_bed_array = tbdb_bed ? "{'name': 'tbdb bed', 'type': 'bed', 'uri': '${tbdb_bed}'}," : ""
@@ -81,7 +81,7 @@ process create_prp_yaml {
         ${mlst_kv}
         ${mykrobe_kv}
         ${nextflow_run_info_kv}
-        ${postalnqc_kv}
+        ${postalignqc_kv}
         ${quast_kv}
         ${reference_genome_kv}
         ${reference_genome_gff_kv}
@@ -91,9 +91,9 @@ process create_prp_yaml {
         ${sccmec_kv}
         ${serotypefinder_kv}
         ${shigapass_kv}
-        ${ska_index_kv}
+        ${ska_kv}
         "software_info": [ ${resfinder_meta_lv}${serotypefinder_meta_lv}${virulencefinder_meta_lv} ],
-        ${sourmash_signature_kv}
+        ${sourmash_kv}
         ${spatyper_kv}
         ${tbprofiler_kv}
         ${virulencefinder_kv}

@@ -3,13 +3,13 @@ process assembly_trim_clean {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform)
+    tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path(output), emit: reads
 
     when:
-    platform == "iontorrent"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''

@@ -3,14 +3,14 @@ process nanoplot {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(platform) 
+    tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path(output), emit: html
     path "*versions.yml"              , emit: versions
 
     when:
-    platform == "nanopore"
+    task.ext.when
 
     script:
     def args = task.ext.args ?: ''
