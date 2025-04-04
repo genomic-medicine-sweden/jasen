@@ -2,10 +2,10 @@
 
 nextflow.enable.dsl=2
 
-include { create_analysis_result    } from '../modules/local/prp/main.nf'
-include { format_cdm          } from '../modules/local/prp/main.nf'
-include { create_prp_yaml           } from '../modules/local/yaml/prp/main.nf'
-include { export_to_cdm             } from '../modules/local/cdm/main.nf'
+include { format_jasen      } from '../modules/local/prp/main.nf'
+include { format_cdm        } from '../modules/local/prp/main.nf'
+include { create_prp_yaml   } from '../modules/local/yaml/prp/main.nf'
+include { export_to_cdm     } from '../modules/local/cdm/main.nf'
 
 workflow CALL_POSTPROCESSING {
     take:
@@ -47,14 +47,14 @@ workflow CALL_POSTPROCESSING {
         tbdb_bed
     )
 
-    create_analysis_result(create_prp_yaml.out.yaml)
+    format_jasen(create_prp_yaml.out.yaml)
 
     format_cdm(create_prp_yaml.out.yaml)
 
     export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
     emit:
-    pipeline_result = create_analysis_result.out.json   // channel: [ path(json) ]
+    pipeline_result = format_jasen.out.json             // channel: [ path(json) ]
     cdm             = export_to_cdm.out.cdm             // channel: [ path(txt) ]
     yaml            = create_prp_yaml.out.yaml          // channel: [ path(yaml) ]
     versions        = ch_versions                       // channel: [ versions.yml ]

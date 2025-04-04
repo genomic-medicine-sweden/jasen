@@ -1,4 +1,4 @@
-process create_analysis_result {
+process format_jasen {
     tag "${sample_id}"
     scratch params.scratch
 
@@ -12,7 +12,7 @@ process create_analysis_result {
     script:
     output = "${sample_id}_result.json"
     """
-    prp parse \\
+    prp format-jasen \\
       --sample ${yaml} \\
       --output ${output}
 

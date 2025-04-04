@@ -4,11 +4,11 @@ process create_prp_yaml {
 
     input:
     tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(kraken), path(postalignqc), path(quast), path(ska), path(sourmash), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
-    path reference_genome
-    path reference_genome_idx
-    path reference_genome_gff
-    path tb_grading_rules_bed
-    path tbdb_bed
+    val reference_genome
+    val reference_genome_idx
+    val reference_genome_gff
+    val tb_grading_rules_bed
+    val tbdb_bed
 
     output:
     tuple val(sample_id), path(output), emit: yaml
@@ -16,37 +16,37 @@ process create_prp_yaml {
     script:
     output = "${sample_id}_prp.yaml"
     def access_dir = params.symlink_dir ? params.symlink_dir : params.outdir
-    def amrfinder_kv = amrfinder ? "'amrfinder': '${amrfinder}'," : ""
-    def kraken_kv = kraken ? "'kraken': '${kraken}'," : ""
+    def amrfinder_kv = amrfinder ? "'amrfinder': '${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}'," : ""
     def bam_kv = bam ? "'uri': '${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}'," : ""
     def bai_kv = bai ? "'index_uri': '${access_dir}/${params.species_dir}/${params.bam_dir}/${bai}'," : ""
-    def chewbbaca_kv = chewbbaca ? "'chewbbaca': '${chewbbaca}'," : ""
-    def emmtyper_kv = emmtyper ? "'emmtyper': '${emmtyper}'," : ""
+    def chewbbaca_kv = chewbbaca ? "'chewbbaca': '${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}'," : ""
+    def emmtyper_kv = emmtyper ? "'emmtyper': '${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}'," : ""
+    def kraken_kv = kraken ? "'kraken': '${params.outdir}/${params.species_dir}/kraken/${kraken}'," : ""
     def lims_id_kv = lims_id ? "'lims_id': '${lims_id}'," : ""
-    def mlst_kv = mlst ? "'mlst': '${mlst}'," : ""
-    def mykrobe_kv = mykrobe ? "'mykrobe': '${mykrobe}'," : ""
-    def postalignqc_kv = postalignqc ? "'postalnqc': '${postalignqc}'," : "" 
-    def quast_kv = quast ? "'quast': '${quast}'," : ""
+    def mlst_kv = mlst ? "'mlst': '${params.outdir}/${params.species_dir}/mlst/${mlst}'," : ""
+    def mykrobe_kv = mykrobe ? "'mykrobe': '${params.outdir}/${params.species_dir}/mykrobe/${mykrobe}'," : ""
+    def postalignqc_kv = postalignqc ? "'postalnqc': '${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}'," : "" 
+    def quast_kv = quast ? "'quast': '${params.outdir}/${params.species_dir}/quast/${quast}'," : ""
     def reference_genome_kv = reference_genome ? "'ref_genome_sequence': '${reference_genome}'," : ""
     def reference_genome_gff_kv = reference_genome_gff ? "'ref_genome_annotation': '${reference_genome_gff}'," : ""
-    def resfinder_kv = resfinder ? "'resfinder': '${resfinder}'," : ""
-    def resfinder_meta_lv = resfinder_meta ? "'${resfinder_meta}, " : ""
-    def nextflow_run_info_kv = nextflow_run_info ? "'nextflow_run_info': '${nextflow_run_info}'," : ""
-    def sccmec_kv = sccmec ? "'sccmec': '${sccmec}'," : ""
-    def serotypefinder_kv = serotypefinder ? "'serotypefinder': '${serotypefinder}'," : ""
-    def serotypefinder_meta_lv = serotypefinder_meta ? "'${serotypefinder_meta}, " : ""
-    def shigapass_kv = shigapass ? "'shigapass': '${shigapass}'," : ""
+    def resfinder_kv = resfinder ? "'resfinder': '${params.outdir}/${params.species_dir}/resfinder/${resfinder}'," : ""
+    def resfinder_meta_lv = resfinder_meta ? "'${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}', " : ""
+    def nextflow_run_info_kv = nextflow_run_info ? "'nextflow_run_info': '${params.outdir}/${params.species_dir}/analysis_metadata/${nextflow_run_info}'," : ""
+    def sccmec_kv = sccmec ? "'sccmec': '${params.outdir}/${params.species_dir}/sccmec/${sccmec}'," : ""
+    def serotypefinder_kv = serotypefinder ? "'serotypefinder': '${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}'," : ""
+    def serotypefinder_meta_lv = serotypefinder_meta ? "'${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}', " : ""
+    def shigapass_kv = shigapass ? "'shigapass': '${params.outdir}/${params.species_dir}/shigapass/${shigapass}'," : ""
     def ska_dir = task.ext.args_ska ?: ""
     def ska_kv = ska ? "'ska': '${ska_dir}/${ska}'," : ""
     def sourmash_dir = task.ext.args_sourmash ?: ""
     def sourmash_kv = sourmash ? "'sourmash': '${sourmash_dir}/${sourmash}'," : ""
-    def spatyper_kv = spatyper ? "'spatyper': '${spatyper}'," : ""
+    def spatyper_kv = spatyper ? "'spatyper': '${params.outdir}/${params.species_dir}/spatyper/${spatyper}'," : ""
     def tb_grading_rules_bed_array = tb_grading_rules_bed ? "{'name': 'tbdb grading rules bed', 'type': 'bed', 'uri': '${tb_grading_rules_bed}'}," : ""
     def tbdb_bed_array = tbdb_bed ? "{'name': 'tbdb bed', 'type': 'bed', 'uri': '${tbdb_bed}'}," : ""
-    def tbprofiler_kv = tbprofiler ? "'tbprofiler': '${tbprofiler}'," : ""
+    def tbprofiler_kv = tbprofiler ? "'tbprofiler': '${params.outdir}/${params.species_dir}/tbprofiler_mergedb/${tbprofiler}'," : ""
     def vcf_kv = vcf ? "'uri': '${access_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}'," : ""
-    def virulencefinder_kv = virulencefinder ? "'virulencefinder': '${virulencefinder}'," : ""
-    def virulencefinder_meta_lv = virulencefinder_meta ?: ""
+    def virulencefinder_kv = virulencefinder ? "'virulencefinder': '${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}'," : ""
+    def virulencefinder_meta_lv = "'${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}'" ?: ""
     """
     #!/usr/bin/env python
     import yaml
@@ -55,7 +55,7 @@ process create_prp_yaml {
     prp_input = {
         ${amrfinder_kv}
         ${chewbbaca_kv}
-        "groups": [${params.species_dir}],
+        "groups": ["${params.species_dir}"],
         "igv_annotations": [
             {
                 "name": "Cool variants",
@@ -82,8 +82,8 @@ process create_prp_yaml {
         ${reference_genome_kv}
         ${reference_genome_gff_kv}
         ${resfinder_kv}
-        "sample_id": ${sample_id},
-        "sample_name": ${sample_name},
+        "sample_id": "${sample_id}",
+        "sample_name": "${sample_name}",
         ${sccmec_kv}
         ${serotypefinder_kv}
         ${shigapass_kv}
