@@ -30,14 +30,17 @@ workflow CALL_POSTPROCESSING {
     ch_versions = Channel.empty()
 
     // POSTPROCESSING
+    ch_preprocessing_combined_output
+        .join(ch_profiling_combined_output)
+        .join(ch_qc_combined_output)
+        .join(ch_relatedness_combined_output)
+        .join(ch_screening_combined_output)
+        .join(ch_typing_combined_output)
+        .join(ch_variant_calling_combined_output)
+        .set{ ch_combined_output}
+
     create_prp_yaml(
-        ch_preprocessing_combined_output,
-        ch_profiling_combined_output,
-        ch_qc_combined_output,
-        ch_relatedness_combined_output,
-        ch_screening_combined_output,
-        ch_typing_combined_output,
-        ch_variant_calling_combined_output,
+        ch_combined_output,
         reference_genome,
         reference_genome_idx,
         reference_genome_gff

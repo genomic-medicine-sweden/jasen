@@ -53,7 +53,7 @@ workflow CALL_VARIANT_CALLING {
         .join(samtools_index_assembly.out.bai)
         .set{ ch_bam_bai }
 
-    freebayes(ch_assembly, ch_bam_bai)
+    freebayes(ch_assembly.join(ch_bam_bai))
 
     ch_versions = ch_versions.mix(bwa_index.out.versions)
     ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
