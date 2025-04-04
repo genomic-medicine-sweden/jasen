@@ -13,6 +13,8 @@ workflow CALL_POSTPROCESSING {
     reference_genome_idx
     reference_genome_gff
     species_dir
+    tb_grading_rules_bed
+    tbdb_bed
     ch_chewbbaca
     ch_post_align_qc
     ch_preprocessing_combined_output
@@ -43,7 +45,9 @@ workflow CALL_POSTPROCESSING {
         ch_combined_output,
         reference_genome,
         reference_genome_idx,
-        reference_genome_gff
+        reference_genome_gff,
+        tb_grading_rules_bed,
+        tbdb_bed
     )
 
     create_analysis_result(create_prp_yaml.out.yaml)

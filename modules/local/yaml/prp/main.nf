@@ -7,6 +7,8 @@ process create_prp_yaml {
     path reference_genome
     path reference_genome_idx
     path reference_genome_gff
+    path tb_grading_rules_bed
+    path tbdb_bed
 
     output:
     tuple val(sample_id), path(output), emit: yaml

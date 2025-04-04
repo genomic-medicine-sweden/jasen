@@ -32,6 +32,9 @@ workflow CALL_BACTERIAL_GENERAL {
     resfinder_db            = params.resfinder_db ? file(params.resfinder_db, checkIfExists: true) : Channel.value([])
     serotypefinder_db       = params.serotypefinder_db ? file(params.serotypefinder_db, checkIfExists: true) : Channel.value([])
     shigapass_db            = params.shigapass_db ? file(params.shigapass_db, checkIfExists: true) : Channel.value([])
+    tb_grading_rules_bed    = params.tb_grading_rules_bed ? file(params.tb_grading_rules_bed, checkIfExists: true) : Channel.value([])
+    tbdb_bed                = params.tbdb_bed ? file(params.tbdb_bed, checkIfExists: true) : Channel.value([])
+    tbdb_bed_idx            = params.tbdb_bed_idx ? file(params.tbdb_bed_idx, checkIfExists: true) : Channel.value([])
     training_file           = params.training_file ? file(params.training_file, checkIfExists: true) : Channel.value([])
     virulencefinder_db      = params.virulencefinder_db ? file(params.virulencefinder_db, checkIfExists: true) : Channel.value([])
 
@@ -111,6 +114,8 @@ workflow CALL_BACTERIAL_GENERAL {
         reference_genome_idx,
         reference_genome_gff,
         species_dir,
+        tb_grading_rules_bed,
+        tbdb_bed,
         CALL_TYPING.out.chewbbaca,
         CALL_QUALITY_CONTROL.out.post_align_qc,
         CALL_PREPROCESSING.out.combined_output,
