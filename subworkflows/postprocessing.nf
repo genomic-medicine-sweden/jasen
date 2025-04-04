@@ -3,7 +3,7 @@
 nextflow.enable.dsl=2
 
 include { create_analysis_result    } from '../modules/local/prp/main.nf'
-include { create_cdm_input          } from '../modules/local/prp/main.nf'
+include { format_cdm          } from '../modules/local/prp/main.nf'
 include { create_prp_yaml           } from '../modules/local/yaml/prp/main.nf'
 include { export_to_cdm             } from '../modules/local/cdm/main.nf'
 
@@ -15,12 +15,9 @@ workflow CALL_POSTPROCESSING {
     species_dir
     tb_grading_rules_bed
     tbdb_bed
-    ch_chewbbaca
-    ch_post_align_qc
     ch_preprocessing_combined_output
     ch_profiling_combined_output
     ch_qc_combined_output
-    ch_quast
     ch_relatedness_combined_output
     ch_screening_combined_output
     ch_seqrun_meta
@@ -52,14 +49,9 @@ workflow CALL_POSTPROCESSING {
 
     create_analysis_result(create_prp_yaml.out.yaml)
 
-    ch_quast
-        .join(ch_post_align_qc)
-        .join(ch_chewbbaca)
-        .set{ ch_cdm_input }
+    format_cdm(create_prp_yaml.out.yaml)
 
-    create_cdm_input(ch_cdm_input)
-
-    export_to_cdm(create_cdm_input.out.json.join(ch_seqrun_meta), species_dir)
+    export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
     emit:
     pipeline_result = create_analysis_result.out.json   // channel: [ path(json) ]

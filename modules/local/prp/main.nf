@@ -38,26 +38,21 @@ process create_analysis_result {
     """
 }
 
-process create_cdm_input {
+process format_cdm {
     tag "${sample_id}"
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(quast), val(postalignqc), val(cgmlst)
+    tuple val(sample_id), path(yaml)
 
     output:
     tuple val(sample_id), path(output), emit: json
 
     script:
     output = "${sample_id}_qc_result.json"
-    cgmlst_arg = cgmlst ? "--cgmlst ${cgmlst}" : ""
-    postalignqc_arg = postalignqc ? "--quality ${postalignqc}" : "" 
-    quast_arg = quast ? "--quast ${quast}" : ""
     """
-    prp create-cdm-input \\
-      ${cgmlst_arg} \\
-      ${postalignqc_arg} \\
-      ${quast_arg} \\
+    prp format-cdm \\
+      --sample ${yaml} \\
       --output ${output}
     """
 
