@@ -54,8 +54,10 @@ process create_prp_yaml {
     # Define the prp_input
     prp_input = {
         ${amrfinder_kv}
+        "assay": "${params.species_dir}",
         ${chewbbaca_kv}
-        "groups": ["${params.species_dir}"],
+        ${emmtyper_kv}
+        "groups": ${params.groups},
         "igv_annotations": [
             {
                 "name": "Cool variants",
@@ -72,7 +74,6 @@ process create_prp_yaml {
             ${tbdb_bed_array}
         ],
         ${kraken_kv}
-        ${emmtyper_kv}
         ${lims_id_kv}
         ${mlst_kv}
         ${mykrobe_kv}

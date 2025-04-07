@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `samtools_coverage` to get stats from mapping long reads to the reference and assembly
 - Added `minimap2_align_assembly`
 - Added `minimap2_index` for assembly indexing
+- Added `when` operator to `samtools` for `nanopore`
+- Added `assay` to yaml output
+- Added `staphylococcus_nrl` profile
 
 ### Fixed
 - Fixed stub-run for S.aureus ONT workflow
@@ -40,6 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed to have only one main config `nexflow.config`
 - Changed `cmd` module name to `cdm`
 - Updated bonsai-prp to v1.0.0
+- Changed indentation structure
+- Moved `platform` to config via `params.platform` 
+- Changed `hostile` io
+- Updated docs regarding restructuring
+- Changed `prp` sub commands
+- Update CI GA workflow
 
 ## [1.0.0]
 
