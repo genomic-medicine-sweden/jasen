@@ -20,9 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `when` operator to `samtools` for `nanopore`
 - Added `assay` to yaml output
 - Added `staphylococcus_nrl` profile
+- Added `release_life_cycle` via profiles
 
 ### Fixed
 - Fixed stub-run for S.aureus ONT workflow
+- Fixed checking out pipeline code with submodules
 
 ### Changed
 
@@ -48,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `hostile` io
 - Updated docs regarding restructuring
 - Changed `prp` sub commands
-- Update CI GA workflow
+- Update CI GA workflow re `container_dir`
+- Removed `check-and-reinit-git-submodules` from CI GA workflow
 
 ## [1.0.0]
 

@@ -44,10 +44,9 @@ jobs:
       - name: Check out pipeline code
         uses: actions/checkout@v3
 
-      - name: Check-out git submodules
-        # This should be done early so we can catch troubles with it early
+      - name: Manually initialize submodules
         run: |
-          cd ${GITHUB_WORKSPACE} && make check-and-reinit-git-submodules
+          git submodule init
 
       - name: Install Apptainer
         # For running (locally) with ACT, we use a docker image with Singularity/Apptainer already installed

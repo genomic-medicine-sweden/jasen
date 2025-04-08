@@ -179,15 +179,6 @@ check: check_chewbbaca \
 	check_blastdb
 
 # ==============================================================================
-# Check and update git submodules
-# ==============================================================================
-check-and-reinit-git-submodules:
-	@if git submodule status | egrep -q '^[-]|^[+]' ; then \
-		echo "Updating / re-initializing git submodules ..." \
-		&& git submodule update --init; \
-	fi
-
-# ==============================================================================
 # Build containers
 # ==============================================================================
 
@@ -303,13 +294,13 @@ KMA_DIR := $(ASSETS_DIR)/kma
 
 update_finder_dbs: $(VIRULENCEFINDERDB_DIR)/stx.name
 
-$(ASSETS_DIR)/virulencefinder_db/stx.name: | check-and-reinit-git-submodules
+$(ASSETS_DIR)/virulencefinder_db/stx.name:
 	$(call log_message,"Starting update of VirulenceFinder database")
 	cd $(ASSETS_DIR)/kma \
 	&& make \
 	&& cd $(VIRULENCEFINDERDB_DIR) \
 	&& export PATH=$(ASSETS_DIR)/kma:$$PATH \
-	&& apptainer exec	--bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
 		python3 INSTALL.py \
 		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
 	&& cd $(ASSETS_DIR)/resfinder_db \
@@ -380,7 +371,7 @@ saureus_minimap2idx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using minimap2...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
@@ -412,14 +403,14 @@ saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 $(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
 	cd $$(dirname $<) \
-		&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
-		&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
 saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn
 
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -483,7 +474,7 @@ ecoli_minimap2idx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using minimap2...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -541,7 +532,7 @@ ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia
 
 $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
@@ -605,7 +596,7 @@ kpneumoniae_minimap2idx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using minimap2...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -648,7 +639,7 @@ kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiell
 
 $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: $(KPNEU_CGMLST_DIR)/alleles_rereffed
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KPNEU_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -713,7 +704,7 @@ spyogenes_minimap2idx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using minimap2...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -754,7 +745,7 @@ spyogenes_prep_cgmlst_schema: | $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcu
 
 $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcus_pyogenes.trn: $(SPYO_CGMLST_DIR)/alleles_rereffed
 
-$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done check-and-reinit-git-submodules
+$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(SPYO_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -862,7 +853,7 @@ mtuberculosis_minimap2idx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mm
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using minimap2...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINER_DIR)/minimap2.sif \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
