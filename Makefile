@@ -287,34 +287,55 @@ $(MLSTDB_DIR)/blast:
 		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
-# Update VirulenceFinder database
+# Update Finder databases
 # -----------------------------
+
+update_finder_dbs: update_virulencefinder_db \
+	update_resfinder_db \
+	update_pointfinder_db \
+	update_serotypefinder_db
+
 VIRULENCEFINDERDB_DIR := $(ASSETS_DIR)/virulencefinder_db
-KMA_DIR := $(ASSETS_DIR)/kma
+RESFINDERDB_DIR := $(ASSETS_DIR)/resfinder_db
+POINTFINDERDB_DIR := $(ASSETS_DIR)/pointfinder_db
+SEROTYPEDFINDERDB_DIR := $(ASSETS_DIR)/serotypefinder_db
 
-update_finder_dbs: $(VIRULENCEFINDERDB_DIR)/stx.name
 
-$(ASSETS_DIR)/virulencefinder_db/stx.name:
+update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b
+
+$(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	$(call log_message,"Starting update of VirulenceFinder database")
-	cd $(ASSETS_DIR)/kma \
-	&& make \
-	&& cd $(VIRULENCEFINDERDB_DIR) \
-	&& export PATH=$(ASSETS_DIR)/kma:$$PATH \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+	cd $(VIRULENCEFINDERDB_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
-	&& cd $(ASSETS_DIR)/resfinder_db \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+		kma_index |& tee -a $(INSTALL_LOG)
+
+update_resfinder_db: $(RESFINDERDB_DIR)/all.length.b
+
+$(RESFINDERDB_DIR)/all.length.b:
+	$(call log_message,"Starting update of ResFinder database")
+	cd $(RESFINDERDB_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
-	&& cd $(ASSETS_DIR)/pointfinder_db \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+		kma_index |& tee -a $(INSTALL_LOG)
+
+update_pointfinder_db: $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
+
+$(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
+	$(call log_message,"Starting update of PointFinder database")
+	cd $(POINTFINDERDB_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG) \
-	&& cd $(ASSETS_DIR)/serotypefinder_db \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+		kma_index |& tee -a $(INSTALL_LOG)
+
+update_serotypefinder_db: $(SEROTYPEDFINDERDB_DIR)/H_type.length.b
+
+$(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
+	$(call log_message,"Starting update of SerotypeFinder database")
+	cd $(SEROTYPEDFINDERDB_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
-		$(KMA_DIR)/kma_index |& tee -a $(INSTALL_LOG)
+		kma_index |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Download, index and prep reference genomes for organisms

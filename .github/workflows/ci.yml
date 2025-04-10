@@ -43,10 +43,8 @@ jobs:
 
       - name: Check out pipeline code
         uses: actions/checkout@v3
-
-      - name: Manually initialize submodules
-        run: |
-          git submodule init
+        with:
+          submodules: 'true'
 
       - name: Install Apptainer
         # For running (locally) with ACT, we use a docker image with Singularity/Apptainer already installed
