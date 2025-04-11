@@ -15,9 +15,12 @@ nextflow run main.nf                            \
 | ------------------- | ------------------------------------------------------------------------------------------------------ | -------- |
 | -profile (species)  | staphylococcus_aureus/escherichia_coli/mycobacterium_tuberculosis/streptococcus_pyogenes/streptococcus | True     |
 | -profile (platform) | illumina/nanopore/iontorrent                                                                           | True     |
+| -profile (RLS)      | development/diagnostic/validation                                                                      | False    |
 | -config             | nextflow.config                                                                                        | True     |
 | -resume             | NA                                                                                                     | False    |
 | --output            | user-specified                                                                                         | False    |
+
+RLS = Release life cycle (default: diagnostic)
 
 ## Input file format 
 
