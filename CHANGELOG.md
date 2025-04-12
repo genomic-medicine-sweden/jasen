@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed stub-run for S.aureus ONT workflow
 - Fixed checking out pipeline code with submodules
+- Fixed genome downloading via `bin/download_ncbi.py` with timed retries
 
 ### Changed
 
