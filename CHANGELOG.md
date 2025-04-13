@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `staphylococcus_nrl` profile
 - Added `release_life_cycle` via profiles
 - Added `create_prp_yaml.py` to bin
+- Added `spatyper` and `sccmec` to yaml
 
 ### Fixed
 - Fixed stub-run for S.aureus ONT workflow

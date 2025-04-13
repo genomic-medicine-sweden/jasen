@@ -85,11 +85,11 @@ workflow CALL_TYPING {
     chewbbaca_split_results.out.tsv
         .join(ch_emmtyper)
         .join(mlst.out.json)
-        .join(ch_empty) //sccmec not incorporated into prp
+        .join(ch_sccmec)
         .join(ch_serotypefinder)
         .join(ch_serotypefinder_meta)
         .join(ch_shigapass)
-        .join(ch_empty) //spatyper not incorporated into prp
+        .join(ch_spatyper)
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(mlst.out.versions)
