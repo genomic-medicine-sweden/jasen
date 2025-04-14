@@ -144,9 +144,9 @@ def cli(silent, debug):
     help="Shigapass results"
 )
 @click.option(
-    "--ska",
+    "--ska-index",
     type=click.Path(),
-    help="Ska results"
+    help="Ska index filepath"
 )
 @click.option(
     "--software-info",
@@ -155,9 +155,9 @@ def cli(silent, debug):
     help="Software metadata from the pipeline in json format",
 )
 @click.option(
-    "--sourmash",
+    "--sourmash-signature",
     type=click.Path(),
-    help="Sourmash results"
+    help="Sourmash signature filepath"
 )
 @click.option(
     "--spatyper",
@@ -219,9 +219,9 @@ def cli(
     sccmec,
     serotypefinder,
     shigapass,
-    ska,
+    ska_index,
     software_info,
-    sourmash,
+    sourmash_signature,
     spatyper,
     tb_grading_rules_bed,
     tbdb_bed,
@@ -299,14 +299,14 @@ def cli(
     if shigapass:
         prp_input["shigapass"] = shigapass
 
-    if ska:
-        prp_input["ska"] = ska
+    if ska_index:
+        prp_input["ska_index"] = ska_index
 
     if software_info:
         prp_input["software_info"] = list(software_info)
 
-    if sourmash:
-        prp_input["sourmash"] = sourmash
+    if sourmash_signature:
+        prp_input["sourmash_signature"] = sourmash_signature
 
     if spatyper:
         prp_input["spatyper"] = spatyper
