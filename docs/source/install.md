@@ -76,13 +76,13 @@ make update_databases && make ${ORG}_all
 
 ### Config 
 
-Source: `configs/nextflow.base.config`
+Source: `nextflow.config`
 
-* Edit the `root` parameter in `configs/nextflow.base.config`
-* Edit the `krakenDb`, `workDir` and `outdir` parameters in `configs/nextflow.base.config`
-* Edit the `useHostile` parameter in `configs/nextflow.base.config` in order to filter out human reads
-* Edit the `targetSampleSize` parameter in `configs/nextflow.base.config` in order to downsample reads
-* Edit the `runOptions` in `configs/nextflow.base.config` in order to mount directories to your run
+* Edit the `root` parameter in `nextflow.config`
+* Edit the `kraken_db`, `workDir` and `outdir` parameters in `nextflow.config`
+* Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads
+* Edit the `target_sample_size` parameter in `nextflow.config` in order to downsample reads
+* Edit the `runOptions` in `nextflow.config` in order to mount directories to your run
 
 When analysing Nanopore data:
 * Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`
