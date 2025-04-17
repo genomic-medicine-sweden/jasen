@@ -165,7 +165,8 @@ update_databases: update_amrfinderplus \
 	update_blast_db \
 	update_finder_dbs \
 	update_shigapass_db \
-	update_hostile_db
+	update_hostile_db \
+	update_gambit_db
 
 update_organisms: saureus_all \
 	ecoli_all \
@@ -196,6 +197,32 @@ download_or_build_containers:
 # -----------------------------
 # Download Hostile human index
 # -----------------------------
+
+update_gambit_db: download_gambit_gdb \
+	download_gambit_gs
+
+GAMBIT_DIR := $(ASSETS_DIR)/gambit_db
+download_gambit_gs: $(GAMBIT_DIR)/gambit-refseq-curated-1.0.gs
+
+$(GAMBIT_DIR)/gambit-refseq-curated-1.0.gs:
+	$(call log_message,"Starting download of Hostile human index")
+	mkdir -p $(GAMBIT_DIR) \
+	&& cd $(GAMBIT_DIR) \
+	&& wget https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gs \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+download_gambit_gdb: $(GAMBIT_DIR)/gambit-refseq-curated-1.0.gdb
+
+$(GAMBIT_DIR)/gambit-refseq-curated-1.0.gdb:
+	$(call log_message,"Starting download of Hostile human index")
+	mkdir -p $(GAMBIT_DIR) \
+	&& cd $(GAMBIT_DIR) \
+	&& wget https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gdb \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 update_hostile_db: download_minimap2_index_genome \
 	download_bowtie2_genome_index

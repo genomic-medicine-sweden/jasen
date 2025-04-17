@@ -58,6 +58,11 @@ def cli(silent, debug):
     help="Emmtyper m-type prediction results"
 )
 @click.option(
+    "--gambitcore",
+    type=click.Path(),
+    help="Gambitcore prediction results"
+)
+@click.option(
     "--groups",
     multiple=True,
     required=True,
@@ -202,6 +207,7 @@ def cli(
     bai,
     chewbbaca,
     emmtyper,
+    gambitcore,
     groups,
     kraken,
     lims_id,
@@ -244,6 +250,9 @@ def cli(
 
     if chewbbaca:
         prp_input["chewbbaca"] = chewbbaca
+
+    if gambitcore:
+        prp_input["gambitcore"] = gambitcore
 
     if emmtyper:
         prp_input["emmtyper"] = emmtyper

@@ -14,7 +14,8 @@ all: \
 
 # These are containers that will be built locally using the definition files in
 # the current folder
-local_containers := bonsai-prp.sif
+local_containers := bonsai-prp.sif \
+					gambitcore.sif
 
 # These containers will be downloaded remotely
 remote_containers := ncbi-amrfinderplus.sif \
@@ -53,6 +54,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 
 # URLs to Docker containers
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.0.1
+DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0

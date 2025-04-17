@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `release_life_cycle` via profiles
 - Added `create_prp_yaml.py` to bin
 - Added `spatyper` and `sccmec` to yaml
+- Added `gambitcore` as a module
 
 ### Fixed
 - Fixed stub-run for S.aureus ONT workflow
@@ -56,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI GA workflow re `container_dir`
 - Removed `check-and-reinit-git-submodules` from CI GA workflow
 - Removed `kma` submodule
+- Removed `prodigal` from singularity container fetch
 
 ## [1.0.0]
 

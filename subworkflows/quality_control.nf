@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { bracken                                    } from '../modules/nf-core/bracken/main.nf'
 include { bwa_mem as bwa_mem_ref                     } from '../modules/nf-core/bwa/main.nf'
 include { fastqc                                     } from '../modules/nf-core/fastqc/main.nf'
+include { gambitcore                                 } from '../modules/local/gambitcore/main.nf'
 include { kraken                                     } from '../modules/nf-core/kraken/main.nf'
 include { minimap2_align as minimap2_align_ref       } from '../modules/nf-core/minimap2/main.nf'       
 include { nanoplot                                   } from '../modules/nf-core/nanoplot/main.nf'
@@ -17,6 +18,7 @@ include { samtools_sort as samtools_sort_ref         } from '../modules/nf-core/
 workflow CALL_QUALITY_CONTROL {
     take:
     core_loci_bed
+    gambit_db
     kraken_db
     reference_genome
     reference_genome_dir
@@ -28,6 +30,9 @@ workflow CALL_QUALITY_CONTROL {
     main:
 
     ch_versions = Channel.empty()
+
+    // evaluate assembly completeness
+    gambitcore(ch_assembly, gambit_db)
 
     // evaluate assembly quality 
     quast(ch_assembly, reference_genome)
@@ -70,6 +75,7 @@ workflow CALL_QUALITY_CONTROL {
 
     ch_ref_bam
         .join(ch_ref_bai)
+        .join(gambitcore.out.tsv)
         .join(ch_kraken)
         .join(ch_post_align_qc)
         .join(quast.out.tsv)
@@ -85,10 +91,11 @@ workflow CALL_QUALITY_CONTROL {
     bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
     bai                 = ch_ref_bai                    // channel: [ val(meta), path(bai) ]
     fastqc              = fastqc.out.output             // channel: [ val(meta), path(txt) ]
-    quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
+    gambitcore          = gambitcore.out.tsv            // channel: [ val(meta), path(tsv) ]
     kraken              = ch_kraken                     // channel: [ val(meta), path(fasta) ]
-    post_align_qc       = ch_post_align_qc              // channel: [ val(meta), path(fasta) ]
     nanoplot_html       = nanoplot.out.html             // channel: [ val(meta), path(html) ]
+    post_align_qc       = ch_post_align_qc              // channel: [ val(meta), path(fasta) ]
+    quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
     samtools_cov_ref    = ch_samtools_cov_ref           // channel: [ val(meta), path(txt) ]
     versions            = ch_versions                   // channel: [ versions.yml ]
 }

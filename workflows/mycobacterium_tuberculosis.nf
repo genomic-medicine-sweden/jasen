@@ -24,6 +24,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     amrfinder_db            = params.amrfinder_db ? file(params.amrfinder_db, checkIfExists: true) : Channel.value([])
     chewbbaca_db            = params.chewbbaca_db ? file(params.chewbbaca_db, checkIfExists: true) : Channel.value([])
     core_loci_bed           = params.core_loci_bed ? file(params.core_loci_bed, checkIfExists: true) : Channel.value([])
+    gambit_db               = params.gambit_db ? file(params.gambit_db, checkIfExists: true) : Channel.value([])
     kraken_db               = params.kraken_db ? file(params.kraken_db, checkIfExists: true) : Channel.value([])
     mlst_blast_db           = params.mlst_blast_db ? file(params.mlst_blast_db, checkIfExists: true) : Channel.value([])
     pointfinder_db          = params.pointfinder_db ? file(params.pointfinder_db, checkIfExists: true) : Channel.value([])
@@ -62,6 +63,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
     CALL_QUALITY_CONTROL (
         core_loci_bed,
+        gambit_db,
         kraken_db,
         reference_genome,
         reference_genome_dir,
@@ -89,6 +91,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
 
     CALL_PROFILING.out.bam
         .join(CALL_PROFILING.out.bai)
+        .join(CALL_QUALITY_CONTROL.out.gambitcore)
         .join(CALL_QUALITY_CONTROL.out.kraken)
         .join(post_align_qc.out.json)
         .join(CALL_QUALITY_CONTROL.out.quast)
