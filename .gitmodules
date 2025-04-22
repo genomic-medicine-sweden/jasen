@@ -13,9 +13,12 @@
 [submodule "assets/tbdb"]
 	path = assets/tbdb
 	url = https://github.com/jodyphelan/tbdb.git
+	ignore = dirty
 [submodule "assets/serotypefinder_db"]
 	path = assets/serotypefinder_db
 	url = https://bitbucket.org/genomicepidemiology/serotypefinder_db.git
+	ignore = dirty
 [submodule "assets/ShigaPass"]
 	path = assets/ShigaPass
 	url = https://github.com/imanyass/ShigaPass.git
+	ignore = dirty
