@@ -864,7 +864,7 @@ MTUBE_REFSEQ_ACC := GCF_000195955.2
 mtuberculosis_all: mtuberculosis_download_reference \
 	mtuberculosis_faidx_reference \
 	mtuberculosis_bwaidx_reference \
-	mtuberculosis_miniamp2idx_reference \
+	mtuberculosis_minimap2idx_reference \
 	mtuberculosis_converged_who_fohm_tbdb \
 	mtuberculosis_bgzip_bed \
 	mtuberculosis_index_bed
