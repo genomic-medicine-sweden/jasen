@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed checking out pipeline code with submodules
 - Fixed genome downloading via `bin/download_ncbi.py` with timed retries
 - Fixed dirty submodules in `.gitmodules`
+- Fixed dubious ownership bug where finder dbs retrieve commit ID
 
 ### Changed
 
@@ -50,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Grouped most workflows into one (`bacterial_general.nf`) to remove duplicate code
 - Changed to have only one main config `nexflow.config`
 - Changed `cmd` module name to `cdm`
-- Updated bonsai-prp to v1.1.0
+- Updated bonsai-prp to v1.2.0
 - Changed indentation structure
 - Moved `platform` to config via `params.platform` 
 - Changed `hostile` io

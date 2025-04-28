@@ -5,7 +5,7 @@ process virulencefinder {
     input:
     tuple val(sample_id), path(reads)
     val databases
-    path virulence_db
+    path virulencefinder_db
 
     output:
     tuple val(sample_id), path(output)     , emit: json
@@ -21,21 +21,21 @@ process virulencefinder {
     meta_output = "${sample_id}_virulencefinder_meta.json"
     """
     # Get db version
-    DB_HASH=\$(git -C ${virulence_db} rev-parse HEAD)
+    DB_VERSION=\$(tr -d '\r\n' < ${virulencefinder_db}/VERSION)
     JSON_FMT='{"name": "%s", "version": "%s", "type": "%s"}'
-    printf "\$JSON_FMT" "virulencefinder" "\$DB_HASH" "database" > ${meta_output}
+    printf "\$JSON_FMT" "virulencefinder" "\$DB_VERSION" "database" > ${meta_output}
 
     # Run virulencefinder
     virulencefinder.py              \\
     --infile ${reads.join(' ')}     \\
     ${databases_arg}                \\
-    --databasePath ${virulence_db}
+    --databasePath ${virulencefinder_db}
     cp data.json ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
-      version: \$(echo \$DB_HASH | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
     END_VERSIONS
     """
@@ -44,14 +44,14 @@ process virulencefinder {
     output = "${sample_id}_virulencefinder.json"
     meta_output = "${sample_id}_virulencefinder_meta.json"
     """
-    DB_HASH=\$(git -C ${virulence_db} rev-parse HEAD)
+    DB_VERSION=\$(tr -d '\r\n' < ${virulencefinder_db}/VERSION)
     touch ${output}
     touch ${meta_output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
-      version: \$(echo \$DB_HASH | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
     END_VERSIONS
     """

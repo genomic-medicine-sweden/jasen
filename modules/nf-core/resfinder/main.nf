@@ -32,8 +32,8 @@ process resfinder {
     output_point = "${sample_id}_point_table.txt"
     """
     # Get db version
-    RES_DB_VERSION=\$(cat ${resfinder_db}/VERSION | tr -d '\r' | tr -d '\n')
-    POINT_DB_VERSION=\$(cat ${pointfinder_db}/VERSION | tr -d '\n')
+    RES_DB_VERSION=\$(tr -d '\r\n' < ${resfinder_db}/VERSION)
+    POINT_DB_VERSION=\$(tr -d '\r\n' < ${pointfinder_db}/VERSION)
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
     printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > ${meta_output}
 
@@ -59,10 +59,10 @@ process resfinder {
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(cat ${resfinder_db}/VERSION | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
      pointfinder_db:
-      version: \$(cat ${pointfinder_db}/VERSION | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
     END_VERSIONS
     """
@@ -73,8 +73,8 @@ process resfinder {
     output_gene = "${sample_id}_pheno_table.txt"
     output_point = "${sample_id}_point_table.txt"
     """
-    RES_DB_VERSION=\$(cat ${resfinder_db}/VERSION | tr -d '\r' | tr -d '\n')
-    POINT_DB_VERSION=\$(cat ${pointfinder_db}/VERSION | tr -d '\n')
+    RES_DB_VERSION=\$(tr -d '\r\n' < ${resfinder_db}/VERSION)
+    POINT_DB_VERSION=\$(tr -d '\r\n' < ${pointfinder_db}/VERSION)
     JSON_FMT='[{"name": "%s", "version": "%s", "type": "%s"},{"name": "%s", "version": "%s", "type": "%s"}]'
     printf "\$JSON_FMT" "resfinder" \$RES_DB_VERSION "database" "pointfinder" \$POINT_DB_VERSION "database" > ${meta_output}
     touch ${output}
@@ -87,10 +87,10 @@ process resfinder {
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(cat ${resfinder_db}/VERSION | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
      pointfinder_db:
-      version: \$(cat ${pointfinder_db}/VERSION | tr -d '\n')
+      version: \$(echo \$DB_VERSION)
       container: ${task.container}
     END_VERSIONS
     """

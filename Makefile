@@ -328,7 +328,7 @@ POINTFINDERDB_DIR := $(ASSETS_DIR)/pointfinder_db
 SEROTYPEDFINDERDB_DIR := $(ASSETS_DIR)/serotypefinder_db
 
 
-update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b
+update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
 
 $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	$(call log_message,"Starting update of VirulenceFinder database")
@@ -336,6 +336,17 @@ $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
+
+$(VIRULENCEFINDERDB_DIR)/VERSION:
+	$(call log_message,"Create VirulenceFinder database VERSION")
+	cd $(VIRULENCEFINDERDB_DIR) \
+	&& if [ -f VERSION ]; then \
+			DB_VERSION=$$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' VERSION); \
+		else \
+			DB_VERSION=$$(git rev-parse HEAD); \
+		fi; \
+		echo "$$DB_VERSION" > VERSION |& tee -a $(INSTALL_LOG)
+
 
 update_resfinder_db: $(RESFINDERDB_DIR)/all.length.b
 
@@ -346,6 +357,7 @@ $(RESFINDERDB_DIR)/all.length.b:
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
+
 update_pointfinder_db: $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
 
 $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
@@ -355,7 +367,7 @@ $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
-update_serotypefinder_db: $(SEROTYPEDFINDERDB_DIR)/H_type.length.b
+update_serotypefinder_db: $(SEROTYPEDFINDERDB_DIR)/H_type.length.b $(SEROTYPEDFINDERDB_DIR)/VERSION
 
 $(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
 	$(call log_message,"Starting update of SerotypeFinder database")
@@ -363,6 +375,12 @@ $(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
+
+$(SEROTYPEDFINDERDB_DIR)/VERSION:
+	$(call log_message,"Create SerotypeFinder database VERSION file containing commit ID")
+	cd $(SEROTYPEDFINDERDB_DIR) \
+	&& echo "$$(git rev-parse HEAD)" > VERSION |& tee -a $(INSTALL_LOG)
+
 
 # ==============================================================================
 # Download, index and prep reference genomes for organisms
@@ -467,7 +485,8 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 		-g $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn |& tee -a $(INSTALL_LOG)
+		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn \
+	&& find $(SAUR_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # E. coli
@@ -588,7 +607,8 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 		-g $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn |& tee -a $(INSTALL_LOG)
+		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn \
+	&& find $(ECOLI_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 
 # -----------------------------
@@ -696,7 +716,9 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 		-g $(KPNEU_CGMLST_DIR)/alleles \
 		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn |& tee -a $(INSTALL_LOG)
+		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn \
+	&& find $(KPNEU_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
+
 
 # -----------------------------
 # Streptococcus pyogenes
@@ -802,7 +824,9 @@ $(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 		-g $(SPYO_CGMLST_DIR)/alleles \
 		-o $(SPYO_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn |& tee -a $(INSTALL_LOG)
+		--ptf $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn \
+	&& find $(SPYO_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
+	
 
 # -----------------------------
 # Streptococcus
@@ -850,7 +874,9 @@ $(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
 		chewie PrepExternalSchema \
 		-g $(STREP_CGMLST_DIR)/alleles \
 		-o $(STREP_CGMLST_DIR)/alleles_rereffed \
-		--cpu 2 |& tee -a $(INSTALL_LOG)
+		--cpu 2 \
+	&& find $(STREP_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
+
 
 # -----------------------------
 # M. tuberculosis
