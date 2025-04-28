@@ -3,16 +3,22 @@ process save_analysis_metadata {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads), val(sequencing_run), val(lims_id), val(sampleName)
+    tuple val(sample_id), path(reads), val(sequencing_run), val(lims_id), val(sample_name)
+    val assay
     val platform
+    val release_life_cycle
 
     output:
     tuple val(sample_id), path(output), emit: json
 
     script:
+    def assay = assay ?: ""
+    def config_files = workflow.configFiles.collect { "\"${it.toString().trim()}\"" }.unique().join(", ")
+    def lims_id = lims_id ?: ""
+    def profiles = workflow.profile.split(",").collect { "\"${it.trim()}\"" }.join(", ")
+    def release_life_cycle = release_life_cycle ?: ""
     def sequencing_type = reads.size() == 2 ? "PE" : "SE"
-    sequencing_run = sequencing_run ? "${sequencing_run}" : ""
-    lims_id = lims_id ? "${lims_id}" : ""
+    def sequencing_run = sequencing_run ?: ""
     output = "${sample_id}_analysis_meta.json"
     """
     #!/usr/bin/env python
@@ -20,8 +26,10 @@ process save_analysis_metadata {
 
     res = {
         "workflow_name": "${workflow.runName}",
-        "sample_name": "${sampleName}",
+        "sample_name": "${sample_name}",
         "lims_id": "${lims_id}",
+        "assay": "${assay}",
+        "release_life_cycle": "${release_life_cycle}",
         "sequencing_run": "${sequencing_run}",
         "sequencing_platform": "${platform}",
         "sequencing_type": "${sequencing_type}",
@@ -29,8 +37,8 @@ process save_analysis_metadata {
         "pipeline": "${workflow.scriptName}",
         "version": "${workflow.manifest.version}",
         "commit": "${workflow.commitId}",
-        "configuration_files": "${workflow.configFiles}"[1:-1].split(','),
-        "analysis_profile": "${workflow.profile}",
+        "configuration_files": list([${config_files}]),
+        "analysis_profile": list([${profiles}]),
         "command": "${workflow.commandLine}",
     }
     with open("${output}", 'w') as out:

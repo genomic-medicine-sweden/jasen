@@ -11,10 +11,12 @@ include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
 
 workflow CALL_PREPROCESSING {
     take:
+    assay
     hostile_dir
     hostile_idx
     input_samples
     platform
+    release_life_cycle
 
     main:
 
@@ -60,7 +62,7 @@ workflow CALL_PREPROCESSING {
     ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
 
     // analysis metadata
-    save_analysis_metadata(ch_reads.join(ch_seqrun_meta), platform)
+    save_analysis_metadata(ch_reads.join(ch_seqrun_meta), assay, platform, release_life_cycle)
 
     ch_id_meta.join(save_analysis_metadata.out.json).set{ ch_combined_output }
 

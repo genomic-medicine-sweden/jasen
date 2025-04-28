@@ -34,10 +34,6 @@ def cli(silent, debug):
     help="Amrfinderplus anti-microbial resistance results",
 )
 @click.option(
-    "--assay",
-    help="Pipeline assay",
-)
-@click.option(
     "--bam",
     type=click.Path(),
     help="Read mapping to reference genome"
@@ -112,11 +108,6 @@ def cli(silent, debug):
     "--ref-genome-sequence",
     type=click.Path(),
     help="Reference genome fasta file"
-)
-@click.option(
-    "--release-life-cycle",
-    type=click.Path(),
-    help="Release life cycle"
 )
 @click.option(
     "--resfinder",
@@ -202,7 +193,6 @@ def cli(silent, debug):
 )
 def cli(
     amrfinder,
-    assay,
     bam,
     bai,
     chewbbaca,
@@ -218,7 +208,6 @@ def cli(
     quast,
     ref_genome_annotation,
     ref_genome_sequence,
-    release_life_cycle,
     resfinder,
     sample_id,
     sample_name,
@@ -242,20 +231,17 @@ def cli(
     if amrfinder:
         prp_input["amrfinder"] = amrfinder
     
-    if assay:
-        prp_input["assay"] = assay
-
     if bam and bai:
         prp_input["igv_annotations"].append(create_array("Read coverage", "alignment", "uri", bam, "index_uri", bai))
 
     if chewbbaca:
         prp_input["chewbbaca"] = chewbbaca
 
-    if gambitcore:
-        prp_input["gambitcore"] = gambitcore
-
     if emmtyper:
         prp_input["emmtyper"] = emmtyper
+
+    if gambitcore:
+        prp_input["gambitcore"] = gambitcore
 
     if groups:
         prp_input["groups"] = list(groups)
@@ -286,9 +272,6 @@ def cli(
 
     if ref_genome_sequence:
         prp_input["ref_genome_sequence"] = ref_genome_sequence
-
-    if release_life_cycle:
-        prp_input["release_life_cycle"] = release_life_cycle
 
     if resfinder:
         prp_input["resfinder"] = resfinder

@@ -1,4 +1,4 @@
-process create_prp_yaml {
+process create_yaml {
     tag "${sample_id}"
     scratch params.scratch
 
@@ -14,10 +14,9 @@ process create_prp_yaml {
     tuple val(sample_id), path(output), emit: yaml
 
     script:
-    output                          = "${sample_id}_prp.yaml"
+    output                          = "${sample_id}_bonsai.yaml"
     def access_dir                  = params.symlink_dir        ?: params.outdir
     def amrfinder_arg               = amrfinder                 ?  "--amrfinder ${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}" : ""
-    def assay_arg                   = params.assay              ?  "--assay ${params.assay}" : ""
     def bam_arg                     = bam                       ?  "--bam ${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
     def bai_arg                     = bai                       ?  "--bai ${access_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
     def chewbbaca_arg               = chewbbaca                 ?  "--chewbbaca ${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}" : ""
@@ -33,7 +32,6 @@ process create_prp_yaml {
     def quast_arg                   = quast                     ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg        = reference_genome          ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg    = reference_genome_gff      ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
-    def release_life_cycle_arg      = params.release_life_cycle ?  "--release-life-cycle ${params.release_life_cycle}" : ""
     def resfinder_arg               = resfinder                 ?  "--resfinder ${params.outdir}/${params.species_dir}/resfinder/${resfinder}" : ""
     def resfinder_meta_arg          = resfinder_meta            ?  "--software-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
     def sccmec_arg                  = sccmec                    ?  "--sccmec ${params.outdir}/${params.species_dir}/sccmec/${sccmec}" : ""
@@ -50,9 +48,8 @@ process create_prp_yaml {
     def virulencefinder_arg         = virulencefinder           ?  "--virulencefinder ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}" : ""
     def virulencefinder_meta_arg    = virulencefinder_meta      ?  "--software-info ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}" : ""
     """
-    create_prp_yaml.py \\
+    create_yaml.py \\
         ${amrfinder_arg} \\
-        ${assay_arg} \\
         ${bam_arg} \\
         ${bai_arg} \\
         ${chewbbaca_arg} \\
@@ -68,7 +65,6 @@ process create_prp_yaml {
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\
-        ${release_life_cycle_arg} \\
         ${resfinder_arg} \\
         ${resfinder_meta_arg} \\
         --sample-id ${sample_id} \\
@@ -90,7 +86,7 @@ process create_prp_yaml {
     """
 
     stub:
-    output = "${sample_id}_prp.yaml"
+    output = "${sample_id}_bonsai.yaml"
     """
     touch ${output}
     """
