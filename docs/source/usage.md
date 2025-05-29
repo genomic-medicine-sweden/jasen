@@ -3,9 +3,9 @@
 ## Simple self-test
 
 ```bash
-nextflow run main.nf                            \
-        -profile staphylococcus_aureus,illumina \
-        -config configs/nextflow.config         \
+nextflow run main.nf                                      \
+        -profile staphylococcus_aureus,illumina,apptainer \
+        -config nextflow.config                           \
         --csv assets/test_data/samplelist.csv
 ```
 
