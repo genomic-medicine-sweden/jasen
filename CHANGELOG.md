@@ -17,10 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `samtools_coverage` to get stats from mapping long reads to the reference and assembly
 - Added `minimap2_align_assembly`
 - Added `minimap2_index` for assembly indexing
+- Added `when` operator to `samtools` for `nanopore`
+- Added `assay` to yaml output
+- Added `staphylococcus_nrl` profile
+- Added `release_life_cycle` via profiles
+- Added `create_prp_yaml.py` to bin
+- Added `spatyper` and `sccmec` to yaml
+- Added `gambitcore` as a module
+- Added `apptainer` and `singularity` profiles
 
 ### Fixed
+
 - Fixed stub-run for S.aureus ONT workflow
-- typing error in Makefile
+- Fixed typing error in Makefile
+- Fixed checking out pipeline code with submodules
+- Fixed genome downloading via `bin/download_ncbi.py` with timed retries
+- Fixed dirty submodules in `.gitmodules`
+- Fixed dubious ownership bug where finder dbs retrieve commit ID
 
 ### Changed
 
@@ -30,6 +43,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed index created by BWA from `referenceGenomeIdx` to `referenceGenomeFai`
 - Renamed `bwa_mem_dedup` to `bwa_mem_assembly`
 - Split `samtools_sort` into two modules
+- Removed `abritamr` as it's not used
+- Changed dirname `container` to `containers`
+- Changed dirname `configs` to `conf`
+- Changed dirname `nextflow-modules` to `modules`
+- Changed importing of `spades`
+- Updated `Makefile` re dir name changes
+- Updated subworkflows
+- Grouped most workflows into one (`bacterial_general.nf`) to remove duplicate code
+- Changed to have only one main config `nexflow.config`
+- Changed `cmd` module name to `cdm`
+- Updated bonsai-prp to v1.3.0
+- Changed indentation structure
+- Moved `platform` to config via `params.platform` 
+- Changed `hostile` io
+- Updated docs regarding restructuring
+- Changed `prp` sub commands
+- Update CI GA workflow re `container_dir`
+- Removed `check-and-reinit-git-submodules` from CI GA workflow
+- Removed `kma` submodule
+- Removed `prodigal` from singularity container fetch
 
 ## [1.0.0]
 

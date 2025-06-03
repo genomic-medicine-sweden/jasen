@@ -43,11 +43,8 @@ jobs:
 
       - name: Check out pipeline code
         uses: actions/checkout@v3
-
-      - name: Check-out git submodules
-        # This should be done early so we can catch troubles with it early
-        run: |
-          cd ${GITHUB_WORKSPACE} && make check-and-reinit-git-submodules
+        with:
+          submodules: 'true'
 
       - name: Install Apptainer
         # For running (locally) with ACT, we use a docker image with Singularity/Apptainer already installed
@@ -57,7 +54,7 @@ jobs:
 
       - name: Install containers
         run:
-          cd ${GITHUB_WORKSPACE}/container && sudo make build_local_containers && make download_remote_containers
+          cd ${GITHUB_WORKSPACE}/containers && sudo make build_local_containers && make download_remote_containers
 
       - name: Report disk-usage after building containers
         run:
@@ -80,4 +77,4 @@ jobs:
 
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE}/main.nf -profile ${{ matrix.organism }} -config configs/nextflow.ci.config --csv assets/test_data/samplelist.csv
+          nextflow run ${GITHUB_WORKSPACE}/main.nf -profile ${{ matrix.organism }},illumina,ci,apptainer -config nextflow.config --csv assets/test_data/samplelist.csv

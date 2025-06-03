@@ -1,5 +1,5 @@
 // Function for platform and paired-end or single-end
-def get_meta(LinkedHashMap row) {
+def get_seqplat_meta(LinkedHashMap row) {
     platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]
     if (row.platform in platforms) {
         meta = tuple(row.id, row.platform)
@@ -8,7 +8,6 @@ def get_meta(LinkedHashMap row) {
     }
     return meta
 }
-
 
 def get_reads(LinkedHashMap row) {
     platforms = ["illumina", "nanopore", "pacbio", "iontorrent"]

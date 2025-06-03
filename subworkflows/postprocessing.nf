@@ -1,39 +1,61 @@
-include { bracken                   } from '../nextflow-modules/modules/bracken/main.nf'
-include { create_analysis_result    } from '../nextflow-modules/modules/prp/main.nf'
-include { export_to_cdm             } from '../nextflow-modules/modules/cmd/main.nf'
-include { kraken                    } from '../nextflow-modules/modules/kraken/main.nf'
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+include { format_jasen      } from '../modules/local/prp/main.nf'
+include { format_cdm        } from '../modules/local/prp/main.nf'
+include { create_yaml       } from '../modules/local/yaml/main.nf'
+include { export_to_cdm     } from '../modules/local/cdm/main.nf'
 
 workflow CALL_POSTPROCESSING {
     take:
-        ch_chewbbaca_split_results  // channel: [ val(meta), val(tsv) ]
-        ch_combinedOutput           // channel: [ val(meta), val(combinedOutput) ]
-        ch_post_align_qc            // channel: [ val(meta), val(ch_post_align_qc) ]
-        ch_quast                    // channel: [ val(meta), val(quast) ]
-        ch_reads                    // channel: [ val(meta), val(reads) ]
+    reference_genome
+    reference_genome_idx
+    reference_genome_gff
+    species_dir
+    tb_grading_rules_bed
+    tbdb_bed
+    ch_preprocessing_combined_output
+    ch_profiling_combined_output
+    ch_qc_combined_output
+    ch_relatedness_combined_output
+    ch_screening_combined_output
+    ch_seqrun_meta
+    ch_typing_combined_output
+    ch_variant_calling_combined_output
 
     main:
-        ch_versions = Channel.empty()
 
-        // end point
-        export_to_cdm(ch_chewbbaca_split_results.join(ch_quast).join(ch_post_align_qc))
+    ch_versions = Channel.empty()
 
-        // Using kraken for species identificaiton
-        if ( params.useKraken ) {
-            krakenDb = file(params.krakenDb, checkIfExists: true)
-            kraken(ch_reads, krakenDb)
-            bracken(kraken.out.report, krakenDb).output
-            ch_combinedOutput = ch_combinedOutput.join(bracken.out.output)
-            create_analysis_result(ch_combinedOutput)
-            ch_versions = ch_versions.mix(kraken.out.versions)
-            ch_versions = ch_versions.mix(bracken.out.versions)
-        } else {
-            emptyBrackenOutput = ch_reads.map { sampleName, reads -> [ sampleName, [] ] }
-            ch_combinedOutput = ch_combinedOutput.join(emptyBrackenOutput)
-            create_analysis_result(ch_combinedOutput)
-        }
+    // POSTPROCESSING
+    ch_preprocessing_combined_output
+        .join(ch_profiling_combined_output)
+        .join(ch_qc_combined_output)
+        .join(ch_relatedness_combined_output)
+        .join(ch_screening_combined_output)
+        .join(ch_typing_combined_output)
+        .join(ch_variant_calling_combined_output)
+        .set{ ch_combined_output}
+
+    create_yaml(
+        ch_combined_output,
+        reference_genome,
+        reference_genome_idx,
+        reference_genome_gff,
+        tb_grading_rules_bed,
+        tbdb_bed
+    )
+
+    format_jasen(create_yaml.out.yaml)
+
+    format_cdm(create_yaml.out.yaml)
+
+    export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
     emit:
-        pipeline_result = create_analysis_result.output // channel: [ path(json) ]
-        cdm             = export_to_cdm.output          // channel: [ path(txt) ]
-        versions        = ch_versions                   // channel: [ versions.yml ]
+    pipeline_result = format_jasen.out.json             // channel: [ path(json) ]
+    cdm             = export_to_cdm.out.cdm             // channel: [ path(txt) ]
+    yaml            = create_yaml.out.yaml          // channel: [ path(yaml) ]
+    versions        = ch_versions                       // channel: [ versions.yml ]
 }

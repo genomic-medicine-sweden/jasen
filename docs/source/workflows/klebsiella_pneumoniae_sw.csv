@@ -19,9 +19,6 @@ resfinder,4.4.2,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyh
 resfinder_db,2.1.1,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 samtools,1.17,https://depot.galaxyproject.org/singularity/samtools:1.17--h00cdaf9_0
 seqtk,1.4,https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_2
-serotypefinder,2.0.2,https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-serotypefinder_db,ada62c62a7fa74032448bb2273d1f7045c59fdda,https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-shigapass,1.5.0,https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
 ska2,0.3.10,https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 skesa,2.5.1,https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 sourmash,4.8.2,https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
