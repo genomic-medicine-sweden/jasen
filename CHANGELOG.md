@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Grouped most workflows into one (`bacterial_general.nf`) to remove duplicate code
 - Changed to have only one main config `nexflow.config`
 - Changed `cmd` module name to `cdm`
-- Updated bonsai-prp to v1.3.0
+- Updated bonsai-prp to v1.3.1
 - Changed indentation structure
 - Moved `platform` to config via `params.platform` 
 - Changed `hostile` io
@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `check-and-reinit-git-submodules` from CI GA workflow
 - Removed `kma` submodule
 - Removed `prodigal` from singularity container fetch
+- Updated finder submodules (`virulencefinder_db`, `resfinder_db`, `pointfinder_db`, `serotypefinder_db`)
 
 ## [1.0.0]
 
