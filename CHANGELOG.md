@@ -62,7 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI GA workflow re `container_dir`
 - Removed `check-and-reinit-git-submodules` from CI GA workflow
 - Removed `kma` submodule
-- Removed `prodigal` from singularity container fetch
 - Updated finder submodules (`virulencefinder_db`, `resfinder_db`, `pointfinder_db`, `serotypefinder_db`)
 - Updated `resfinder` version
 - Changed memory allowance for hostile
