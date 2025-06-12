@@ -59,12 +59,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `hostile` io
 - Updated docs regarding restructuring
 - Changed `prp` sub commands
-- Update CI GA workflow re `container_dir`
+- Updated CI GA workflow re `container_dir`
 - Removed `check-and-reinit-git-submodules` from CI GA workflow
 - Removed `kma` submodule
 - Updated finder submodules (`virulencefinder_db`, `resfinder_db`, `pointfinder_db`, `serotypefinder_db`)
 - Updated `resfinder` version
 - Changed memory allowance for hostile
+- Updated docs regarding updating finder dbs
 
 ## [1.0.0]
 

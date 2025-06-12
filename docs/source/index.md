@@ -34,6 +34,7 @@ The Jasen documentation is distributed under
 
 overview
 install
+update
 usage
 issues
 ```
