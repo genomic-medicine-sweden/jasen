@@ -16,14 +16,14 @@ process chewbbaca_allelecall {
 
     script:
     def args = task.ext.args ?: ''
-    training_file = training_file ? "--ptf ${training_file}" : "" 
+    training_file_arg = training_file ? "--ptf ${training_file}" : "" 
     """
     chewie AlleleCall \\
     -i ${batch_input} \\
     ${args} \\
     --cpu ${task.cpus} \\
     --output-directory output_dir \\
-    ${training_file} \\
+    ${training_file_arg} \\
     --schema-directory ${schema_dir}
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
