@@ -3,7 +3,7 @@ def get_species_taxon_name(fullName) {
   names = fullName.split(' ')
   if (fullName == "escherichia coli") {
     return names[0].capitalize()
-  } else if (fullName == "streptococcus") {
+  } else if (fullName in ["streptococcus", "staphylococcus"]) {
     return null
   }
   return names[0].capitalize() + "_" + names[1]
