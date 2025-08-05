@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated bonsai-prp to v1.3.2
+- Updated bonsai-prp to v1.3.3
 - Changed config variables for `staphylococcus`
 - Updated methods for `staphylococcus`
 

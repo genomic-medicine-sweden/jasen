@@ -313,7 +313,7 @@ def cli(
         prp_input["tbprofiler"] = tbprofiler
 
     if vcf:
-        prp_input["igv_annotations"].append(create_array("Cool variants", "variant", "uri", vcf))
+        prp_input["igv_annotations"].append(create_array("Predicted variants", "variant", "uri", vcf))
 
     if virulencefinder:
         prp_input["virulencefinder"] = virulencefinder
