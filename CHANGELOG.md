@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 
 ### Fixed
 
 ### Changed
+
 - Updated VirulenceFinder to v3.2.0
+- Changed pulling of submodules in CI to `recursive`
 
 ## [1.1.1]
 
