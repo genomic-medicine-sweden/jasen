@@ -54,7 +54,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.3.1
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.3.3
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 
 # URLs to remote containers
