@@ -91,7 +91,7 @@ URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_spatyper := https://depot.galaxyproject.org/singularity/spatyper:0.3.3--pyhdfd78af_3
 URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.3.0--pyhdfd78af_0
-URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:2.0.4--hdfd78af_1
+URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:3.2.0--pyhdfd78af_0
 
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);

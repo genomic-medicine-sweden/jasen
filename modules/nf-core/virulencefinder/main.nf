@@ -17,6 +17,7 @@ process virulencefinder {
 
     script:
     databases_arg = databases ? "--databases ${databases.join(',')}" : ""
+    def nanopore_arg = task.ext.nanopore_args ?: ''
     output = "${sample_id}_virulencefinder.json"
     meta_output = "${sample_id}_virulencefinder_meta.json"
     """
@@ -26,9 +27,10 @@ process virulencefinder {
     printf "\$JSON_FMT" "virulencefinder" "\$DB_VERSION" "database" > ${meta_output}
 
     # Run virulencefinder
-    virulencefinder.py              \\
-    --infile ${reads.join(' ')}     \\
+    python -m virulencefinder       \\
+    --inputfastq ${reads.join(' ')} \\
     ${databases_arg}                \\
+    ${nanopore_arg}                 \\
     --databasePath ${virulencefinder_db}
     cp data.json ${output}
 
@@ -36,6 +38,9 @@ process virulencefinder {
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_VERSION)
+      container: ${task.container}
+     virulencefinder:  
+      version: \$(echo \$(python -m virulencefinder --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """
@@ -52,6 +57,9 @@ process virulencefinder {
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_VERSION)
+      container: ${task.container}
+     virulencefinder:  
+      version: \$(echo \$(python -m virulencefinder --version 2>&1))
       container: ${task.container}
     END_VERSIONS
     """
