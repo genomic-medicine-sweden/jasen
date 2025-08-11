@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated Chewbbaca to v3.4.0 because of problems with schema preparation
 
+## [1.1.2]
+
+### Added
+
+### Fixed
+
+### Changed
+
+- Updated bonsai-prp to v1.3.3
+- Changed config variables for `staphylococcus`
+- Updated methods for `staphylococcus`
+
 ## [1.1.1]
 
 ### Added
