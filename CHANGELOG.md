@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
+- Added pulling of `.tar.gz` db files to `Makefile`
 
 ### Fixed
 
 ### Changed
+
+- Removed finder, ShigaPass & tbdb submodules
 
 ## [1.1.2]
 

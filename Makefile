@@ -157,6 +157,7 @@ print_paths:
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
 install: download_or_build_containers \
+	download_databases \
 	update_databases \
 	update_organisms
 
@@ -189,6 +190,115 @@ download_or_build_containers:
 	&& cd $(CONTAINERS_DIR) \
 	&& make all; \
 	cd -
+
+# ==============================================================================
+# Download database repositories as .tar.gz archives (using version tags)
+# ==============================================================================
+
+# Version numbers (from VERSION files and git tags)
+RESFINDER_VERSION := 2.6.0
+POINTFINDER_VERSION := 4.1.1
+VIRULENCEFINDER_VERSION := 2.0.1
+SEROTYPEFINDER_VERSION := 1.1.0
+TBDB_COMMIT := 4907915526b52ac2f20f1324613f5d4dc951e0bd
+SHIGAPASS_VERSION := v1.5.0
+
+download_databases: download_resfinder_db \
+	download_pointfinder_db \
+	download_virulencefinder_db \
+	download_serotypefinder_db \
+	download_tbdb \
+	download_shigapass
+
+# Download and extract ResFinder database
+download_resfinder_db: $(ASSETS_DIR)/resfinder_db/INSTALL.py
+
+$(ASSETS_DIR)/resfinder_db/INSTALL.py:
+	$(call log_message,"Downloading ResFinder database v$(RESFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/resfinder_db/get/$(RESFINDER_VERSION).tar.gz \
+		-O resfinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf resfinder_db.tar.gz \
+	&& mv genomicepidemiology-resfinder_db-* resfinder_db \
+	&& rm resfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract PointFinder database
+download_pointfinder_db: $(ASSETS_DIR)/pointfinder_db/INSTALL.py
+
+$(ASSETS_DIR)/pointfinder_db/INSTALL.py:
+	$(call log_message,"Downloading PointFinder database v$(POINTFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/pointfinder_db/get/$(POINTFINDER_VERSION).tar.gz \
+		-O pointfinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf pointfinder_db.tar.gz \
+	&& mv genomicepidemiology-pointfinder_db-* pointfinder_db \
+	&& rm pointfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract VirulenceFinder database
+download_virulencefinder_db: $(ASSETS_DIR)/virulencefinder_db/INSTALL.py
+
+$(ASSETS_DIR)/virulencefinder_db/INSTALL.py:
+	$(call log_message,"Downloading VirulenceFinder database v$(VIRULENCEFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/virulencefinder_db/get/$(VIRULENCEFINDER_VERSION).tar.gz \
+		-O virulencefinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf virulencefinder_db.tar.gz \
+	&& mv genomicepidemiology-virulencefinder_db-* virulencefinder_db \
+	&& rm virulencefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract SerotypeFinder database
+download_serotypefinder_db: $(ASSETS_DIR)/serotypefinder_db/INSTALL.py
+
+$(ASSETS_DIR)/serotypefinder_db/INSTALL.py:
+	$(call log_message,"Downloading SerotypeFinder database v$(SEROTYPEFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/serotypefinder_db/get/$(SEROTYPEFINDER_VERSION).tar.gz \
+		-O serotypefinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf serotypefinder_db.tar.gz \
+	&& mv genomicepidemiology-serotypefinder_db-* serotypefinder_db \
+	&& rm serotypefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract TBDB
+download_tbdb: $(ASSETS_DIR)/tbdb/README.md
+
+$(ASSETS_DIR)/tbdb/README.md:
+	$(call log_message,"Downloading TBDB commit $(TBDB_COMMIT)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://github.com/jodyphelan/tbdb/archive/$(TBDB_COMMIT).tar.gz \
+		-O tbdb.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf tbdb.tar.gz \
+	&& mv tbdb-$(TBDB_COMMIT) tbdb \
+	&& rm tbdb.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract ShigaPass
+download_shigapass: $(ASSETS_DIR)/ShigaPass/README.md
+
+$(ASSETS_DIR)/ShigaPass/README.md:
+	$(call log_message,"Downloading ShigaPass $(SHIGAPASS_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://github.com/imanyass/ShigaPass/archive/$(SHIGAPASS_VERSION).tar.gz \
+		-O ShigaPass.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf ShigaPass.tar.gz \
+	&& mv ShigaPass-* ShigaPass \
+	&& rm ShigaPass.tar.gz |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Update databases
@@ -256,7 +366,7 @@ $(HOSTILE_DIR)/human-t2t-hla.1.bt2:
 # Update ShigaPass database
 # -----------------------------
 SHIGAPASS_DIR := $(ASSETS_DIR)/ShigaPass
-update_shigapass_db: $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
+update_shigapass_db: download_shigapass $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
 
 $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
 	$(call log_message,"Starting update of ShigaPass database")
@@ -328,7 +438,7 @@ POINTFINDERDB_DIR := $(ASSETS_DIR)/pointfinder_db
 SEROTYPEDFINDERDB_DIR := $(ASSETS_DIR)/serotypefinder_db
 
 
-update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
+update_virulencefinder_db: download_virulencefinder_db $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
 
 $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	$(call log_message,"Starting update of VirulenceFinder database")
@@ -348,7 +458,7 @@ $(VIRULENCEFINDERDB_DIR)/VERSION:
 		echo "$$DB_VERSION" > VERSION |& tee -a $(INSTALL_LOG)
 
 
-update_resfinder_db: $(RESFINDERDB_DIR)/all.length.b
+update_resfinder_db: download_resfinder_db $(RESFINDERDB_DIR)/all.length.b
 
 $(RESFINDERDB_DIR)/all.length.b:
 	$(call log_message,"Starting update of ResFinder database")
@@ -358,7 +468,7 @@ $(RESFINDERDB_DIR)/all.length.b:
 		kma_index |& tee -a $(INSTALL_LOG)
 
 
-update_pointfinder_db: $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
+update_pointfinder_db: download_pointfinder_db $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
 
 $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 	$(call log_message,"Starting update of PointFinder database")
@@ -367,7 +477,7 @@ $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
-update_serotypefinder_db: $(SEROTYPEDFINDERDB_DIR)/H_type.length.b $(SEROTYPEDFINDERDB_DIR)/VERSION
+update_serotypefinder_db: download_serotypefinder_db $(SEROTYPEDFINDERDB_DIR)/H_type.length.b $(SEROTYPEDFINDERDB_DIR)/VERSION
 
 $(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
 	$(call log_message,"Starting update of SerotypeFinder database")
@@ -933,7 +1043,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSE
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
 
-$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv
+$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: download_tbdb $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv
 	$(call log_message,"Creating WHO FoHM TBDB ...")
 	cd $(MTUBE_TBDB_DIR) \
 	&& cp $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
