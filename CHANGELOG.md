@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `--nanopore` option to VirulenceFinder for analysing ONT data
+- Added pulling of `.tar.gz` db files to `Makefile`
+
 ### Fixed
 
 ### Changed
+
+- Removed finder, ShigaPass & tbdb submodules
+- Neatened up mlst db updating scripts
 
 ## [1.1.2]
 
@@ -24,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated bonsai-prp to v1.3.3
 - Changed config variables for `staphylococcus`
 - Updated methods for `staphylococcus`
+- Updated VirulenceFinder to v3.2.0
+- Changed pulling of submodules in CI to `recursive`
 
 ## [1.1.1]
 
