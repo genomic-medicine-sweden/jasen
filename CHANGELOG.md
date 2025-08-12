@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed finder, ShigaPass & tbdb submodules
+- Neatened up mlst db updating scripts
 
 ## [1.1.2]
 
