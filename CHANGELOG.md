@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Changed
+- Updated Chewbbaca to v3.4.0 because of problems with schema preparation
 
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts
