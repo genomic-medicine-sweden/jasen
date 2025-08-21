@@ -140,6 +140,9 @@ PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
 MNT_ROOT := /$(shell readlink -f . | cut -d"/" -f2)
 INSTALL_LOG := "$(SCRIPT_DIR)/.install.log"
 
+NCBI_BASE_URL := "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/"
+NCBI_PARAMS_GENOME_ONLY := "include_annotation_type=GENOME_FASTA"
+
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);
 	@echo "$$(date "+%Y-%m-%d %H:%M:%S"): $1" | tee -a $(INSTALL_LOG);
@@ -619,13 +622,9 @@ ECOLI_REFSEQ_ACC := GCF_000005845.2
 ecoli_download_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
-	$(call log_message,"Downloading E. coli genome ...")
-	cd $(SCRIPT_DIR) \
-	&& mkdir -p $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
-		-i $(ECOLI_REFSEQ_ACC) \
-		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
+	curl -o $@.zip "$(NCBI_BASE_URL)/$(ECOLI_REFSEQ_ACC)/download?$(NCBI_PARAMS_GENOME_ONLY)" \
+	&& unzip -d $(ECOLI_GENOMES_DIR) $@.zip \
+	&& bash -c "mv $(ECOLI_GENOMES_DIR)/ncbi_dataset/data/$(ECOLI_REFSEQ_ACC)/$(ECOLI_REFSEQ_ACC)_*.fna $@"
 
 
 ecoli_faidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai
