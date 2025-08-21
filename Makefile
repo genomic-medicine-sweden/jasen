@@ -586,7 +586,7 @@ saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus
 
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
+$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -657,7 +657,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSE
 
 ecoli_generate_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
 
-$(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
+$(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn: | $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Generating E. coli prodigal training file ...")
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
@@ -709,7 +709,7 @@ ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia
 
 $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
+$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
@@ -817,7 +817,7 @@ kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiell
 
 $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: $(KPNEU_CGMLST_DIR)/alleles_rereffed
 
-$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
+$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
 	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KPNEU_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -925,7 +925,7 @@ spyogenes_prep_cgmlst_schema: | $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcu
 
 $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcus_pyogenes.trn: $(SPYO_CGMLST_DIR)/alleles_rereffed
 
-$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
+$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
 	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(SPYO_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
