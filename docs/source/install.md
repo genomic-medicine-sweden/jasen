@@ -34,7 +34,7 @@ zlib
 The containers will be attempted to be built and downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder).
 
 ```bash
-cd container && make
+cd containers && make
 ```
 
 ### Download references and databases using Apptainer. 
@@ -106,46 +106,41 @@ Source: `~/.bashrc`
 export SINGULARITY_TMPDIR="/tmp" #or equivalent filepath to tmp dir
 ```
 
-## Fetching databases
+## Fetching/updating databases
 
-### Choose database
+**NOTE**: Both `kraken` and `mlst` require their databases to be downloaded **MANUALLY**
 
-Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB).  Or customize [your own](https://benlangmead.github.io/aws-indexes/k2).
+### Kraken
 
-### Download Kraken database
+Choose between Kraken DB (64GB [Highly recommended]) or MiniKraken DB (8GB). Alternatively you can customize [your own](https://benlangmead.github.io/aws-indexes/k2).
+
+#### Download Kraken database
 
 ```bash
 wget -O /path/to/kraken_db/krakenstd.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenstd.tar.gz
 ```
 
-### Download MiniKraken database
+#### Download MiniKraken database
 
 ```bash
 wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20230314.tar.gz
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
-## Updating databases
+### MLST databases (PubMLST & Blast)
 
-### Update MLST database
-
-```bash
-bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
+**NOTE**: PubMLST DB requires users to have an account at [Bacterial Isolate Genome Sequence Database (BIGSdb)](https://pubmlst.org/bigsdb) in order to download the latest reported alleles. Here are the steps:
+1. Register to all databases by clicking the `Database registrations`, check all, and register.
+2. Create an API key under the `API keys` dropdown. 
+3. Add them to `assets/mlstdb/update_mlstdb.sh` by editing `CLIENT_ID` and `CLIENT_SECRET`, or add the following to your `~/.bashrc`:
+```
+export PUBMLST_CLIENT_ID="<pubmlst_client_id>"
+export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
 ```
 
-## Create personalised TBProfiler database
-
-### Install jasentool
+#### Download/update MLST database
 
 ```bash
-git clone git@github.com:SMD-Bioinformatics-Lund/jasentool.git && cd jasentool
-pip install .
-```
-
-### Bgzip and index gms TBProfiler db
-
-```bash
-bgzip -c converged_who_fohm_tbdb.bed > /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
-tabix -p bed /path/to/jasen/assets/tbprofiler_dbs/bed/converged_who_fohm_tbdb.bed.gz
+bash /path/to/jasen/assets/mlstdb/update_mlstdb.sh
 ```

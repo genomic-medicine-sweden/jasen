@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
+- Added `bactopia-py` for updating mlstdb
 
 ### Fixed
 
@@ -18,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts
+- Updated documentation regarding updating mlstdb
+- Updated bonsai-prp to v1.3.4
+- Changed `mlst_db` dir to `mlstdb` to match `bactopia-py` output
+- Removed blast db creation from `Makefile` as `bactopia-py` does it
+- Removed deprecated scripts for downloading mlst db
+- Removed `_bonsai` from yaml filename
+- Updated `mlst` to run if not CI run
+- Removed tb profiler instructions that are not longer relevant from docs
+- Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
 
 ## [1.1.2]
 
