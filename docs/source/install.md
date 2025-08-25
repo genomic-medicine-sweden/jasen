@@ -21,6 +21,14 @@ cd jasen
 
 ### Installation requirements
 
+**IMPORTANT**: In order to run the make installation, the following needs to be completed.
+
+PubMLST DB requires users to have an account in order to download the latest reported alleles. This can be done on the [Bacterial Isolate Genome Sequence Database (BIGSdb)](https://pubmlst.org/bigsdb). Thereafter, register to all databases by clicking the `Database registrations`, check all, and register. Then, create an API key under the `API keys` dropdown, which will be used in the `make install` command. After creating the API key, add them to `assets/mlstdb/update_mlstdb.sh` by editing `CLIENT_ID` and `CLIENT_SECRET`, or add the following to your `~/.bashrc`:
+```
+export PUBMLST_CLIENT_ID="<pubmlst_client_id>"
+export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
+```
+
 **NOTE**: We assume that your OS has the following command-line tools installed in order for installation of JASEN:
 
 ```bash
@@ -34,7 +42,7 @@ zlib
 The containers will be attempted to be built and downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder).
 
 ```bash
-cd container && make
+cd containers && make
 ```
 
 ### Download references and databases using Apptainer. 
@@ -131,7 +139,10 @@ tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ### Update MLST database
 
 ```bash
-bash /path/to/jasen/assets/mlst_db/update_mlst_db.sh
+export PUBMLST_CLIENT_ID="<pubmlst_client_id>"
+export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
+
+bash /path/to/jasen/assets/mlstdb/update_mlstdb.sh
 ```
 
 ## Create personalised TBProfiler database
