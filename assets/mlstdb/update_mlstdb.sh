@@ -14,6 +14,7 @@ PUBMLST_SECRET=${CLIENT_SECRET:=$PUBMLST_CLIENT_SECRET}
 
 # Create PubMLST access token
 apptainer exec --bind $MNTROOT ${CONTAINERS_DIR}/bactopia-py.sif bactopia-pubmlst-setup \
+    --force \
     --client-id $PUBMLST_ID \
     --client-secret $PUBMLST_SECRET \
     -d pubmlst_saureus_seqdef \
