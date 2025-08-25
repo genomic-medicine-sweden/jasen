@@ -162,7 +162,7 @@ install: download_or_build_containers \
 	update_organisms
 
 update_databases: update_amrfinderplus \
-	update_mlst_db \
+	update_mlstdb \
 	update_blast_db \
 	update_finder_dbs \
 	update_shigapass_db \
@@ -399,29 +399,17 @@ $(AMRFINDERDB_DIR)/latest:
 		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
-# Update MLST database
+# Update MLST database (PubMLST + blast)
 # -----------------------------
-MLSTDB_DIR := $(ASSETS_DIR)/mlst_db
+MLSTDB_DIR := $(ASSETS_DIR)/mlstdb
 
-update_mlst_db: $(MLSTDB_DIR)/pubmlst/dbases.xml
+update_mlstdb: $(MLSTDB_DIR)/DB_VERSION
 
-$(ASSETS_DIR)/mlst_db/pubmlst/dbases.xml:
+$(MLSTDB_DIR)/DB_VERSION:
 	$(call log_message,"Starting update of MLST database ...")
 	cd $(MLSTDB_DIR) \
-	&& bash mlst-download_pub_mlst.sh |& tee -a $(INSTALL_LOG)
-
-# -----------------------------
-# Update Blast database
-# -----------------------------
-update_blast_db: $(MLSTDB_DIR)/blast
-
-$(MLSTDB_DIR)/blast:
-	$(call log_message,"Starting update of Blast database")
-	cd $(MLSTDB_DIR) \
-	&& apptainer exec \
-		--bind $(MNT_ROOT) \
-		$(CONTAINERS_DIR)/blast.sif \
-		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh |& tee -a $(INSTALL_LOG)
+	&& bash update_mlstdb.sh 
+	&& rm mlst.tar.gz |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update Finder databases
@@ -607,8 +595,9 @@ ecoli_all: ecoli_download_reference \
 	ecoli_bwaidx_reference \
 	ecoli_minimap2idx_reference \
 	ecoli_generate_prodigal_training_file \
+	ecoli_download_cgmlst_schema \
 	ecoli_download_wgmlst_schema \
-	ecoli_prep_ecoli_cgmlst_schema
+	ecoli_prep_cgmlst_schema
 
 ECOLI_GENOMES_DIR := $(ASSETS_DIR)/genomes/escherichia_coli
 ECOLI_WGMLST_DIR := $(ASSETS_DIR)/wgmlst/escherichia_coli
@@ -705,7 +694,7 @@ $(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_s
 
 
 # Prepping Ecoli cgmlst cgmlst.org schema
-ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
+ecoli_prep_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
 $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
 
@@ -1054,8 +1043,6 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: download_tbdb $(MTUBE_
 
 mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 
-
-
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
@@ -1148,7 +1135,7 @@ check_minimap2:
 # -----------------------------
 # Check BlastDB
 # -----------------------------
-MLST_BLAST_DIR := $(ASSETS_DIR)/mlst_db/blast
+MLST_BLAST_DIR := $(ASSETS_DIR)/mlstdb/blast
 check_blastdb:
 	@cd $(SCRIPT_DIR) \
 	&& mlst=$(MLST_BLAST_DIR)/mlst.fa; \
