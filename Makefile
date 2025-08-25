@@ -162,8 +162,6 @@ install: download_or_build_containers \
 	update_organisms
 
 update_databases: update_amrfinderplus \
-	update_mlstdb \
-	update_blast_db \
 	update_finder_dbs \
 	update_shigapass_db \
 	update_hostile_db \
@@ -399,7 +397,7 @@ $(AMRFINDERDB_DIR)/latest:
 		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
-# Update MLST database (PubMLST + blast)
+# Update MLST database (PubMLST + BLAST)
 # -----------------------------
 MLSTDB_DIR := $(ASSETS_DIR)/mlstdb
 
