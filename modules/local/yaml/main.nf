@@ -14,7 +14,7 @@ process create_yaml {
     tuple val(sample_id), path(output), emit: yaml
 
     script:
-    output                          = "${sample_id}_bonsai.yaml"
+    output                          = "${sample_id}.yaml"
     def access_dir                  = params.symlink_dir        ?: params.outdir
     def amrfinder_arg               = amrfinder                 ?  "--amrfinder ${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}" : ""
     def bam_arg                     = bam                       ?  "--bam ${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
@@ -86,7 +86,7 @@ process create_yaml {
     """
 
     stub:
-    output = "${sample_id}_bonsai.yaml"
+    output = "${sample_id}.yaml"
     """
     touch ${output}
     """
