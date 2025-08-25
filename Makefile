@@ -162,8 +162,6 @@ install: download_or_build_containers \
 	update_organisms
 
 update_databases: update_amrfinderplus \
-	update_mlstdb \
-	update_blast_db \
 	update_finder_dbs \
 	update_shigapass_db \
 	update_hostile_db \
