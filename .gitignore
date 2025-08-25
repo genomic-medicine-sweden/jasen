@@ -6,8 +6,10 @@ assets/references
 assets/card
 assets/cgmlst/*/alleles*
 assets/genomes
-assets/mlst_db/blast
-assets/mlst_db/pubmlst
+assets/mlstdb/blast
+assets/mlstdb/pubmlst
+assets/mlstdb/pubmlst-token.json*
+assets/mlstdb/*.log
 assets/amrfinder_db
 assets/gambit_db
 assets/wgmlst/*/alleles*
