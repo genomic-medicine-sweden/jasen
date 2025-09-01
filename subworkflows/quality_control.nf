@@ -94,6 +94,7 @@ workflow CALL_QUALITY_CONTROL {
     gambitcore          = gambitcore.out.tsv            // channel: [ val(meta), path(tsv) ]
     kraken              = ch_kraken                     // channel: [ val(meta), path(fasta) ]
     nanoplot_html       = nanoplot.out.html             // channel: [ val(meta), path(html) ]
+    nanoplot_txt        = nanoplot.out.txt              // channel: [ val(meta), path(txt) ]
     post_align_qc       = ch_post_align_qc              // channel: [ val(meta), path(fasta) ]
     quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
     samtools_cov_ref    = ch_samtools_cov_ref           // channel: [ val(meta), path(txt) ]

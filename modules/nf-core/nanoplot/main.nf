@@ -7,6 +7,7 @@ process nanoplot {
 
     output:
     tuple val(sample_id), path(output), emit: html
+    tuple val(sample_id), path(output2), emit: txt
     path "*versions.yml"              , emit: versions
 
     when:
@@ -15,6 +16,7 @@ process nanoplot {
     script:
     def args = task.ext.args ?: ''
     output = "${sample_id}_NanoPlot-report.html"
+    output2 = "${sample_id}_NanoStats.txt"
     """
     NanoPlot ${args} --threads ${task.cpus} --prefix ${sample_id}_ --fastq ${reads}
 
@@ -28,8 +30,9 @@ process nanoplot {
 
     stub:
     output = "${sample_id}_NanoPlot-report.html"
+    output2 = "${sample_id}_NanoStats.txt"
     """
-    touch ${output}
+    touch ${output} ${output2}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
