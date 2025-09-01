@@ -32,7 +32,13 @@ workflow CALL_TYPING {
     ch_versions = Channel.empty()
 
     // TYPING
-    mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
+    if ( !params.ci ) {
+        mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
+        mlst.out.json.set{ ch_mlst }
+        ch_versions = ch_versions.mix(mlst.out.versions)
+    } else {
+        ch_empty.set{ ch_mlst }
+    }
 
     mask_polymorph_assembly(ch_assembly.join(ch_vcf))
 
@@ -84,7 +90,7 @@ workflow CALL_TYPING {
 
     chewbbaca_split_results.out.tsv
         .join(ch_emmtyper)
-        .join(mlst.out.json)
+        .join(ch_mlst)
         .join(ch_sccmec)
         .join(ch_serotypefinder)
         .join(ch_serotypefinder_meta)
@@ -92,14 +98,13 @@ workflow CALL_TYPING {
         .join(ch_spatyper)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(mlst.out.versions)
     ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
 
     emit:
     chewbbaca       = chewbbaca_split_results.out.tsv     // channel: [ val(meta), path(tsv) ]
     combined_output = ch_combined_output                  // channel: [ val(meta), path(tsv), path(tsv), path(json), path(tsv), path(json), path(json), path(csv), path(tsv) ]
     emmtyper        = ch_emmtyper                         // channel: [ val(meta), path(tsv) ]
-    mlst            = mlst.out.json                       // channel: [ val(meta), path(json) ]
+    mlst            = ch_mlst                             // channel: [ val(meta), path(json) ]
     sccmec          = ch_sccmec                           // channel: [ val(meta), path(tsv) ]
     serotypefinder  = ch_serotypefinder                   // channel: [ val(meta), path(json) ]
     serotypefinder  = ch_serotypefinder_meta              // channel: [ val(meta), path(json) ]
