@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
+- Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
 - Added `bactopia-py` for updating mlstdb
 
 ### Fixed
