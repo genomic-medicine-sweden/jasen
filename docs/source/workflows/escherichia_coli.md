@@ -2,7 +2,8 @@
 
 ## Usage
  
-The workflows is designed for analysis of *Escherichia coli* (including ETEC, EIEC, and EPEC) and *Shigella* spp.
+This workflow is designed for analysis of *Escherichia coli* (including ETEC,
+EIEC, and EPEC) and *Shigella* spp.
 
 ## Supported analysis
 
@@ -21,5 +22,4 @@ The workflow includes the following analysis in addition to species prediction a
 
 ```{csv-table} Versions of softwares and containers used by the *Escherichia coli* workflow.
 :file: escherichia_coli_sw.csv
-
 ```

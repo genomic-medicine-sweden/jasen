@@ -171,6 +171,7 @@ update_databases: update_amrfinderplus \
 
 update_organisms: saureus_all \
 	ecoli_all \
+	efaecium_all \
 	kpneumoniae_all \
 	mtuberculosis_all \
 	spyogenes_all \
@@ -599,6 +600,115 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	&& find $(SAUR_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
+# E. Faecium
+# -----------------------------
+
+efaecium_all: efaecium_download_reference \
+	efaecium_faidx_reference \
+	efaecium_bwaidx_reference \
+	efaecium_minimap2idx_reference \
+	efaecium_download_prodigal_training_file \
+	efaecium_download_cgmlst_schema \
+	efaecium_unpack_cgmlst_schema \
+	efaecium_prep_cgmlst_schema
+
+
+EFAECIUM_GENOMES_DIR := $(ASSETS_DIR)/genomes/enterococcus_faecium
+EFAECIUM_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/enterococcus_faecium
+EFAECIUM_REFSEQ_ACC := GCF_000250945.2
+
+
+efaecium_download_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta
+
+$(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta:
+	$(call log_message,"Downloading E. faecium genome ...")
+	cd $(SCRIPT_DIR) \
+	&& mkdir -p $(EFAECIUM_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
+		python3 bin/download_ncbi.py \
+		-i $(EFAECIUM_REFSEQ_ACC) \
+		-o $(EFAECIUM_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
+
+
+efaecium_faidx_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta.fai
+
+$(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta.fai: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing E. faecium genome using samtools...")
+	cd $(EFAECIUM_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+efaecium_bwaidx_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta.bwt
+
+$(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta.bwt: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing E. faecium genome using bwa...")
+	cd $(EFAECIUM_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
+
+
+efaecium_minimap2idx_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).mmi
+
+$(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).mmi: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta
+	$(call log_message,"Indexing E. faecium genome using minimap2...")
+	cd $(EFAECIUM_GENOMES_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
+
+
+efaecium_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Enterococcus_faecium.trn
+
+$(PRODIGAL_TRAINING_DIR)/Enterococcus_faecium.trn:
+	$(call log_message,"Downloading E. faecium prodigal training file ...")
+	mkdir -p $(PRODIGAL_TRAINING_DIR) \
+	&& cd $(PRODIGAL_TRAINING_DIR) \
+	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Enterococcus_faecium.trn \
+		-O $@ \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+# Download Enterococcus faecium cgmlst cgmlst.org schema
+efaecium_download_cgmlst_schema: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip
+
+$(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip:
+	$(call log_message,"Downloading E. faecium cgMLST schema ...")
+	mkdir -p $(EFAECIUM_CGMLST_DIR)/alleles \
+	&& cd $(EFAECIUM_CGMLST_DIR)/alleles \
+	&& wget https://www.cgmlst.org/ncs/schema/Efaecium5736/alleles/ \
+		-O $$(basename $@) \
+		--no-verbose \
+		--no-check-certificate |& tee -a $(INSTALL_LOG)
+
+
+efaecium_unpack_cgmlst_schema: $(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done
+
+$(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip
+	$(call log_message,"Unpacking E. faecium cgMLST schema ...")
+	cd $(EFAECIUM_CGMLST_DIR)/alleles \
+	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
+
+
+# Prep E. Faecium cgmlst cgmlst.org schema
+efaecium_prep_cgmlst_schema: | $(EFAECIUM_CGMLST_DIR)/alleles_rereffed/Enterococcus_faecium.trn
+
+$(EFAECIUM_CGMLST_DIR)/alleles_rereffed/Enterococcus_faecium.trn: $(EFAECIUM_CGMLST_DIR)/alleles_rereffed
+
+$(EFAECIUM_CGMLST_DIR)/alleles_rereffed: | $(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done
+	$(call log_message,"Prepping E. faecium cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
+	cd $(EFAECIUM_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+		chewie PrepExternalSchema \
+		-g $(EFAECIUM_CGMLST_DIR)/alleles \
+		-o $(EFAECIUM_CGMLST_DIR)/alleles_rereffed \
+		--cpu 2 \
+		--ptf $(PRODIGAL_TRAINING_DIR)/Enterococcus_faecium.trn \
+	&& find $(EFAECIUM_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
+	
+# -----------------------------
 # E. coli
 # -----------------------------
 
@@ -812,7 +922,7 @@ $(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_s
 	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
 
 
-# Prep Kpneumoniae cgmlst cgmlst.org schema
+# Prep Kpneumoniae cgmlst.org schema
 kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
 
 $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: $(KPNEU_CGMLST_DIR)/alleles_rereffed
