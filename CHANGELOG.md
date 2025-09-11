@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
+- Added a profile for Enterococcus faecium, including MLST, cgMLST and
+  resistance and virulence testing.
 
 ### Fixed
 
