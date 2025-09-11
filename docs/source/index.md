@@ -45,6 +45,7 @@ issues
 :maxdepth: 1
 
 workflows/staphylococcus_aureus
+workflows/enterococcus_faecium
 workflows/escherichia_coli
 workflows/mycobacterium_tuberculosis
 workflows/klebsiella_pneumoniae

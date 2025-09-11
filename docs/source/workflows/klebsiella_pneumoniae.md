@@ -2,7 +2,7 @@
 
 ## Usage
  
-The workflows is designed for analysis of *Klebsiella pneumoniae*.
+This workflow is designed for analysis of *Klebsiella pneumoniae*.
 
 ## Supported analysis
 
@@ -18,5 +18,4 @@ The workflow includes the following analysis in addition to species prediction a
 
 ```{csv-table} Versions of softwares and containers used by the *Klebsiella pneumoniae* workflow.
 :file: klebsiella_pneumoniae_sw.csv
-
 ```
