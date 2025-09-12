@@ -13,6 +13,7 @@ The pipeline currently support a small set of microbiota and the support are in 
 | Species                      | Development status |
 |------------------------------|--------------------|
 | *Staphylococcus arueus*      | Stable             |
+| *Enterococcus faecium*       | Development        |
 | *Escherichia coli*           | Stable             |
 | *Mycobacterium tuberculosis* | Stable             |
 | *Klebsiella pneumoniae*      | Development        |
