@@ -2,7 +2,7 @@
 
 ## Usage
 
-The workflow intended for analysis of species that are part of the *Mycobacterium tuberculosis* complex.
+A workflow intended for analysis of species that are part of the *Mycobacterium tuberculosis* complex.
 
 ## Supported analysis
 
@@ -14,5 +14,4 @@ The workflow includes the following analysis in addition to species prediction a
 
 ```{csv-table} Versions of softwares and containers used by the *Mycobacterium tuberculosis* workflow.
 :file: mycobacterium_tuberculosis_sw.csv
-
 ```

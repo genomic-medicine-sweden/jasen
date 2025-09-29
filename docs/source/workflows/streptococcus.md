@@ -2,7 +2,7 @@
 
 ## Usage
 
-The workflows is designed for analyzing of *Streptococcus spp.*.
+A workflow designed for analyzing of *Streptococcus spp.*.
 
 ## Supported analysis
 
@@ -15,10 +15,8 @@ The workflow includes the following analysis in addition to species prediction a
 - MLST
 - cgMLST
 
-
 ## Software versions
 
 ```{csv-table} Versions of softwares and containers used by the *Streptococcus* workflow.
 :file: streptococcus_sw.csv
-
 ```
