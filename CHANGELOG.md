@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `bactopia-py` for updating mlstdb
 
 ### Fixed
+- Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
+- Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
 
 ### Changed
 
