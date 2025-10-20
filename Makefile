@@ -548,13 +548,13 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip
+saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip
 
-$(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip:
+$(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip:
 	$(call log_message,"Downloading S. aureus cgMLST schema ...")
 	mkdir -p $(SAUR_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Saureus1566/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Saureus48/alleles/ \
 		-O $@ \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -562,7 +562,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip:
 
 saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
-$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip
+$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
 	cd $$(dirname $<) \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -662,20 +662,20 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
-		-sp 5 \
+		-sp 10 \
 		-sc 1 \
 		-o $(ECOLI_WGMLST_DIR)/alleles \
 		--latest |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli cgmlst cgmlst.org schema
-ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip
+ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip
 
-$(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip:
+$(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Ecoli1561/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Ecoli16/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -684,7 +684,7 @@ $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip:
 # Unpack Ecoli cgmlst schema
 ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 
-$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip
+$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -778,13 +778,13 @@ $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 
 
 # Download Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip
+kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip
 
-$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip:
+$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Kpneumoniae1566/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Kpneumoniae8/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -792,7 +792,7 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip:
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 
-$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip
+$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -886,13 +886,13 @@ $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn:
 
 
 # Download Streptococcus pyogenes cgmlst cgmlst.org schema
-spyogenes_download_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip
+spyogenes_download_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip
 
-$(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip:
+$(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip:
 	$(call log_message,"Downloading S. pyogenes cgMLST schema ...")
 	mkdir -p $(SPYO_CGMLST_DIR)/alleles \
 	&& cd $(SPYO_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Spyogenes1563/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Spyogenes11/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -900,7 +900,7 @@ $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip:
 
 spyogenes_unpack_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 
-$(SPYO_CGMLST_DIR)/alleles/unpacking.done: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip
+$(SPYO_CGMLST_DIR)/alleles/unpacking.done: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip
 	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
 	cd $(SPYO_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
