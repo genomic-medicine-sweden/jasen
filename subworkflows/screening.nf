@@ -27,16 +27,22 @@ workflow CALL_SCREENING {
     resfinder(ch_reads, params.species, resfinder_db, pointfinder_db)
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
+    // klebsiella and esherichia analysis pipeline
+    kleborate(ch_assembly, params.use_preset)
+
     amrfinderplus.out.tsv
         .join(resfinder.out.json)
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
         .join(virulencefinder.out.meta)
+        .join(kleborate.out.txt)
+        .join(kleborate.out.meta)
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(amrfinderplus.out.versions)
     ch_versions = ch_versions.mix(resfinder.out.versions)
     ch_versions = ch_versions.mix(virulencefinder.out.versions)
+    ch_versions = ch_versions.mix(kleborate.out.versions)
 
     emit:
     amrfinderplus           = amrfinderplus.out.tsv     // channel: [ val(meta), path(tsv) ]
@@ -45,5 +51,7 @@ workflow CALL_SCREENING {
     resfinder_meta          = resfinder.out.meta        // channel: [ val(meta), path(meta) ]
     virulencefinder_json    = virulencefinder.out.json  // channel: [ val(meta), path(json) ]
     virulencefinder_meta    = virulencefinder.out.meta  // channel: [ val(meta), path(meta) ]
+    kleborate_txt           = kleborate.out.txt         // channel: [ val(meta), path(meta) ]
+    kleborate_meta           = kleborate.out.meta       // channel: [ val(meta), path(meta) ]
     versions                = ch_versions               // channel: [ versions.yml ]
 }

@@ -65,6 +65,11 @@ def cli(silent, debug):
     help="Sample groups"
 )
 @click.option(
+    "--kleborate",
+    type=click.Path(),
+    help="Klebsiella and Escherichia analysis pipeline"
+)
+@click.option(
     "--kraken",
     type=click.Path(),
     help="Kraken species annotation results"
@@ -199,6 +204,7 @@ def cli(
     emmtyper,
     gambitcore,
     groups,
+    kleborate,
     kraken,
     lims_id,
     mlst,
@@ -245,6 +251,9 @@ def cli(
 
     if groups:
         prp_input["groups"] = list(groups)
+
+    if kleborate:
+        prp_input["kleborate"] = kleborate
 
     if kraken:
         prp_input["kraken"] = kraken
