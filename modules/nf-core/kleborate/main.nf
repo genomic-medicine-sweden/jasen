@@ -11,12 +11,15 @@ process kleborate {
     tuple val(sample_id), path("*.txt")    , emit: txt
     path "*versions.yml"                   , emit: versions
 
+
     when:
     task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+    def file_name = task.ext.result_filename ?: ''
     """
+    env MPLCONFIGDIR=$task.workDir
     # Run kleborate
     kleborate                \\
     ${args}                  \\
@@ -24,7 +27,7 @@ process kleborate {
     --assemblies ${assembly}
 
     # Move results to cwd
-    mv results/*.txt .
+    mv "results/${file_name}" "${sample_id}_kleborate.txt"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
