@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { amrfinderplus     } from '../modules/nf-core/amrfinderplus/main.nf'
 include { resfinder         } from '../modules/nf-core/resfinder/main.nf'
 include { virulencefinder   } from '../modules/nf-core/virulencefinder/main.nf'
+include { kleborate         } from '../modules/nf-core/kleborate/main.nf'
 
 workflow CALL_SCREENING {
     take:
@@ -28,7 +29,7 @@ workflow CALL_SCREENING {
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
     // klebsiella and esherichia analysis pipeline
-    kleborate(ch_assembly, params.use_preset)
+    kleborate(ch_assembly)
 
     amrfinderplus.out.tsv
         .join(resfinder.out.json)
@@ -36,7 +37,6 @@ workflow CALL_SCREENING {
         .join(virulencefinder.out.json)
         .join(virulencefinder.out.meta)
         .join(kleborate.out.txt)
-        .join(kleborate.out.meta)
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(amrfinderplus.out.versions)
@@ -51,7 +51,6 @@ workflow CALL_SCREENING {
     resfinder_meta          = resfinder.out.meta        // channel: [ val(meta), path(meta) ]
     virulencefinder_json    = virulencefinder.out.json  // channel: [ val(meta), path(json) ]
     virulencefinder_meta    = virulencefinder.out.meta  // channel: [ val(meta), path(meta) ]
-    kleborate_txt           = kleborate.out.txt         // channel: [ val(meta), path(meta) ]
-    kleborate_meta           = kleborate.out.meta       // channel: [ val(meta), path(meta) ]
+    kleborate_txt           = kleborate.out.txt         // channel: [ val(meta), path(txt) ]
     versions                = ch_versions               // channel: [ versions.yml ]
 }
