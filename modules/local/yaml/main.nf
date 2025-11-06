@@ -3,7 +3,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(ska), path(sourmash), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(kleborate), path(kleborate_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(ska), path(sourmash), path(amrfinder), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(kleborate), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -23,7 +23,7 @@ process create_yaml {
     def emmtyper_arg                = emmtyper                  ?  "--emmtyper ${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}" : ""
     def gambitcore_arg              = gambitcore                ?  "--gambitcore ${params.outdir}/${params.species_dir}/gambitcore/${gambitcore}" : ""
     def groups_arg                  = params.groups             ?  "--groups ${params.groups.join(' --groups ')}" : ""
-    def kleborate_arg               = kraken                    ?  "--kleborate ${params.outdir}/${params.species_dir}/kleborate/${kleborate}" : ""
+    def kleborate_arg               = kleborate                 ?  "--kleborate ${params.outdir}/${params.species_dir}/kleborate/${kleborate}" : ""
     def kraken_arg                  = kraken                    ?  "--kraken ${params.outdir}/${params.species_dir}/kraken/${kraken}" : ""
     def lims_id_arg                 = lims_id                   ?  "--lims-id ${lims_id}" : ""
     def mlst_arg                    = mlst                      ?  "--mlst ${params.outdir}/${params.species_dir}/mlst/${mlst}" : ""
