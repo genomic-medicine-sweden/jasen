@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added pulling of `.tar.gz` db files to `Makefile`
 - Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
 - Added `bactopia-py` for updating mlstdb
+- Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
 
 ### Fixed
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
