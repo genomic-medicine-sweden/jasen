@@ -27,7 +27,8 @@ process kleborate {
     --assemblies ${assembly}
 
     # Move results to cwd
-    mv "results/${file_name}" "${sample_id}_kleborate.txt"
+    mv results/*hAMRonization_output.txt "${sample_id}_kleborate_hAMRonization.txt"
+    mv results/*_complex_output.txt "${sample_id}_kleborate.txt"
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -39,7 +40,7 @@ process kleborate {
 
     stub:
     """
-    touch results.txt
+    touch results_kleborate.txt results_kleborate_hAMRonization.txt
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
