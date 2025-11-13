@@ -71,6 +71,6 @@ workflow CALL_VARIANT_CALLING {
     }
 
     emit:
-    vcf         = ch_vcf     // channel: [ val(meta), path(vcf) ]
+    vcf         = ch_vcf                // channel: [ val(meta), path(vcf) ]
     versions    = ch_versions           // channel: [ versions.yml ]
 }
