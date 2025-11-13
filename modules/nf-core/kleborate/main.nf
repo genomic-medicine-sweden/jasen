@@ -8,8 +8,9 @@ process kleborate {
     tuple val(sample_id), path(assembly)
 
     output:
-    tuple val(sample_id), path("*.txt")    , emit: txt
-    path "*versions.yml"                   , emit: versions
+    tuple val(sample_id), path("*_kleborate.txt")                  , emit: general
+    tuple val(sample_id), path("*_kleborate_hAMRonization.txt")    , emit: hamronization
+    path "*versions.yml"                                           , emit: versions
 
 
     when:

@@ -36,7 +36,8 @@ workflow CALL_SCREENING {
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
         .join(virulencefinder.out.meta)
-        .join(kleborate.out.txt)
+        .join(kleborate.out.general)
+        .join(kleborate.out.hamronization)
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(amrfinderplus.out.versions)
@@ -45,12 +46,13 @@ workflow CALL_SCREENING {
     ch_versions = ch_versions.mix(kleborate.out.versions)
 
     emit:
-    amrfinderplus           = amrfinderplus.out.tsv     // channel: [ val(meta), path(tsv) ]
-    combined_output         = ch_combined_output        // channel: [ val(meta), path(tsv) ]
-    resfinder_json          = resfinder.out.json        // channel: [ val(meta), path(json) ]
-    resfinder_meta          = resfinder.out.meta        // channel: [ val(meta), path(meta) ]
-    virulencefinder_json    = virulencefinder.out.json  // channel: [ val(meta), path(json) ]
-    virulencefinder_meta    = virulencefinder.out.meta  // channel: [ val(meta), path(meta) ]
-    kleborate_txt           = kleborate.out.txt         // channel: [ val(meta), path(txt) ]
-    versions                = ch_versions               // channel: [ versions.yml ]
+    amrfinderplus           = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
+    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv) ]
+    resfinder_json          = resfinder.out.json            // channel: [ val(meta), path(json) ]
+    resfinder_meta          = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
+    virulencefinder_json    = virulencefinder.out.json      // channel: [ val(meta), path(json) ]
+    virulencefinder_meta    = virulencefinder.out.meta      // channel: [ val(meta), path(meta) ]
+    kleborate_general       = kleborate.out.general         // channel: [ val(meta), path(general) ]
+    kleborate_hamronization = kleborate.out.hamronization   // channel: [ val(meta), path(hamronization) ]
+    versions                = ch_versions                   // channel: [ versions.yml ]
 }
