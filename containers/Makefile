@@ -30,6 +30,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					freebayes.sif \
 					hostile.sif \
 					htslib.sif \
+					kleborate.sif \
 					kraken2.sif \
 					medaka.sif \
 					minimap2.sif \
@@ -71,6 +72,7 @@ URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
+URL_kleborate := https://depot.galaxyproject.org/singularity/kleborate:3.2.4--pyhdfd78af_0
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
 URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4

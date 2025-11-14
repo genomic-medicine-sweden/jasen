@@ -65,6 +65,16 @@ def cli(silent, debug):
     help="Sample groups"
 )
 @click.option(
+    "--kleborate",
+    type=click.Path(),
+    help="Klebsiella and Escherichia analysis pipeline"
+)
+@click.option(
+    "--kleborate-hamronization",
+    type=click.Path(),
+    help="Kleborate hamronization output"
+)
+@click.option(
     "--kraken",
     type=click.Path(),
     help="Kraken species annotation results"
@@ -199,6 +209,8 @@ def cli(
     emmtyper,
     gambitcore,
     groups,
+    kleborate,
+    kleborate_hamronization,
     kraken,
     lims_id,
     mlst,
@@ -230,7 +242,7 @@ def cli(
 
     if amrfinder:
         prp_input["amrfinder"] = amrfinder
-    
+
     if bam and bai:
         prp_input["igv_annotations"].append(create_array("Read coverage", "alignment", "uri", bam, "index_uri", bai))
 
@@ -245,6 +257,12 @@ def cli(
 
     if groups:
         prp_input["groups"] = list(groups)
+
+    if kleborate:
+        prp_input["kleborate"] = kleborate
+
+    if kleborate_hamronization:
+        prp_input["kleborate_hamronization"] = kleborate_hamronization
 
     if kraken:
         prp_input["kraken"] = kraken

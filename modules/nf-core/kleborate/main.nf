@@ -1,0 +1,53 @@
+include { check_taxon } from '../../../methods/check_taxon.nf'
+
+process kleborate {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(assembly)
+
+    output:
+    tuple val(sample_id), path("*_kleborate.txt")                  , emit: general
+    tuple val(sample_id), path("*_kleborate_hAMRonization.txt")    , emit: hamronization
+    path "*versions.yml"                                           , emit: versions
+
+
+    when:
+    task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    def file_name = task.ext.result_filename ?: ''
+    """
+    env MPLCONFIGDIR=$task.workDir
+    # Run kleborate
+    kleborate                \\
+    ${args}                  \\
+    --outdir results         \\
+    --assemblies ${assembly}
+
+    # Move results to cwd
+    mv results/*hAMRonization_output.txt "${sample_id}_kleborate_hAMRonization.txt"
+    mv results/*_complex_output.txt "${sample_id}_kleborate.txt"
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     kleborate:
+      version: \$(echo \$(kleborate --version 3>&1 | sed "s/.*v//") )
+      container: ${task.container}
+    END_VERSIONS
+    """
+
+    stub:
+    """
+    touch results_kleborate.txt results_kleborate_hAMRonization.txt
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     kleborate:
+      version: \$(echo \$(kleborate --version 2>&1 | sed "s/.*v//") )
+      container: ${task.container}
+    END_VERSIONS
+    """
+}
