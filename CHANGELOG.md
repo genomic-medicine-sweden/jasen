@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added pulling of `.tar.gz` db files to `Makefile`
 - Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
 - Added `bactopia-py` for updating mlstdb
+- Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
 - Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 
 ### Fixed
