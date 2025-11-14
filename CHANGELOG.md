@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
 - Added `bactopia-py` for updating mlstdb
 - Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
+- Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 
 ### Fixed
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed tb profiler instructions that are not longer relevant from docs
 - Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
 - Updated bonsai-prp to v1.4.0
+- Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
 
 ## [1.1.2]
 

@@ -30,6 +30,7 @@ workflow CALL_TYPING {
     main:
 
     ch_versions = Channel.empty()
+    ch_chewbbaca_input = Channel.empty()
 
     // TYPING
     if ( !params.ci ) {
@@ -40,18 +41,25 @@ workflow CALL_TYPING {
         ch_empty.set{ ch_mlst }
     }
 
-    mask_polymorph_assembly(ch_assembly.join(ch_vcf))
+    if ( params.use_masking ) {
+        mask_polymorph_assembly(ch_assembly.join(ch_vcf))
 
-    mask_polymorph_assembly.out.fasta
-        .multiMap { sample_id, fasta -> 
+        mask_polymorph_assembly.out.fasta
+            .multiMap { sample_id, fasta -> 
+                sample_id: sample_id
+                fasta: fasta
+            }
+            .set{ assembly_map }
+    } else {
+        assembly_map = ch_assembly.multiMap { sample_id, fasta ->
             sample_id: sample_id
             fasta: fasta
         }
-        .set{ masked_assembly_map }
+    }
 
-    chewbbaca_create_batch_list(masked_assembly_map.fasta.collect())
+    chewbbaca_create_batch_list(assembly_map.fasta.collect())
     chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
-    chewbbaca_split_results(masked_assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
+    chewbbaca_split_results(assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
 
     // Call species-specific typing
     // ecoli
