@@ -86,6 +86,7 @@ workflow CALL_BACTERIAL_GENERAL {
     CALL_VARIANT_CALLING (
         CALL_ASSEMBLY.out.assembly,
         CALL_PREPROCESSING.out.reads,
+        CALL_PREPROCESSING.out.empty
     )
 
     CALL_TYPING (
