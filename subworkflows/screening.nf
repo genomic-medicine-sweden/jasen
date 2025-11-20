@@ -29,7 +29,15 @@ workflow CALL_SCREENING {
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
     // klebsiella and esherichia analysis pipeline
-    kleborate(ch_assembly)
+    if ( params.use_kleborate ) {
+        kleborate(ch_assembly)
+        kleborate.out.general.set{ ch_kleborate_general }
+        kleborate.out.harmonization.set{ ch_kleborate_hamronization }
+        ch_versions = ch_versions.mix(kleborate.out.versions)
+    } else {
+        ch_empty.set{ ch_kleborate_general }
+        ch_empty.set{ ch_kleborate_hamronization }
+    }
 
     amrfinderplus.out.tsv
         .join(kleborate.out.general)
