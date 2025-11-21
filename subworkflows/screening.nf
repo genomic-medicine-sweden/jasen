@@ -40,8 +40,8 @@ workflow CALL_SCREENING {
     }
 
     amrfinderplus.out.tsv
-        .join(kleborate.out.general)
-        .join(kleborate.out.hamronization)
+        .join(ch_kleborate_general)
+        .join(ch_kleborate_hamronization)
         .join(resfinder.out.json)
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
@@ -56,8 +56,8 @@ workflow CALL_SCREENING {
     emit:
     amrfinderplus           = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
     combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv) ]
-    kleborate_general       = kleborate.out.general         // channel: [ val(meta), path(general) ]
-    kleborate_hamronization = kleborate.out.hamronization   // channel: [ val(meta), path(hamronization) ]
+    kleborate_general       = ch_kleborate_general          // channel: [ val(meta), path(general) ]
+    kleborate_hamronization = ch_kleborate_hamronization    // channel: [ val(meta), path(hamronization) ]
     resfinder_json          = resfinder.out.json            // channel: [ val(meta), path(json) ]
     resfinder_meta          = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
     virulencefinder_json    = virulencefinder.out.json      // channel: [ val(meta), path(json) ]
