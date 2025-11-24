@@ -3,7 +3,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -29,8 +29,10 @@ process create_yaml {
     def lims_id_arg                 = lims_id                   ?  "--lims-id ${lims_id}" : ""
     def mlst_arg                    = mlst                      ?  "--mlst ${params.outdir}/${params.species_dir}/mlst/${mlst}" : ""
     def mykrobe_arg                 = mykrobe                   ?  "--mykrobe ${params.outdir}/${params.species_dir}/mykrobe/${mykrobe}" : ""
+    def nanoplot_arg                = nanoplot_txt              ?  "--nanoplot ${params.outdir}/${params.species_dir}/nanoplot/${nanoplot_txt}" : ""
     def nextflow_run_info_arg       = nextflow_run_info         ?  "--nextflow-run-info ${params.outdir}/${params.species_dir}/analysis_metadata/${nextflow_run_info}" : ""
     def postalignqc_arg             = postalignqc               ?  "--postalnqc ${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}" : ""
+    def postalignqc_wholegenome_arg = samtools_cov_ref          ?  "--postalnqc-wholegenome ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""  
     def quast_arg                   = quast                     ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg        = reference_genome          ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg    = reference_genome_gff      ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
@@ -64,8 +66,10 @@ process create_yaml {
         ${lims_id_arg} \\
         ${mlst_arg} \\
         ${mykrobe_arg} \\
+        ${nanoplot_arg} \\
         ${nextflow_run_info_arg} \\
         ${postalignqc_arg} \\
+        ${postalignqc_wholegenome_arg} \\
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\

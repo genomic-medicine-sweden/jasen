@@ -95,6 +95,11 @@ def cli(silent, debug):
     help="Mykrobe results"
 )
 @click.option(
+    "--nanoplot",
+    type=click.Path(),
+    help="NanoPlot quality control metrics",
+)
+@click.option(
     "--nextflow-run-info",
     type=click.Path(),
     help="Nextflow metadata from the pipeline in json format",
@@ -102,7 +107,12 @@ def cli(silent, debug):
 @click.option(
     "--postalnqc",
     type=click.Path(),
-    help="Postalignqc qc results"
+    help="Postalignqc qc results, calculated on core genome"
+)
+@click.option(
+    "--postalnqc-wholegenome",
+    type=click.Path(),
+    help="Samtools post alignment qc results, calculated on whole genome"
 )
 @click.option(
     "--quast",
@@ -168,7 +178,7 @@ def cli(silent, debug):
 @click.option(
     "--spatyper",
     type=click.Path(),
-    help="Shigapass results"
+    help="Spatyper results"
 )
 @click.option(
     "--tb-grading-rules-bed",
@@ -215,8 +225,10 @@ def cli(
     lims_id,
     mlst,
     mykrobe,
+    nanoplot,
     nextflow_run_info,
     postalnqc,
+    postalnqc_wholegenome,
     quast,
     ref_genome_annotation,
     ref_genome_sequence,
@@ -276,11 +288,17 @@ def cli(
     if mykrobe:
         prp_input["mykrobe"] = mykrobe
 
+    if nanoplot:
+        prp_input["nanoplot"] = nanoplot
+
     if nextflow_run_info:
         prp_input["nextflow_run_info"] = nextflow_run_info
 
     if postalnqc:
         prp_input["postalnqc"] = postalnqc
+
+    if postalnqc_wholegenome:
+        prp_input["postalnqc_wholegenome"] = postalnqc_wholegenome
 
     if quast:
         prp_input["quast"] = quast

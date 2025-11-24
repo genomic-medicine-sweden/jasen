@@ -79,6 +79,8 @@ workflow CALL_QUALITY_CONTROL {
         .join(ch_kraken)
         .join(ch_post_align_qc)
         .join(quast.out.tsv)
+        .join(nanoplot.out.txt)
+        .join(samtools_coverage_ref.out.txt)
         .set { ch_combined_output }
 
     ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
