@@ -110,11 +110,6 @@ def cli(silent, debug):
     help="Postalignqc qc results, calculated on core genome"
 )
 @click.option(
-    "--postalnqc-wholegenome",
-    type=click.Path(),
-    help="Samtools post alignment qc results, calculated on whole genome"
-)
-@click.option(
     "--quast",
     type=click.Path(),
     help="Quast quality control metrics"
@@ -143,6 +138,11 @@ def cli(silent, debug):
     "--sample-name",
     required=True,
     help="Sample name"
+)
+@click.option(
+    "--samtools",
+    type=click.Path(),
+    help="Samtools post alignment qc results, calculated on whole genome"
 )
 @click.option(
     "--sccmec",
@@ -228,7 +228,7 @@ def cli(
     nanoplot,
     nextflow_run_info,
     postalnqc,
-    postalnqc_wholegenome,
+    samtools,
     quast,
     ref_genome_annotation,
     ref_genome_sequence,
@@ -297,8 +297,8 @@ def cli(
     if postalnqc:
         prp_input["postalnqc"] = postalnqc
 
-    if postalnqc_wholegenome:
-        prp_input["postalnqc_wholegenome"] = postalnqc_wholegenome
+    if samtools:
+        prp_input["samtools"] = samtools
 
     if quast:
         prp_input["quast"] = quast

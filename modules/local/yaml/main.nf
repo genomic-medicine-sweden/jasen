@@ -32,12 +32,12 @@ process create_yaml {
     def nanoplot_arg                = nanoplot_txt              ?  "--nanoplot ${params.outdir}/${params.species_dir}/nanoplot/${nanoplot_txt}" : ""
     def nextflow_run_info_arg       = nextflow_run_info         ?  "--nextflow-run-info ${params.outdir}/${params.species_dir}/analysis_metadata/${nextflow_run_info}" : ""
     def postalignqc_arg             = postalignqc               ?  "--postalnqc ${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}" : ""
-    def postalignqc_wholegenome_arg = samtools_cov_ref          ?  "--postalnqc-wholegenome ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""  
     def quast_arg                   = quast                     ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg        = reference_genome          ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg    = reference_genome_gff      ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
     def resfinder_arg               = resfinder                 ?  "--resfinder ${params.outdir}/${params.species_dir}/resfinder/${resfinder}" : ""
     def resfinder_meta_arg          = resfinder_meta            ?  "--software-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
+    def samtools_arg                = samtools_cov_ref          ?  "--samtools ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""  
     def sccmec_arg                  = sccmec                    ?  "--sccmec ${params.outdir}/${params.species_dir}/sccmec/${sccmec}" : ""
     def serotypefinder_arg          = serotypefinder            ?  "--serotypefinder ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}" : ""
     def serotypefinder_meta_arg     = serotypefinder_meta       ?  "--software-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
@@ -69,7 +69,6 @@ process create_yaml {
         ${nanoplot_arg} \\
         ${nextflow_run_info_arg} \\
         ${postalignqc_arg} \\
-        ${postalignqc_wholegenome_arg} \\
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\
@@ -77,6 +76,7 @@ process create_yaml {
         ${resfinder_meta_arg} \\
         --sample-id ${sample_id} \\
         --sample-name ${sample_name} \\
+        ${samtools_arg} \\
         ${sccmec_arg} \\
         ${serotypefinder_arg} \\
         ${serotypefinder_meta_arg} \\
