@@ -19,6 +19,7 @@ workflow CALL_SCREENING {
     main:
 
     ch_versions = Channel.empty()
+    ch_empty = Channel.empty()
 
     // SCREENING
     // antimicrobial detection (amrfinderplus)
