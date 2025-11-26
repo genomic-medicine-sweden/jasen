@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
 
 ### Changed
+- Updated Chewbbaca to v3.4.0 because of problems with schema preparation
 
 - Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
