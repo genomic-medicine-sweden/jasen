@@ -50,7 +50,6 @@ workflow CALL_SCREENING {
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(amrfinderplus.out.versions)
-    ch_versions = ch_versions.mix(kleborate.out.versions)
     ch_versions = ch_versions.mix(resfinder.out.versions)
     ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
