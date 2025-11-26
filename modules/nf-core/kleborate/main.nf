@@ -1,5 +1,3 @@
-include { check_taxon } from '../../../methods/check_taxon.nf'
-
 process kleborate {
     tag "${sample_id}"
     scratch params.scratch
