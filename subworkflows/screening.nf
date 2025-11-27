@@ -55,7 +55,7 @@ workflow CALL_SCREENING {
 
     emit:
     amrfinderplus           = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
-    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv) ]
+    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(json), path(meta) ]
     kleborate_general       = ch_kleborate_general          // channel: [ val(meta), path(general) ]
     kleborate_hamronization = ch_kleborate_hamronization    // channel: [ val(meta), path(hamronization) ]
     resfinder_json          = resfinder.out.json            // channel: [ val(meta), path(json) ]
