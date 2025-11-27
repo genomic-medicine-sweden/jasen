@@ -14,7 +14,7 @@ workflow CALL_VARIANT_CALLING {
     take:
     ch_assembly
     ch_reads
-    ch_empty
+    ch_sample_id
 
     main:
 
@@ -67,7 +67,7 @@ workflow CALL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(samtools_sort_assembly.out.versions)
 
     } else {
-      ch_empty.set{ ch_vcf }
+      ch_sample_id.set{ ch_vcf }
     }
 
     emit:

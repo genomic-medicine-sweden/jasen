@@ -14,12 +14,12 @@ workflow CALL_SCREENING {
     resfinder_db
     virulencefinder_db
     ch_assembly
+    ch_sample_id
     ch_reads
 
     main:
 
     ch_versions = Channel.empty()
-    ch_empty = Channel.empty()
 
     // SCREENING
     // antimicrobial detection (amrfinderplus)
@@ -36,8 +36,8 @@ workflow CALL_SCREENING {
         kleborate.out.harmonization.set{ ch_kleborate_hamronization }
         ch_versions = ch_versions.mix(kleborate.out.versions)
     } else {
-        ch_empty.set{ ch_kleborate_general }
-        ch_empty.set{ ch_kleborate_hamronization }
+        ch_sample_id.set{ ch_kleborate_general }
+        ch_sample_id.set{ ch_kleborate_hamronization }
     }
 
     amrfinderplus.out.tsv
