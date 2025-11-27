@@ -102,7 +102,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .set{ ch_qc_combined_output }
 
     CALL_PREPROCESSING.out.sample_id
-        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty, empty ] }
+        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_screening_combined_output }
     
     CALL_PREPROCESSING.out.sample_id
