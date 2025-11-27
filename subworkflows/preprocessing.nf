@@ -67,7 +67,7 @@ workflow CALL_PREPROCESSING {
     ch_id_meta.join(save_analysis_metadata.out.json).set{ ch_combined_output }
 
     emit:
-    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), path(json) ]
+    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), val(meta), path(json) ]
     sample_id           = ch_sample_id                      // channel: [ val(meta) ]
     id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
