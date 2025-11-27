@@ -24,7 +24,7 @@ workflow CALL_TYPING {
     species
     training_file
     ch_assembly
-    ch_empty
+    ch_sample_id
     ch_vcf
 
     main:
@@ -38,7 +38,7 @@ workflow CALL_TYPING {
         mlst.out.json.set{ ch_mlst }
         ch_versions = ch_versions.mix(mlst.out.versions)
     } else {
-        ch_empty.set{ ch_mlst }
+        ch_sample_id.set{ ch_mlst }
     }
 
     if ( params.use_masking ) {
@@ -72,9 +72,9 @@ workflow CALL_TYPING {
         ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(shigapass.out.versions)
     } else {
-        ch_empty.set{ ch_serotypefinder }
-        ch_empty.set{ ch_serotypefinder_meta }
-        ch_empty.set{ ch_shigapass }
+        ch_sample_id.set{ ch_serotypefinder }
+        ch_sample_id.set{ ch_serotypefinder_meta }
+        ch_sample_id.set{ ch_shigapass }
     }
 
     // saureus
@@ -84,8 +84,8 @@ workflow CALL_TYPING {
         ch_versions = ch_versions.mix(sccmec.out.versions)
         ch_versions = ch_versions.mix(spatyper.out.versions)
     } else {
-        ch_empty.set{ ch_sccmec }
-        ch_empty.set{ ch_spatyper }
+        ch_sample_id.set{ ch_sccmec }
+        ch_sample_id.set{ ch_spatyper }
     }
 
     // strep
@@ -93,7 +93,7 @@ workflow CALL_TYPING {
         emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
         ch_versions = ch_versions.mix(emmtyper.out.versions)
     } else {
-        ch_empty.set{ ch_emmtyper }
+        ch_sample_id.set{ ch_emmtyper }
     }
 
     chewbbaca_split_results.out.tsv

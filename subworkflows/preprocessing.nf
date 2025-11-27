@@ -59,7 +59,7 @@ workflow CALL_PREPROCESSING {
         .set{ ch_id_meta }
 
     // create empty channel containing only sample_id
-    ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
+    ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_sample_id }
 
     // analysis metadata
     save_analysis_metadata(ch_reads.join(ch_seqrun_meta), assay, platform, release_life_cycle)
@@ -68,7 +68,7 @@ workflow CALL_PREPROCESSING {
 
     emit:
     combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), path(json) ]
-    empty               = ch_empty                          // channel: [ val(meta) ]
+    sample_id           = ch_sample_id                      // channel: [ val(meta) ]
     id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
     reads               = ch_reads                          // channel: [ val(meta), path(json) ]
