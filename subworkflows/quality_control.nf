@@ -24,7 +24,7 @@ workflow CALL_QUALITY_CONTROL {
     reference_genome_dir
     reference_genome_idx
     ch_assembly
-    ch_empty
+    ch_sample_id
     ch_reads
 
     main:
@@ -57,10 +57,10 @@ workflow CALL_QUALITY_CONTROL {
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
-        ch_empty.set{ ch_ref_bam }
-        ch_empty.set{ ch_ref_bai }
-        ch_empty.set{ ch_post_align_qc }
-        ch_empty.set{ ch_samtools_cov_ref }
+        ch_sample_id.set{ ch_ref_bam }
+        ch_sample_id.set{ ch_ref_bai }
+        ch_sample_id.set{ ch_post_align_qc }
+        ch_sample_id.set{ ch_samtools_cov_ref }
     }
 
     if ( params.use_kraken ) {
@@ -70,7 +70,7 @@ workflow CALL_QUALITY_CONTROL {
         ch_versions = ch_versions.mix(kraken.out.versions)
         ch_versions = ch_versions.mix(bracken.out.versions)
     } else {
-        ch_empty.set{ ch_kraken }
+        ch_sample_id.set{ ch_kraken }
     }
 
     ch_ref_bam

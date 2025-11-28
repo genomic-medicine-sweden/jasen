@@ -14,6 +14,7 @@ workflow CALL_SCREENING {
     resfinder_db
     virulencefinder_db
     ch_assembly
+    ch_sample_id
     ch_reads
 
     main:
@@ -29,11 +30,19 @@ workflow CALL_SCREENING {
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
     // klebsiella and esherichia analysis pipeline
-    kleborate(ch_assembly)
+    if ( params.use_kleborate ) {
+        kleborate(ch_assembly)
+        kleborate.out.general.set{ ch_kleborate_general }
+        kleborate.out.harmonization.set{ ch_kleborate_hamronization }
+        ch_versions = ch_versions.mix(kleborate.out.versions)
+    } else {
+        ch_sample_id.set{ ch_kleborate_general }
+        ch_sample_id.set{ ch_kleborate_hamronization }
+    }
 
     amrfinderplus.out.tsv
-        .join(kleborate.out.general)
-        .join(kleborate.out.hamronization)
+        .join(ch_kleborate_general)
+        .join(ch_kleborate_hamronization)
         .join(resfinder.out.json)
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
@@ -41,15 +50,14 @@ workflow CALL_SCREENING {
         .set{ ch_combined_output }
 
     ch_versions = ch_versions.mix(amrfinderplus.out.versions)
-    ch_versions = ch_versions.mix(kleborate.out.versions)
     ch_versions = ch_versions.mix(resfinder.out.versions)
     ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit:
     amrfinderplus           = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
-    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv) ]
-    kleborate_general       = kleborate.out.general         // channel: [ val(meta), path(general) ]
-    kleborate_hamronization = kleborate.out.hamronization   // channel: [ val(meta), path(hamronization) ]
+    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(json), path(meta) ]
+    kleborate_general       = ch_kleborate_general          // channel: [ val(meta), path(general) ]
+    kleborate_hamronization = ch_kleborate_hamronization    // channel: [ val(meta), path(hamronization) ]
     resfinder_json          = resfinder.out.json            // channel: [ val(meta), path(json) ]
     resfinder_meta          = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
     virulencefinder_json    = virulencefinder.out.json      // channel: [ val(meta), path(json) ]

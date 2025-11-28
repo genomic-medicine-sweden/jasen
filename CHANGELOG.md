@@ -20,9 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
 - Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
+- Fixed general profile `reference_size` in config
+- Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 
 ### Changed
 
+- Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts
 - Updated documentation regarding updating mlstdb
@@ -33,8 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `mlst` to run if not CI run
 - Removed tb profiler instructions that are not longer relevant from docs
 - Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
-- Updated bonsai-prp to v1.4.0
 - Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
+- Changed `ch_empty` to `ch_sample_id`
 
 ## [1.1.2]
 
