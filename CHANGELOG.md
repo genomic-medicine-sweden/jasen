@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [1.2.0]
+
+### Added
+
 - Added `kleborate` pipeline for K. pneumoniae and E. coli analysis
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
@@ -18,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 
 ### Fixed
+
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
 - Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
 - Fixed general profile `reference_size` in config
