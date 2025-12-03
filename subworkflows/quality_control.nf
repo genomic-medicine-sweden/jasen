@@ -43,19 +43,32 @@ workflow CALL_QUALITY_CONTROL {
     bwa_mem_ref(ch_reads, reference_genome_dir)
 
     // qc processing - long read
-    nanoplot(ch_reads)
-
-    minimap2_align_ref(ch_reads, reference_genome_idx)
-    samtools_sort_ref(minimap2_align_ref.out.sam)
-
+    if (params.platform == "nanopore") {
+        nanoplot(ch_reads)
+        nanoplot.out.txt.set{ ch_nanoplot_txt }
+        nanoplot.out.html.set{ ch_nanoplot_html }
+        ch_versions = ch_versions.mix(nanoplot.out.versions)
+    } else {
+        ch_sample_id.set{ ch_nanoplot_txt }
+        ch_sample_id.set{ ch_nanoplot_html }
+    }
+    
+    // qc processing - alignment to reference
+    
     if (params.reference_genome) {
-        samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
-        samtools_index_ref(ch_ref_bam).bai.set{ ch_ref_bai }
-        post_align_qc(ch_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
-        samtools_coverage_ref(samtools_sort_ref.out.bam).txt.set{ ch_samtools_cov_ref }
+        if (params.platform == "nanopore") {
+            minimap2_align_ref(ch_reads, reference_genome_idx)
+            samtools_sort_ref(minimap2_align_ref.out.sam).bam.set{ ch_samtools_sort_ref_bam }
+            ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
+            ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
+        } else {
+            bwa_mem_ref.out.bam.set{ ch_samtools_sort_ref_bam }
+        }
+        samtools_index_ref(ch_samtools_sort_ref_bam).bai.set{ ch_ref_bai }
+        post_align_qc(ch_samtools_sort_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
+        samtools_coverage_ref(ch_samtools_sort_ref_bam).txt.set{ ch_samtools_cov_ref }
         ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
-        ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
         ch_sample_id.set{ ch_ref_bam }
         ch_sample_id.set{ ch_ref_bai }
@@ -73,30 +86,28 @@ workflow CALL_QUALITY_CONTROL {
         ch_sample_id.set{ ch_kraken }
     }
 
-    ch_ref_bam
+    ch_samtools_sort_ref_bam
         .join(ch_ref_bai)
         .join(gambitcore.out.tsv)
         .join(ch_kraken)
         .join(ch_post_align_qc)
         .join(quast.out.tsv)
-        .join(nanoplot.out.txt)
-        .join(samtools_coverage_ref.out.txt)
+        .join(ch_nanoplot_txt)
+        .join(ch_samtools_cov_ref)
         .set { ch_combined_output }
 
     ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
     ch_versions = ch_versions.mix(fastqc.out.versions)
-    ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
-    ch_versions = ch_versions.mix(nanoplot.out.versions)
 
     emit:
-    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv) ]
-    bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
+    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv), path(txt), path(txt) ]
+    bam                 = ch_samtools_sort_ref_bam      // channel: [ val(meta), path(bam) ]
     bai                 = ch_ref_bai                    // channel: [ val(meta), path(bai) ]
     fastqc              = fastqc.out.output             // channel: [ val(meta), path(txt) ]
     gambitcore          = gambitcore.out.tsv            // channel: [ val(meta), path(tsv) ]
     kraken              = ch_kraken                     // channel: [ val(meta), path(fasta) ]
-    nanoplot_html       = nanoplot.out.html             // channel: [ val(meta), path(html) ]
-    nanoplot_txt        = nanoplot.out.txt              // channel: [ val(meta), path(txt) ]
+    nanoplot_html       = ch_nanoplot_html              // channel: [ val(meta), path(html) ]
+    nanoplot_txt        = ch_nanoplot_txt               // channel: [ val(meta), path(txt) ]
     post_align_qc       = ch_post_align_qc              // channel: [ val(meta), path(fasta) ]
     quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
     samtools_cov_ref    = ch_samtools_cov_ref           // channel: [ val(meta), path(txt) ]
