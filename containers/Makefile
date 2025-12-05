@@ -15,7 +15,8 @@ all: \
 # These are containers that will be built locally using the definition files in
 # the current folder
 local_containers := bonsai-prp.sif \
-					gambitcore.sif
+					gambitcore.sif \
+					medaka.sif
 
 # These containers will be downloaded remotely
 remote_containers := ncbi-amrfinderplus.sif \
@@ -31,7 +32,6 @@ remote_containers := ncbi-amrfinderplus.sif \
 					hostile.sif \
 					htslib.sif \
 					kraken2.sif \
-					medaka.sif \
 					minimap2.sif \
 					mlst.sif \
 					mykrobe.sif \
@@ -57,6 +57,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 # URLs to Docker containers
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.4.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
+DOCKER_medaka := docker://ontresearch/medaka:sha3dc8413c2af77a427048b091c7a69b638ba30cfe
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
@@ -67,13 +68,12 @@ URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hd
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
 URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 URL_fastqc := https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
-URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
+URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
-URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
-URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4
+URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1
