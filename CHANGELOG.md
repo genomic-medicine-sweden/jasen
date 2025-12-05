@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed tb profiler instructions that are not longer relevant from docs
 - Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
 - Updated bonsai-prp to v1.4.0
+- Changed mapping settings in minimap2 from `-x map-ont` to `-x lr:hq` as quality of the data has improved
+- Updated Flye 2.9.3 to version 2.9.6
+- Updated minimap2 2.28 to version 2.30
+- Updated Medaka 2.0.1 to version 2.1.1.
 
 ## [1.1.2]
 
