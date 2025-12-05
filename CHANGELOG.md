@@ -9,17 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `kleborate` pipeline for K. pneumoniae and E. coli analysis
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
 - Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
 - Added `bactopia-py` for updating mlstdb
+- Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
+- Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 
 ### Fixed
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
 - Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
+- Fixed general profile `reference_size` in config
+- Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 
 ### Changed
 
+- Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts
 - Updated documentation regarding updating mlstdb
@@ -30,11 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `mlst` to run if not CI run
 - Removed tb profiler instructions that are not longer relevant from docs
 - Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
-- Updated bonsai-prp to v1.4.0
 - Changed mapping settings in minimap2 from `-x map-ont` to `-x lr:hq` as quality of the data has improved
 - Updated Flye 2.9.3 to version 2.9.6
 - Updated minimap2 2.28 to version 2.30
 - Updated Medaka 2.0.1 to version 2.1.1.
+- Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
+- Changed `ch_empty` to `ch_sample_id`
 
 ## [1.1.2]
 

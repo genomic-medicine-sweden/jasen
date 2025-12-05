@@ -74,7 +74,7 @@ workflow CALL_BACTERIAL_GENERAL {
         reference_genome_dir,
         reference_genome_idx,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.empty,
+        CALL_PREPROCESSING.out.sample_id,
         CALL_PREPROCESSING.out.reads
     )
 
@@ -86,6 +86,7 @@ workflow CALL_BACTERIAL_GENERAL {
     CALL_VARIANT_CALLING (
         CALL_ASSEMBLY.out.assembly,
         CALL_PREPROCESSING.out.reads,
+        CALL_PREPROCESSING.out.sample_id
     )
 
     CALL_TYPING (
@@ -98,7 +99,7 @@ workflow CALL_BACTERIAL_GENERAL {
         species,
         training_file,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.empty,
+        CALL_PREPROCESSING.out.sample_id,
         CALL_VARIANT_CALLING.out.vcf
     )
 
@@ -108,10 +109,11 @@ workflow CALL_BACTERIAL_GENERAL {
         resfinder_db,
         virulencefinder_db,
         CALL_ASSEMBLY.out.assembly,
+        CALL_PREPROCESSING.out.sample_id,
         CALL_PREPROCESSING.out.reads
     )
 
-    CALL_PREPROCESSING.out.empty
+    CALL_PREPROCESSING.out.sample_id
         .map{ sample_id, empty -> [ sample_id, empty, empty ] }
         .set{ ch_profiling_combined_output }
 

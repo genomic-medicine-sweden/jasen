@@ -73,7 +73,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         reference_genome_dir,
         reference_genome_idx,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.empty,
+        CALL_PREPROCESSING.out.sample_id,
         CALL_PREPROCESSING.out.reads
     )
 
@@ -101,11 +101,11 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .join(CALL_QUALITY_CONTROL.out.quast)
         .set{ ch_qc_combined_output }
 
-    CALL_PREPROCESSING.out.empty
-        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty ] }
+    CALL_PREPROCESSING.out.sample_id
+        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_screening_combined_output }
     
-    CALL_PREPROCESSING.out.empty
+    CALL_PREPROCESSING.out.sample_id
         .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_typing_combined_output }
 

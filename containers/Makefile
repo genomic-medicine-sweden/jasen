@@ -31,6 +31,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					freebayes.sif \
 					hostile.sif \
 					htslib.sif \
+					kleborate.sif \
 					kraken2.sif \
 					minimap2.sif \
 					mlst.sif \
@@ -55,7 +56,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.4.0
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.5.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 DOCKER_medaka := docker://ontresearch/medaka:sha3dc8413c2af77a427048b091c7a69b638ba30cfe
 
@@ -72,6 +73,7 @@ URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
+URL_kleborate := https://depot.galaxyproject.org/singularity/kleborate:3.2.4--pyhdfd78af_0
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
