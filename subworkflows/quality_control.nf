@@ -60,7 +60,7 @@ workflow CALL_QUALITY_CONTROL {
         samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
         samtools_index_ref(ch_ref_bam).bai.set{ ch_ref_bai }
         post_align_qc(ch_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
-        samtools_coverage_ref(samtools_sort_ref.out.bam).txt.set{ ch_samtools_cov_ref }
+        samtools_coverage_ref(ch_ref_bam).txt.set{ ch_samtools_cov_ref }
         ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
