@@ -14,7 +14,7 @@
 ### Copy code locally
 
 ```bash
-git clone --recurse-submodules --branch master              \\ 
+git clone --branch master              \\ 
     https://github.com/genomic-medicine-sweden/jasen.git && \\
 cd jasen
 ```
@@ -78,16 +78,16 @@ make update_databases && make ${ORG}_all
 
 Source: `nextflow.config`
 
-* Edit the `root` parameter in `nextflow.config`
-* Edit the `kraken_db`, `workDir` and `outdir` parameters in `nextflow.config`
-* Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads
-* Edit the `target_sample_size` parameter in `nextflow.config` in order to downsample reads
-* Edit the `runOptions` in `nextflow.config` in order to mount directories to your run
+* Edit the `root` parameter
+* Edit the `workDir` and `outdir` parameters
+* Edit the `use_kraken` parameter (default: false) and `kraken_db` to specify path to the database
+* Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads (default: false)
+* Edit the `use_skesa` parameter (default: true) if you would like to use SPAdes instead of Skesa for assembly of short reads
+* Edit the `target_sample_size` parameter in order to downsample reads
+* Edit the `runOptions` in order to mount directories to your run (e.g. output folder, workdir)
 
 When analysing Nanopore data:
-* Edit the `ext.args` for Flye: specify genome size for the organism of interest with flag `--genome-size`
-* Edit the `ext.seqmethod`for Flye depending on the input data
-* Edit the `ext.args` for Medaka: specify the model with flag `-m`. Currently it is set to `r941_min_sup_g507`, but one should always set it based on how the data was produced. More about choosing the right model can be found [here](https://github.com/nanoporetech/medaka#models).
+* Edit the `ext.seqmethod` in `conf/modules.config` for Flye in case you are using older ONT data (default: --nano-hq, suitable for ONT data generated with R10 chemistry)
 
 ### Test data
 Source: `assets/test_data/samplelist*.csv`
