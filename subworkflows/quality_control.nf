@@ -94,7 +94,6 @@ workflow CALL_QUALITY_CONTROL {
     ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
     ch_versions = ch_versions.mix(fastqc.out.versions)
     ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
-    ch_versions = ch_versions.mix(nanoplot.out.versions)
 
     emit:
     combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv), path(txt), path(txt) ]
