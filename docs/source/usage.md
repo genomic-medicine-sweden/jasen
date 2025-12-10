@@ -59,3 +59,9 @@ Activate downsampling by setting the parameter `target_sample_size` to the eithe
 There are an option to use [hostile](https://github.com/bede/hostile) to filter human reads from further analyses. This can be useful if a sample has been contaminated, which could cause issues with *de-novo* assemblies.
 
 Activate human read depletion by setting the parameter `use_hostile` to `true` in the config.
+
+## Output
+
+* `postalignqc` output: statistics are computed using core genome
+* `coverage` output: statistics are computed using whole genome (and plasmids, if they are a part of the reference genome)
+* variants reported by Freebayes are used for masking the genome before performing cgMLST analaysis (default: true for Illumina data, false for ONT data) and are computed by aligning reads to the assembly, not the reference genome
