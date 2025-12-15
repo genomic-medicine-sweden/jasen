@@ -6,14 +6,24 @@ assets/references
 assets/card
 assets/cgmlst/*/alleles*
 assets/genomes
-assets/mlst_db/blast
-assets/mlst_db/pubmlst
+assets/mlstdb/blast
+assets/mlstdb/pubmlst
+assets/mlstdb/pubmlst-token.json*
+assets/mlstdb/*.log
 assets/amrfinder_db
 assets/gambit_db
 assets/wgmlst/*/alleles*
 assets/prodigal_training_files/*
 assets/krakenstd
 assets/hostile_db/human-t2t-hla.*
+
+# Downloaded database directories (replaced git submodules)
+assets/resfinder_db/
+assets/pointfinder_db/
+assets/virulencefinder_db/
+assets/serotypefinder_db/
+assets/tbdb/
+assets/ShigaPass/
 work/
 results
 *.img

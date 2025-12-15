@@ -9,10 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `kleborate` pipeline for K. pneumoniae and E. coli analysis
+- Added `--nanopore` option to VirulenceFinder for analysing ONT data
+- Added pulling of `.tar.gz` db files to `Makefile`
+- Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
+- Added `bactopia-py` for updating mlstdb
+- Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
+- Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
+
 ### Fixed
+- Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
+- Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
+- Fixed general profile `reference_size` in config
+- Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 
 ### Changed
 - Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
+
+- Updated bonsai-prp to v1.5.0
+- Removed finder, ShigaPass & tbdb submodules
+- Neatened up mlst db updating scripts
+- Updated documentation regarding updating mlstdb
+- Changed `mlst_db` dir to `mlstdb` to match `bactopia-py` output
+- Removed blast db creation from `Makefile` as `bactopia-py` does it
+- Removed deprecated scripts for downloading mlst db
+- Removed `_bonsai` from yaml filename
+- Updated `mlst` to run if not CI run
+- Removed tb profiler instructions that are not longer relevant from docs
+- Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
+- Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
+- Changed `ch_empty` to `ch_sample_id`
 
 ## [1.1.2]
 
@@ -25,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated bonsai-prp to v1.3.3
 - Changed config variables for `staphylococcus`
 - Updated methods for `staphylococcus`
+- Updated VirulenceFinder to v3.2.0
+- Changed pulling of submodules in CI to `recursive`
 
 ## [1.1.1]
 

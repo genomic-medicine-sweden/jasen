@@ -157,12 +157,11 @@ print_paths:
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
 install: download_or_build_containers \
+	download_databases \
 	update_databases \
 	update_organisms
 
 update_databases: update_amrfinderplus \
-	update_mlst_db \
-	update_blast_db \
 	update_finder_dbs \
 	update_shigapass_db \
 	update_hostile_db \
@@ -189,6 +188,115 @@ download_or_build_containers:
 	&& cd $(CONTAINERS_DIR) \
 	&& make all; \
 	cd -
+
+# ==============================================================================
+# Download database repositories as .tar.gz archives (using version tags)
+# ==============================================================================
+
+# Version numbers (from VERSION files and git tags)
+RESFINDER_VERSION := 2.6.0
+POINTFINDER_VERSION := 4.1.1
+VIRULENCEFINDER_VERSION := 2.0.1
+SEROTYPEFINDER_VERSION := 1.1.0
+TBDB_COMMIT := 4907915526b52ac2f20f1324613f5d4dc951e0bd
+SHIGAPASS_VERSION := v1.5.0
+
+download_databases: download_resfinder_db \
+	download_pointfinder_db \
+	download_virulencefinder_db \
+	download_serotypefinder_db \
+	download_tbdb \
+	download_shigapass
+
+# Download and extract ResFinder database
+download_resfinder_db: $(ASSETS_DIR)/resfinder_db/INSTALL.py
+
+$(ASSETS_DIR)/resfinder_db/INSTALL.py:
+	$(call log_message,"Downloading ResFinder database v$(RESFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/resfinder_db/get/$(RESFINDER_VERSION).tar.gz \
+		-O resfinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf resfinder_db.tar.gz \
+	&& mv genomicepidemiology-resfinder_db-* resfinder_db \
+	&& rm resfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract PointFinder database
+download_pointfinder_db: $(ASSETS_DIR)/pointfinder_db/INSTALL.py
+
+$(ASSETS_DIR)/pointfinder_db/INSTALL.py:
+	$(call log_message,"Downloading PointFinder database v$(POINTFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/pointfinder_db/get/$(POINTFINDER_VERSION).tar.gz \
+		-O pointfinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf pointfinder_db.tar.gz \
+	&& mv genomicepidemiology-pointfinder_db-* pointfinder_db \
+	&& rm pointfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract VirulenceFinder database
+download_virulencefinder_db: $(ASSETS_DIR)/virulencefinder_db/INSTALL.py
+
+$(ASSETS_DIR)/virulencefinder_db/INSTALL.py:
+	$(call log_message,"Downloading VirulenceFinder database v$(VIRULENCEFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/virulencefinder_db/get/$(VIRULENCEFINDER_VERSION).tar.gz \
+		-O virulencefinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf virulencefinder_db.tar.gz \
+	&& mv genomicepidemiology-virulencefinder_db-* virulencefinder_db \
+	&& rm virulencefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract SerotypeFinder database
+download_serotypefinder_db: $(ASSETS_DIR)/serotypefinder_db/INSTALL.py
+
+$(ASSETS_DIR)/serotypefinder_db/INSTALL.py:
+	$(call log_message,"Downloading SerotypeFinder database v$(SEROTYPEFINDER_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://bitbucket.org/genomicepidemiology/serotypefinder_db/get/$(SEROTYPEFINDER_VERSION).tar.gz \
+		-O serotypefinder_db.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf serotypefinder_db.tar.gz \
+	&& mv genomicepidemiology-serotypefinder_db-* serotypefinder_db \
+	&& rm serotypefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract TBDB
+download_tbdb: $(ASSETS_DIR)/tbdb/README.md
+
+$(ASSETS_DIR)/tbdb/README.md:
+	$(call log_message,"Downloading TBDB commit $(TBDB_COMMIT)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://github.com/jodyphelan/tbdb/archive/$(TBDB_COMMIT).tar.gz \
+		-O tbdb.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf tbdb.tar.gz \
+	&& mv tbdb-$(TBDB_COMMIT) tbdb \
+	&& rm tbdb.tar.gz |& tee -a $(INSTALL_LOG)
+
+# Download and extract ShigaPass
+download_shigapass: $(ASSETS_DIR)/ShigaPass/README.md
+
+$(ASSETS_DIR)/ShigaPass/README.md:
+	$(call log_message,"Downloading ShigaPass $(SHIGAPASS_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& cd $(ASSETS_DIR) \
+	&& wget https://github.com/imanyass/ShigaPass/archive/$(SHIGAPASS_VERSION).tar.gz \
+		-O ShigaPass.tar.gz \
+		--no-verbose \
+		--no-check-certificate \
+	&& tar -xzf ShigaPass.tar.gz \
+	&& mv ShigaPass-* ShigaPass \
+	&& rm ShigaPass.tar.gz |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Update databases
@@ -256,7 +364,7 @@ $(HOSTILE_DIR)/human-t2t-hla.1.bt2:
 # Update ShigaPass database
 # -----------------------------
 SHIGAPASS_DIR := $(ASSETS_DIR)/ShigaPass
-update_shigapass_db: $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
+update_shigapass_db: download_shigapass $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
 
 $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
 	$(call log_message,"Starting update of ShigaPass database")
@@ -289,29 +397,17 @@ $(AMRFINDERDB_DIR)/latest:
 		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
-# Update MLST database
+# Update MLST database (PubMLST + BLAST)
 # -----------------------------
-MLSTDB_DIR := $(ASSETS_DIR)/mlst_db
+MLSTDB_DIR := $(ASSETS_DIR)/mlstdb
 
-update_mlst_db: $(MLSTDB_DIR)/pubmlst/dbases.xml
+update_mlstdb: $(MLSTDB_DIR)/DB_VERSION
 
-$(ASSETS_DIR)/mlst_db/pubmlst/dbases.xml:
+$(MLSTDB_DIR)/DB_VERSION:
 	$(call log_message,"Starting update of MLST database ...")
 	cd $(MLSTDB_DIR) \
-	&& bash mlst-download_pub_mlst.sh |& tee -a $(INSTALL_LOG)
-
-# -----------------------------
-# Update Blast database
-# -----------------------------
-update_blast_db: $(MLSTDB_DIR)/blast
-
-$(MLSTDB_DIR)/blast:
-	$(call log_message,"Starting update of Blast database")
-	cd $(MLSTDB_DIR) \
-	&& apptainer exec \
-		--bind $(MNT_ROOT) \
-		$(CONTAINERS_DIR)/blast.sif \
-		bash $(MLSTDB_DIR)/mlst-make_blast_db.sh |& tee -a $(INSTALL_LOG)
+	&& bash update_mlstdb.sh 
+	&& rm mlst.tar.gz |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update Finder databases
@@ -328,7 +424,7 @@ POINTFINDERDB_DIR := $(ASSETS_DIR)/pointfinder_db
 SEROTYPEDFINDERDB_DIR := $(ASSETS_DIR)/serotypefinder_db
 
 
-update_virulencefinder_db: $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
+update_virulencefinder_db: download_virulencefinder_db $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
 
 $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	$(call log_message,"Starting update of VirulenceFinder database")
@@ -348,7 +444,7 @@ $(VIRULENCEFINDERDB_DIR)/VERSION:
 		echo "$$DB_VERSION" > VERSION |& tee -a $(INSTALL_LOG)
 
 
-update_resfinder_db: $(RESFINDERDB_DIR)/all.length.b
+update_resfinder_db: download_resfinder_db $(RESFINDERDB_DIR)/all.length.b
 
 $(RESFINDERDB_DIR)/all.length.b:
 	$(call log_message,"Starting update of ResFinder database")
@@ -358,7 +454,7 @@ $(RESFINDERDB_DIR)/all.length.b:
 		kma_index |& tee -a $(INSTALL_LOG)
 
 
-update_pointfinder_db: $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
+update_pointfinder_db: download_pointfinder_db $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b
 
 $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 	$(call log_message,"Starting update of PointFinder database")
@@ -367,7 +463,7 @@ $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
-update_serotypefinder_db: $(SEROTYPEDFINDERDB_DIR)/H_type.length.b $(SEROTYPEDFINDERDB_DIR)/VERSION
+update_serotypefinder_db: download_serotypefinder_db $(SEROTYPEDFINDERDB_DIR)/H_type.length.b $(SEROTYPEDFINDERDB_DIR)/VERSION
 
 $(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
 	$(call log_message,"Starting update of SerotypeFinder database")
@@ -452,13 +548,13 @@ $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn:
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
 
 
-saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip
+saureus_download_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip
 
-$(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip:
+$(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip:
 	$(call log_message,"Downloading S. aureus cgMLST schema ...")
 	mkdir -p $(SAUR_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(SAUR_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Saureus1566/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Saureus48/alleles/ \
 		-O $@ \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -466,7 +562,7 @@ $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip:
 
 saureus_unpack_cgmlst_schema: $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 
-$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus1566.zip
+$(SAUR_CGMLST_DIR)/alleles/unpacking.done: $(SAUR_CGMLST_DIR)/alleles/cgmlst_schema_Saureus48.zip
 	$(call log_message,"Unpacking S. aureus cgMLST schema ...")
 	cd $$(dirname $<) \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -497,8 +593,9 @@ ecoli_all: ecoli_download_reference \
 	ecoli_bwaidx_reference \
 	ecoli_minimap2idx_reference \
 	ecoli_generate_prodigal_training_file \
+	ecoli_download_cgmlst_schema \
 	ecoli_download_wgmlst_schema \
-	ecoli_prep_ecoli_cgmlst_schema
+	ecoli_prep_cgmlst_schema
 
 ECOLI_GENOMES_DIR := $(ASSETS_DIR)/genomes/escherichia_coli
 ECOLI_WGMLST_DIR := $(ASSETS_DIR)/wgmlst/escherichia_coli
@@ -565,20 +662,20 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
-		-sp 5 \
+		-sp 10 \
 		-sc 1 \
 		-o $(ECOLI_WGMLST_DIR)/alleles \
 		--latest |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli cgmlst cgmlst.org schema
-ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip
+ecoli_download_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip
 
-$(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip:
+$(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip:
 	$(call log_message,"Downloading E. coli cgMLST schema ...")
 	mkdir -p $(ECOLI_CGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Ecoli1561/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Ecoli16/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -587,7 +684,7 @@ $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip:
 # Unpack Ecoli cgmlst schema
 ecoli_unpack_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 
-$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli1561.zip
+$(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_schema_Ecoli16.zip
 	$(call log_message,"Unpacking E. coli cgMLST schema ...")
 	cd $(ECOLI_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -595,7 +692,7 @@ $(ECOLI_CGMLST_DIR)/alleles/unpacking.done: $(ECOLI_CGMLST_DIR)/alleles/cgmlst_s
 
 
 # Prepping Ecoli cgmlst cgmlst.org schema
-ecoli_prep_ecoli_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
+ecoli_prep_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn
 
 $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
 
@@ -681,13 +778,13 @@ $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
 
 
 # Download Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip
+kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip
 
-$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip:
+$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip:
 	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
 	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
 	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Kpneumoniae1566/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Kpneumoniae8/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -695,7 +792,7 @@ $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip:
 
 kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
 
-$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae1566.zip
+$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae8.zip
 	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
 	cd $(KPNEU_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -789,13 +886,13 @@ $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn:
 
 
 # Download Streptococcus pyogenes cgmlst cgmlst.org schema
-spyogenes_download_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip
+spyogenes_download_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip
 
-$(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip:
+$(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip:
 	$(call log_message,"Downloading S. pyogenes cgMLST schema ...")
 	mkdir -p $(SPYO_CGMLST_DIR)/alleles \
 	&& cd $(SPYO_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Spyogenes1563/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/Spyogenes11/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -803,7 +900,7 @@ $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip:
 
 spyogenes_unpack_cgmlst_schema: $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 
-$(SPYO_CGMLST_DIR)/alleles/unpacking.done: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes1563.zip
+$(SPYO_CGMLST_DIR)/alleles/unpacking.done: $(SPYO_CGMLST_DIR)/alleles/cgmlst_schema_Spyogenes11.zip
 	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
 	cd $(SPYO_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
@@ -933,7 +1030,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSE
 
 mtuberculosis_converged_who_fohm_tbdb: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json
 
-$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv
+$(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: download_tbdb $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv
 	$(call log_message,"Creating WHO FoHM TBDB ...")
 	cd $(MTUBE_TBDB_DIR) \
 	&& cp $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
@@ -943,8 +1040,6 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: $(MTUBE_TB_INFO_DIR)/c
 	&& tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
-
-
 
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
@@ -1038,7 +1133,7 @@ check_minimap2:
 # -----------------------------
 # Check BlastDB
 # -----------------------------
-MLST_BLAST_DIR := $(ASSETS_DIR)/mlst_db/blast
+MLST_BLAST_DIR := $(ASSETS_DIR)/mlstdb/blast
 check_blastdb:
 	@cd $(SCRIPT_DIR) \
 	&& mlst=$(MLST_BLAST_DIR)/mlst.fa; \

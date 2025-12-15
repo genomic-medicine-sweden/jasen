@@ -19,6 +19,7 @@ local_containers := bonsai-prp.sif \
 
 # These containers will be downloaded remotely
 remote_containers := ncbi-amrfinderplus.sif \
+					bactopia-py.sif \
 					blast.sif \
 					bracken.sif \
 					bwakit.sif \
@@ -29,6 +30,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					freebayes.sif \
 					hostile.sif \
 					htslib.sif \
+					kleborate.sif \
 					kraken2.sif \
 					medaka.sif \
 					minimap2.sif \
@@ -54,11 +56,12 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.3.3
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.5.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
+URL_bactopia-py := https://depot.galaxyproject.org/singularity/bactopia-py:1.6.1--pyhdfd78af_0
 URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_0
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
@@ -69,6 +72,7 @@ URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
+URL_kleborate := https://depot.galaxyproject.org/singularity/kleborate:3.2.4--pyhdfd78af_0
 URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
 URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
 URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4
@@ -91,7 +95,7 @@ URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_spatyper := https://depot.galaxyproject.org/singularity/spatyper:0.3.3--pyhdfd78af_3
 URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.3.0--pyhdfd78af_0
-URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:2.0.4--hdfd78af_1
+URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:3.2.0--pyhdfd78af_0
 
 define log_message
 	@echo "--------------------------------------------------------------------------------" | tee -a $(INSTALL_LOG);

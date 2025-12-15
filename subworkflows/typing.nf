@@ -24,28 +24,42 @@ workflow CALL_TYPING {
     species
     training_file
     ch_assembly
-    ch_empty
+    ch_sample_id
     ch_vcf
 
     main:
 
     ch_versions = Channel.empty()
+    ch_chewbbaca_input = Channel.empty()
 
     // TYPING
-    mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
+    if ( !params.ci ) {
+        mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
+        mlst.out.json.set{ ch_mlst }
+        ch_versions = ch_versions.mix(mlst.out.versions)
+    } else {
+        ch_sample_id.set{ ch_mlst }
+    }
 
-    mask_polymorph_assembly(ch_assembly.join(ch_vcf))
+    if ( params.use_masking ) {
+        mask_polymorph_assembly(ch_assembly.join(ch_vcf))
 
-    mask_polymorph_assembly.out.fasta
-        .multiMap { sample_id, fasta -> 
+        mask_polymorph_assembly.out.fasta
+            .multiMap { sample_id, fasta -> 
+                sample_id: sample_id
+                fasta: fasta
+            }
+            .set{ assembly_map }
+    } else {
+        assembly_map = ch_assembly.multiMap { sample_id, fasta ->
             sample_id: sample_id
             fasta: fasta
         }
-        .set{ masked_assembly_map }
+    }
 
-    chewbbaca_create_batch_list(masked_assembly_map.fasta.collect())
+    chewbbaca_create_batch_list(assembly_map.fasta.collect())
     chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
-    chewbbaca_split_results(masked_assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
+    chewbbaca_split_results(assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
 
     // Call species-specific typing
     // ecoli
@@ -58,9 +72,9 @@ workflow CALL_TYPING {
         ch_versions = ch_versions.mix(serotypefinder.out.versions)
         ch_versions = ch_versions.mix(shigapass.out.versions)
     } else {
-        ch_empty.set{ ch_serotypefinder }
-        ch_empty.set{ ch_serotypefinder_meta }
-        ch_empty.set{ ch_shigapass }
+        ch_sample_id.set{ ch_serotypefinder }
+        ch_sample_id.set{ ch_serotypefinder_meta }
+        ch_sample_id.set{ ch_shigapass }
     }
 
     // saureus
@@ -70,8 +84,8 @@ workflow CALL_TYPING {
         ch_versions = ch_versions.mix(sccmec.out.versions)
         ch_versions = ch_versions.mix(spatyper.out.versions)
     } else {
-        ch_empty.set{ ch_sccmec }
-        ch_empty.set{ ch_spatyper }
+        ch_sample_id.set{ ch_sccmec }
+        ch_sample_id.set{ ch_spatyper }
     }
 
     // strep
@@ -79,12 +93,12 @@ workflow CALL_TYPING {
         emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
         ch_versions = ch_versions.mix(emmtyper.out.versions)
     } else {
-        ch_empty.set{ ch_emmtyper }
+        ch_sample_id.set{ ch_emmtyper }
     }
 
     chewbbaca_split_results.out.tsv
         .join(ch_emmtyper)
-        .join(mlst.out.json)
+        .join(ch_mlst)
         .join(ch_sccmec)
         .join(ch_serotypefinder)
         .join(ch_serotypefinder_meta)
@@ -92,14 +106,13 @@ workflow CALL_TYPING {
         .join(ch_spatyper)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(mlst.out.versions)
     ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
 
     emit:
     chewbbaca       = chewbbaca_split_results.out.tsv     // channel: [ val(meta), path(tsv) ]
     combined_output = ch_combined_output                  // channel: [ val(meta), path(tsv), path(tsv), path(json), path(tsv), path(json), path(json), path(csv), path(tsv) ]
     emmtyper        = ch_emmtyper                         // channel: [ val(meta), path(tsv) ]
-    mlst            = mlst.out.json                       // channel: [ val(meta), path(json) ]
+    mlst            = ch_mlst                             // channel: [ val(meta), path(json) ]
     sccmec          = ch_sccmec                           // channel: [ val(meta), path(tsv) ]
     serotypefinder  = ch_serotypefinder                   // channel: [ val(meta), path(json) ]
     serotypefinder  = ch_serotypefinder_meta              // channel: [ val(meta), path(json) ]
