@@ -41,7 +41,7 @@ cd containers && make
 
 First, make sure your current working directory is in the main jasen folder (so if you cd:ed into the `container` folder before, you need to cd back to the main folder with `cd ..`). Then run the `install` make rule:
 
-**NOTE**: See below for species-specific installation!
+**NOTE**: Kraken and MLST databases need to be downloaded manually! Installation can be done independently for different species. Please see instructions below!
 
 ```bash
 make install
@@ -84,7 +84,7 @@ Source: `nextflow.config`
 * Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads (default: false)
 * Edit the `use_skesa` parameter (default: true) if you would like to use SPAdes instead of Skesa for assembly of short reads
 * Edit the `target_sample_size` parameter in order to downsample reads
-* Edit the `runOptions` in order to mount directories to your run (e.g. output folder, workdir)
+* Add  `runOptions` to apptainer/singularity profile in order to mount directories to your run, e.g. output folder, workdir (Example: `apptainer.runOptions = "--bind ${params.outdir} --bind ${params.workDir}"`)
 
 When analysing Nanopore data:
 * Edit the `ext.seqmethod` in `conf/modules.config` for Flye in case you are using older ONT data (default: --nano-hq, suitable for ONT data generated with R10 chemistry)
@@ -92,8 +92,8 @@ When analysing Nanopore data:
 ### Test data
 Source: `assets/test_data/samplelist*.csv`
 
-* For short reads produced with Illumina or IonTorrent technology, edit the read1 and read2 columns in `assets/test_data/samplelist.csv`
-* For long reads produced with ONT technology, edit the read1 column in `assets/test_data/samplelist_nanopore.csv`
+* For short reads produced with Illumina or IonTorrent technology, edit the `read1` and `read2` columns in `assets/test_data/samplelist.csv`
+* For long reads produced with ONT technology, edit the `read1` column in `assets/test_data/samplelist_nanopore.csv`
 
 ## Setting up temp directories
 
