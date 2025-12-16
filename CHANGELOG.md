@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Flye 2.9.3 to version 2.9.6
 - Updated minimap2 2.28 to version 2.30
 - Updated Medaka 2.0.1 to version 2.1.1.
+- Updated NanoPlot 1.43.0 to 1.46.2
 - Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
 - Changed `ch_empty` to `ch_sample_id`
 
