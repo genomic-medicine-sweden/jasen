@@ -4,7 +4,7 @@ bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1-
 flye,2.9.6,https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0
 hostile,2.0.0,https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 minimiap2,2.30,https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
-medaka,2.1.1,docker://ontresearch/medaka:sha3dc8413c2af77a427048b091c7a69b638ba30cfe
+medaka,2.2.0,docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 mykrobe,0.12.2,https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 nanoplot,1.46.2,https://depot.galaxyproject.org/singularity/nanoplot:1.46.2--pyhdfd78af_0
 prp,0.11.4,docker://clinicalgenomicslund/bonsai-prp:0.11.4

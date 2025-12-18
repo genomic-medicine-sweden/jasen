@@ -58,7 +58,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 # URLs to Docker containers
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.5.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
-DOCKER_medaka := docker://ontresearch/medaka:sha3dc8413c2af77a427048b091c7a69b638ba30cfe
+DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
