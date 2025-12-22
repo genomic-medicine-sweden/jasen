@@ -2,7 +2,7 @@ Software,Version,Container
 amrfinderplus,3.11.11,https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
 bracken,2.8,https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
-chewbbaca,3.3.2,https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
+chewbbaca,3.4.0,https://depot.galaxyproject.org/singularity/chewbbaca:3.4.0--pyhdfd78af_0
 emmtyper,0.2.0,https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 fastqc,0.12.1,https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
 flye,2.9.6,https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0

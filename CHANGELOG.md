@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed reporting of qc stats for ONT data in final json file
 
 ### Changed
+- Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
 
 - Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
