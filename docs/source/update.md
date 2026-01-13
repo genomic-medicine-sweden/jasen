@@ -25,3 +25,9 @@ make
 rm assets/virulencefinder_db/*.{b,name}
 make
 ```
+
+### Rerun AMRFinder database creation
+```
+rm assets/amrfinder_db/*.{b,name}
+make
+```
