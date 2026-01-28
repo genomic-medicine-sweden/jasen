@@ -33,7 +33,7 @@ workflow CALL_SCREENING {
     if ( params.use_kleborate ) {
         kleborate(ch_assembly)
         kleborate.out.general.set{ ch_kleborate_general }
-        kleborate.out.harmonization.set{ ch_kleborate_hamronization }
+        kleborate.out.hamronization.set{ ch_kleborate_hamronization }
         ch_versions = ch_versions.mix(kleborate.out.versions)
     } else {
         ch_sample_id.set{ ch_kleborate_general }
