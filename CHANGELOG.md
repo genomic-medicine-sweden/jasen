@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed general profile `reference_size` in config
 - Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 - Fixed reporting of qc stats for ONT data in final json file
+- Fixed pipeline if `platform = iontorrent` is set
 
 ### Changed
 - Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
