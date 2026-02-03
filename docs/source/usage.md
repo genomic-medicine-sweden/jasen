@@ -2,6 +2,7 @@
 
 ## Simple self-test
 
+with Illumina test data:
 ```bash
 nextflow run main.nf                                      \
         -profile staphylococcus_aureus,illumina,apptainer \
@@ -9,11 +10,20 @@ nextflow run main.nf                                      \
         --csv assets/test_data/samplelist.csv
 ```
 
+with ONT test data:
+```bash
+nextflow run main.nf                                      \
+        -profile staphylococcus_aureus,nanopore,apptainer \
+        -config nextflow.config                           \
+        --csv assets/test_data/samplelist_nanopore.csv
+```
+Remember to edit the paths to the test file(s) in the samplelist.
+
 ## Usage arguments
 
 | Argument type       | Options                                                                                                | Required |
 | ------------------- | ------------------------------------------------------------------------------------------------------ | -------- |
-| -profile (species)  | staphylococcus_aureus/escherichia_coli/mycobacterium_tuberculosis/streptococcus_pyogenes/streptococcus | True     |
+| -profile (species)  | staphylococcus_aureus/escherichia_coli/mycobacterium_tuberculosis/klebsiella_pneumoniae/streptococcus_pyogenes/streptococcus | True     |
 | -profile (platform) | illumina/nanopore/iontorrent                                                                           | True     |
 | -profile (RLS)      | development/diagnostic/validation                                                                      | False    |
 | -config             | nextflow.config                                                                                        | True     |
@@ -24,12 +34,23 @@ RLS = Release life cycle (default: diagnostic)
 
 ## Input file format 
 
+For short reads:
 ```{csv-table} Example of a *samplelist* input file in CSV format.
 :header-rows: 1
 
 id,platform,read1,read2
 p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
 ```
+
+For long reads (ONT):
+```{csv-table} Example of a *samplelist* input file in CSV format.
+:header-rows: 1
+
+id,platform,read1
+test_mecA,nanopore,assets/test_data/sequencing_data/saureus_1k/saureus_1k_ont.fastq.gz
+```
+
+As input for long reads we recommend fastq files that were obtained by basecalling using SUP model.
 
 ## Downsampling reads
 
@@ -42,3 +63,10 @@ Activate downsampling by setting the parameter `target_sample_size` to the eithe
 There are an option to use [hostile](https://github.com/bede/hostile) to filter human reads from further analyses. This can be useful if a sample has been contaminated, which could cause issues with *de-novo* assemblies.
 
 Activate human read depletion by setting the parameter `use_hostile` to `true` in the config.
+
+## Output
+
+* `postalignqc` output: statistics are computed using core genome
+* `coverage` output: statistics are computed using whole genome (and plasmids, if they are a part of the reference genome)
+* Polishing of genome assembly created from ONT data is done in two rounds with bacterial methylation model as default.  
+* Variants reported by Freebayes are used for masking the genome before performing cgMLST analaysis (default: true for Illumina data, false for ONT data) and are computed by aligning reads to the assembly, not to the reference genome. When masking step is run, these variants are also reported in the output file `analysis_result/*_result.json`.

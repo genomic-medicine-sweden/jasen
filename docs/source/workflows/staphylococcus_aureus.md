@@ -13,6 +13,8 @@ The workflow includes the following analysis in addition to species prediction a
 - Prediction of virulence factors
 - MLST
 - cgMLST
+- SCCmec type
+- spa type (for ONT workflow)
 
 
 ## Software versions

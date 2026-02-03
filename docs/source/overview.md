@@ -22,23 +22,23 @@ Workflows under **development** are being actively worked at. While all workflow
 
 ## Workflows
 
-| Species                                                                   | Development status |
-|---------------------------------------------------------------------------|--------------------|
-| [*Staphylococcus aureus*](./workflows/staphylococcus_aureus.md)           | Stable             |
-| [*Escherichia coli*](./workflows/escherichia_coli.md)                     | Stable             |
-| [*Mycobacterium tuberculosis*](./workflows/mycobacterium_tuberculosis.md) | Stable             |
-| [*Klebsiella pneumoniae*](./workflows/klebsiella_pneumoniae.md)           | Development        |
-| [*Streptococcus pyogenes*](./workflows/streptococcus_pyogenes.md)         | Stable             |
-| [*Streptococcus*](./workflows/streptococcus.md)                           | Stable             |
+| Species                                                                   | Development status (Illumina)| Development status (ONT)
+|---------------------------------------------------------------------------|--------------------|--------------------|
+| [*Staphylococcus aureus*](./workflows/staphylococcus_aureus.md)           | Stable             | Draft              |
+| [*Escherichia coli*](./workflows/escherichia_coli.md)                     | Stable             |                    |
+| [*Mycobacterium tuberculosis*](./workflows/mycobacterium_tuberculosis.md) | Stable             |                    |
+| [*Klebsiella pneumoniae*](./workflows/klebsiella_pneumoniae.md)           | Draft              | Draft              |
+| [*Streptococcus pyogenes*](./workflows/streptococcus_pyogenes.md)         | Stable             |                    |
+| [*Streptococcus*](./workflows/streptococcus.md)                           | Stable             |                    |
 
 ## Input
 
-Jasen is designed for analysis of sequenced whole genomes from bacterial isolates. The pipeline takes short-read sequenced reads, in FastQ format, from Illumina and Ion Torrent as input.
+Jasen is designed for analysis of sequenced whole genomes from bacterial isolates. The pipeline takes short-read (Illumina, Ion Torrent) or long-read (ONT) sequenced reads, in compressed FastQ format, as input.
 
-The paths to the reads are defined in a CSV file with sample id, and optionally sequencing run and lims id. See [the usage](./usage.md) page for information on how to start a analysis.
+The paths to the reads are defined in a CSV file with sample id, and optionally sequencing run and lims id. See [the usage](./usage.md) page for information on how to start an analysis.
 
 ## Output
 
-Jasen will publish the analysis result to the path specified by the `outdir` variable in the config file. The pipeline will combine the output of the different softwares into standardised result file in JSON format for easier downstream processing of the result. The combined output have the same format regardless for workflow and can be uploaded to the result visualisation tool Bonsai for easy analysis. 
+Jasen will publish the analysis result to the path specified by the `outdir` variable in the config file. The pipeline will combine the output of the different softwares into standardised result file in JSON format for easier downstream processing of the result. The combined output have the same format regardless for workflow and can be uploaded to the result visualisation tool Bonsai for easy analysis. See [the usage](./usage.md) page for information on output. 
 
 The pipeline will also publish the output files of every tool beign run seperatly in the `outdir` folder.
