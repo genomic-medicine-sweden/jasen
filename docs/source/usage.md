@@ -38,16 +38,16 @@ For short reads:
 ```{csv-table} Example of a *samplelist* input file in CSV format.
 :header-rows: 1
 
-id,platform,read1,read2
-p1,illumina,assets/test_data/sequencing_data/saureus_10k/saureus_large_R1_001.fastq.gz,assets/test_data/sequencing_data/saureus_10k/saureus_large_R2_001.fastq.gz
+id,platform,sequencing_run,read1,read2
+sample01,illumina,seqrun0123,path_to_reads/sample01_forward.fastq.gz,path_to_reads/sample01_reverse.fastq.gz
 ```
 
 For long reads (ONT):
 ```{csv-table} Example of a *samplelist* input file in CSV format.
 :header-rows: 1
 
-id,platform,read1
-test_mecA,nanopore,assets/test_data/sequencing_data/saureus_1k/saureus_1k_ont.fastq.gz
+id,platform,sequencing_run,read1
+sample01,nanopore,seqrun0123,path_to_reads/sample01.fastq.gz
 ```
 
 As input for long reads we recommend fastq files that were obtained by basecalling using SUP model.
