@@ -1,18 +1,3 @@
-#!/usr/bin/env nextflow
-
-nextflow.enable.dsl=2
-
-include { chewbbaca_allelecall          } from '../modules/nf-core/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/batch/main.nf'
-include { chewbbaca_split_results       } from '../modules/local/chewbbaca/split/main.nf'
-include { emmtyper                      } from '../modules/nf-core/emmtyper/main.nf'
-include { mlst                          } from '../modules/nf-core/mlst/main.nf'
-include { mask_polymorph_assembly       } from '../modules/local/mask/main.nf'
-include { sccmec                        } from '../modules/nf-core/sccmec/main.nf'
-include { serotypefinder                } from '../modules/nf-core/serotypefinder/main.nf'
-include { shigapass                     } from '../modules/nf-core/shigapass/main.nf'
-include { spatyper                      } from '../modules/nf-core/spatyper/main.nf'
-
 workflow CALL_TYPING {
     take:
     chewbbaca_db
@@ -30,7 +15,6 @@ workflow CALL_TYPING {
     main:
 
     ch_versions = Channel.empty()
-    ch_chewbbaca_input = Channel.empty()
 
     // TYPING
     if ( !params.ci ) {
@@ -45,7 +29,7 @@ workflow CALL_TYPING {
         mask_polymorph_assembly(ch_assembly.join(ch_vcf))
 
         mask_polymorph_assembly.out.fasta
-            .multiMap { sample_id, fasta -> 
+            .multiMap { sample_id, fasta ->
                 sample_id: sample_id
                 fasta: fasta
             }
@@ -57,8 +41,17 @@ workflow CALL_TYPING {
         }
     }
 
-    chewbbaca_create_batch_list(assembly_map.fasta.collect())
-    chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
+    assembly_map.fasta
+    .collectFile(name: 'batch_input.list', newLine: true) { fasta ->
+        fasta.toRealPath().toString()
+    }
+    .set { batch_list }
+
+    // chewbbaca_create_batch_list(assembly_map.fasta.collect())
+    // chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
+
+    chewbbaca_allelecall(batch_list, chewbbaca_db, training_file)
+
     chewbbaca_split_results(assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
 
     // Call species-specific typing
