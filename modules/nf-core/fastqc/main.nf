@@ -43,14 +43,14 @@ process fastqc {
     END_VERSIONS
     """
 
- stub:
-    summary_output = "${sample_id}_fastqc_summary.txt"
-    output = "${sample_id}_fastqc_data.txt"
-    html_output = "${sample_id}_fastqc.html"
+    stub:
     """
-    touch ${summary_output}
-    touch ${output}
-    touch ${html_output}
+    mkdir ${sample_id}_fastqc
+
+    touch ${sample_id}_fastqc/summary.txt
+    touch ${sample_id}_fastqc/fastqc_data.txt
+    touch ${sample_id}.zip
+    touch ${sample_id}.html
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
