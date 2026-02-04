@@ -46,11 +46,12 @@ workflow CALL_PREPROCESSING {
         ch_depleted_reads.set{ ch_depleted_sampled_reads }
     }
 
-    // reads trim and clean and recreate reads channel if the reads were filtered or downsampled
-    assembly_trim_clean(ch_depleted_sampled_reads).set { ch_clean_reads }
-    Channel.empty()
-        .mix( ch_depleted_sampled_reads, ch_clean_reads )  // if samples are filtered or downsampled
-        .set{ ch_reads }                                   // create reads channel
+    // extra reads trim and clean for iontorrent reads
+    if (params.platform == "iontorrent") {
+        assembly_trim_clean(ch_depleted_sampled_reads).set { ch_reads }
+    } else {
+        ch_depleted_sampled_reads.set{ ch_reads }
+    }
 
     Channel.fromPath(input_samples).splitCsv(header:true)
         .map{ row -> get_seqrun_meta(row) }
@@ -71,7 +72,7 @@ workflow CALL_PREPROCESSING {
     sample_id           = ch_sample_id                      // channel: [ val(meta) ]
     id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
-    reads               = ch_reads                          // channel: [ val(meta), path(json) ]
+    reads               = ch_reads                          // channel: [ val(meta), path(fastq) ]
     seqrun_meta         = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
     versions            = ch_versions                       // channel: [ versions.yml ]
 }

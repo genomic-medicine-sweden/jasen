@@ -1,3 +1,18 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+include { chewbbaca_allelecall          } from '../modules/nf-core/chewbbaca/main.nf'
+include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/batch/main.nf'
+include { chewbbaca_split_results       } from '../modules/local/chewbbaca/split/main.nf'
+include { emmtyper                      } from '../modules/nf-core/emmtyper/main.nf'
+include { mlst                          } from '../modules/nf-core/mlst/main.nf'
+include { mask_polymorph_assembly       } from '../modules/local/mask/main.nf'
+include { sccmec                        } from '../modules/nf-core/sccmec/main.nf'
+include { serotypefinder                } from '../modules/nf-core/serotypefinder/main.nf'
+include { shigapass                     } from '../modules/nf-core/shigapass/main.nf'
+include { spatyper                      } from '../modules/nf-core/spatyper/main.nf'
+
 workflow CALL_TYPING {
     take:
     chewbbaca_db
@@ -42,13 +57,10 @@ workflow CALL_TYPING {
     }
 
     assembly_map.fasta
-    .collectFile(name: 'batch_input.list', newLine: true) { fasta ->
-        fasta.toRealPath().toString()
-    }
-    .set { batch_list }
-
-    // chewbbaca_create_batch_list(assembly_map.fasta.collect())
-    // chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
+        .collectFile(name: 'batch_input.list', newLine: true) { fasta ->
+            fasta.toRealPath().toString()
+        }
+        .set { batch_list }
 
     chewbbaca_allelecall(batch_list, chewbbaca_db, training_file)
 
@@ -57,7 +69,6 @@ workflow CALL_TYPING {
     // Call species-specific typing
     // ecoli
     if (params.species == "escherichia coli") {
-        // serot
         serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
         serotypefinder.out.json.set{ ch_serotypefinder }
         serotypefinder.out.meta.set{ ch_serotypefinder_meta }
@@ -81,7 +92,7 @@ workflow CALL_TYPING {
         ch_sample_id.set{ ch_spatyper }
     }
 
-    // strep
+    // streptococcus & spyogenes
     if (params.species in ["streptococcus", "streptococcus pyogenes"]) {
         emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
         ch_versions = ch_versions.mix(emmtyper.out.versions)
