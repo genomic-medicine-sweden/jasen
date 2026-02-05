@@ -3,7 +3,6 @@
 nextflow.enable.dsl=2
 
 include { chewbbaca_allelecall          } from '../modules/nf-core/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/batch/main.nf'
 include { chewbbaca_split_results       } from '../modules/local/chewbbaca/split/main.nf'
 include { emmtyper                      } from '../modules/nf-core/emmtyper/main.nf'
 include { mlst                          } from '../modules/nf-core/mlst/main.nf'
