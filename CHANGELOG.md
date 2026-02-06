@@ -20,16 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ONT test data with 10k reads for _S. aureus_
 
 ### Fixed
+
 - Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
 - Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
 - Fixed general profile `reference_size` in config
 - Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 - Fixed reporting of qc stats for ONT data in final json file
 - Fixed documentation describing sample sheet format
+- Fixed pipeline if `platform = iontorrent` is set
 
 ### Changed
-- Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
 
+- Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
 - Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts

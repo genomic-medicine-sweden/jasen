@@ -3,7 +3,6 @@
 nextflow.enable.dsl=2
 
 include { chewbbaca_allelecall          } from '../modules/nf-core/chewbbaca/main.nf'
-include { chewbbaca_create_batch_list   } from '../modules/local/chewbbaca/batch/main.nf'
 include { chewbbaca_split_results       } from '../modules/local/chewbbaca/split/main.nf'
 include { emmtyper                      } from '../modules/nf-core/emmtyper/main.nf'
 include { mlst                          } from '../modules/nf-core/mlst/main.nf'
@@ -30,7 +29,6 @@ workflow CALL_TYPING {
     main:
 
     ch_versions = Channel.empty()
-    ch_chewbbaca_input = Channel.empty()
 
     // TYPING
     if ( !params.ci ) {
@@ -45,7 +43,7 @@ workflow CALL_TYPING {
         mask_polymorph_assembly(ch_assembly.join(ch_vcf))
 
         mask_polymorph_assembly.out.fasta
-            .multiMap { sample_id, fasta -> 
+            .multiMap { sample_id, fasta ->
                 sample_id: sample_id
                 fasta: fasta
             }
@@ -57,14 +55,19 @@ workflow CALL_TYPING {
         }
     }
 
-    chewbbaca_create_batch_list(assembly_map.fasta.collect())
-    chewbbaca_allelecall(chewbbaca_create_batch_list.out.list, chewbbaca_db, training_file)
+    assembly_map.fasta
+        .collectFile(name: 'batch_input.list', newLine: true) { fasta ->
+            fasta.toRealPath().toString()
+        }
+        .set { batch_list }
+
+    chewbbaca_allelecall(batch_list, chewbbaca_db, training_file)
+
     chewbbaca_split_results(assembly_map.sample_id.collect(), chewbbaca_allelecall.out.calls)
 
     // Call species-specific typing
     // ecoli
     if (params.species == "escherichia coli") {
-        // serot
         serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
         serotypefinder.out.json.set{ ch_serotypefinder }
         serotypefinder.out.meta.set{ ch_serotypefinder_meta }
@@ -88,7 +91,7 @@ workflow CALL_TYPING {
         ch_sample_id.set{ ch_spatyper }
     }
 
-    // strep
+    // streptococcus & spyogenes
     if (params.species in ["streptococcus", "streptococcus pyogenes"]) {
         emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
         ch_versions = ch_versions.mix(emmtyper.out.versions)
