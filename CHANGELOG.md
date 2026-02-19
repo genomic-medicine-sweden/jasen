@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed channel and spelling errors and mlstdb paths in `cmd.config`
 - Fixed reporting of qc stats for ONT data in final json file
 - Fixed pipeline if `platform = iontorrent` is set
+- Fixed medaka input channel
 
 ### Changed
 
