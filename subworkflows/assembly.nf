@@ -21,7 +21,7 @@ workflow CALL_ASSEMBLY {
     spades_illumina(ch_reads)
     spades_iontorrent(ch_reads)
     flye(ch_reads)
-    medaka(ch_reads, flye.out.fasta)
+    medaka(ch_reads.join(flye.out.fasta))
 
     Channel.empty()
         .mix(
