@@ -9,6 +9,7 @@ assets/genomes
 assets/mlstdb/blast
 assets/mlstdb/pubmlst
 assets/mlstdb/pubmlst-token.json*
+assets/.bigsdb_tokens/
 assets/mlstdb/*.log
 assets/amrfinder_db
 assets/gambit_db
