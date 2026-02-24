@@ -23,7 +23,7 @@ Remember to edit the paths to the test file(s) in the samplelist.
 
 | Argument type       | Options                                                                                                | Required |
 | ------------------- | ------------------------------------------------------------------------------------------------------ | -------- |
-| -profile (species)  | staphylococcus_aureus/escherichia_coli/mycobacterium_tuberculosis/klebsiella_pneumoniae/streptococcus_pyogenes/streptococcus | True     |
+| -profile (species)  | staphylococcus_aureus/escherichia_coli/mycobacterium_tuberculosis/klebsiella/streptococcus_pyogenes/streptococcus | True     |
 | -profile (platform) | illumina/nanopore/iontorrent                                                                           | True     |
 | -profile (RLS)      | development/diagnostic/validation                                                                      | False    |
 | -config             | nextflow.config                                                                                        | True     |
