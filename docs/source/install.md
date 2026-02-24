@@ -149,11 +149,15 @@ bash /path/to/jasen/assets/mlstdb/update_mlstdb.sh
 
 **NOTE**: The *Klebsiella* cgMLST schema is hosted on [BIGSdb Pasteur](https://bigsdb.pasteur.fr/) and requires API credentials to download. Here are the steps:
 1. Request an API key by following the instructions at [https://bigsdb.pasteur.fr/requesting-api-key/](https://bigsdb.pasteur.fr/requesting-api-key/).
-2. Add the credentials to `assets/cgmlstdb/update_klebsiella_pasteur_cgmlstdb.sh` by editing `token` and `secret` with `CLIENT_ID` and `CLIENT_SECRET` in the  `assets/.bigsdb_tokens/access_tokens` file.
+2. Copy the client credentials template:
+```
+cp assets/.bigsdb_tokens/client_credentials.template assets/.bigsdb_tokens/client_credentials
+```
+3. Edit `client_id` and `client_secret` in the `assets/.bigsdb_tokens/client_credentials` file.
 ```
 [Pasteur]
-token = insert_token_here
-secret = insert_secret_here
+client_id = insert_pasteur_client_id
+client_secret = client_id = insert_pasteur_client_secret
 ```
 
 #### Download/update Klebsiella cgMLST database
@@ -164,8 +168,4 @@ The download is triggered automatically as part of the `klebsiella_all` Makefile
 make klebsiella_all
 ```
 
-Or run the script directly:
-
-```bash
-bash /path/to/jasen/assets/cgmlst/klebsiella/update_klebsiella_pasteur_cgmlstdb.sh
-```
+Follow the prompts regarding authorising via the [Pasteur Institute website](https://bigsdb.pasteur.fr/)
