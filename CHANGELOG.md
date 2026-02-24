@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed container for Medaka, it includes the models, so they don't need to be downloaded while running analysis
 - Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
 - Changed `ch_empty` to `ch_sample_id`
+- Changed mask process to run with perl container
 
 ## [1.1.2]
 
