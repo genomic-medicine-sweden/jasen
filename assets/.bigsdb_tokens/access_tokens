@@ -1,7 +1,0 @@
-[Pasteur]
-token = insert_pasteur_token_here
-secret = insert_pasteur_secret_here
-
-[PubMLST]
-token = insert_pubmlst_token_here
-secret = insert_pubmlst_secret_here
