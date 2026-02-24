@@ -13,7 +13,7 @@ medaka,2.2.0,docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea5
 mlst,2.23.0,https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 nanoplot,1.46.2,https://depot.galaxyproject.org/singularity/nanoplot:1.46.2--pyhdfd78af_0
 pointfinder_db,4.0.0,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
-prp,0.11.4,docker://clinicalgenomicslund/bonsai-prp:0.11.4
+prp,1.5.0,docker://clinicalgenomicslund/bonsai-prp:1.5.0
 quast,5.2.0,https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 resfinder,4.4.2,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
 resfinder_db,2.1.1,https://depot.galaxyproject.org/singularity/resfinder:4.4.2--pyhdfd78af_1
