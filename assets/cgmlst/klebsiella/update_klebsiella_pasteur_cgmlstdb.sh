@@ -29,11 +29,12 @@ fi
 
 mkdir -p "${CGMLST_DIR}/alleles"
 
-# Download Klebsiella cgMLST schema from BIGSdb Pasteur
+# Download alleles FASTA for all loci in scheme 18
 apptainer exec --bind $MNTROOT ${CONTAINERS_DIR}/bactopia-py.sif \
-   ${BIN_DIR}/bigsdb_downloader.py \
-   --key_name Pasteur \
-   --site Pasteur \
-   --token_dir "${TOKEN_DIR}" \
-   --url "https://bigsdb.pasteur.fr/api/db/pubmlst_klebsiella_seqdef/schemes/18/alleles_fasta" \
-   --output_file "${CGMLST_DIR}/klebsiella_cgmlst_schema_18.json"
+    python ${ASSETS_DIR}/bin/bigsdb_downloader.py \
+    --download_scheme \
+    --key_name Pasteur \
+    --site Pasteur \
+    --token_dir "${TOKEN_DIR}" \
+    --url "https://bigsdb.pasteur.fr/api/db/pubmlst_klebsiella_seqdef/schemes/18" \
+    --output_dir "${CGMLST_DIR}/alleles"

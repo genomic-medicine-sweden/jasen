@@ -60,8 +60,24 @@ parser.add_argument(
 )
 parser.add_argument(
     "--key_name",
-    required=True,
+    required=False,
     help="Name of API key - use a different name for each site.",
+)
+parser.add_argument(
+    "--download_scheme",
+    action="store_true",
+    help="Fetch all loci from a scheme endpoint and download their alleles_fasta files. "
+         "Use with --url, --output_dir, --key_name, --site.",
+)
+parser.add_argument(
+    "--output_dir",
+    required=False,
+    help="Directory to save per-locus FASTA files when using --download_scheme.",
+)
+parser.add_argument(
+    "--force",
+    action="store_true",
+    help="Re-download files even if they already exist (use with --download_scheme).",
 )
 parser.add_argument(
     "--method",
@@ -99,11 +115,23 @@ def main():
     (token, secret) = retrieve_token("session")
     if not token or not secret:
         (token, secret) = get_new_session_token()
-    if not args.setup:
+    if args.download_scheme:
+        download_scheme_alleles(args.url, token, secret, args.output_dir)
+    elif not args.setup:
         get_route(args.url, token, secret)
 
 
 def check_required_args(args):
+    if not args.key_name:
+        parser.error("--key_name is required")
+    if args.download_scheme:
+        if not args.url:
+            parser.error("--url is required with --download_scheme")
+        if not args.output_dir:
+            parser.error("--output_dir is required with --download_scheme")
+        if not args.site:
+            parser.error("--site is required with --download_scheme")
+        return
     if args.setup:
         if not args.site:
             parser.error("--site is required for setup")
@@ -147,7 +175,7 @@ def trim_url_args(url):
     return trimmed_url, processed_params
 
 
-def get_route(url, token, secret):
+def get_route(url, token, secret, output_file=None):
     (client_key, client_secret) = get_client_credentials()
     session = OAuth1Session(
         client_key, client_secret, access_token=token, access_token_secret=secret
@@ -179,10 +207,11 @@ def get_route(url, token, secret):
             header_auth=True,
         )
 
+    out = output_file or args.output_file
     if r.status_code == 200 or r.status_code == 201:
-        if args.output_file:
+        if out:
             try:
-                with open(args.output_file, "w") as file:
+                with open(out, "w") as file:
                     if re.search("json", r.headers["content-type"], flags=0):
                         file.write(json.dumps(r.json()))
                     else:
@@ -205,10 +234,21 @@ def get_route(url, token, secret):
             sys.stderr.write(r.json()["message"] + "\n")
             sys.stderr.write("Invalid session token, requesting new one...\n")
             (token, secret) = get_new_session_token()
-            get_route(url, token, secret)
+            get_route(url, token, secret, output_file=output_file)
     else:
         sys.stderr.write(f"Error: {r.text}\n")
         sys.exit(1)
+
+
+def download_scheme_alleles(scheme_url, token, secret, output_dir):
+    import urllib.request
+    with urllib.request.urlopen(scheme_url) as response:
+        data = json.loads(response.read())
+    for locus_url in data.get("loci", []):
+        locus = os.path.basename(locus_url)
+        out_file = os.path.join(output_dir, f"{locus}.fasta")
+        if args.force or not os.path.isfile(out_file):
+            get_route(f"{locus_url}/alleles_fasta", token, secret, output_file=out_file)
 
 
 def check_dir(directory):
