@@ -2,13 +2,14 @@
 
 nextflow.enable.dsl=2
 
-include { post_align_qc         } from '../modules/local/prp/main.nf'
-include { CALL_ASSEMBLY         } from '../subworkflows/assembly.nf'
-include { CALL_POSTPROCESSING   } from '../subworkflows/postprocessing.nf'
-include { CALL_PREPROCESSING    } from '../subworkflows/preprocessing.nf'
-include { CALL_PROFILING        } from '../subworkflows/profiling.nf'
-include { CALL_QUALITY_CONTROL  } from '../subworkflows/quality_control.nf'
-include { CALL_RELATEDNESS      } from '../subworkflows/relatedness.nf'
+include { post_align_qc                                 } from '../modules/local/prp/main.nf'
+include { samtools_coverage as samtools_coverage_ref    } from '../modules/nf-core/samtools/main.nf'
+include { CALL_ASSEMBLY                                 } from '../subworkflows/assembly.nf'
+include { CALL_POSTPROCESSING                           } from '../subworkflows/postprocessing.nf'
+include { CALL_PREPROCESSING                            } from '../subworkflows/preprocessing.nf'
+include { CALL_PROFILING                                } from '../subworkflows/profiling.nf'
+include { CALL_QUALITY_CONTROL                          } from '../subworkflows/quality_control.nf'
+include { CALL_RELATEDNESS                              } from '../subworkflows/relatedness.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // set input data
@@ -92,6 +93,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     )
 
     post_align_qc(CALL_PROFILING.out.bam, reference_genome, core_loci_bed)
+    samtools_coverage_ref(CALL_PROFILING.out.bam)
 
     CALL_PROFILING.out.bam
         .join(CALL_PROFILING.out.bai)
@@ -99,6 +101,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .join(CALL_QUALITY_CONTROL.out.kraken)
         .join(post_align_qc.out.json)
         .join(CALL_QUALITY_CONTROL.out.quast)
+        .join(CALL_QUALITY_CONTROL.out.nanoplot_txt)
+        .join(samtools_coverage_ref.out.txt)
         .set{ ch_qc_combined_output }
 
     CALL_PREPROCESSING.out.sample_id
