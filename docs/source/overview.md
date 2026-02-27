@@ -2,12 +2,12 @@
 
 Jasen is a pipeline for resistance, virulence and epityping of whole genome sequenced infectious bacteria. The pipelines is intended to be used in clinical routine and therefore contains a currated, and opinionated, set of softwares and methods for assessing the samples quality.
 
-The pipeline is divided into workflows dedicated for analysing one or a set of related species, for example can the *Escherichia coli* workflow also be used for analysing Shigella. See the documentation on the individual workflow for information on how it can be applied.
+The pipeline is divided into workflows dedicated for analysing one or a set of related species, for example can the *Escherichia coli* workflow also be used for analysing Shigella. See the documentation on the individual workflow for information on how it can be applied. Analysis for most of the species follows general bacterial workflow with additional species-specific analysis. 
 
-```{figure} _static/flowchart.png
+```{figure} _static/Jasen_metromap.png
 :alt: jasen flowchart
 
-Flowchart depiciting the main workflows, its output, and processes the workflow are constituted of. The colour of the line denotes the workflow and the area with yellow background indicate quality control processes.
+Flowchart depiciting the main workflow in Jasen, where each line represents a sequencing platform-specific workflow[^1]. Species-specific analyses are listed in respective subworkflow. Results from all the tools are collected in final json file and can be viewed in Bonsai, a visualisation tool created to explore Jasen output. Note: *Mycobacterium tuberculosis* analysis follows a distinct workflow and is not included in this visualisation.
 ```
 
 ## Status on workflow development
@@ -42,3 +42,5 @@ The paths to the reads are defined in a CSV file with sample id, and optionally 
 Jasen will publish the analysis result to the path specified by the `outdir` variable in the config file. The pipeline will combine the output of the different softwares into standardised result file in JSON format for easier downstream processing of the result. The combined output have the same format regardless for workflow and can be uploaded to the result visualisation tool Bonsai for easy analysis. See [the usage](./usage.md) page for information on output. 
 
 The pipeline will also publish the output files of every tool beign run seperatly in the `outdir` folder.
+
+[^1]: Flowchart is based on [Components for metro-map style pipeline workflow](https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams): James A. Fellows Yates, Maxime Garcia, Louis Le Nézet & nf-core
