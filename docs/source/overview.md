@@ -2,12 +2,12 @@
 
 Jasen is a pipeline for resistance, virulence and epityping of whole genome sequenced infectious bacteria. The pipelines is intended to be used in clinical routine and therefore contains a currated, and opinionated, set of softwares and methods for assessing the samples quality.
 
-The pipeline is divided into workflows dedicated for analysing one or a set of related species, for example can the *Escherichia coli* workflow also be used for analysing Shigella. See the documentation on the individual workflow for information on how it can be applied. Analysis for most of the species follows general bacterial workflow with additional species-specific analysis. 
+The pipeline is divided into workflows dedicated for analysing one or a set of related species, for example can the *Escherichia coli* workflow also be used for analysing Shigella. See the documentation on the individual workflow for information on how it can be applied. Analysis for most of the species follows general bacterial workflow showed below[^1] with additional species-specific analysis. 
 
 ```{figure} _static/Jasen_metromap.png
 :alt: jasen flowchart
 
-Flowchart depiciting the main workflow in Jasen, where each line represents a sequencing platform-specific workflow[^1]. Species-specific analyses are listed in respective subworkflow. Results from all the tools are collected in final json file and can be viewed in Bonsai, a visualisation tool created to explore Jasen output. Note: *Mycobacterium tuberculosis* analysis follows a distinct workflow and is not included in this visualisation.
+Flowchart depiciting the main workflow in Jasen, where each line represents a sequencing platform-specific workflow. Species-specific analyses are listed in respective subworkflow. Results from all the tools are collected in final json file and can be viewed in Bonsai, a visualisation tool created to explore Jasen output. Note: *Mycobacterium tuberculosis* analysis follows a distinct workflow and is not included in this visualisation.
 ```
 
 ## Status on workflow development
