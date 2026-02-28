@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `ch_empty` to `ch_sample_id`
 - Changed mask process to run with perl container
 - Changed flowchart in documentation to include recent updates
+- Changed hostile to explicitly call aligner to avoid ambiguity errors
 
 ## [1.1.2]
 
