@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation describing sample sheet format
 - Fixed pipeline if `platform = iontorrent` is set
 - Fixed medaka input channel
+- Fixed config calling specific versions of bonsai-prp when running offline
 
 ### Changed
 
