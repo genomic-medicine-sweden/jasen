@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [1.2.0]
+
+### Added
+
 - Added `kleborate` pipeline for K. pneumoniae and E. coli analysis
 - Added `--nanopore` option to VirulenceFinder for analysing ONT data
 - Added pulling of `.tar.gz` db files to `Makefile`
@@ -30,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation describing sample sheet format
 - Fixed pipeline if `platform = iontorrent` is set
 - Fixed medaka input channel
+- Fixed config calling specific versions of bonsai-prp when running offline
 
 ### Changed
 
@@ -55,6 +64,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `ch_empty` to `ch_sample_id`
 - Changed Klebsiella pneumoniae workflow to general Klebsiella workflow
 - Change Kpneumoniae cgmlst.org schema to Pasteur scgMLST629_S Klebsiella schema
+- Changed mask process to run with perl container
+- Changed flowchart in documentation to include recent updates
+- Changed hostile to explicitly call aligner to avoid ambiguity errors
 
 ## [1.1.2]
 
