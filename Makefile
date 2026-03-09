@@ -818,7 +818,7 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 
 
 # Download Klebsiella cgmlst schema from BIGSdb Pasteur
-klebsiella_download_cgmlst_schema: $(KLEB_CGMLST_DIR)/alleles/downloading.done
+klebsiella_download_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
 
 $(KLEB_CGMLST_DIR)/alleles/downloading.done:
 	$(call log_message,"Downloading Klebsiella cgMLST schema from BIGSdb Pasteur ...")
@@ -829,7 +829,7 @@ $(KLEB_CGMLST_DIR)/alleles/downloading.done:
 
 klebsiella_prep_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
 
-$(KLEB_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(KLEB_CGMLST_DIR)/alleles_rereffed
+$(KLEB_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: | $(KLEB_CGMLST_DIR)/alleles_rereffed
 
 $(KLEB_CGMLST_DIR)/alleles_rereffed: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
 	$(call log_message,"Prepping Klebsiella cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")

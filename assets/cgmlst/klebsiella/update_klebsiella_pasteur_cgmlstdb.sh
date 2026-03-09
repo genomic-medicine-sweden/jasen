@@ -2,7 +2,7 @@
 
 set -e
 
-MNTROOT=/$(readlink -f .| cut -d"/" -f2)
+MNTROOT=/$(realpath .| cut -d"/" -f2)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ASSETS_DIR="${SCRIPT_DIR}/../.."
 BIN_DIR="${ASSETS_DIR}/../bin"
@@ -13,7 +13,7 @@ CGMLST_DIR="${ASSETS_DIR}/cgmlst/klebsiella"
 CLIENT_CREDENTIALS_FILE="${TOKEN_DIR}/client_credentials"
 
 if [[ ! -f "$CLIENT_CREDENTIALS_FILE" ]]; then
-    echo "Error: ${CLIENT_CREDENTIALS_FILE} not found. Copy assets/.bigsdb_tokens/client_credentials.template to jasen_dev/assets/.bigsdb_tokens/client_credentials and add your Pasteur API credentials." >&2
+    echo "Error: ${CLIENT_CREDENTIALS_FILE} not found. Copy assets/.bigsdb_tokens/client_credentials.template to assets/.bigsdb_tokens/client_credentials and add your Pasteur API credentials." >&2
     exit 1
 fi
 

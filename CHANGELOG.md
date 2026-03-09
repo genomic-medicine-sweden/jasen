@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 - Added information about ONT workflow, input and output files to documentation
 - Added ONT test data with 10k reads for _S. aureus_
-- Added `filtlong` to workflows 
+- Added `filtlong` to long-read workflows 
 
 ### Fixed
 

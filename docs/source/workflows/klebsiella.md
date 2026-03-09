@@ -2,7 +2,7 @@
 
 ## Usage
  
-The workflows is designed for analysis of *Klebsiella*.
+The workflow is designed for analysis of *Klebsiella*.
 
 ## Supported analysis
 
