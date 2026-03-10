@@ -2,7 +2,7 @@
 
 ## Usage
 
-The workflows is designed for analyzing of *Staphylococcus aureus*.
+The workflow is designed for analyzing of *Staphylococcus aureus*.
 
 ## Supported analysis
 

@@ -2,7 +2,7 @@
 
 ## Usage
 
-The workflows is designed for analyzing of *Streptococcus spp.*.
+The workflow is designed for analyzing of *Streptococcus spp.*.
 
 ## Supported analysis
 

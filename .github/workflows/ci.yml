@@ -31,7 +31,7 @@ jobs:
         organism:
           - "staphylococcus_aureus"
          #- "mycobacterium_tuberculosis"
-         #- "klebsiella_pneumoniae"
+         #- "klebsiella"
          #- "escherichia_coli"
     steps:
       - name: Install Nextflow

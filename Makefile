@@ -169,7 +169,7 @@ update_databases: update_amrfinderplus \
 
 update_organisms: saureus_all \
 	ecoli_all \
-	kpneumoniae_all \
+	klebsiella_all \
 	mtuberculosis_all \
 	spyogenes_all \
 	streptococcus_all
@@ -709,21 +709,21 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 
 
 # -----------------------------
-# K. pneumoniae
+# Klebsiella
 # -----------------------------
 
-kpneumoniae_all: kpneumoniae_download_reference \
+klebsiella_all: kpneumoniae_download_reference \
 	kpneumoniae_faidx_reference \
 	kpneumoniae_bwaidx_reference \
 	kpneumoniae_minimap2idx_reference \
 	kpneumoniae_download_prodigal_training_file \
-	kpneumoniae_download_cgmlst_schema \
-	kpneumoniae_unpack_cgmlst_schema \
-	kpneumoniae_prep_cgmlst_schema
+	klebsiella_download_cgmlst_schema \
+	klebsiella_prep_cgmlst_schema
 
 
 KPNEU_GENOMES_DIR := $(ASSETS_DIR)/genomes/klebsiella_pneumoniae
 KPNEU_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/klebsiella_pneumoniae
+KLEB_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/klebsiella
 KPNEU_REFSEQ_ACC := GCF_000240185.1
 
 
@@ -815,6 +815,32 @@ $(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.do
 		--cpu 2 \
 		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn \
 	&& find $(KPNEU_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
+
+
+# Download Klebsiella cgmlst schema from BIGSdb Pasteur
+klebsiella_download_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
+
+$(KLEB_CGMLST_DIR)/alleles/downloading.done:
+	$(call log_message,"Downloading Klebsiella cgMLST schema from BIGSdb Pasteur ...")
+	mkdir -p $(KLEB_CGMLST_DIR)/alleles \
+	&& bash $(KLEB_CGMLST_DIR)/update_klebsiella_pasteur_cgmlstdb.sh \
+	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done downloading cgMLST schema from BIGSdb Pasteur" > $@ |& tee -a $(INSTALL_LOG)
+
+
+klebsiella_prep_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
+
+$(KLEB_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: | $(KLEB_CGMLST_DIR)/alleles_rereffed
+
+$(KLEB_CGMLST_DIR)/alleles_rereffed: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
+	$(call log_message,"Prepping Klebsiella cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
+	cd $(KLEB_CGMLST_DIR) \
+	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+		chewie PrepExternalSchema \
+		-g $(KLEB_CGMLST_DIR)/alleles \
+		-o $(KLEB_CGMLST_DIR)/alleles_rereffed \
+		--cpu 2 \
+	&& find $(KLEB_CGMLST_DIR)/alleles -type f ! -name 'downloading.done' -delete |& tee -a $(INSTALL_LOG)
 
 
 # -----------------------------
@@ -953,12 +979,12 @@ $(STREP_CGMLST_DIR)/alleles/index.html:
 streptococcus_unpack_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles/unpacking.done
 
 $(STREP_CGMLST_DIR)/alleles/unpacking.done: $(STREP_CGMLST_DIR)/alleles/index.html
-	$(call log_message,"Unpacking S. pyogenes cgMLST schema ...")
+	$(call log_message,"Unpacking Streptococcus cgMLST schema ...")
 	cd $(STREP_CGMLST_DIR)/alleles \
 	&& gunzip *.gz |& tee -a $(INSTALL_LOG) \
 	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking gz files: " $< > $@
 
-# Prep Streptococcus cgmlst cgmlst.org schema
+# Prep Streptococcus cgmlst enterobase schema
 streptococcus_prep_cgmlst_schema: $(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv
 
 $(STREP_CGMLST_DIR)/alleles_rereffed_summary_stats.tsv: $(STREP_CGMLST_DIR)/alleles_rereffed

@@ -10,14 +10,14 @@ Jasen produces results for antibiotic resistance and virulence prediction and ep
 
 The pipeline currently support a small set of microbiota and the support are in different stages of development. See the [documentation](https://jasen.readthedocs.io/en/latest/) of information on the supported analysis for each species and what the development status means.
 
-| Species                      | Development status (Illumina)| Development status (ONT)
-|------------------------------|--------------------|--------------------|
-| *Staphylococcus arueus*      | Stable             | Draft              |
-| *Escherichia coli*           | Stable             |                    |
-| *Mycobacterium tuberculosis* | Stable             |                    |
-| *Klebsiella pneumoniae*      | Development        | Draft              |
-| *Streptococcus pyogenes*     | Stable             |                    |
-| *Streptococcus*              | Stable             |                    |
+| Species                      | Development status (Illumina)| Development status (ONT)|
+|------------------------------|------------------------------|-------------------------|
+| *Staphylococcus arueus*      | Stable                       | Draft                   |
+| *Escherichia coli*           | Stable                       |                         |
+| *Mycobacterium tuberculosis* | Stable                       |                         |
+| *Klebsiella*                 | Draft                        | Draft                   |
+| *Streptococcus pyogenes*     | Stable                       |                         |
+| *Streptococcus*              | Stable                       |                         |
 
 **Note**: Sample prefixes in Chewbbaca (from v3.3.5) are limited to 30 characters. 
 
