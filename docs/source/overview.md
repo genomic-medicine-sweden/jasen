@@ -27,7 +27,7 @@ Workflows under **development** are being actively worked at. While all workflow
 | [*Staphylococcus aureus*](./workflows/staphylococcus_aureus.md)           | Stable             | Draft              |
 | [*Escherichia coli*](./workflows/escherichia_coli.md)                     | Stable             |                    |
 | [*Mycobacterium tuberculosis*](./workflows/mycobacterium_tuberculosis.md) | Stable             |                    |
-| [*Klebsiella pneumoniae*](./workflows/klebsiella_pneumoniae.md)           | Draft              | Draft              |
+| [*Klebsiella*](./workflows/klebsiella.md)                                 | Draft              | Draft              |
 | [*Streptococcus pyogenes*](./workflows/streptococcus_pyogenes.md)         | Stable             |                    |
 | [*Streptococcus*](./workflows/streptococcus.md)                           | Stable             |                    |
 

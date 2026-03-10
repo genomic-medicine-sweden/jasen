@@ -60,7 +60,7 @@ Any errors produced during this step will hinder pipeline execution in unexpecte
 The following species are able be installed independently as to save time and disk usage:
  * saureus
  * ecoli
- * kpneumoniae
+ * klebsiella
  * mtuberculosis
 
 This is done by executing the following:
@@ -144,3 +144,28 @@ export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
 ```bash
 bash /path/to/jasen/assets/mlstdb/update_mlstdb.sh
 ```
+
+### cgMLST database (BIGSdb Pasteur — Klebsiella)
+
+**NOTE**: The *Klebsiella* cgMLST schema is hosted on [BIGSdb Pasteur](https://bigsdb.pasteur.fr/) and requires API credentials to download. Here are the steps:
+1. Request an API key by following the instructions at [https://bigsdb.pasteur.fr/requesting-api-key/](https://bigsdb.pasteur.fr/requesting-api-key/).
+2. Copy the client credentials template:
+```
+cp assets/.bigsdb_tokens/client_credentials.template assets/.bigsdb_tokens/client_credentials
+```
+3. Edit `client_id` and `client_secret` in the `assets/.bigsdb_tokens/client_credentials` file.
+```
+[Pasteur]
+client_id = insert_pasteur_client_id
+client_secret = client_id = insert_pasteur_client_secret
+```
+
+#### Download/update Klebsiella cgMLST database
+
+The download is triggered automatically as part of the `klebsiella_all` Makefile target:
+
+```bash
+make klebsiella_all
+```
+
+Follow the prompts regarding authorising via the [Pasteur Institute website](https://bigsdb.pasteur.fr/)

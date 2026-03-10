@@ -27,6 +27,7 @@ Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 - Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 - Added information about ONT workflow, input and output files to documentation
 - Added ONT test data with 10k reads for _S. aureus_
+- Added `filtlong` to long-read workflows 
 
 ### Fixed
 
@@ -62,6 +63,8 @@ Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 - Changed container for Medaka, it includes the models, so they don't need to be downloaded while running analysis
 - Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
 - Changed `ch_empty` to `ch_sample_id`
+- Changed Klebsiella pneumoniae workflow to general Klebsiella workflow
+- Change Kpneumoniae cgmlst.org schema to Pasteur scgMLST629_S Klebsiella schema
 - Changed mask process to run with perl container
 - Changed flowchart in documentation to include recent updates
 - Changed hostile to explicitly call aligner to avoid ambiguity errors
