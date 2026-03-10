@@ -7,7 +7,7 @@ The pipeline is divided into workflows dedicated for analysing one or a set of r
 ```{figure} _static/Jasen_metromap.png
 :alt: jasen flowchart
 
-Flowchart depiciting the main workflow in Jasen, where each line represents a sequencing platform-specific workflow. Species-specific analyses are listed in respective subworkflow. Results from all the tools are collected in final json file and can be viewed in Bonsai, a visualisation tool created to explore Jasen output. Note: *Mycobacterium tuberculosis* analysis follows a distinct workflow and is not included in this visualisation.
+Flowchart depiciting the main workflow in Jasen, where each line represents a sequencing platform-specific workflow. Species-specific analyses are listed in respective subworkflow. Results from all the tools are collected in final json file and can be viewed in Bonsai, a visualisation tool created to explore Jasen output. Note: *Mycobacterium tuberculosis* analysis follows a distinct workflow and is not included in this visualisation. Masking of polymorphic sites has not been tested for ONT and is turned off by default, however it is possible to activate it in the config file.
 ```
 
 ## Status on workflow development
