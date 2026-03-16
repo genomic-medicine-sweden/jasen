@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 
 ### Changed
+Updated chewBBACA to v3.5.2 to enable use of unrestricted length of sample names
 
 ## [1.2.0]
 
