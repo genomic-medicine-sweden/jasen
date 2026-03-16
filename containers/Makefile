@@ -27,6 +27,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					chewbbaca.sif \
 					emmtyper.sif \
 					fastqc.sif \
+					filtlong.sif \
 					flye.sif \
 					freebayes.sif \
 					hostile.sif \
@@ -69,6 +70,7 @@ URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hd
 URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.5.2--pyhdfd78af_0
 URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 URL_fastqc := https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
+URL_filtlong := https://depot.galaxyproject.org/singularity/filtlong:0.3.1--h077b44d_0
 URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0

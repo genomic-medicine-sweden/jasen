@@ -47,7 +47,7 @@ issues
 workflows/staphylococcus_aureus
 workflows/escherichia_coli
 workflows/mycobacterium_tuberculosis
-workflows/klebsiella_pneumoniae
+workflows/klebsiella
 workflows/streptococcus_pyogenes
 workflows/streptococcus
 ```

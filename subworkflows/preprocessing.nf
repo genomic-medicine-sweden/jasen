@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { get_reads                 } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta           } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean       } from '../modules/local/clean/main.nf'
+include { filtlong                  } from '../modules/nf-core/filtlong/main.nf'
 include { hostile                   } from '../modules/nf-core/hostile/main.nf'
 include { save_analysis_metadata    } from '../modules/local/meta/main.nf'
 include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
@@ -46,9 +47,12 @@ workflow CALL_PREPROCESSING {
         ch_depleted_reads.set{ ch_depleted_sampled_reads }
     }
 
-    // extra reads trim and clean for iontorrent reads
+    // platform-specific read filtering/trimming
     if (params.platform == "iontorrent") {
         assembly_trim_clean(ch_depleted_sampled_reads).set { ch_reads }
+    } else if (params.platform == "nanopore" && params.use_filtlong) {
+        filtlong(ch_depleted_sampled_reads).reads.set { ch_reads }
+        ch_versions = ch_versions.mix(filtlong.out.versions)
     } else {
         ch_depleted_sampled_reads.set{ ch_reads }
     }
