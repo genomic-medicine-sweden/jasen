@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `free-disk-space` to CI GA workflow
+
 ### Fixed
  
 - Fixed legend in the flowchart (swapped ONT and Ion Torrent)
