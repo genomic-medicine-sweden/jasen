@@ -19,7 +19,6 @@ The pipeline currently support a small set of microbiota and the support are in 
 | *Streptococcus pyogenes*     | Stable                       |                         |
 | *Streptococcus*              | Stable                       |                         |
 
-**Note**: Sample prefixes in Chewbbaca (from v3.3.5) are limited to 30 characters. 
 
 ## Installation
 
