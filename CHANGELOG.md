@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Fixed
-Fixed legend in the flowchart (swapped ONT and Ion Torrent)
+ 
+- Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 
 ### Changed
-Updated chewBBACA to v3.5.2 to enable use of unrestricted length of sample names
+
+- Updated chewBBACA to v3.5.2 to enable use of unrestricted length of sample names
+- Updated resources in processes that read bam files
+- Removed unnecessary scripts from `bin/`
 
 ## [1.2.0]
 
