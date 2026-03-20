@@ -214,14 +214,10 @@ download_resfinder_db: $(ASSETS_DIR)/resfinder_db/INSTALL.py
 $(ASSETS_DIR)/resfinder_db/INSTALL.py:
 	$(call log_message,"Downloading ResFinder database v$(RESFINDER_VERSION)...")
 	mkdir -p $(ASSETS_DIR) \
-	&& cd $(ASSETS_DIR) \
-	&& wget https://bitbucket.org/genomicepidemiology/resfinder_db/get/$(RESFINDER_VERSION).tar.gz \
-		-O resfinder_db.tar.gz \
-		--no-verbose \
-		--no-check-certificate \
-	&& tar -xzf resfinder_db.tar.gz \
-	&& mv genomicepidemiology-resfinder_db-* resfinder_db \
-	&& rm resfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+	&& git clone --depth 1 --branch $(RESFINDER_VERSION) \
+		https://bitbucket.org/genomicepidemiology/resfinder_db.git \
+		$(ASSETS_DIR)/resfinder_db \
+	&& rm -rf $(ASSETS_DIR)/resfinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract PointFinder database
 download_pointfinder_db: $(ASSETS_DIR)/pointfinder_db/INSTALL.py
@@ -229,14 +225,10 @@ download_pointfinder_db: $(ASSETS_DIR)/pointfinder_db/INSTALL.py
 $(ASSETS_DIR)/pointfinder_db/INSTALL.py:
 	$(call log_message,"Downloading PointFinder database v$(POINTFINDER_VERSION)...")
 	mkdir -p $(ASSETS_DIR) \
-	&& cd $(ASSETS_DIR) \
-	&& wget https://bitbucket.org/genomicepidemiology/pointfinder_db/get/$(POINTFINDER_VERSION).tar.gz \
-		-O pointfinder_db.tar.gz \
-		--no-verbose \
-		--no-check-certificate \
-	&& tar -xzf pointfinder_db.tar.gz \
-	&& mv genomicepidemiology-pointfinder_db-* pointfinder_db \
-	&& rm pointfinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+	&& git clone --depth 1 --branch $(POINTFINDER_VERSION) \
+		https://bitbucket.org/genomicepidemiology/pointfinder_db.git \
+		$(ASSETS_DIR)/pointfinder_db \
+	&& rm -rf $(ASSETS_DIR)/pointfinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract VirulenceFinder database
 download_virulencefinder_db: $(ASSETS_DIR)/virulencefinder_db/INSTALL.py
@@ -244,14 +236,10 @@ download_virulencefinder_db: $(ASSETS_DIR)/virulencefinder_db/INSTALL.py
 $(ASSETS_DIR)/virulencefinder_db/INSTALL.py:
 	$(call log_message,"Downloading VirulenceFinder database v$(VIRULENCEFINDER_VERSION)...")
 	mkdir -p $(ASSETS_DIR) \
-	&& cd $(ASSETS_DIR) \
-	&& wget https://bitbucket.org/genomicepidemiology/virulencefinder_db/get/$(VIRULENCEFINDER_VERSION).tar.gz \
-		-O virulencefinder_db.tar.gz \
-		--no-verbose \
-		--no-check-certificate \
-	&& tar -xzf virulencefinder_db.tar.gz \
-	&& mv genomicepidemiology-virulencefinder_db-* virulencefinder_db \
-	&& rm virulencefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+	&& git clone --depth 1 --branch $(VIRULENCEFINDER_VERSION) \
+		https://bitbucket.org/genomicepidemiology/virulencefinder_db.git \
+		$(ASSETS_DIR)/virulencefinder_db \
+	&& rm -rf $(ASSETS_DIR)/virulencefinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract SerotypeFinder database
 download_serotypefinder_db: $(ASSETS_DIR)/serotypefinder_db/INSTALL.py
@@ -259,14 +247,10 @@ download_serotypefinder_db: $(ASSETS_DIR)/serotypefinder_db/INSTALL.py
 $(ASSETS_DIR)/serotypefinder_db/INSTALL.py:
 	$(call log_message,"Downloading SerotypeFinder database v$(SEROTYPEFINDER_VERSION)...")
 	mkdir -p $(ASSETS_DIR) \
-	&& cd $(ASSETS_DIR) \
-	&& wget https://bitbucket.org/genomicepidemiology/serotypefinder_db/get/$(SEROTYPEFINDER_VERSION).tar.gz \
-		-O serotypefinder_db.tar.gz \
-		--no-verbose \
-		--no-check-certificate \
-	&& tar -xzf serotypefinder_db.tar.gz \
-	&& mv genomicepidemiology-serotypefinder_db-* serotypefinder_db \
-	&& rm serotypefinder_db.tar.gz |& tee -a $(INSTALL_LOG)
+	&& git clone --depth 1 --branch $(SEROTYPEFINDER_VERSION) \
+		https://bitbucket.org/genomicepidemiology/serotypefinder_db.git \
+		$(ASSETS_DIR)/serotypefinder_db \
+	&& rm -rf $(ASSETS_DIR)/serotypefinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract TBDB
 download_tbdb: $(ASSETS_DIR)/tbdb/README.md
