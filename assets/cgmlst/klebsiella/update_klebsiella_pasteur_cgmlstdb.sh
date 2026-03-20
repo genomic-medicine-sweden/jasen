@@ -31,7 +31,7 @@ mkdir -p "${CGMLST_DIR}/alleles"
 
 # Download alleles FASTA for all loci in scheme 18
 apptainer exec --bind $MNTROOT ${CONTAINERS_DIR}/bactopia-py.sif \
-    python ${ASSETS_DIR}/bin/bigsdb_downloader.py \
+    python ${BIN_DIR}/bigsdb_downloader.py \
     --download_scheme \
     --key_name Pasteur \
     --site Pasteur \
