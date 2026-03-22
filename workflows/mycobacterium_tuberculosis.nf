@@ -137,9 +137,38 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
     ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
 
-    emit: 
+    emit:
     pipeline_result = CALL_POSTPROCESSING.out.pipeline_result   // channel: [ path(json) ]
     cdm             = CALL_POSTPROCESSING.out.cdm               // channel: [ path(txt) ]
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
     versions        = ch_versions                               // channel: [ versions.yml ]
+}
+
+workflow.onComplete {
+
+    def msg = """\
+        Pipeline execution summary
+        ---------------------------
+        Completed at: ${workflow.complete}
+        Duration    : ${workflow.duration}
+        Success     : ${workflow.success}
+        scriptFile  : ${workflow.scriptFile}
+        workDir     : ${workflow.workDir}
+        csv         : ${params.csv}
+        exit status : ${workflow.exitStatus}
+        errorMessage: ${workflow.errorMessage}
+        errorReport :
+        """
+        .stripIndent()
+    def error = """\
+        ${workflow.errorReport}
+        """
+        .stripIndent()
+
+    if (params.log_file_dir) {
+        def base = file(params.csv).getBaseName()
+        def logFile = file(params.log_file_dir + base + ".complete")
+        logFile.text = msg
+        logFile.append(error)
+    }
 }
