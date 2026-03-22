@@ -382,16 +382,91 @@ $(AMRFINDERDB_DIR)/latest:
 
 # -----------------------------
 # Update MLST database (PubMLST + BLAST)
+# Run manually - requires PUBMLST_CLIENT_ID and PUBMLST_CLIENT_SECRET env vars.
+# NOT part of make install.
 # -----------------------------
 MLSTDB_DIR := $(ASSETS_DIR)/mlstdb
 
-update_mlstdb: $(MLSTDB_DIR)/DB_VERSION
+PUBMLST_SCHEMA_SAUREUS    := pubmlst_saureus_seqdef
+PUBMLST_SCHEMA_ECOLI      := pubmlst_escherichia_seqdef
+PUBMLST_SCHEMA_KLEBSIELLA := pubmlst_klebsiella_seqdef
+PUBMLST_SCHEMA_SPYOGENES  := pubmlst_spyogenes_seqdef
 
-$(MLSTDB_DIR)/DB_VERSION:
-	$(call log_message,"Starting update of MLST database ...")
-	cd $(MLSTDB_DIR) \
-	&& bash update_mlstdb.sh 
-	&& rm mlst.tar.gz |& tee -a $(INSTALL_LOG)
+setup_saureus_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SAUREUS)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		--client-id $(PUBMLST_CLIENT_ID) \
+		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_SAUREUS) \
+		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+update_saureus_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for S. aureus...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d saureus \
+		-t $(MLSTDB_DIR) \
+		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+setup_ecoli_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		--client-id $(PUBMLST_CLIENT_ID) \
+		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_ECOLI) \
+		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+update_ecoli_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for E. coli...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d ecoli_achtman_4 \
+		-t $(MLSTDB_DIR) \
+		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+setup_klebsiella_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_KLEBSIELLA)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		--client-id $(PUBMLST_CLIENT_ID) \
+		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_KLEBSIELLA) \
+		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+update_klebsiella_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for Klebsiella...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d klebsiella \
+		-t $(MLSTDB_DIR) \
+		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+setup_spyogenes_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SPYOGENES)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		--client-id $(PUBMLST_CLIENT_ID) \
+		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_SPYOGENES) \
+		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+
+update_spyogenes_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for S. pyogenes...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d spyogenes \
+		-t $(MLSTDB_DIR) \
+		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update Finder databases
