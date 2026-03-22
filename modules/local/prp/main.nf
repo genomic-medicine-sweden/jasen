@@ -118,31 +118,3 @@ process annotate_delly {
     touch ${output}
     """
 }
-
-process add_igv_track {
-    tag "${sample_id}"
-    scratch params.scratch
-
-    input:
-    tuple val(sample_id), path(bonsaiInput)
-    val annotation
-    val trackName
-
-    output:
-    tuple val(sample_id), path(output), emit: json
-
-    when:
-    task.ext.when
-
-    script:
-    output = "${sample_id}_result.json"
-    """
-    prp add-igv-annotation-track --track-name ${trackName} --annotation-file ${annotation} --bonsai-input-file ${bonsaiInput} --output ${output}
-    """
-
-    stub:
-    output = "${sample_id}_result.json"
-    """
-    touch ${output}
-    """
-}
