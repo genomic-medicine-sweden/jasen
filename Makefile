@@ -564,8 +564,8 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(SAUR_REFSEQ_ACC) \
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
 
@@ -668,8 +668,8 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. coli genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(ECOLI_REFSEQ_ACC) \
 		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -790,8 +790,8 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading K. pneumoniae genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(KPNEU_REFSEQ_ACC) \
 		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -931,8 +931,8 @@ $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. pyogenes genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(SPYO_REFSEQ_ACC) \
 		-o $(SPYO_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -1087,8 +1087,8 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading M. tuberculosis genome ...")
 	mkdir -p $(MTUBE_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
