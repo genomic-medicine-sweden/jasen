@@ -149,3 +149,32 @@ workflow CALL_BACTERIAL_GENERAL {
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
     versions        = ch_versions                               // channel: [ versions.yml ]
 }
+
+workflow.onComplete {
+
+    def msg = """\
+        Pipeline execution summary
+        ---------------------------
+        Completed at: ${workflow.complete}
+        Duration    : ${workflow.duration}
+        Success     : ${workflow.success}
+        scriptFile  : ${workflow.scriptFile}
+        workDir     : ${workflow.workDir}
+        csv         : ${params.csv}
+        exit status : ${workflow.exitStatus}
+        errorMessage: ${workflow.errorMessage}
+        errorReport :
+        """
+        .stripIndent()
+    def error = """\
+        ${workflow.errorReport}
+        """
+        .stripIndent()
+
+    if (params.log_file_dir) {
+        def base = file(params.csv).getBaseName()
+        def logFile = file(params.log_file_dir + base + ".complete")
+        logFile.text = msg
+        logFile.append(error)
+    }
+}
