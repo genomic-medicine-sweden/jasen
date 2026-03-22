@@ -181,13 +181,12 @@ cp assets/.bigsdb_tokens/client_credentials.template assets/.bigsdb_tokens/clien
 client_id = insert_pasteur_client_id
 client_secret = client_id = insert_pasteur_client_secret
 ```
-
-#### Download/update Klebsiella cgMLST database
-
-The download is triggered automatically as part of the `klebsiella_all` Makefile target:
-
+4. To download the raw cgMLST alleles from BIGSdb Pasteur, run:
+**NOTE**: This target must be run manually and is **not** part of `make install`. It requires OAuth credentials to be configured as described above.
 ```bash
-make klebsiella_all
+make klebsiella_download_cgmlst_schema
 ```
-
-Follow the prompts regarding authorising via the [Pasteur Institute website](https://bigsdb.pasteur.fr/)
+5. After downloading, re-reference the alleles by running:
+```bash
+make klebsiella_prep_cgmlst_schema
+```

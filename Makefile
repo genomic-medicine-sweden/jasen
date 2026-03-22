@@ -775,9 +775,7 @@ klebsiella_all: kpneumoniae_download_reference \
 	kpneumoniae_faidx_reference \
 	kpneumoniae_bwaidx_reference \
 	kpneumoniae_minimap2idx_reference \
-	kpneumoniae_download_prodigal_training_file \
-	klebsiella_download_cgmlst_schema \
-	klebsiella_prep_cgmlst_schema
+	kpneumoniae_download_prodigal_training_file
 
 
 KPNEU_GENOMES_DIR := $(ASSETS_DIR)/genomes/klebsiella_pneumoniae
@@ -881,8 +879,14 @@ klebsiella_download_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
 
 $(KLEB_CGMLST_DIR)/alleles/downloading.done:
 	$(call log_message,"Downloading Klebsiella cgMLST schema from BIGSdb Pasteur ...")
-	mkdir -p $(KLEB_CGMLST_DIR)/alleles \
-	&& bash $(KLEB_CGMLST_DIR)/update_klebsiella_pasteur_cgmlstdb.sh \
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-bigsdb \
+		--download-scheme \
+		--key-name Pasteur \
+		--site Pasteur \
+		--token-dir $(ASSETS_DIR)/.bigsdb_tokens \
+		--url https://bigsdb.pasteur.fr/api \
+		--output-dir $(KLEB_CGMLST_DIR)/alleles |& tee -a $(INSTALL_LOG) \
 	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done downloading cgMLST schema from BIGSdb Pasteur" > $@ |& tee -a $(INSTALL_LOG)
 
 
