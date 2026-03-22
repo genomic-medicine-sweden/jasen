@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 
 include { format_jasen      } from '../modules/local/prp/main.nf'
 include { format_cdm        } from '../modules/local/prp/main.nf'
-include { create_yaml       } from '../modules/local/yaml/main.nf'
+include { create_yaml       } from '../modules/local/jasentool/main.nf'
 include { export_to_cdm     } from '../modules/local/cdm/main.nf'
 
 workflow CALL_POSTPROCESSING {
