@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-include { annotate_delly                            } from '../modules/local/prp/main.nf'
+include { annotate_delly                            } from '../modules/local/jasentool/main.nf'
 include { mykrobe                                   } from '../modules/nf-core/mykrobe/main.nf'
 include { snippy                                    } from '../modules/nf-core/snippy/main.nf'
 include { tbprofiler as tbprofiler_mergedb          } from '../modules/nf-core/tbprofiler/main.nf'

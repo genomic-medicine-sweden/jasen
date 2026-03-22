@@ -1,3 +1,44 @@
+process count_reads {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(reads)
+
+    output:
+    tuple val(sample_id), path(output), emit: json
+    path "*versions.yml",               emit: versions
+
+    script:
+    output = "${sample_id}_qc.json"
+    def input_reads_arg = reads.size() == 2 ? "--fastq1 ${reads[0]} --fastq2 ${reads[1]}" : "--fastq1 ${reads[0]}"
+    """
+    jasentool count-reads \\
+        ${input_reads_arg} \\
+        --sample-id ${sample_id} \\
+        --output-file ${output}
+
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     jasentool:
+      version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
+      container: ${task.container}
+    END_VERSIONS
+    """
+
+    stub:
+    output = "${sample_id}_qc.json"
+    """
+    touch ${output}
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     jasentool:
+      version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
+      container: ${task.container}
+    END_VERSIONS
+    """
+}
+
 process create_yaml {
     tag "${sample_id}"
     scratch params.scratch
@@ -37,7 +78,7 @@ process create_yaml {
     def reference_genome_gff_arg    = reference_genome_gff      ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
     def resfinder_arg               = resfinder                 ?  "--resfinder ${params.outdir}/${params.species_dir}/resfinder/${resfinder}" : ""
     def resfinder_meta_arg          = resfinder_meta            ?  "--software-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
-    def samtools_arg                = samtools_cov_ref          ?  "--samtools ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""  
+    def samtools_arg                = samtools_cov_ref          ?  "--samtools ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""
     def sccmec_arg                  = sccmec                    ?  "--sccmec ${params.outdir}/${params.species_dir}/sccmec/${sccmec}" : ""
     def serotypefinder_arg          = serotypefinder            ?  "--serotypefinder ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}" : ""
     def serotypefinder_meta_arg     = serotypefinder_meta       ?  "--software-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
@@ -52,7 +93,7 @@ process create_yaml {
     def virulencefinder_arg         = virulencefinder           ?  "--virulencefinder ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}" : ""
     def virulencefinder_meta_arg    = virulencefinder_meta      ?  "--software-info ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}" : ""
     """
-    create_yaml.py \\
+    jasentool create-yaml \\
         ${amrfinder_arg} \\
         ${bam_arg} \\
         ${bai_arg} \\
@@ -95,6 +136,83 @@ process create_yaml {
 
     stub:
     output = "${sample_id}.yaml"
+    """
+    touch ${output}
+    """
+}
+
+process annotate_delly {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(vcf)
+    path bed
+    path bedIdx
+
+    output:
+    tuple val(sample_id), path(output), emit: vcf
+
+    when:
+    task.ext.when
+
+    script:
+    output = "${sample_id}_annotated_delly.vcf"
+    """
+    jasentool annotate-delly --vcf ${vcf} --bed ${bed} --output ${output}
+    """
+
+    stub:
+    output = "${sample_id}_annotated_delly.vcf"
+    """
+    touch ${output}
+    """
+}
+
+process post_align_qc {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(bam)
+    path bed
+
+    output:
+    tuple val(sample_id), path(output), emit: json
+
+    when:
+    task.ext.when
+
+    script:
+    output = "${sample_id}_qc.json"
+    """
+    jasentool post-align-qc --bam-file ${bam} --bed-file ${bed} --sample-id ${sample_id} --cpus ${task.cpus} --output-file ${output}
+    """
+
+    stub:
+    output = "${sample_id}_qc.json"
+    """
+    touch ${output}
+    """
+}
+
+process concatenate_files {
+    input:
+    path(input_files)
+
+    output:
+    path(output), emit: yaml
+
+    script:
+    output = "versions.yml"
+    """
+    jasentool concatenate-files \\
+        -i ${input_files} \\
+        --output-file ${output}
+    """
+
+    stub:
+    output = "versions.yml"
     """
     touch ${output}
     """

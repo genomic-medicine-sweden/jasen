@@ -10,9 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `free-disk-space` to CI GA workflow
+- Added `jasentool` container (`clinicalgenomicslund/jasentool:1.0.0`) for read counting, QC, YAML creation, and NCBI downloads
+- Added `count_reads` process to general workflows to report read counts
+- Added `concatenate_files` process config for version tracking
+- Added per-species MLST database `make` targets (`setup_<species>_mlstdb_token`, `update_<species>_mlstdb`) for S. aureus, E. coli, Klebsiella, and S. pyogenes
+- Added `download_klebsiella_pasteur_cgmlstdb` Makefile target for downloading Klebsiella Pasteur cgMLST scheme
+- Added `log_file_dir` parameter and `workflow.onComplete` handler writing pipeline completion logs to a configurable directory
+- Added `log_file_dir` to cluster profiles in `cmd.config`
 
 ### Fixed
- 
+
 - Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 
 ### Changed
@@ -20,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated chewBBACA to v3.5.2 to enable use of unrestricted length of sample names
 - Updated resources in processes that read bam files
 - Removed unnecessary scripts from `bin/`
+- Moved `create_yaml` process from `modules/local/yaml/main.nf` to `modules/local/jasentool/main.nf`
+- Moved `post_align_qc` process from `modules/local/prp/main.nf` to `modules/local/jasentool/main.nf`
+- Updated `post_align_qc` signature to remove `reference_genome` argument
+- Updated `create_yaml`, `post_align_qc`, and NCBI genome download commands to use `jasentool` container instead of `bonsai-prp`
+- Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
+- Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
 
 ## [1.2.0]
 

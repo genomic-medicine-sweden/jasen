@@ -9,7 +9,8 @@ include { gambitcore                                 } from '../modules/local/ga
 include { kraken                                     } from '../modules/nf-core/kraken/main.nf'
 include { minimap2_align as minimap2_align_ref       } from '../modules/nf-core/minimap2/main.nf'       
 include { nanoplot                                   } from '../modules/nf-core/nanoplot/main.nf'
-include { post_align_qc                              } from '../modules/local/prp/main.nf'
+include { count_reads                                } from '../modules/local/jasentool/main.nf'
+include { post_align_qc                              } from '../modules/local/jasentool/main.nf'
 include { quast                                      } from '../modules/nf-core/quast/main.nf'
 include { samtools_coverage as samtools_coverage_ref } from '../modules/nf-core/samtools/main.nf'
 include { samtools_index as samtools_index_ref       } from '../modules/nf-core/samtools/main.nf'
@@ -59,16 +60,17 @@ workflow CALL_QUALITY_CONTROL {
     if (params.reference_genome) {
         samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
         samtools_index_ref(ch_ref_bam).bai.set{ ch_ref_bai }
-        post_align_qc(ch_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
+        post_align_qc(ch_ref_bam, core_loci_bed).json.set{ ch_post_align_qc }
         samtools_coverage_ref(ch_ref_bam).txt.set{ ch_samtools_cov_ref }
         ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
+        count_reads(ch_reads).set{ ch_post_align_qc }
         ch_sample_id.set{ ch_ref_bam }
         ch_sample_id.set{ ch_ref_bai }
-        ch_sample_id.set{ ch_post_align_qc }
         ch_sample_id.set{ ch_samtools_cov_ref }
+        ch_versions = ch_versions.mix(count_reads.out.versions)
     }
 
     if ( params.use_kraken ) {
