@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `create_yaml`, `post_align_qc`, and NCBI genome download commands to use `jasentool` container instead of `bonsai-prp`
 - Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
 - Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
+- Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
 
 ## [1.2.0]
 
