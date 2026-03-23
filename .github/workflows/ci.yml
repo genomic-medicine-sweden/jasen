@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "23.10.1"
+          - "24.04.3"
         organism:
           - "staphylococcus_aureus"
          #- "mycobacterium_tuberculosis"
