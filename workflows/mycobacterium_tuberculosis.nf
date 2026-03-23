@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-include { post_align_qc                                 } from '../modules/local/prp/main.nf'
+include { post_align_qc                                 } from '../modules/local/jasentool/main.nf'
 include { samtools_coverage as samtools_coverage_ref    } from '../modules/nf-core/samtools/main.nf'
 include { CALL_ASSEMBLY                                 } from '../subworkflows/assembly.nf'
 include { CALL_POSTPROCESSING                           } from '../subworkflows/postprocessing.nf'
@@ -92,7 +92,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_PREPROCESSING.out.reads
     )
 
-    post_align_qc(CALL_PROFILING.out.bam, reference_genome, core_loci_bed)
+    post_align_qc(CALL_PROFILING.out.bam, core_loci_bed)
     samtools_coverage_ref(CALL_PROFILING.out.bam)
 
     CALL_PROFILING.out.bam
