@@ -8,7 +8,9 @@ assets/cgmlst/*/alleles*
 assets/genomes
 assets/mlstdb/blast
 assets/mlstdb/pubmlst
-assets/mlstdb/pubmlst-token.json*
+assets/mlstdb/pasteur
+assets/.bigsdb_tokens/pubmlst-token.json*
+assets/.bigsdb_tokens/pasteur-token.json*
 assets/.bigsdb_tokens/access_tokens
 assets/.bigsdb_tokens/session_tokens
 assets/.bigsdb_tokens/client_credentials
