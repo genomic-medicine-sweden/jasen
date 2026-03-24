@@ -128,46 +128,7 @@ wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
-### MLST databases (PubMLST & BLAST)
-
-**NOTE**: PubMLST DB requires users to have an account at [Bacterial Isolate Genome Sequence Database (BIGSdb)](https://pubmlst.org/bigsdb) in order to download the latest reported alleles. Here are the steps:
-1. Register to all databases by clicking the `Database registrations`, check all, and register.
-2. Create an API key under the `API keys` dropdown.
-3. Add your credentials to your `~/.bashrc`:
-```bash
-export PUBMLST_CLIENT_ID="<pubmlst_client_id>"
-export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
-```
-
-#### Download/update MLST database per species
-
-Run the token setup step first, then the database build step. Both steps require the `PUBMLST_CLIENT_ID` and `PUBMLST_CLIENT_SECRET` environment variables.
-
-**S. aureus**
-```bash
-make setup_saureus_mlstdb_token
-make update_saureus_mlstdb
-```
-
-**E. coli**
-```bash
-make setup_ecoli_mlstdb_token
-make update_ecoli_mlstdb
-```
-
-**Klebsiella**
-```bash
-make setup_klebsiella_mlstdb_token
-make update_klebsiella_mlstdb
-```
-
-**S. pyogenes**
-```bash
-make setup_spyogenes_mlstdb_token
-make update_spyogenes_mlstdb
-```
-
-### cgMLST database (BIGSdb Pasteur — Klebsiella)
+### cgMLST database (BIGSdb Pasteur setup)
 
 **NOTE**: The *Klebsiella* cgMLST schema is hosted on [BIGSdb Pasteur](https://bigsdb.pasteur.fr/) and requires API credentials to download. Here are the steps:
 1. Request an API key by following the instructions at [https://bigsdb.pasteur.fr/requesting-api-key/](https://bigsdb.pasteur.fr/requesting-api-key/).
@@ -189,4 +150,51 @@ make klebsiella_download_cgmlst_schema
 5. After downloading, re-reference the alleles by running:
 ```bash
 make klebsiella_prep_cgmlst_schema
+```
+
+### MLST databases (PubMLST & BLAST)
+
+**NOTE**: PubMLST DB requires users to have an account at [Bacterial Isolate Genome Sequence Database (BIGSdb)](https://pubmlst.org/bigsdb) in order to download the latest reported alleles. Here are the steps:
+1. Register to all databases by clicking the `Database registrations`, check all, and register.
+2. Create an API key under the `API keys` dropdown.
+3. Add your credentials to your `~/.bashrc`:
+```bash
+export PUBMLST_CLIENT_ID="<pubmlst_client_id>"
+export PUBMLST_CLIENT_SECRET="<pubmlst_client_secret>"
+export PASTEUR_CLIENT_ID="<pasteur_client_id>" # From BIGSdb Pasteur setup
+export PASTEUR_CLIENT_SECRET="<pasteur_client_secret>" # From BIGSdb Pasteur setup
+```
+
+#### Download/update MLST database per species
+
+Run the token setup step first, then the database build step. Both steps require the `PUBMLST_CLIENT_ID` and `PUBMLST_CLIENT_SECRET` (PubMLST schemas) or `PASTEUR_CLIENT_ID` and `PASTEUR_CLIENT_SECRET` (Pasteur schemas) environment variables.
+
+**S. aureus**
+```bash
+make setup_saureus_mlstdb_token
+make update_saureus_mlstdb
+```
+
+**S. pyogenes**
+```bash
+make setup_spyogenes_mlstdb_token
+make update_spyogenes_mlstdb
+```
+
+**E. coli achtman**
+```bash
+make setup_ecoli_achtman_mlstdb_token
+make update_ecoli_achtman_mlstdb
+```
+
+**E. coli pasteur** (needs BIGSdb Pasteur setup)
+```bash
+make setup_ecoli_pasteur_mlstdb_token
+make update_ecoli_pasteur_mlstdb
+```
+
+**Klebsiella** (needs BIGSdb Pasteur setup)
+```bash
+make setup_klebsiella_mlstdb_token
+make update_klebsiella_mlstdb
 ```
