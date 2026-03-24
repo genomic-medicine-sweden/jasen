@@ -382,15 +382,16 @@ $(AMRFINDERDB_DIR)/latest:
 
 # -----------------------------
 # Update MLST database (PubMLST + BLAST)
-# Run manually - requires PUBMLST_CLIENT_ID and PUBMLST_CLIENT_SECRET env vars.
+# Run manually - requires PUBMLST_CLIENT_ID and PUBMLST_CLIENT_SECRET for PubMLST and PASTEUR_CLIENT_ID and PASTEUR_CLIENT_SECRET for PasterMLST.
 # NOT part of make install.
 # -----------------------------
-MLSTDB_DIR := $(ASSETS_DIR)/mlstdb
+TOKEN_DIR := $(ASSETS_DIR)/.bigsdb_tokens
 
-PUBMLST_SCHEMA_SAUREUS    := pubmlst_saureus_seqdef
-PUBMLST_SCHEMA_ECOLI      := pubmlst_escherichia_seqdef
-PUBMLST_SCHEMA_KLEBSIELLA := pubmlst_klebsiella_seqdef
-PUBMLST_SCHEMA_SPYOGENES  := pubmlst_spyogenes_seqdef
+PUBMLST_SCHEMA_SAUREUS       := pubmlst_saureus_seqdef
+PUBMLST_SCHEMA_ECOLI_ACHTMAN := pubmlst_ecoli_achtman_seqdef
+PUBMLST_SCHEMA_ECOLI_PASTEUR := pubmlst_ecoli_seqdef
+PUBMLST_SCHEMA_KLEBSIELLA    := pubmlst_klebsiella_seqdef
+PUBMLST_SCHEMA_SPYOGENES     := pubmlst_spyogenes_seqdef
 
 setup_saureus_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SAUREUS)...")
@@ -400,7 +401,7 @@ setup_saureus_mlstdb_token:
 		--client-id $(PUBMLST_CLIENT_ID) \
 		--client-secret $(PUBMLST_CLIENT_SECRET) \
 		-d $(PUBMLST_SCHEMA_SAUREUS) \
-		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
 
 update_saureus_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for S. aureus...")
@@ -408,37 +409,60 @@ update_saureus_mlstdb:
 		bactopia-pubmlst-build \
 		--force \
 		-d saureus \
-		-t $(MLSTDB_DIR) \
-		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
 
-setup_ecoli_mlstdb_token:
-	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI)...")
+setup_ecoli_achtman_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI_ACHTMAN)...")
 	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		--client-id $(PUBMLST_CLIENT_ID) \
 		--client-secret $(PUBMLST_CLIENT_SECRET) \
-		-d $(PUBMLST_SCHEMA_ECOLI) \
-		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-d $(PUBMLST_SCHEMA_ECOLI_ACHTMAN) \
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
 
-update_ecoli_mlstdb:
+update_ecoli_achtman_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for E. coli...")
 	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
-		-d ecoli_achtman_4 \
-		-t $(MLSTDB_DIR) \
-		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-d escherichia \
+		-s pubmlst \
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
+
+setup_ecoli_pasteur_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI_PASTEUR)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		-s pasteur \
+		--client-id $(PASTEUR_CLIENT_ID) \
+		--client-secret $(PASTEUR_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_ECOLI_PASTEUR) \
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
+
+update_ecoli_pasteur_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for E. coli...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d ecoli \
+		-s pasteur \
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
 
 setup_klebsiella_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_KLEBSIELLA)...")
 	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
-		--client-id $(PUBMLST_CLIENT_ID) \
-		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-s pasteur \
+		--client-id $(PASTEUR_CLIENT_ID) \
+		--client-secret $(PASTEUR_CLIENT_SECRET) \
 		-d $(PUBMLST_SCHEMA_KLEBSIELLA) \
-		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
 
 update_klebsiella_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for Klebsiella...")
@@ -446,8 +470,9 @@ update_klebsiella_mlstdb:
 		bactopia-pubmlst-build \
 		--force \
 		-d klebsiella \
-		-t $(MLSTDB_DIR) \
-		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-s pasteur \
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
 
 setup_spyogenes_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SPYOGENES)...")
@@ -457,7 +482,7 @@ setup_spyogenes_mlstdb_token:
 		--client-id $(PUBMLST_CLIENT_ID) \
 		--client-secret $(PUBMLST_CLIENT_SECRET) \
 		-d $(PUBMLST_SCHEMA_SPYOGENES) \
-		-sd $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
 
 update_spyogenes_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for S. pyogenes...")
@@ -465,8 +490,8 @@ update_spyogenes_mlstdb:
 		bactopia-pubmlst-build \
 		--force \
 		-d spyogenes \
-		-t $(MLSTDB_DIR) \
-		-o $(MLSTDB_DIR) |& tee -a $(INSTALL_LOG)
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update Finder databases
