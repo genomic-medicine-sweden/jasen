@@ -26,8 +26,7 @@ rm assets/virulencefinder_db/*.{b,name}
 make
 ```
 
-### Rerun AMRFinder database creation
+### Update AMRFinder database
 ```
-rm assets/amrfinder_db/*.{b,name}
-make
+make update_amrfinderplus
 ```

@@ -62,7 +62,7 @@ DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.5.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.0.0
 # URLs to remote containers
-URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
+URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0
 URL_bactopia-py := https://depot.galaxyproject.org/singularity/bactopia-py:1.6.1--pyhdfd78af_0
 URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_0
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
