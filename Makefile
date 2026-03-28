@@ -165,7 +165,8 @@ update_databases: update_amrfinderplus \
 	update_finder_dbs \
 	update_shigapass_db \
 	update_hostile_db \
-	update_gambit_db
+	update_gambit_db \
+	update_emmtyper_db
 
 update_organisms: saureus_all \
 	ecoli_all \
@@ -362,6 +363,37 @@ $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
 		-p $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases \
 		-l $(SHIGAPASS_DIR)/Example/Input/ShigaPass_test.txt \
 		-o $(SHIGAPASS_DIR)/Example/ShigaPass_Results |& tee -a $(INSTALL_LOG)
+
+# -----------------------------
+# Update emmtyper database
+# -----------------------------
+update_emmtyper_db: download_emmtyper_fasta \
+	clean_emmtyper_fasta_headers \
+	build_emmtyper_blast_db
+
+EMMTYPER_DB_DIR := $(ASSETS_DIR)/emmtyper_db
+
+download_emmtyper_fasta:
+	$(call log_message,"downloading unprocessed emmtyper database ...")
+	mkdir -p $(EMMTYPER_DB_DIR)
+	cd $(EMMTYPER_DB_DIR)
+	&& curl -o $(EMMTYPER_DB_DIR)/alltrimmed.fasta \
+		https://ftp.cdc.gov/pub/infectious_diseases/biotech/tsemm/alltrimmed.tfa |& tee -a $(INSTALL_LOG)
+
+clean_emmtyper_fasta_headers:
+	$(call log_message,"Cleaning emmtyper db headers ...")
+	cd $(EMMTYPER_DB_DIR)
+	&& awk '/^>/{print $1; next} {print}' $(EMMTYPER_DB_DIR)/alltrimmed.fasta > $(EMMTYPER_DB_DIR)/clean_headers_alltrimmed.fasta |& tee -a $(INSTALL_LOG)
+
+build_emmtyper_blast_db:
+	$(call log_message,"Building emmtyper blast db ...")
+	cd $(EMMTYPER_DB_DIR)
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/blast.sif \ 
+		makeblastdb \
+		-dbtype nucl \
+		-in $(EMMTYPER_DB_DIR)/clean_headers_alltrimmed.fasta \
+		-title emmtyper_db \
+		-out $(EMMTYPER_DB_DIR)/blast |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update AMRFinderPlus database
