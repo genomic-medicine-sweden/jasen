@@ -7,6 +7,7 @@ include { bwa_mem as bwa_mem_ref                     } from '../modules/nf-core/
 include { fastqc                                     } from '../modules/nf-core/fastqc/main.nf'
 include { gambitcore                                 } from '../modules/local/gambitcore/main.nf'
 include { kraken                                     } from '../modules/nf-core/kraken/main.nf'
+include { kraken_batch                               } from '../modules/nf-core/kraken/main.nf'
 include { minimap2_align as minimap2_align_ref       } from '../modules/nf-core/minimap2/main.nf'       
 include { nanoplot                                   } from '../modules/nf-core/nanoplot/main.nf'
 include { count_reads                                } from '../modules/local/jasentool/main.nf'
@@ -74,10 +75,27 @@ workflow CALL_QUALITY_CONTROL {
     }
 
     if ( params.use_kraken ) {
-        kraken(ch_reads, kraken_db)
-        bracken(kraken.out.report, kraken_db)
+        if ( params.use_kraken_batch ) {
+            ch_reads
+                .collectFile(name: 'kraken_batch_input.list', newLine: true) { sample_id, reads ->
+                    def paths = reads*.toRealPath().join('\t')
+                    "${sample_id}\t${paths}"
+                }
+                .set { batch_list }
+            kraken_batch(batch_list, kraken_db)
+            kraken_batch.out.reports
+                .flatten()
+                .map { kraken_report -> [kraken_report.name.replaceAll('_kraken\\.report$', ''), kraken_report] }
+                .set { ch_kraken_reports }
+            ch_versions = ch_versions.mix(kraken_batch.out.versions)
+        } else {
+            kraken(ch_reads, kraken_db)
+            kraken.out.report.set { ch_kraken_reports }
+            ch_versions = ch_versions.mix(kraken.out.versions)
+        }
+
+        bracken(ch_kraken_reports, kraken_db)
         bracken.out.output.set{ ch_kraken }
-        ch_versions = ch_versions.mix(kraken.out.versions)
         ch_versions = ch_versions.mix(bracken.out.versions)
     } else {
         ch_sample_id.set{ ch_kraken }
