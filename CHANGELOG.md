@@ -17,10 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `download_klebsiella_pasteur_cgmlstdb` Makefile target for downloading Klebsiella Pasteur cgMLST scheme
 - Added `log_file_dir` parameter and `workflow.onComplete` handler writing pipeline completion logs to a configurable directory
 - Added `log_file_dir` to cluster profiles in `cmd.config`
+- Added `kraken_batch` process to run Kraken2 over all samples in a single job by loading the database into shared memory (`/dev/shm`) once, avoiding repeated DB loading overhead
+- Added `use_kraken_batch` parameter (default: `false`) to enable batch Kraken2 classification
+- Added `update_emmtyper_db` target to `Makefile`
 
 ### Fixed
 
 - Fixed legend in the flowchart (swapped ONT and Ion Torrent)
+- Fixed `reads*.toRealPath()` spread operator in `kraken_batch` `collectFile` closure — previously called `toRealPath()` directly on a list, causing a `MissingMethodException` at runtime
+- Fixed `parmas.ci` typo in `mlst` `ext.when` condition in `modules.config`
 
 ### Changed
 
@@ -34,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
 - Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
 - Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
+- Updated AMRFinderPlus version
+- Updated TBProfiler version and database
+- Updated Medaka image to Galaxy Project repository image
+- Updated Nextflow version in CI
 
 ## [1.2.0]
 
