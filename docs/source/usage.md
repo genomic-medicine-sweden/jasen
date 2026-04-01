@@ -70,5 +70,5 @@ Activate human read depletion by setting the parameter `use_hostile` to `true` i
 * `coverage` output: statistics are computed using a whole genome (and plasmids, if they are a part of the reference genome)
 * Polishing of genome assembly created from ONT data is done in two rounds with bacterial methylation model as default.  
 * Variants reported by Freebayes are used for masking the genome before performing cgMLST analaysis (default: true for Illumina data, false for ONT data) and are computed by aligning reads to the assembly, not to the reference genome. When masking step is run, these variants are also reported in the output file `analysis_result/*_result.json`.
-* Gambitcore identifies the closest specie and asseses completness of assembly, detailed description of the output can be found [here](https://github.com/SMD-Bioinformatics-Lund/gambitcore)<img width="409" height="19" alt="image" src="https://github.com/user-attachments/assets/58907d7e-d68d-4b06-aca4-4e00b025a3db" />
+* Gambitcore identifies the closest specie and asseses completness of assembly, detailed description of the output can be found [here](https://github.com/SMD-Bioinformatics-Lund/gambitcore)
 
