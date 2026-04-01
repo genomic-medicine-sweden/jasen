@@ -67,6 +67,7 @@ Activate human read depletion by setting the parameter `use_hostile` to `true` i
 # Output
 
 * `postalignqc` output: statistics are computed using only a core genome
+* A coverage uniformity is calculated by dividing interquartile range by median coverage, a lower value indicating more uniform coverage of a genome
 * `coverage` output: statistics are computed using a whole genome (and plasmids, if they are a part of the reference genome)
 * Polishing of genome assembly created from ONT data is done in two rounds with bacterial methylation model as default.  
 * Variants reported by Freebayes are used for masking the genome before performing cgMLST analaysis (default: true for Illumina data, false for ONT data) and are computed by aligning reads to the assembly, not to the reference genome. When masking step is run, these variants are also reported in the output file `analysis_result/*_result.json`.
