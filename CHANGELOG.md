@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed legend in the flowchart (swapped ONT and Ion Torrent)
 - Fixed `reads*.toRealPath()` spread operator in `kraken_batch` `collectFile` closure — previously called `toRealPath()` directly on a list, causing a `MissingMethodException` at runtime
 - Fixed `parmas.ci` typo in `mlst` `ext.when` condition in `modules.config`
+- Fixed `count_reads` output channel binding (`json` emit) in `quality_control.nf` to resolve `join` error on profiles without a reference genome (e.g. `streptococcus`)
 
 ### Changed
 
@@ -40,7 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
 - Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
 - Updated AMRFinderPlus version
-- Updated TBProfiler version and database
+- Updated bonsai-prp to v1.6.1
+- Reverted TBProfiler to v6.3.0
+- Updated emmtyper `ext.args` flag from `--db` to `--blast_db`
+- Updated `count_reads` publishDir from `read_counts` to `postalignqc`
+- Replaced `curl` with `wget` for emmtyper database download to avoid SSL issues
 - Updated Medaka image to Galaxy Project repository image
 - Updated Nextflow version in CI
 
