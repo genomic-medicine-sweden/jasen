@@ -67,7 +67,7 @@ workflow CALL_QUALITY_CONTROL {
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
-        count_reads(ch_reads).set{ ch_post_align_qc }
+        count_reads(ch_reads).json.set{ ch_post_align_qc }
         ch_sample_id.set{ ch_ref_bam }
         ch_sample_id.set{ ch_ref_bai }
         ch_sample_id.set{ ch_samtools_cov_ref }
