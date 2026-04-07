@@ -377,7 +377,7 @@ download_emmtyper_fasta:
 	$(call log_message,"downloading unprocessed emmtyper database ...")
 	mkdir -p $(EMMTYPER_DB_DIR) \
 	&& cd $(EMMTYPER_DB_DIR) \
-	&& curl -o $(EMMTYPER_DB_DIR)/alltrimmed.fasta \
+	&& wget --no-check-certificate -O $(EMMTYPER_DB_DIR)/alltrimmed.fasta \
 		https://ftp.cdc.gov/pub/infectious_diseases/biotech/tsemm/alltrimmed.tfa |& tee -a $(INSTALL_LOG)
 
 clean_emmtyper_fasta_headers:
