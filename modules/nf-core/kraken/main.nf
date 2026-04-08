@@ -18,8 +18,27 @@ process kraken_batch {
     def args = task.ext.args ?: ''
     """
     SHM_DB="/dev/shm/kraken_db_\${BASHPID}"
-    trap "rm -rf \${SHM_DB}" EXIT
-    cp -r ${database} \${SHM_DB}
+
+    cleanup() {
+        rm -rf "\${SHM_DB}"
+    }
+    trap cleanup EXIT SIGINT SIGTERM
+
+    if [[ -d "\${SHM_DB}" ]]; then
+        echo "Error: \${SHM_DB} already exists. Clean up first."
+        trap - EXIT
+        exit 1
+    fi
+    mkdir -p "\${SHM_DB}"
+
+    for file in ${database}/*; do
+        if ! dd if="\${file}" of="\${SHM_DB}/\${file##*/}" \\
+             bs=4M conv=fdatasync iflag=nocache oflag=nocache \\
+             status=progress; then
+            echo "ERROR: Failed to copy \${file##*/}"
+            exit 1
+        fi
+    done
 
     while IFS=\$'\\t' read -r sample_id fastq1 fastq2; do
         reads_arg="\${fastq1}\${fastq2:+ \${fastq2}}"
