@@ -9,6 +9,7 @@ assets/genomes
 assets/mlstdb/blast
 assets/mlstdb/pubmlst
 assets/mlstdb/pasteur
+assets/emmtyper_db
 assets/.bigsdb_tokens/pubmlst-token.json*
 assets/.bigsdb_tokens/pasteur-token.json*
 assets/.bigsdb_tokens/access_tokens
