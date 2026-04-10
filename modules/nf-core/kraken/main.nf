@@ -17,7 +17,7 @@ process kraken_batch {
     script:
     def args = task.ext.args ?: ''
     """
-    SHM_DB="/dev/shm/kraken_db_\${BASHPID}"
+    SHM_DB="/dev/shm/$(basename ${database})_\${BASHPID}"
 
     cleanup() {
         rm -rf "\${SHM_DB}"
@@ -44,6 +44,7 @@ process kraken_batch {
         reads_arg="\${fastq1}\${fastq2:+ \${fastq2}}"
         kraken2 \\
         ${args} \\
+        --memory-mapping \\
         --threads ${task.cpus} \\
         --db \${SHM_DB} \\
         --output \${sample_id}_kraken.out \\
