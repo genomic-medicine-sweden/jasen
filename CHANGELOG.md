@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `curl` with `wget` for emmtyper database download to avoid SSL issues
 - Updated Medaka image to Galaxy Project repository image
 - Updated Nextflow version in CI
+- Changed kraken2 singularity image to fetch `kraken2` + `coreutils` container from `multi-package-containers`
 
 ## [1.2.0]
 
