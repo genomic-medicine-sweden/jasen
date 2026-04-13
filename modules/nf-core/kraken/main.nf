@@ -17,7 +17,7 @@ process kraken_batch {
     script:
     def args = task.ext.args ?: ''
     """
-    SHM_DB="/dev/shm/$(basename ${database})_\${BASHPID}"
+    SHM_DB="/dev/shm/${database.getName()}_\${BASHPID}"
 
     cleanup() {
         rm -rf "\${SHM_DB}"
