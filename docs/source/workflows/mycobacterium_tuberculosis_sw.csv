@@ -5,7 +5,7 @@ filtlong,0.3.1,https://depot.galaxyproject.org/singularity/filtlong:0.3.1--h077b
 flye,2.9.6,https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0
 hostile,2.0.0,https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 minimiap2,2.30,https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
-medaka,2.2.0,https://depot.galaxyproject.org/singularity/medaka:2.2.0--py312h3050eb1_1
+medaka,2.2.0,docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 mykrobe,0.12.2,https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 nanoplot,1.46.2,https://depot.galaxyproject.org/singularity/nanoplot:1.46.2--pyhdfd78af_0
 prp,1.6.1,docker://clinicalgenomicslund/bonsai-prp:1.6.1

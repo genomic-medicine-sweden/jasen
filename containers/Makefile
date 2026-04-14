@@ -16,11 +16,11 @@ all: \
 # the current folder
 local_containers := bonsai-prp.sif \
 					gambitcore.sif \
-					jasentool.sif
+					jasentool.sif \
+					medaka.sif
 
 # These containers will be downloaded remotely
-remote_containers := medaka.sif \
-					ncbi-amrfinderplus.sif \
+remote_containers := ncbi-amrfinderplus.sif \
 					bactopia-py.sif \
 					blast.sif \
 					bracken.sif \
@@ -61,6 +61,7 @@ remote_containers := medaka.sif \
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.6.1
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.0.0
+DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0
 URL_bactopia-py := https://depot.galaxyproject.org/singularity/bactopia-py:1.6.1--pyhdfd78af_0
@@ -77,7 +78,6 @@ URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
 URL_kleborate := https://depot.galaxyproject.org/singularity/kleborate:3.2.4--pyhdfd78af_0
 URL_kraken2 := https://depot.galaxyproject.org/singularity/mulled-v2-f8c4015c836dd3ce5c118cfed97ec8259bab9e9d:41404a18634d1ec6fe2a8a0dc54df6925d57fdbf-0
-URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.2.0--py312h3050eb1_1
 URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
