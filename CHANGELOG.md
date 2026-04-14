@@ -30,8 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated chewBBACA to v3.5.3
-- Updated chewBBACA to v3.5.2 to enable use of unrestricted length of sample names
+- Updated chewBBACA to v3.5.3 to enable use of unrestricted length of sample names
 - Updated resources in processes that read bam files
 - Removed unnecessary scripts from `bin/`
 - Moved `create_yaml` process from `modules/local/yaml/main.nf` to `modules/local/jasentool/main.nf`
@@ -41,14 +40,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
 - Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
 - Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
-- Updated AMRFinderPlus version
+- Updated AMRFinderPlus to v4.2.7 
 - Updated kraken2 container to mulled image (kraken2=2.17.1 + coreutils=9.5) to provide GNU dd with iflag=nocache support
 - Updated bonsai-prp to v1.6.1
 - Reverted TBProfiler to v6.3.0
 - Updated emmtyper `ext.args` flag from `--db` to `--blast_db`
 - Updated `count_reads` publishDir from `read_counts` to `postalignqc`
 - Replaced `curl` with `wget` for emmtyper database download to avoid SSL issues
-- Updated Medaka image to Galaxy Project repository image
 - Updated Nextflow version in CI
 - Changed kraken2 singularity image to fetch `kraken2` + `coreutils` container from `multi-package-containers`
 
