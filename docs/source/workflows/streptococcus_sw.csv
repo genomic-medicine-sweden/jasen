@@ -3,6 +3,7 @@ amrfinderplus,4.2.7,https://depot.galaxyproject.org/singularity/ncbi-amrfinderpl
 bracken,2.8,https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 bwa,0.7.17-r1188,https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
 chewbbaca,3.5.3,https://depot.galaxyproject.org/singularity/chewbbaca:3.5.3--pyh106432d_1
+clair3,2.0.0,docker://hkubal/clair3:v2.0.0
 emmtyper,0.2.0,https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 fastqc,0.12.1,https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
 filtlong,0.3.1,https://depot.galaxyproject.org/singularity/filtlong:0.3.1--h077b44d_0
