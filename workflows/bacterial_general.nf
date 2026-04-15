@@ -18,6 +18,7 @@ workflow CALL_BACTERIAL_GENERAL {
     // load references 
     reference_genome        = params.reference_genome       ? file(params.reference_genome, checkIfExists: true)        : Channel.value([])
     reference_genome_dir    = params.reference_genome       ? file(reference_genome.getParent(), checkIfExists: true)   : Channel.value([])
+    reference_genome_faidx  = params.reference_genome       ? file(params.reference_genome + ".fai", checkIfExists: true) : Channel.value([])
     reference_genome_gff    = params.reference_genome_gff   ? file(params.reference_genome_gff, checkIfExists: true)    : Channel.value([])
     reference_genome_idx    = params.reference_genome_idx   ? file(params.reference_genome_idx, checkIfExists: true)    : Channel.value([])
 
@@ -41,6 +42,7 @@ workflow CALL_BACTERIAL_GENERAL {
 
     // schemas and values
     assay                   = params.assay                  ? params.assay                                              : Channel.value([])
+    clair3_model            = params.clair3_model           ? params.clair3_model                                       : Channel.value([])
     hostile_dir             = params.hostile_dir            ? file(params.hostile_dir, checkIfExists: true)             : Channel.value([])
     hostile_idx             = params.hostile_idx            ? params.hostile_idx                                        : Channel.value([])
     mlst_scheme             = params.mlst_scheme            ? params.mlst_scheme                                        : Channel.value([])
@@ -86,7 +88,9 @@ workflow CALL_BACTERIAL_GENERAL {
     CALL_VARIANT_CALLING (
         CALL_QUALITY_CONTROL.out.bam,
         CALL_QUALITY_CONTROL.out.bai,
-        reference_genome
+        reference_genome,
+        reference_genome_faidx,
+        clair3_model
     )
 
     CALL_TYPING (
