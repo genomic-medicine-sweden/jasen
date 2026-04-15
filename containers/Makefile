@@ -15,6 +15,7 @@ all: \
 # These are containers that will be built locally using the definition files in
 # the current folder
 local_containers := bonsai-prp.sif \
+					clair3.sif \
 					gambitcore.sif \
 					jasentool.sif \
 					medaka.sif
@@ -59,6 +60,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 
 # URLs to Docker containers
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.6.1
+DOCKER_clair3 := docker://hkubal/clair3:v2.0.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
 DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.0.0
 DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
