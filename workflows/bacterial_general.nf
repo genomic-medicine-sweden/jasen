@@ -84,9 +84,9 @@ workflow CALL_BACTERIAL_GENERAL {
     )
 
     CALL_VARIANT_CALLING (
-        CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.reads,
-        CALL_PREPROCESSING.out.sample_id
+        CALL_QUALITY_CONTROL.out.bam,
+        CALL_QUALITY_CONTROL.out.bai,
+        reference_genome
     )
 
     CALL_TYPING (
@@ -99,8 +99,8 @@ workflow CALL_BACTERIAL_GENERAL {
         species,
         training_file,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.sample_id,
-        CALL_VARIANT_CALLING.out.vcf
+        CALL_PREPROCESSING.out.reads,
+        CALL_PREPROCESSING.out.sample_id
     )
 
     CALL_SCREENING (
