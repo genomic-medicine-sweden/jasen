@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `kraken_batch` process to run Kraken2 over all samples in a single job by loading the database into shared memory (`/dev/shm`) once, avoiding repeated DB loading overhead
 - Added `use_kraken_batch` parameter (default: `false`) to enable batch Kraken2 classification
 - Added `update_emmtyper_db` target to `Makefile`
+- Added flowchart of the pipeline to the first page
+- Added details to results section of the docs
 
 ### Fixed
 
