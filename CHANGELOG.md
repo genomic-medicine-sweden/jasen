@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `update_emmtyper_db` target to `Makefile`
 - Added flowchart of the pipeline to the first page
 - Added details to results section of the docs
-- Added `clair3` to `subworkflows/variant_calling.nf`
+- Added `clair3` (v2.0.0, `docker://hkubal/clair3:v2.0.0`) as the nanopore variant caller in `subworkflows/variant_calling.nf`, replacing freebayes for the nanopore platform; default model `r1041_e82_400bps_sup_v430_bacteria_finetuned`
 
 ### Fixed
 
