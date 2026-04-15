@@ -128,6 +128,18 @@ wget -O /path/to/kraken_db/krakenmini.tar.gz https://genome-idx.s3.amazonaws.com
 tar -xf /path/to/kraken_db/krakenmini.tar.gz
 ```
 
+#### Batch mode (`kraken_batch`)
+
+Set `use_kraken_batch = true` in `nextflow.config` to collect all samples into a single job and copy the Kraken database into `/dev/shm` (a RAM-backed filesystem) before classification. This loads the database once per pipeline run and eliminates disk I/O during classification, significantly reducing runtime for large sample batches.
+
+**Requirements:** Each compute node running Kraken must have at least 80–100 GB of available `/dev/shm`. Check available space with:
+
+```bash
+df -h /dev/shm
+```
+
+If your nodes do not meet this requirement, leave `use_kraken_batch = false` (default) to run kraken2 per sample.
+
 ### cgMLST database (BIGSdb Pasteur setup)
 
 **NOTE**: The *Klebsiella* cgMLST schema is hosted on [BIGSdb Pasteur](https://bigsdb.pasteur.fr/) and requires API credentials to download. Here are the steps:
