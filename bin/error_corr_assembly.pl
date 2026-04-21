@@ -44,7 +44,11 @@ sub read_fasta {
 
 sub read_vcf {
     my $fn = shift;
-    open( VCF, $fn );
+    if ($fn =~ /\.gz$/) {
+        open( VCF, "gzip -dc $fn |" ) or die "Cannot open $fn: $!";
+    } else {
+        open( VCF, $fn ) or die "Cannot open $fn: $!";
+    }
     my %sites;
     while(<VCF>) {
 	chomp;
