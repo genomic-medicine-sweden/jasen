@@ -2,8 +2,8 @@
 
 nextflow.enable.dsl=2
 
-include { clair3    } from '../modules/nf-core/clair3/main.nf'
-include { freebayes } from '../modules/nf-core/freebayes/main.nf'
+include { clair3 as clair3_ref       } from '../modules/nf-core/clair3/main.nf'
+include { freebayes as freebayes_ref } from '../modules/nf-core/freebayes/main.nf'
 
 workflow CALL_VARIANT_CALLING {
     take:
@@ -22,15 +22,15 @@ workflow CALL_VARIANT_CALLING {
         .set{ ch_ref_bam_bai }
 
     if ( params.platform == "nanopore" ) {
-        clair3(ch_ref_bam_bai, reference_genome, reference_genome_faidx, clair3_model)
-        ch_vcf = clair3.out.vcf
-        ch_versions = ch_versions.mix(clair3.out.versions)
+        clair3_ref(ch_ref_bam_bai, reference_genome, reference_genome_faidx, clair3_model)
+        ch_vcf = clair3_ref.out.vcf
+        ch_versions = ch_versions.mix(clair3_ref.out.versions)
     } else {
-        freebayes(
+        freebayes_ref(
             ch_ref_bam_bai.map { id, bam, bai -> tuple(id, reference_genome, bam, bai) }
         )
-        ch_vcf = freebayes.out.vcf
-        ch_versions = ch_versions.mix(freebayes.out.versions)
+        ch_vcf = freebayes_ref.out.vcf
+        ch_versions = ch_versions.mix(freebayes_ref.out.versions)
     }
 
     emit:

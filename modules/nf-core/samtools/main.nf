@@ -126,20 +126,20 @@ process samtools_index {
 }
 
 process samtools_faidx {
-    tag "${input}"
+    tag "${sample_id}"
     scratch params.scratch
 
     input:
-    path input
+    tuple val(sample_id), path(fasta)
 
     output:
-    path output         , emit: fai
-    path "*versions.yml", emit: versions
+    tuple val(sample_id), path(output), emit: fai
+    path "*versions.yml"              , emit: versions
 
     script:
-    output = "${input}.fai"
+    output = "${fasta}.fai"
     """
-    samtools faidx ${input}
+    samtools faidx ${fasta}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
@@ -150,7 +150,7 @@ process samtools_faidx {
     """
 
     stub:
-    output = "${input}.fai"
+    output = "${fasta}.fai"
     """
     touch ${output}
 

@@ -18,7 +18,7 @@ workflow CALL_BACTERIAL_GENERAL {
     // load references 
     reference_genome        = params.reference_genome       ? file(params.reference_genome, checkIfExists: true)        : Channel.value([])
     reference_genome_dir    = params.reference_genome       ? file(reference_genome.getParent(), checkIfExists: true)   : Channel.value([])
-    reference_genome_faidx  = params.reference_genome       ? file(params.reference_genome + ".fai", checkIfExists: true) : Channel.value([])
+    reference_genome_faidx  = params.reference_genome_fai   ? file(params.reference_genome_fai, checkIfExists: true)      : Channel.value([])
     reference_genome_gff    = params.reference_genome_gff   ? file(params.reference_genome_gff, checkIfExists: true)    : Channel.value([])
     reference_genome_idx    = params.reference_genome_idx   ? file(params.reference_genome_idx, checkIfExists: true)    : Channel.value([])
 
@@ -95,6 +95,7 @@ workflow CALL_BACTERIAL_GENERAL {
 
     CALL_TYPING (
         chewbbaca_db,
+        clair3_model,
         mlst_blast_db,
         mlst_scheme,
         pubmlst_db,

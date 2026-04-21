@@ -7,7 +7,9 @@ include { bwa_mem as bwa_mem_assembly               } from '../modules/nf-core/b
 include { chewbbaca_allelecall                      } from '../modules/nf-core/chewbbaca/main.nf'
 include { chewbbaca_split_results                   } from '../modules/local/chewbbaca/split/main.nf'
 include { emmtyper                                  } from '../modules/nf-core/emmtyper/main.nf'
-include { freebayes                                 } from '../modules/nf-core/freebayes/main.nf'
+include { clair3 as clair3_assembly                 } from '../modules/nf-core/clair3/main.nf'
+include { freebayes as freebayes_assembly           } from '../modules/nf-core/freebayes/main.nf'
+include { samtools_faidx as samtools_faidx_assembly } from '../modules/nf-core/samtools/main.nf'
 include { minimap2_align as minimap2_align_assembly } from '../modules/nf-core/minimap2/main.nf'
 include { minimap2_index                            } from '../modules/nf-core/minimap2/main.nf'
 include { mlst                                      } from '../modules/nf-core/mlst/main.nf'
@@ -22,6 +24,7 @@ include { spatyper                                  } from '../modules/nf-core/s
 workflow CALL_TYPING {
     take:
     chewbbaca_db
+    clair3_model
     mlst_blast_db
     mlst_scheme
     pubmlst_db
@@ -78,15 +81,32 @@ workflow CALL_TYPING {
             .join(samtools_index_assembly.out.bai)
             .set{ ch_assembly_bam_bai }
 
-        freebayes(ch_assembly.join(ch_assembly_bam_bai)).vcf.set{ ch_polymorph_vcf }
-
         ch_versions = ch_versions.mix(bwa_index.out.versions)
         ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
-        ch_versions = ch_versions.mix(freebayes.out.versions)
         ch_versions = ch_versions.mix(minimap2_align_assembly.out.versions)
         ch_versions = ch_versions.mix(minimap2_index.out.versions)
         ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_assembly.out.versions)
+
+        if ( params.platform == "nanopore" ) {
+            samtools_faidx_assembly(ch_assembly)
+            ch_versions = ch_versions.mix(samtools_faidx_assembly.out.versions)
+
+            ch_assembly_bam_bai
+                .join(ch_assembly)
+                .join(samtools_faidx_assembly.out.fai)
+                .multiMap { id, bam, bai, fasta, fai ->
+                    bam_bai:       tuple(id, bam, bai)
+                    fasta:     fasta
+                    fasta_fai: fai
+                }
+                .set { ch_clair3_assembly_in }
+            clair3_assembly(ch_clair3_assembly_in.bam_bai, ch_clair3_assembly_in.fasta, ch_clair3_assembly_in.fasta_fai, clair3_model).vcf.set{ ch_polymorph_vcf }
+            ch_versions = ch_versions.mix(clair3_assembly.out.versions)
+        } else {
+            freebayes_assembly(ch_assembly.join(ch_assembly_bam_bai)).vcf.set{ ch_polymorph_vcf }
+            ch_versions = ch_versions.mix(freebayes_assembly.out.versions)
+        }
 
         mask_polymorph_assembly(ch_assembly.join(ch_polymorph_vcf))
 
