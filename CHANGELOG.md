@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added flowchart of the pipeline to the first page
 - Added details to results section of the docs
 - Added `clair3` (v2.0.0, `docker://hkubal/clair3:v2.0.0`) as the nanopore variant caller in `subworkflows/variant_calling.nf`, replacing freebayes for the nanopore platform; default model `r1041_e82_400bps_sup_v430_bacteria_finetuned`
+- Added `clair3_assembly` process to `subworkflows/typing.nf` for nanopore assembly-based variant calling when `use_masking` is enabled
+- Added `params.reference_genome_fai` to all species profiles in `nextflow.config` for explicit FAI path configuration
+- Added `samtools_faidx` process support for per-sample assembly FAI generation
 
 ### Fixed
 
@@ -31,8 +34,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `parmas.ci` typo in `mlst` `ext.when` condition in `modules.config`
 - Fixed `count_reads` output channel binding (`json` emit) in `quality_control.nf` to resolve `join` error on profiles without a reference genome (e.g. `streptococcus`)
 
+### Fixed
+
+- Fixed `error_corr_assembly.pl` to handle gzipped VCF input (`.vcf.gz`) via `gzip -dc` pipe, enabling compatibility with clair3 output
+
 ### Changed
 
+- Renamed `clair3` import to `clair3_ref` and `freebayes` import to `freebayes_ref` in `subworkflows/variant_calling.nf` to distinguish reference-based variant calling
+- Renamed `freebayes` import to `freebayes_assembly` in `subworkflows/typing.nf` to distinguish assembly-based variant calling
+- Updated `bacterial_general.nf` to load `reference_genome_faidx` from `params.reference_genome_fai` instead of deriving it from the genome path
 - Updated chewBBACA to v3.5.3 to enable use of unrestricted length of sample names
 - Updated resources in processes that read bam files
 - Removed unnecessary scripts from `bin/`
