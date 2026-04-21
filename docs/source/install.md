@@ -88,6 +88,8 @@ Source: `nextflow.config`
 
 When analysing Nanopore data:
 * Edit the `ext.seqmethod` in `conf/modules.config` for Flye in case you are using older ONT data (default: --nano-hq, suitable for ONT data generated with R10 chemistry)
+* `params.clair3_model` in `nextflow.config` is set to  `r1041_e82_400bps_sup_v430_bacteria_finetuned`, but can be changed to [any other available model](https://github.com/HKU-BAL/Clair3#pre-trained-models)
+* Medaka is recognising basecalling model automatically and using bacterial model for polishing of the assembly, but this can be changed in `conf/modules.config` (edit `ext.args` for a process named `medaka`)
 
 ### Test data
 Source: `assets/test_data/samplelist*.csv`
