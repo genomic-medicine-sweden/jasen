@@ -22,15 +22,15 @@ process clair3 {
     output = "${sample_id}_clair3.vcf.gz"
     """
     run_clair3.sh \\
-        --bam_fn=${bam} \\
-        --ref_fn=${reference} \\
+        --bam_fn=\${PWD}/${bam} \\
+        --ref_fn=\${PWD}/${reference} \\
         --threads=${task.cpus} \\
         --platform=${platform} \\
         --model_path=${model_path} \\
-        --output=clair3_output \\
+        --output=. \\
         ${args}
 
-    cp clair3_output/merge_output.vcf.gz ${output}
+    mv merge_output.vcf.gz ${output}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
