@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `clair3` import to `clair3_ref` and `freebayes` import to `freebayes_ref` in `subworkflows/variant_calling.nf` to distinguish reference-based variant calling
 - Renamed `freebayes` import to `freebayes_assembly` in `subworkflows/typing.nf` to distinguish assembly-based variant calling
 - Updated `bacterial_general.nf` to load `reference_genome_faidx` from `params.reference_genome_fai` instead of deriving it from the genome path
+- Changed `skesa`, `spades_illumina`, `spades_iontorrent`, `flye`, and `medaka` to publish to a unified `fasta/` output directory
 - Updated chewBBACA to v3.5.3 to enable use of unrestricted length of sample names
 - Updated resources in processes that read bam files
 - Removed unnecessary scripts from `bin/`
