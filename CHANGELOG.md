@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Nextflow version in CI
 - Changed kraken2 singularity image to fetch `kraken2` + `coreutils` container from `multi-package-containers`
 - Moved variant calling for masking polymorphisms before cgmlst typing to `subworkflows/typing.nf`
+- Updated flowchart with variant calling step
 
 ## [1.2.0]
 
