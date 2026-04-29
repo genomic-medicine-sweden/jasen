@@ -88,6 +88,7 @@ workflow CALL_BACTERIAL_GENERAL {
     CALL_VARIANT_CALLING (
         CALL_QUALITY_CONTROL.out.bam,
         CALL_QUALITY_CONTROL.out.bai,
+        CALL_PREPROCESSING.out.sample_id,
         reference_genome,
         reference_genome_faidx,
         clair3_model
