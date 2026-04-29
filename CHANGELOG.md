@@ -33,9 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `reads*.toRealPath()` spread operator in `kraken_batch` `collectFile` closure — previously called `toRealPath()` directly on a list, causing a `MissingMethodException` at runtime
 - Fixed `parmas.ci` typo in `mlst` `ext.when` condition in `modules.config`
 - Fixed `count_reads` output channel binding (`json` emit) in `quality_control.nf` to resolve `join` error on profiles without a reference genome (e.g. `streptococcus`)
-
-### Fixed
-
 - Fixed `error_corr_assembly.pl` to handle gzipped VCF input (`.vcf.gz`) via `gzip -dc` pipe, enabling compatibility with clair3 output
 
 ### Changed
