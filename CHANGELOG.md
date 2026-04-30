@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [1.3.0]
+
+### Added
+
 - Added `free-disk-space` to CI GA workflow
 - Added `jasentool` container (`clinicalgenomicslund/jasentool:1.0.0`) for read counting, QC, YAML creation, and NCBI downloads
 - Added `count_reads` process to general workflows to report read counts
