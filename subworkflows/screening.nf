@@ -3,6 +3,7 @@
 nextflow.enable.dsl=2
 
 include { amrfinderplus     } from '../modules/nf-core/amrfinderplus/main.nf'
+include { plasmidfinder     } from '../modules/nf-core/plasmidfinder/main.nf'
 include { resfinder         } from '../modules/nf-core/resfinder/main.nf'
 include { virulencefinder   } from '../modules/nf-core/virulencefinder/main.nf'
 include { kleborate         } from '../modules/nf-core/kleborate/main.nf'
@@ -10,6 +11,7 @@ include { kleborate         } from '../modules/nf-core/kleborate/main.nf'
 workflow CALL_SCREENING {
     take:
     amrfinder_db
+    plasmidfinder_db
     pointfinder_db
     resfinder_db
     virulencefinder_db
@@ -29,6 +31,10 @@ workflow CALL_SCREENING {
     resfinder(ch_reads, params.species, resfinder_db, pointfinder_db)
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
+    // plasmid detection
+    plasmidfinder(ch_assembly, plasmidfinder_db)
+    ch_versions = ch_versions.mix(plasmidfinder.out.versions)
+
     // klebsiella and esherichia analysis pipeline
     if ( params.use_kleborate ) {
         kleborate(ch_assembly)
@@ -43,6 +49,8 @@ workflow CALL_SCREENING {
     amrfinderplus.out.tsv
         .join(ch_kleborate_general)
         .join(ch_kleborate_hamronization)
+        .join(plasmidfinder.out.json)
+        .join(plasmidfinder.out.meta)
         .join(resfinder.out.json)
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
@@ -55,9 +63,11 @@ workflow CALL_SCREENING {
 
     emit:
     amrfinderplus           = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
-    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(json), path(meta) ]
+    combined_output         = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(json), path(meta), path(json), path(meta) ]
     kleborate_general       = ch_kleborate_general          // channel: [ val(meta), path(general) ]
     kleborate_hamronization = ch_kleborate_hamronization    // channel: [ val(meta), path(hamronization) ]
+    plasmidfinder_json      = plasmidfinder.out.json        // channel: [ val(meta), path(json) ]
+    plasmidfinder_meta      = plasmidfinder.out.meta        // channel: [ val(meta), path(meta) ]
     resfinder_json          = resfinder.out.json            // channel: [ val(meta), path(json) ]
     resfinder_meta          = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
     virulencefinder_json    = virulencefinder.out.json      // channel: [ val(meta), path(json) ]

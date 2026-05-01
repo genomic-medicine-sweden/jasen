@@ -199,6 +199,7 @@ RESFINDER_VERSION := 2.6.0
 POINTFINDER_VERSION := 4.1.1
 VIRULENCEFINDER_VERSION := 2.0.1
 SEROTYPEFINDER_VERSION := 1.1.0
+PLASMIDFINDER_DB_VERSION := master
 TBDB_COMMIT := 618cf0ff5f22886971bd437929d2c49defa6c7bf
 SHIGAPASS_VERSION := v1.5.0
 
@@ -206,6 +207,7 @@ download_databases: download_resfinder_db \
 	download_pointfinder_db \
 	download_virulencefinder_db \
 	download_serotypefinder_db \
+	download_plasmidfinder_db \
 	download_tbdb \
 	download_shigapass
 
@@ -252,6 +254,18 @@ $(ASSETS_DIR)/serotypefinder_db/INSTALL.py:
 		https://bitbucket.org/genomicepidemiology/serotypefinder_db.git \
 		$(ASSETS_DIR)/serotypefinder_db \
 	&& rm -rf $(ASSETS_DIR)/serotypefinder_db/.git |& tee -a $(INSTALL_LOG)
+
+# Download and extract PlasmidFinder database
+download_plasmidfinder_db: $(ASSETS_DIR)/plasmidfinder_db/VERSION
+
+$(ASSETS_DIR)/plasmidfinder_db/VERSION:
+	$(call log_message,"Downloading PlasmidFinder database $(PLASMIDFINDER_DB_VERSION)...")
+	mkdir -p $(ASSETS_DIR) \
+	&& git clone --depth 1 --branch $(PLASMIDFINDER_DB_VERSION) \
+		https://bitbucket.org/genomicepidemiology/plasmidfinder_db.git \
+		$(ASSETS_DIR)/plasmidfinder_db \
+	&& git -C $(ASSETS_DIR)/plasmidfinder_db rev-parse --short HEAD > $(ASSETS_DIR)/plasmidfinder_db/VERSION \
+	&& rm -rf $(ASSETS_DIR)/plasmidfinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract TBDB
 download_tbdb: $(ASSETS_DIR)/tbdb/README.md

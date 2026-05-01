@@ -41,6 +41,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					mykrobe.sif \
 					nanoplot.sif \
 					perl-json.sif \
+					plasmidfinder.sif \
 					prodigal.sif \
 					quast.sif \
 					resfinder.sif \
@@ -63,7 +64,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.6.1
 DOCKER_clair3 := docker://hkubal/clair3:v2.0.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
-DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.0.0
+DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.0.1
 DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0
@@ -86,6 +87,7 @@ URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
 URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.46.2--pyhdfd78af_0
 URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5321hdfd78af_0
+URL_plasmidfinder := https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2
 URL_prodigal := https://depot.galaxyproject.org/singularity/prodigal:2.6.3--h7b50bb2_10
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.7.2--pyhdfd78af_0
