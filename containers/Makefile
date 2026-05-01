@@ -56,6 +56,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					spades.sif \
 					spatyper.sif \
 					tb-profiler.sif \
+					trimmomatic.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
@@ -100,6 +101,7 @@ URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_spatyper := https://depot.galaxyproject.org/singularity/spatyper:0.3.3--pyhdfd78af_3
 URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.3.0--pyhdfd78af_0
+URL_trimmomatic := https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0
 URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:3.2.0--pyhdfd78af_0
 
 define log_message
