@@ -29,6 +29,7 @@ workflow CALL_BACTERIAL_GENERAL {
     gambit_db               = params.gambit_db              ? file(params.gambit_db, checkIfExists: true)               : Channel.value([])
     kraken_db               = params.kraken_db              ? file(params.kraken_db, checkIfExists: true)               : Channel.value([])
     mlst_blast_db           = params.mlst_blast_db          ? file(params.mlst_blast_db, checkIfExists: true)           : Channel.value([])
+    plasmidfinder_db        = params.plasmidfinder_db       ? file(params.plasmidfinder_db, checkIfExists: true)        : Channel.value([])
     pointfinder_db          = params.pointfinder_db         ? file(params.pointfinder_db, checkIfExists: true)          : Channel.value([])
     pubmlst_db              = params.pubmlst_db             ? file(params.pubmlst_db, checkIfExists: true)              : Channel.value([])
     resfinder_db            = params.resfinder_db           ? file(params.resfinder_db, checkIfExists: true)            : Channel.value([])
@@ -111,6 +112,7 @@ workflow CALL_BACTERIAL_GENERAL {
 
     CALL_SCREENING (
         amrfinder_db,
+        plasmidfinder_db,
         pointfinder_db,
         resfinder_db,
         virulencefinder_db,
