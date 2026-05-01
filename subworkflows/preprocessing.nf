@@ -9,6 +9,7 @@ include { filtlong                  } from '../modules/nf-core/filtlong/main.nf'
 include { hostile                   } from '../modules/nf-core/hostile/main.nf'
 include { save_analysis_metadata    } from '../modules/local/meta/main.nf'
 include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
+include { trimmomatic               } from '../modules/nf-core/trimmomatic/main.nf'
 
 workflow CALL_PREPROCESSING {
     take:
@@ -53,6 +54,9 @@ workflow CALL_PREPROCESSING {
     } else if (params.platform == "nanopore" && params.use_filtlong) {
         filtlong(ch_depleted_sampled_reads).reads.set { ch_reads }
         ch_versions = ch_versions.mix(filtlong.out.versions)
+    } else if (params.platform == "illumina" && params.use_trimmomatic) {
+        trimmomatic(ch_depleted_sampled_reads).reads.set { ch_reads }
+        ch_versions = ch_versions.mix(trimmomatic.out.versions)
     } else {
         ch_depleted_sampled_reads.set{ ch_reads }
     }
