@@ -11,6 +11,7 @@ The workflow includes the following analysis in addition to species prediction a
 - Antibiotic resistance prediction
 - Disinfectant resistance
 - Prediction of virulence factors
+- Plasmid detection
 - STX typing
 - Serotyping
 - Discrimination between ETEC, EIEC, EPEC, and *Shigella*

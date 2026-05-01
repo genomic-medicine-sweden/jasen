@@ -64,6 +64,12 @@ There are an option to use [hostile](https://github.com/bede/hostile) to filter 
 
 Activate human read depletion by setting the parameter `use_hostile` to `true` in the config.
 
+## Adapter and quality trimming (Illumina)
+
+There is an option to use [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) to trim adapters and low-quality bases from Illumina reads as a preprocessing step. This is off by default.
+
+Activate Trimmomatic by setting `use_trimmomatic` to `true` in the config (Illumina platform only). Customise the trimming steps via `trimmomatic_args` (default: `LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36`); for adapter trimming append an `ILLUMINACLIP:<adapter.fa>:2:30:10` step to the args.
+
 # Output
 
 * `postalignqc` output: statistics are computed using only a core genome

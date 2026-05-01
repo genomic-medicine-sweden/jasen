@@ -12,6 +12,7 @@ The workflow includes the following analysis in addition to species prediction a
 - Disinfectant resistance
 - EMM typing
 - Prediction of virulence factors
+- Plasmid detection
 - MLST
 - cgMLST
 

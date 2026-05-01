@@ -9,9 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
+- Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
+- Added `--plasmidfinder` and `--software-info` (plasmidfinder meta) inputs to `create_yaml`
+- Added optional `trimmomatic` (v0.40, `https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0`) preprocessing module for Illumina adapter/quality trimming; off by default (`use_trimmomatic = false`) (#280)
+- Added `use_trimmomatic` and `trimmomatic_args` parameters
+
 ### Fixed
 
+- Pipeline now fails loudly when any input sample does not produce a result JSON (previously the run could finish successfully with missing results) (#466)
+
 ### Changed
+
+- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.0.1` to add `--plasmidfinder` support in `create-yaml`
 
 ## [1.3.0]
 
