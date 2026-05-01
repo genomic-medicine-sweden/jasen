@@ -53,6 +53,18 @@ workflow CALL_POSTPROCESSING {
 
     export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
+    // Fail loudly if any input sample was dropped before producing a result JSON.
+    ch_preprocessing_combined_output
+        .map { it[0] }
+        .collect()
+        .combine(format_jasen.out.json.map { it[0] }.collect())
+        .subscribe { expected, actual ->
+            def missing = expected - actual
+            if (missing) {
+                error "Result JSON not produced for sample(s): ${missing.sort().join(', ')}"
+            }
+        }
+
     emit:
     pipeline_result = format_jasen.out.json             // channel: [ path(json) ]
     cdm             = export_to_cdm.out.cdm             // channel: [ path(txt) ]
