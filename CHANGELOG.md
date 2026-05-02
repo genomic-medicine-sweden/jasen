@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
-- Added `--plasmidfinder` and `--software-info` (plasmidfinder meta) inputs to `create_yaml`
+- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
 - Added optional `trimmomatic` (v0.40, `https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0`) preprocessing module for Illumina adapter/quality trimming; off by default (`use_trimmomatic = false`) (#280)
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
 
