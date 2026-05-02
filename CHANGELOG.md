@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.0.1` to add `--plasmidfinder` support in `create-yaml`
+- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.1.0` to add `--plasmidfinder` support in `create-yaml`
 
 ## [1.3.0]
 
