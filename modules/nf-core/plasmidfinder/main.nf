@@ -9,6 +9,8 @@ process plasmidfinder {
     output:
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(meta_output), emit: meta
+    tuple val(sample_id), path("${sample_id}_plasmidfinder_hit_in_genome_seq.fsa"), emit: genome_hits
+    tuple val(sample_id), path("${sample_id}_plasmidfinder_plasmid_seqs.fsa")    , emit: plasmid_seqs
     tuple val(sample_id), path("${sample_id}_plasmidfinder_results.tsv"), optional: true, emit: tsv
     tuple val(sample_id), path("${sample_id}_plasmidfinder_results.txt"), optional: true, emit: txt
     path "*versions.yml"                   , emit: versions
@@ -40,6 +42,8 @@ process plasmidfinder {
 
     # Rename hard-coded outputs to sample-specific names
     mv data.json ${output}
+    mv Hit_in_genome_seq.fsa ${sample_id}_plasmidfinder_hit_in_genome_seq.fsa
+    mv Plasmid_seqs.fsa ${sample_id}_plasmidfinder_plasmid_seqs.fsa
     [ -f results.txt ] && mv results.txt ${sample_id}_plasmidfinder_results.txt || true
     [ -f results_tab.tsv ] && mv results_tab.tsv ${sample_id}_plasmidfinder_results.tsv || true
 
@@ -60,6 +64,8 @@ process plasmidfinder {
     """
     touch ${output}
     touch ${meta_output}
+    touch ${sample_id}_plasmidfinder_hit_in_genome_seq.fsa
+    touch ${sample_id}_plasmidfinder_plasmid_seqs.fsa
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:

@@ -44,7 +44,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -73,7 +73,9 @@ process create_yaml {
     def nanoplot_arg                = nanoplot_txt              ?  "--nanoplot ${params.outdir}/${params.species_dir}/nanoplot/${nanoplot_txt}" : ""
     def nextflow_run_info_arg       = nextflow_run_info         ?  "--nextflow-run-info ${params.outdir}/${params.species_dir}/analysis_metadata/${nextflow_run_info}" : ""
     def plasmidfinder_arg           = plasmidfinder             ?  "--plasmidfinder ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder}" : ""
+    def plasmidfinder_genome_hits_arg = plasmidfinder_genome_hits ?  "--plasmidfinder-genome-hits ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_genome_hits}" : ""
     def plasmidfinder_meta_arg      = plasmidfinder_meta        ?  "--software-info ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_meta}" : ""
+    def plasmidfinder_plasmid_seqs_arg = plasmidfinder_plasmid_seqs ?  "--plasmidfinder-plasmid-seqs ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_plasmid_seqs}" : ""
     def postalignqc_arg             = postalignqc               ?  "--postalnqc ${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}" : ""
     def quast_arg                   = quast                     ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg        = reference_genome          ?  "--ref-genome-sequence ${reference_genome}" : ""
@@ -112,7 +114,9 @@ process create_yaml {
         ${nanoplot_arg} \\
         ${nextflow_run_info_arg} \\
         ${plasmidfinder_arg} \\
+        ${plasmidfinder_genome_hits_arg} \\
         ${plasmidfinder_meta_arg} \\
+        ${plasmidfinder_plasmid_seqs_arg} \\
         ${postalignqc_arg} \\
         ${quast_arg} \\
         ${reference_genome_arg} \\
