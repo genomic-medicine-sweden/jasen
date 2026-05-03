@@ -44,7 +44,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigapass), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -86,7 +86,7 @@ process create_yaml {
     def sccmec_arg                  = sccmec                    ?  "--sccmec ${params.outdir}/${params.species_dir}/sccmec/${sccmec}" : ""
     def serotypefinder_arg          = serotypefinder            ?  "--serotypefinder ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}" : ""
     def serotypefinder_meta_arg     = serotypefinder_meta       ?  "--software-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
-    def shigapass_arg               = shigapass                 ?  "--shigapass ${params.outdir}/${params.species_dir}/shigapass/${shigapass}" : ""
+    def shigatyper_arg              = shigatyper                ?  "--shigatyper ${params.outdir}/${params.species_dir}/shigatyper/${shigatyper}" : ""
     def ska_arg                     = ska                       ?  "--ska-index ${access_dir}/${params.species_dir}/ska/${ska}" : ""
     def sourmash_arg                = sourmash                  ?  "--sourmash-signature ${access_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
     def spatyper_arg                = spatyper                  ?  "--spatyper ${params.outdir}/${params.species_dir}/spatyper/${spatyper}" : ""
@@ -129,7 +129,7 @@ process create_yaml {
         ${sccmec_arg} \\
         ${serotypefinder_arg} \\
         ${serotypefinder_meta_arg} \\
-        ${shigapass_arg} \\
+        ${shigatyper_arg} \\
         ${ska_arg} \\
         ${sourmash_arg} \\
         ${spatyper_arg} \\
