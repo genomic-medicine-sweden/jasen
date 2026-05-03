@@ -49,7 +49,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					sccmec.sif \
 					seqtk.sif \
 					serotypefinder.sif \
-					shigapass.sif \
+					shigatyper.sif \
 					ska2.sif \
 					skesa.sif \
 					snippy.sif \
@@ -95,7 +95,7 @@ URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cd
 URL_sccmec := https://depot.galaxyproject.org/singularity/sccmec:1.2.0--hdfd78af_0
 URL_seqtk := https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_2
 URL_serotypefinder := https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-URL_shigapass := https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
+URL_shigatyper := https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0
 URL_ska2 := https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
