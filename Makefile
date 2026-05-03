@@ -199,7 +199,7 @@ RESFINDER_VERSION := 2.6.0
 POINTFINDER_VERSION := 4.1.1
 VIRULENCEFINDER_VERSION := 2.0.1
 SEROTYPEFINDER_VERSION := 1.1.0
-PLASMIDFINDER_DB_VERSION := master
+PLASMIDFINDER_DB_VERSION := 2.2.0
 TBDB_COMMIT := 618cf0ff5f22886971bd437929d2c49defa6c7bf
 SHIGAPASS_VERSION := v1.5.0
 
@@ -546,12 +546,14 @@ update_spyogenes_mlstdb:
 update_finder_dbs: update_virulencefinder_db \
 	update_resfinder_db \
 	update_pointfinder_db \
-	update_serotypefinder_db
+	update_serotypefinder_db \
+	update_plasmidfinder_db
 
 VIRULENCEFINDERDB_DIR := $(ASSETS_DIR)/virulencefinder_db
 RESFINDERDB_DIR := $(ASSETS_DIR)/resfinder_db
 POINTFINDERDB_DIR := $(ASSETS_DIR)/pointfinder_db
 SEROTYPEDFINDERDB_DIR := $(ASSETS_DIR)/serotypefinder_db
+PLASMIDFINDERDB_DIR := $(ASSETS_DIR)/plasmidfinder_db
 
 
 update_virulencefinder_db: download_virulencefinder_db $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b $(VIRULENCEFINDERDB_DIR)/VERSION
@@ -606,6 +608,16 @@ $(SEROTYPEDFINDERDB_DIR)/VERSION:
 	$(call log_message,"Create SerotypeFinder database VERSION file containing commit ID")
 	cd $(SEROTYPEDFINDERDB_DIR) \
 	&& echo "$$(git rev-parse HEAD)" > VERSION |& tee -a $(INSTALL_LOG)
+
+
+update_plasmidfinder_db: download_plasmidfinder_db $(PLASMIDFINDERDB_DIR)/Inc18.length.b
+
+$(PLASMIDFINDERDB_DIR)/Inc18.length.b:
+	$(call log_message,"Starting update of PlasmidFinder database")
+	cd $(PLASMIDFINDERDB_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+		python3 INSTALL.py \
+		kma_index |& tee -a $(INSTALL_LOG)
 
 
 # ==============================================================================
