@@ -163,7 +163,6 @@ install: download_or_build_containers \
 
 update_databases: update_amrfinderplus \
 	update_finder_dbs \
-	update_shigapass_db \
 	update_hostile_db \
 	update_gambit_db \
 	update_emmtyper_db
@@ -201,15 +200,13 @@ VIRULENCEFINDER_VERSION := 2.0.1
 SEROTYPEFINDER_VERSION := 1.1.0
 PLASMIDFINDER_DB_VERSION := 2.2.0
 TBDB_COMMIT := 618cf0ff5f22886971bd437929d2c49defa6c7bf
-SHIGAPASS_VERSION := v1.5.0
 
 download_databases: download_resfinder_db \
 	download_pointfinder_db \
 	download_virulencefinder_db \
 	download_serotypefinder_db \
 	download_plasmidfinder_db \
-	download_tbdb \
-	download_shigapass
+	download_tbdb
 
 # Download and extract ResFinder database
 download_resfinder_db: $(ASSETS_DIR)/resfinder_db/INSTALL.py
@@ -282,21 +279,6 @@ $(ASSETS_DIR)/tbdb/README.md:
 	&& mv tbdb-$(TBDB_COMMIT) tbdb \
 	&& rm tbdb.tar.gz |& tee -a $(INSTALL_LOG)
 
-# Download and extract ShigaPass
-download_shigapass: $(ASSETS_DIR)/ShigaPass/README.md
-
-$(ASSETS_DIR)/ShigaPass/README.md:
-	$(call log_message,"Downloading ShigaPass $(SHIGAPASS_VERSION)...")
-	mkdir -p $(ASSETS_DIR) \
-	&& cd $(ASSETS_DIR) \
-	&& wget https://github.com/imanyass/ShigaPass/archive/$(SHIGAPASS_VERSION).tar.gz \
-		-O ShigaPass.tar.gz \
-		--no-verbose \
-		--no-check-certificate \
-	&& tar -xzf ShigaPass.tar.gz \
-	&& mv ShigaPass-* ShigaPass \
-	&& rm ShigaPass.tar.gz |& tee -a $(INSTALL_LOG)
-
 # ==============================================================================
 # Update databases
 # ==============================================================================
@@ -358,25 +340,6 @@ $(HOSTILE_DIR)/human-t2t-hla.1.bt2:
 		--no-check-certificate \
 	&& tar -xvf human-t2t-hla.tar \
 	&& rm human-t2t-hla.tar |& tee -a $(INSTALL_LOG)
-
-# -----------------------------
-# Update ShigaPass database
-# -----------------------------
-SHIGAPASS_DIR := $(ASSETS_DIR)/ShigaPass
-update_shigapass_db: download_shigapass $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb
-
-$(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases/IPAH/ipaH_150-mers.fasta.ndb:
-	$(call log_message,"Starting update of ShigaPass database")
-	cd $(SHIGAPASS_DIR) \
-	&& chmod +x SCRIPT/ShigaPass.sh \
-	&& gunzip $(SHIGAPASS_DIR)/Example/Input/*.fasta.gz \
-	&& apptainer exec \
-		--bind $(MNT_ROOT) \
-		$(CONTAINERS_DIR)/shigapass.sif \
-		bash ShigaPass.sh -u \
-		-p $(SHIGAPASS_DIR)/SCRIPT/ShigaPass_DataBases \
-		-l $(SHIGAPASS_DIR)/Example/Input/ShigaPass_test.txt \
-		-o $(SHIGAPASS_DIR)/Example/ShigaPass_Results |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
 # Update emmtyper database
