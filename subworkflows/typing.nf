@@ -18,7 +18,7 @@ include { samtools_index as samtools_index_assembly } from '../modules/nf-core/s
 include { samtools_sort as samtools_sort_assembly   } from '../modules/nf-core/samtools/main.nf'
 include { sccmec                                    } from '../modules/nf-core/sccmec/main.nf'
 include { serotypefinder                            } from '../modules/nf-core/serotypefinder/main.nf'
-include { shigapass                                 } from '../modules/nf-core/shigapass/main.nf'
+include { shigatyper                                } from '../modules/nf-core/shigatyper/main.nf'
 include { spatyper                                  } from '../modules/nf-core/spatyper/main.nf'
 
 workflow CALL_TYPING {
@@ -29,7 +29,6 @@ workflow CALL_TYPING {
     mlst_scheme
     pubmlst_db
     serotypefinder_db
-    shigapass_db
     species
     training_file
     ch_assembly
@@ -139,13 +138,13 @@ workflow CALL_TYPING {
         serotypefinder(ch_assembly, params.use_serotype_dbs, serotypefinder_db)
         serotypefinder.out.json.set{ ch_serotypefinder }
         serotypefinder.out.meta.set{ ch_serotypefinder_meta }
-        shigapass(ch_assembly, shigapass_db).csv.set{ ch_shigapass }
+        shigatyper(ch_reads).tsv.set{ ch_shigatyper }
         ch_versions = ch_versions.mix(serotypefinder.out.versions)
-        ch_versions = ch_versions.mix(shigapass.out.versions)
+        ch_versions = ch_versions.mix(shigatyper.out.versions)
     } else {
         ch_sample_id.set{ ch_serotypefinder }
         ch_sample_id.set{ ch_serotypefinder_meta }
-        ch_sample_id.set{ ch_shigapass }
+        ch_sample_id.set{ ch_shigatyper }
     }
 
     // saureus
@@ -173,7 +172,7 @@ workflow CALL_TYPING {
         .join(ch_sccmec)
         .join(ch_serotypefinder)
         .join(ch_serotypefinder_meta)
-        .join(ch_shigapass)
+        .join(ch_shigatyper)
         .join(ch_spatyper)
         .set{ ch_combined_output }
 
@@ -187,7 +186,7 @@ workflow CALL_TYPING {
     sccmec          = ch_sccmec                           // channel: [ val(meta), path(tsv) ]
     serotypefinder  = ch_serotypefinder                   // channel: [ val(meta), path(json) ]
     serotypefinder  = ch_serotypefinder_meta              // channel: [ val(meta), path(json) ]
-    shigapass       = ch_shigapass                        // channel: [ val(meta), path(csv) ]
+    shigatyper      = ch_shigatyper                       // channel: [ val(meta), path(tsv) ]
     spatyper        = ch_spatyper                         // channel: [ val(meta), path(tsv) ]
     versions        = ch_versions                         // channel: [ versions.yml ]
 }
