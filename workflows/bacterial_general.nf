@@ -34,7 +34,6 @@ workflow CALL_BACTERIAL_GENERAL {
     pubmlst_db              = params.pubmlst_db             ? file(params.pubmlst_db, checkIfExists: true)              : Channel.value([])
     resfinder_db            = params.resfinder_db           ? file(params.resfinder_db, checkIfExists: true)            : Channel.value([])
     serotypefinder_db       = params.serotypefinder_db      ? file(params.serotypefinder_db, checkIfExists: true)       : Channel.value([])
-    shigapass_db            = params.shigapass_db           ? file(params.shigapass_db, checkIfExists: true)            : Channel.value([])
     tb_grading_rules_bed    = params.tb_grading_rules_bed   ? file(params.tb_grading_rules_bed, checkIfExists: true)    : Channel.value([])
     tbdb_bed                = params.tbdb_bed               ? file(params.tbdb_bed, checkIfExists: true)                : Channel.value([])
     tbdb_bed_idx            = params.tbdb_bed_idx           ? file(params.tbdb_bed_idx, checkIfExists: true)            : Channel.value([])
@@ -102,7 +101,6 @@ workflow CALL_BACTERIAL_GENERAL {
         mlst_scheme,
         pubmlst_db,
         serotypefinder_db,
-        shigapass_db,
         species,
         training_file,
         CALL_ASSEMBLY.out.assembly,
