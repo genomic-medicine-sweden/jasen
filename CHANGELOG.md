@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
 - Added optional `trimmomatic` (v0.40, `https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0`) preprocessing module for Illumina adapter/quality trimming; off by default (`use_trimmomatic = false`) (#280)
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
+- Added `shigatyper` (v2.0.5, `https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0`) as the *Shigella* discrimination tool on the *E. coli* workflow, replacing ShigaPass; uses raw reads, no separate DB (refs are bundled in the container) (#505)
+- Added `--shigatyper` input to `create_yaml`
 
 ### Fixed
 
@@ -21,7 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.1.0` to add `--plasmidfinder` support in `create-yaml`
+- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.1.0` to add `--plasmidfinder` and `--shigatyper` support in `create-yaml`
+
+### Removed
+
+- Removed `shigapass` module, `--shigapass` `create_yaml` input, `shigapass_db` parameter, and the `download_shigapass` / `update_shigapass_db` Makefile targets — superseded by `shigatyper`
 
 ## [1.3.0]
 
