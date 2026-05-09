@@ -66,9 +66,9 @@ Activate human read depletion by setting the parameter `use_hostile` to `true` i
 
 ## Adapter and quality trimming (Illumina)
 
-There is an option to use [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) to trim adapters and low-quality bases from Illumina reads as a preprocessing step. This is off by default.
+There is an option to use [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) to trim adapters and low-quality bases from Illumina reads as a preprocessing step. This feature is turned off by default.
 
-Activate Trimmomatic by setting `use_trimmomatic` to `true` in the config (Illumina platform only). Customise the trimming steps via `trimmomatic_args` (default: `LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36`); for adapter trimming append an `ILLUMINACLIP:<adapter.fa>:2:30:10` step to the args.
+Activate Trimmomatic by setting `use_trimmomatic` to `true` in the config (Illumina platform only). Customise the trimming steps via `trimmomatic_args` (default: `LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36`); for adapter trimming, append an `ILLUMINACLIP:<adapter.fa>:2:30:10` step to the args.
 
 # Output
 
