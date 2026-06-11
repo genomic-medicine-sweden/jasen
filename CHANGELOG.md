@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Pipeline now fails loudly when any input sample does not produce a result JSON (previously the run could finish successfully with missing results) (#466)
+- `resfinder` `versions.yml` is now valid — the heredoc terminator no longer leaks into the file body and the `resfinder_db` / `pointfinder_db` `version` fields populate from the correct bash variables (`$RES_DB_VERSION` / `$POINT_DB_VERSION`) instead of the undefined `$DB_VERSION` (#512)
+- `make download_tbdb` sentinel switched from `assets/tbdb/README.md` to `assets/tbdb/variables.json` — a stale `assets/tbdb/` directory (e.g. a leftover from the old git-submodule era) no longer falsely satisfies the rule, so `tb-profiler create_db` downstream stops hitting `FileNotFoundError: 'variables.json'` (#514)
 
 ### Changed
 
