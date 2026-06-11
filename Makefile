@@ -265,9 +265,9 @@ $(ASSETS_DIR)/plasmidfinder_db/VERSION:
 	&& rm -rf $(ASSETS_DIR)/plasmidfinder_db/.git |& tee -a $(INSTALL_LOG)
 
 # Download and extract TBDB
-download_tbdb: $(ASSETS_DIR)/tbdb/README.md
+download_tbdb: $(ASSETS_DIR)/tbdb/variables.json
 
-$(ASSETS_DIR)/tbdb/README.md:
+$(ASSETS_DIR)/tbdb/variables.json:
 	$(call log_message,"Downloading TBDB commit $(TBDB_COMMIT)...")
 	mkdir -p $(ASSETS_DIR) \
 	&& cd $(ASSETS_DIR) \
