@@ -53,18 +53,18 @@ process resfinder {
       cp PointFinder_results.txt ${output_point}
     fi
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(echo \$DB_VERSION)
+      version: \$(echo \$RES_DB_VERSION)
       container: ${task.container}
      pointfinder_db:
-      version: \$(echo \$DB_VERSION)
+      version: \$(echo \$POINT_DB_VERSION)
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -81,17 +81,17 @@ process resfinder {
     touch ${output_gene}
     touch ${output_point}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      resfinder:
       version: \$(echo \$(python -m resfinder --version 2>&1) )
       container: ${task.container}
      resfinder_db:
-      version: \$(echo \$DB_VERSION)
+      version: \$(echo \$RES_DB_VERSION)
       container: ${task.container}
      pointfinder_db:
-      version: \$(echo \$DB_VERSION)
+      version: \$(echo \$POINT_DB_VERSION)
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
