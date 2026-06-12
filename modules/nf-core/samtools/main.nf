@@ -201,3 +201,88 @@ process samtools_coverage {
     END_VERSIONS
     """
 }
+
+process samtools_stats {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(bam), path(bai)
+
+    output:
+    tuple val(sample_id), path(output), emit: stats
+    path "*versions.yml"              , emit: versions
+
+    when:
+    task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    output = "${sample_id}.stats"
+    """
+    samtools stats --threads ${task.cpus} ${args} ${bam} > ${output}
+
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+${task.process}:
+ samtools:
+  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  container: ${task.container}
+END_VERSIONS
+    """
+
+    stub:
+    output = "${sample_id}.stats"
+    """
+    touch ${output}
+
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+${task.process}:
+ samtools:
+  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  container: ${task.container}
+END_VERSIONS
+    """
+}
+
+process samtools_bedcov {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(bam), path(bai)
+    path bed
+
+    output:
+    tuple val(sample_id), path(output), emit: coverage
+    path "*versions.yml"              , emit: versions
+
+    when:
+    task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    output = "${sample_id}.bedcov.tsv"
+    """
+    samtools bedcov ${args} ${bed} ${bam} > ${output}
+
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+${task.process}:
+ samtools:
+  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  container: ${task.container}
+END_VERSIONS
+    """
+
+    stub:
+    output = "${sample_id}.bedcov.tsv"
+    """
+    touch ${output}
+
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+${task.process}:
+ samtools:
+  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  container: ${task.container}
+END_VERSIONS
+    """
+}
