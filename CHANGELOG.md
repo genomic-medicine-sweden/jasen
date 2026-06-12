@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
 - Added `shigatyper` (v2.0.5, `https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0`) as the *Shigella* discrimination tool on the *E. coli* workflow, replacing ShigaPass; uses raw reads, no separate DB (refs are bundled in the container) (#505)
 - Added `--shigatyper` input to `create_yaml`
+- Added `samtools_stats` and `samtools_bedcov` processes (using the existing `samtools:1.17` container) replacing `jasentool post-align-qc`; both outputs are wired into `create_yaml` via `--samtools-stats` and `--samtools-bedcov` (#499)
+- Wired the existing `concatenate_files` process into `CALL_POSTPROCESSING` to merge every subworkflow's `versions.yml` emit into a single file; the merged file is fed to `create_yaml` via the new `--versions` flag, enabling the new manifest format from jasentool PR #43 (#499)
 
 ### Fixed
 
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed `shigapass` module, `--shigapass` `create_yaml` input, `shigapass_db` parameter, and the `download_shigapass` / `update_shigapass_db` Makefile targets — superseded by `shigatyper`
+- Removed `jasentool post-align-qc` process from `modules/local/jasentool/main.nf`, its `withName: post_align_qc` config block, and the `--postalnqc` flag in `create_yaml` — superseded by `samtools_stats` + `samtools_bedcov` (#499)
 
 ## [1.3.0]
 
