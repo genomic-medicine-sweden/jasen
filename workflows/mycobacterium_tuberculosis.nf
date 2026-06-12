@@ -2,8 +2,9 @@
 
 nextflow.enable.dsl=2
 
-include { post_align_qc                                 } from '../modules/local/jasentool/main.nf'
+include { samtools_bedcov as samtools_bedcov_ref        } from '../modules/nf-core/samtools/main.nf'
 include { samtools_coverage as samtools_coverage_ref    } from '../modules/nf-core/samtools/main.nf'
+include { samtools_stats as samtools_stats_ref          } from '../modules/nf-core/samtools/main.nf'
 include { CALL_ASSEMBLY                                 } from '../subworkflows/assembly.nf'
 include { CALL_POSTPROCESSING                           } from '../subworkflows/postprocessing.nf'
 include { CALL_PREPROCESSING                            } from '../subworkflows/preprocessing.nf'
@@ -91,14 +92,17 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_PREPROCESSING.out.reads
     )
 
-    post_align_qc(CALL_PROFILING.out.bam, core_loci_bed)
+    ch_profiling_bam_bai = CALL_PROFILING.out.bam.join(CALL_PROFILING.out.bai)
+    samtools_stats_ref(ch_profiling_bam_bai)
+    samtools_bedcov_ref(ch_profiling_bam_bai, core_loci_bed)
     samtools_coverage_ref(CALL_PROFILING.out.bam)
 
     CALL_PROFILING.out.bam
         .join(CALL_PROFILING.out.bai)
         .join(CALL_QUALITY_CONTROL.out.gambitcore)
         .join(CALL_QUALITY_CONTROL.out.kraken)
-        .join(post_align_qc.out.json)
+        .join(samtools_stats_ref.out.stats)
+        .join(samtools_bedcov_ref.out.coverage)
         .join(CALL_QUALITY_CONTROL.out.quast)
         .join(CALL_QUALITY_CONTROL.out.nanoplot_txt)
         .join(samtools_coverage_ref.out.txt)
