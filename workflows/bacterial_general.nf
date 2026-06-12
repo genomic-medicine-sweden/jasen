@@ -123,6 +123,14 @@ workflow CALL_BACTERIAL_GENERAL {
         .map{ sample_id, empty -> [ sample_id, empty, empty ] }
         .set{ ch_profiling_combined_output }
 
+    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
+    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
+    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
+    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
+    ch_versions = ch_versions.mix(CALL_SCREENING.out.versions)
+    ch_versions = ch_versions.mix(CALL_TYPING.out.versions)
+    ch_versions = ch_versions.mix(CALL_VARIANT_CALLING.out.versions)
+
     CALL_POSTPROCESSING (
         reference_genome,
         reference_genome_idx,
@@ -137,17 +145,11 @@ workflow CALL_BACTERIAL_GENERAL {
         CALL_SCREENING.out.combined_output,
         CALL_PREPROCESSING.out.seqrun_meta,
         CALL_TYPING.out.combined_output,
-        CALL_VARIANT_CALLING.out.vcf
+        CALL_VARIANT_CALLING.out.vcf,
+        ch_versions
     )
 
-    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
-    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
     ch_versions = ch_versions.mix(CALL_POSTPROCESSING.out.versions)
-    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
-    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
-    ch_versions = ch_versions.mix(CALL_SCREENING.out.versions)
-    ch_versions = ch_versions.mix(CALL_TYPING.out.versions)
-    ch_versions = ch_versions.mix(CALL_VARIANT_CALLING.out.versions)
 
     emit:
     pipeline_result = CALL_POSTPROCESSING.out.pipeline_result   // channel: [ path(json) ]
