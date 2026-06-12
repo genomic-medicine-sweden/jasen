@@ -2,10 +2,11 @@
 
 nextflow.enable.dsl=2
 
-include { format_jasen      } from '../modules/local/prp/main.nf'
-include { format_cdm        } from '../modules/local/prp/main.nf'
-include { create_yaml       } from '../modules/local/jasentool/main.nf'
-include { export_to_cdm     } from '../modules/local/cdm/main.nf'
+include { format_jasen        } from '../modules/local/prp/main.nf'
+include { format_cdm          } from '../modules/local/prp/main.nf'
+include { concatenate_files   } from '../modules/local/jasentool/main.nf'
+include { create_yaml         } from '../modules/local/jasentool/main.nf'
+include { export_to_cdm       } from '../modules/local/cdm/main.nf'
 
 workflow CALL_POSTPROCESSING {
     take:
@@ -23,12 +24,14 @@ workflow CALL_POSTPROCESSING {
     ch_seqrun_meta
     ch_typing_combined_output
     ch_variant_calling_combined_output
+    ch_versions_files
 
     main:
 
     ch_versions = Channel.empty()
 
-    // POSTPROCESSING
+    concatenate_files(ch_versions_files.collect())
+
     ch_preprocessing_combined_output
         .join(ch_profiling_combined_output)
         .join(ch_qc_combined_output)
@@ -44,7 +47,8 @@ workflow CALL_POSTPROCESSING {
         reference_genome_idx,
         reference_genome_gff,
         tb_grading_rules_bed,
-        tbdb_bed
+        tbdb_bed,
+        concatenate_files.out.concatenated
     )
 
     format_jasen(create_yaml.out.yaml)

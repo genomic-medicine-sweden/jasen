@@ -44,12 +44,13 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(postalignqc), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
     val tb_grading_rules_bed
     val tbdb_bed
+    path versions
 
     output:
     tuple val(sample_id), path(output), emit: yaml
@@ -76,7 +77,9 @@ process create_yaml {
     def plasmidfinder_genome_hits_arg  = plasmidfinder_genome_hits  ?  "--plasmidfinder-genome-hits ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_genome_hits}" : ""
     def plasmidfinder_meta_arg         = plasmidfinder_meta         ?  "--software-info ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_meta}" : ""
     def plasmidfinder_plasmid_seqs_arg = plasmidfinder_plasmid_seqs ?  "--plasmidfinder-plasmid-seqs ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_plasmid_seqs}" : ""
-    def postalignqc_arg                = postalignqc                ?  "--postalnqc ${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}" : ""
+    def samtools_stats_arg             = samtools_stats             ?  "--samtools-stats ${params.outdir}/${params.species_dir}/samtools_stats/${samtools_stats}" : ""
+    def samtools_bedcov_arg            = samtools_bedcov            ?  "--samtools-bedcov ${params.outdir}/${params.species_dir}/samtools_bedcov/${samtools_bedcov}" : ""
+    def versions_arg                   = versions                   ?  "--versions ${versions}" : ""
     def quast_arg                      = quast                      ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg           = reference_genome           ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg       = reference_genome_gff       ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
@@ -117,7 +120,6 @@ process create_yaml {
         ${plasmidfinder_genome_hits_arg} \\
         ${plasmidfinder_meta_arg} \\
         ${plasmidfinder_plasmid_seqs_arg} \\
-        ${postalignqc_arg} \\
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\
@@ -126,6 +128,8 @@ process create_yaml {
         --sample-id ${sample_id} \\
         --sample-name ${sample_name} \\
         ${samtools_arg} \\
+        ${samtools_bedcov_arg} \\
+        ${samtools_stats_arg} \\
         ${sccmec_arg} \\
         ${serotypefinder_arg} \\
         ${serotypefinder_meta_arg} \\
@@ -137,6 +141,7 @@ process create_yaml {
         ${tbdb_bed_arg} \\
         ${tbprofiler_arg} \\
         ${vcf_arg} \\
+        ${versions_arg} \\
         ${virulencefinder_arg} \\
         ${virulencefinder_meta_arg} \\
         --output ${output}
@@ -177,39 +182,12 @@ process annotate_delly {
     """
 }
 
-process post_align_qc {
-    tag "${sample_id}"
-    scratch params.scratch
-
-    input:
-    tuple val(sample_id), path(bam)
-    path bed
-
-    output:
-    tuple val(sample_id), path(output), emit: json
-
-    when:
-    task.ext.when
-
-    script:
-    output = "${sample_id}_qc.json"
-    """
-    jasentool post-align-qc --bam-file ${bam} --bed-file ${bed} --sample-id ${sample_id} --cpus ${task.cpus} --output-file ${output}
-    """
-
-    stub:
-    output = "${sample_id}_qc.json"
-    """
-    touch ${output}
-    """
-}
-
 process concatenate_files {
     input:
     path(input_files)
 
     output:
-    path(output), emit: yaml
+    path(output), emit: concatenated
 
     script:
     output = "versions.yml"

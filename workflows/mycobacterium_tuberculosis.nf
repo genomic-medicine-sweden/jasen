@@ -116,6 +116,15 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_typing_combined_output }
 
+    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
+    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
+    ch_versions = ch_versions.mix(CALL_PROFILING.out.versions)
+    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
+    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
+    ch_versions = ch_versions.mix(samtools_bedcov_ref.out.versions)
+    ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
+    ch_versions = ch_versions.mix(samtools_stats_ref.out.versions)
+
     CALL_POSTPROCESSING (
         reference_genome,
         reference_genome_idx,
@@ -130,15 +139,11 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_screening_combined_output,
         CALL_PREPROCESSING.out.seqrun_meta,
         ch_typing_combined_output,
-        CALL_PROFILING.out.vcf
+        CALL_PROFILING.out.vcf,
+        ch_versions
     )
 
-    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
-    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
-    ch_versions = ch_versions.mix(CALL_PROFILING.out.versions)
     ch_versions = ch_versions.mix(CALL_POSTPROCESSING.out.versions)
-    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
-    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
 
     emit:
     pipeline_result = CALL_POSTPROCESSING.out.pipeline_result   // channel: [ path(json) ]
