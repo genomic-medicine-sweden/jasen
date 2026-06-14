@@ -18,12 +18,12 @@ process emmtyper {
     """
     emmtyper ${args} --output ${output} ${assembly}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      emmtyper:
       version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -31,11 +31,11 @@ process emmtyper {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      emmtyper:
       version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

@@ -19,12 +19,12 @@ process skesa {
     """
     skesa --cores ${task.cpus} --memory ${task.memory} --reads ${input_reads_arg} ${args} > ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      skesa:
       version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -32,11 +32,11 @@ process skesa {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      skesa:
       version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

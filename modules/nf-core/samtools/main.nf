@@ -21,12 +21,12 @@ process samtools_view {
     """
     samtools view ${reference_arg} ${input} > ${prefix}.${file_ext}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -34,12 +34,12 @@ process samtools_view {
     touch ${sample_id}.bam
     touch ${sample_id}.cram
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 
@@ -62,12 +62,12 @@ process samtools_sort {
     """
     samtools sort -@ ${task.cpus} -O bam -o ${output} ${input}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -75,12 +75,12 @@ process samtools_sort {
     """
     touch "${output}"
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 
@@ -103,12 +103,12 @@ process samtools_index {
     """
     samtools index -@ ${task.cpus} ${input}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -116,12 +116,12 @@ process samtools_index {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 
@@ -141,12 +141,12 @@ process samtools_faidx {
     """
     samtools faidx ${fasta}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -154,12 +154,12 @@ process samtools_faidx {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 
@@ -180,12 +180,12 @@ process samtools_coverage {
     """
     samtools coverage -o ${output} ${args} ${input}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-        ${task.process}:
-        samtools:
-          version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-          container: ${task.container}
-        END_VERSIONS
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    ${task.process}:
+     samtools:
+      version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+      container: ${task.container}
+END_VERSIONS
     """
 
     stub:
@@ -193,12 +193,12 @@ process samtools_coverage {
     """
     touch "${output}"
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      samtools:
       version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 

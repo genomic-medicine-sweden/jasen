@@ -47,7 +47,7 @@ process plasmidfinder {
     [ -f results.txt ] && mv results.txt ${sample_id}_plasmidfinder_results.txt || true
     [ -f results_tab.tsv ] && mv results_tab.tsv ${sample_id}_plasmidfinder_results.tsv || true
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      plasmidfinder:
       version: \$(echo \$(plasmidfinder.py --version 2>&1) | sed 's/^.*plasmidfinder.py //; s/ .*\$//')
@@ -55,7 +55,7 @@ process plasmidfinder {
      plasmidfinder_db:
       version: \$(echo \$DB_VERSION)
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -67,11 +67,11 @@ process plasmidfinder {
     touch ${sample_id}_plasmidfinder_hit_in_genome_seq.fsa
     touch ${sample_id}_plasmidfinder_plasmid_seqs.fsa
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      plasmidfinder:
       version: stub
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

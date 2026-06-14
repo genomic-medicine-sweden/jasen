@@ -34,7 +34,7 @@ process virulencefinder {
     --databasePath ${virulencefinder_db}
     cp data.json ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_VERSION)
@@ -42,7 +42,7 @@ process virulencefinder {
      virulencefinder:  
       version: \$(echo \$(python -m virulencefinder --version 2>&1))
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
  stub:
@@ -53,7 +53,7 @@ process virulencefinder {
     touch ${output}
     touch ${meta_output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      virulencefinder_db:
       version: \$(echo \$DB_VERSION)
@@ -61,6 +61,6 @@ process virulencefinder {
      virulencefinder:  
       version: \$(echo \$(python -m virulencefinder --version 2>&1))
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

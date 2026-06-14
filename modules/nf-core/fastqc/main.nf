@@ -35,12 +35,12 @@ process fastqc {
         --outdir . \\
         ${renamed_files}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      fastqc:
       version: \$(echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -52,11 +52,11 @@ process fastqc {
     touch ${sample_id}.zip
     touch ${sample_id}.html
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      fastqc:
       version: \$(echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

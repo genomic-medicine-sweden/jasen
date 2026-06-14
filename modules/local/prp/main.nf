@@ -16,12 +16,12 @@ process format_jasen {
       --sample ${yaml} \\
       --output ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -29,12 +29,12 @@ process format_jasen {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      prp:
       version: \$(echo \$(prp --version 2>&1) | sed 's/prp, version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 

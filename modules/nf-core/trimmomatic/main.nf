@@ -30,12 +30,12 @@ process trimmomatic {
             ${args} \\
             2> >(tee ${sample_id}.trimmomatic.log >&2)
 
-        cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
           version: \$(trimmomatic -version 2>&1)
           container: ${task.container}
-        END_VERSIONS
+END_VERSIONS
         """
     } else {
         def single_input = (reads instanceof List) ? reads[0] : reads
@@ -48,12 +48,12 @@ process trimmomatic {
             ${args} \\
             2> >(tee ${sample_id}.trimmomatic.log >&2)
 
-        cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
           version: \$(trimmomatic -version 2>&1)
           container: ${task.container}
-        END_VERSIONS
+END_VERSIONS
         """
     }
 
@@ -69,12 +69,12 @@ process trimmomatic {
         touch ${sample_id}.paired.trim_2.fastq.gz
         touch ${sample_id}.trimmomatic.log
 
-        cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
           version: \$(trimmomatic -version 2>&1)
           container: ${task.container}
-        END_VERSIONS
+END_VERSIONS
         """
     } else {
         output = "${sample_id}.SE.trim.fastq.gz"
@@ -82,12 +82,12 @@ process trimmomatic {
         touch ${output}
         touch ${sample_id}.trimmomatic.log
 
-        cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+        cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
           version: \$(trimmomatic -version 2>&1)
           container: ${task.container}
-        END_VERSIONS
+END_VERSIONS
         """
     }
 }

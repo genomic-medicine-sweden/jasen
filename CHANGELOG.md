@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The pipeline now fails when an input sample produces no result JSON instead of finishing successfully (#466)
 - Fixed `resfinder` `versions.yml`: the heredoc terminator no longer leaks into the file and the `resfinder_db` / `pointfinder_db` versions now read from `$RES_DB_VERSION` / `$POINT_DB_VERSION` (#512)
 - Switched the `make download_tbdb` sentinel to `assets/tbdb/variables.json` so a stale `assets/tbdb/` directory no longer satisfies the rule and breaks `tb-profiler create_db` (#514)
+- Fixed malformed `versions.yml` across all modules — `<<-END_VERSIONS` heredocs with space-indented terminators leaked the terminator into the file and broke `concatenate_files` YAML parsing (#499)
 
 ### Changed
 

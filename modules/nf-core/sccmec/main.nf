@@ -20,12 +20,12 @@ process sccmec {
     sccmec --input ${assembly} --prefix ${sample_id}_sccmec -o ${outputDir} ${args}
     cp ${outputDir}/${sample_id}_sccmec.tsv ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
       version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -33,11 +33,11 @@ process sccmec {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      sccmec:
       version: \$(echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

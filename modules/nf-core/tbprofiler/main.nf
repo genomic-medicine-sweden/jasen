@@ -34,12 +34,12 @@ process tbprofiler {
     cp bam/${sample_id}.bam ${bam_output}
     cp bam/${sample_id}.bam.bai ${bai_output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      tbprofiler:
       version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -54,11 +54,11 @@ process tbprofiler {
     touch ${bam_output}
     touch ${bai_output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      tbprofiler:
       version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

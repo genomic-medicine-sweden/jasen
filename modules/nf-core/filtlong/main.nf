@@ -22,12 +22,12 @@ process filtlong {
         2>| >(tee ${sample_id}_filtlong.log >&2) \\
         | gzip -n > ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      filtlong:
       version: \$(filtlong --version | sed 's/Filtlong v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -35,11 +35,11 @@ process filtlong {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      filtlong:
       version: \$(filtlong --version | sed 's/Filtlong v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
