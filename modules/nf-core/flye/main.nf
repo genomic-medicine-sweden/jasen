@@ -28,12 +28,12 @@ process flye {
 
     mv ${output_dir}/assembly.fasta ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      flye:
       version: \$(echo \$(flye --version 2>&1))
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -41,11 +41,11 @@ process flye {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      flye:
       version: \$(echo \$(flye --version 2>&1))
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

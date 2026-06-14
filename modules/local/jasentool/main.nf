@@ -18,24 +18,24 @@ process count_reads {
         --sample-id ${sample_id} \\
         --output-file ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      jasentool:
       version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_qc.json"
     """
     touch ${output}
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      jasentool:
       version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 

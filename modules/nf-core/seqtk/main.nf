@@ -32,12 +32,12 @@ process seqtk_sample {
             | gzip --no-name > \${output_name}
     done
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      seqtk:
       version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -45,11 +45,11 @@ process seqtk_sample {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      seqtk:
       version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

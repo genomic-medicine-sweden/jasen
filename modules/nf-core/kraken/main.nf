@@ -52,12 +52,12 @@ process kraken_batch {
         \${reads_arg}
     done < ${batch_input}
 
-    cat <<-END_VERSIONS > kraken_batch_versions.yml
+    cat <<END_VERSIONS > kraken_batch_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -67,12 +67,12 @@ process kraken_batch {
         touch \${sample_id}_kraken.report
     done < ${batch_input}
 
-    cat <<-END_VERSIONS > kraken_batch_versions.yml
+    cat <<END_VERSIONS > kraken_batch_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
 
@@ -106,12 +106,12 @@ process kraken {
     --report ${report} \\
     ${input_reads_arg}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -121,11 +121,11 @@ process kraken {
     touch ${output}
     touch ${report}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      kraken2:
       version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

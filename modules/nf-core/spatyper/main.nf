@@ -18,12 +18,12 @@ process spatyper {
     """
     spaTyper -f ${assembly} --output ${output} ${args}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      spatyper:
       version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //p')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -31,11 +31,11 @@ process spatyper {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      spatyper:
       version: \$(echo \$(spatyper --version 2>&1) | sed 's/spaTyper //p')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

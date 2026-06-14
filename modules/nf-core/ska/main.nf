@@ -18,12 +18,12 @@ process ska_build {
     echo ${input_reads_arg} > ${sample_id}_input.txt
     ska build ${args} --threads ${task.cpus} -o ${output_basename} -f ${sample_id}_input.txt
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      ska2:
       version: \$(echo \$(ska --version 2>&1) | sed 's/^.*ska // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -32,11 +32,11 @@ process ska_build {
     mkdir ${sample_id}
     touch $output
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      ska2:
       version: \$(echo \$(ska --version 2>&1) | sed 's/^.*ska // ; s/ .*//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

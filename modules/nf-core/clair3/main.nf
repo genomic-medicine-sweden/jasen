@@ -32,12 +32,12 @@ process clair3 {
 
     mv merge_output.vcf.gz ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      clair3:
       version: \$(run_clair3.sh --version 2>&1 | sed 's/Clair3 v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
     stub:
@@ -45,11 +45,11 @@ process clair3 {
     """
     touch ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      clair3:
       version: \$(run_clair3.sh --version 2>&1 | sed 's/Clair3 v//')
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }

@@ -32,12 +32,12 @@ process serotypefinder {
     --databasePath ${serotypefinder_db}
     cp data.json ${output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      serotypefinder_db:
       version: \$(echo \$DB_VERSION)
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 
  stub:
@@ -48,11 +48,11 @@ process serotypefinder {
     touch ${output}
     touch ${meta_output}
 
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      serotypefinder_db:
       version: \$(echo \$DB_VERSION)
       container: ${task.container}
-    END_VERSIONS
+END_VERSIONS
     """
 }
