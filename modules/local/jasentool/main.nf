@@ -191,9 +191,10 @@ process concatenate_files {
 
     script:
     output = "versions.yml"
+    def version_args = [input_files].flatten().collect { "-i ${it}" }.join(' ')
     """
     jasentool concatenate-files \\
-        -i ${input_files} \\
+        ${version_args} \\
         --output-file ${output}
     """
 

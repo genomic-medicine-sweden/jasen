@@ -9,30 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
+- Added `plasmidfinder` (v2.1.6) for plasmid detection on assemblies; runs by default on all bacterial workflows except *Mycobacterium tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
-- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
-- Added optional `trimmomatic` (v0.40, `https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0`) preprocessing module for Illumina adapter/quality trimming; off by default (`use_trimmomatic = false`) (#280)
+- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs` and `--software-info` inputs to `create_yaml`
+- Added optional `trimmomatic` (v0.40) adapter/quality trimming for Illumina reads, off by default (`use_trimmomatic`) (#280)
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
-- Added `shigatyper` (v2.0.5, `https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0`) as the *Shigella* discrimination tool on the *E. coli* workflow, replacing ShigaPass; uses raw reads, no separate DB (refs are bundled in the container) (#505)
+- Added `shigatyper` (v2.0.5) for *Shigella* typing on the *E. coli* workflow, replacing ShigaPass (#505)
 - Added `--shigatyper` input to `create_yaml`
-- Added `samtools_stats` and `samtools_bedcov` processes (using the existing `samtools:1.17` container) replacing `jasentool post-align-qc`; both outputs are wired into `create_yaml` via `--samtools-stats` and `--samtools-bedcov` (#499)
-- Wired the existing `concatenate_files` process into `CALL_POSTPROCESSING` to merge every subworkflow's `versions.yml` emit into a single file; the merged file is fed to `create_yaml` via the new `--versions` flag, enabling the new manifest format from jasentool PR #43 (#499)
+- Added `samtools_stats` and `samtools_bedcov` processes, replacing `jasentool post-align-qc`; both feed `create_yaml` via `--samtools-stats` and `--samtools-bedcov` (#499)
+- Wired `concatenate_files` into `CALL_POSTPROCESSING` to merge each subworkflow's `versions.yml` into one file, passed to `create_yaml` via `--versions` (#499)
 
 ### Fixed
 
-- Pipeline now fails loudly when any input sample does not produce a result JSON (previously the run could finish successfully with missing results) (#466)
-- `resfinder` `versions.yml` is now valid — the heredoc terminator no longer leaks into the file body and the `resfinder_db` / `pointfinder_db` `version` fields populate from the correct bash variables (`$RES_DB_VERSION` / `$POINT_DB_VERSION`) instead of the undefined `$DB_VERSION` (#512)
-- `make download_tbdb` sentinel switched from `assets/tbdb/README.md` to `assets/tbdb/variables.json` — a stale `assets/tbdb/` directory (e.g. a leftover from the old git-submodule era) no longer falsely satisfies the rule, so `tb-profiler create_db` downstream stops hitting `FileNotFoundError: 'variables.json'` (#514)
+- The pipeline now fails when an input sample produces no result JSON instead of finishing successfully (#466)
+- Fixed `resfinder` `versions.yml`: the heredoc terminator no longer leaks into the file and the `resfinder_db` / `pointfinder_db` versions now read from `$RES_DB_VERSION` / `$POINT_DB_VERSION` (#512)
+- Switched the `make download_tbdb` sentinel to `assets/tbdb/variables.json` so a stale `assets/tbdb/` directory no longer satisfies the rule and breaks `tb-profiler create_db` (#514)
 
 ### Changed
 
-- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.1.0` to add `--plasmidfinder` and `--shigatyper` support in `create-yaml`
-
-### Removed
-
-- Removed `shigapass` module, `--shigapass` `create_yaml` input, `shigapass_db` parameter, and the `download_shigapass` / `update_shigapass_db` Makefile targets — superseded by `shigatyper`
-- Removed `jasentool post-align-qc` process from `modules/local/jasentool/main.nf`, its `withName: post_align_qc` config block, and the `--postalnqc` flag in `create_yaml` — superseded by `samtools_stats` + `samtools_bedcov` (#499)
+- Bumped `jasentool` to `1.2.0` and `bonsai-prp` to `2.0.0`
+- Removed `shigapass` (module, `--shigapass` input, `shigapass_db` parameter, `download_shigapass` / `update_shigapass_db` targets), replaced by `shigatyper`
+- Removed `jasentool post-align-qc` (process, `withName: post_align_qc` config, `--postalnqc` flag), replaced by `samtools_stats` + `samtools_bedcov` (#499)
 
 ## [1.3.0]
 
