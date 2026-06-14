@@ -61,10 +61,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.6.1
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:2.0.0
 DOCKER_clair3 := docker://hkubal/clair3:v2.0.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
-DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.1.0
+DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.2.0
 DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 # URLs to remote containers
 URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0
