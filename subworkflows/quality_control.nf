@@ -36,9 +36,11 @@ workflow CALL_QUALITY_CONTROL {
 
     // evaluate assembly completeness
     gambitcore(ch_assembly, gambit_db)
+    ch_versions = ch_versions.mix(gambitcore.out.versions)
 
-    // evaluate assembly quality 
+    // evaluate assembly quality
     quast(ch_assembly, reference_genome)
+    ch_versions = ch_versions.mix(quast.out.versions)
 
     // qc processing - short read
     fastqc(ch_reads)

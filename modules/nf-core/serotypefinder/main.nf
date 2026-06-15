@@ -34,6 +34,9 @@ process serotypefinder {
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
+	 serotypefinder:
+	  version: 2.0.2
+	  container: ${task.container}
 	 serotypefinder_db:
 	  version: \$(echo \$DB_VERSION)
 	  container: ${task.container}
@@ -50,6 +53,9 @@ process serotypefinder {
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
+	 serotypefinder:
+	  version: 2.0.2
+	  container: ${task.container}
 	 serotypefinder_db:
 	  version: \$(echo \$DB_VERSION)
 	  container: ${task.container}
