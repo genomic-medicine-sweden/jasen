@@ -26,12 +26,12 @@ process bracken {
     -o ${output} \\
     -w ${output_report}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bracken:
-      version: 2.8
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bracken:
+	  version: 2.8
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -41,11 +41,11 @@ END_VERSIONS
     touch ${output}
     touch ${output_report}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bracken:
-      version: 2.8
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bracken:
+	  version: 2.8
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

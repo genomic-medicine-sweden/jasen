@@ -20,12 +20,12 @@ process gambitcore {
         ${args} \\
         > ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     gambitcore:
-      version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 gambitcore:
+	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -33,11 +33,11 @@ END_VERSIONS
     """
     touch ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     gambitcore:
-      version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 gambitcore:
+	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

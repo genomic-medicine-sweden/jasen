@@ -17,12 +17,12 @@ process bwa_index {
     mkdir bwa
     bwa index -p bwa/${fasta.baseName} ${fasta}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bwa:
-      version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bwa:
+	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -34,12 +34,12 @@ END_VERSIONS
     touch bwa/${fasta}.pac
     touch bwa/${fasta}.sa
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bwa:
-      version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bwa:
+	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }
 
@@ -72,15 +72,15 @@ process bwa_mem {
         ${reads.join(' ')} \\
         | samtools sort ${args2} --threads ${task.cpus} -o ${output} -
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bwa:
-      version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-      container: ${task.container}
-     samtools:
-      version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bwa:
+	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+	  container: ${task.container}
+	 samtools:
+	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -88,14 +88,14 @@ END_VERSIONS
     """
     touch ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     bwa:
-      version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-      container: ${task.container}
-     samtools:
-      version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 bwa:
+	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+	  container: ${task.container}
+	 samtools:
+	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

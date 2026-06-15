@@ -26,12 +26,12 @@ process chewbbaca_allelecall {
     ${training_file_arg} \\
     --schema-directory ${schema_dir}
 
-    cat <<END_VERSIONS > ${task.process}_versions.yml
-    ${task.process}:
-     chewBBACA:
-      version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${task.process}_versions.yml
+	${task.process}:
+	 chewBBACA:
+	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -39,11 +39,11 @@ END_VERSIONS
     mkdir output_dir
     touch output_dir/results_alleles.tsv
 
-    cat <<END_VERSIONS > ${task.process}_versions.yml
-    ${task.process}:
-     chewBBACA:
-      version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${task.process}_versions.yml
+	${task.process}:
+	 chewBBACA:
+	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

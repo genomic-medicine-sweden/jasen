@@ -20,12 +20,12 @@ process minimap2_align {
     """
     minimap2 ${args} ${referenceGenomeMmi} ${reads} > ${output}
     
-    cat <<END_VERSIONS > ${sample_id}_${process}_versions.yml
-    ${task.process}:
-     minimap2:
-      version: \$(echo \$(minimap2 --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${process}_versions.yml
+	${task.process}:
+	 minimap2:
+	  version: \$(echo \$(minimap2 --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -34,12 +34,12 @@ END_VERSIONS
     """
     touch "${output}"
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     minimap2:
-      version: \$(echo \$(minimap2 --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 minimap2:
+	  version: \$(echo \$(minimap2 --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 }
 
@@ -66,23 +66,23 @@ process minimap2_index {
         ${args} \\
         ${fasta}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     minimap2:
-      version: \$(echo \$(minimap2 --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 minimap2:
+	  version: \$(echo \$(minimap2 --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
     """
     touch ${fasta.baseName}.mmi
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     minimap2:
-      version: \$(echo \$(minimap2 --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 minimap2:
+	  version: \$(echo \$(minimap2 --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

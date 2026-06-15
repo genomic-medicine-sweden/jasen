@@ -21,12 +21,12 @@ process spades {
     spades.py ${args} ${input_reads_arg} -t ${task.cpus} -o ${output_dir}
     mv ${output_dir}/contigs.fasta ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     spades:
-      version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 spades:
+	  version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -34,11 +34,11 @@ END_VERSIONS
     """
     touch ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     spades:
-      version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 spades:
+	  version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }
