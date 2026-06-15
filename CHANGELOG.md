@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switched the `make download_tbdb` sentinel to `assets/tbdb/variables.json` so a stale `assets/tbdb/` directory no longer satisfies the rule and breaks `tb-profiler create_db` (#514)
 - Fixed malformed `versions.yml` across all modules — `<<-END_VERSIONS` heredocs with space-indented terminators leaked the terminator into the file and broke `concatenate_files` YAML parsing (#499)
 - Fixed `versions.yml` version extraction so `concatenate_files` can parse every file — dropped a duplicating `sed` flag (`spatyper`), corrected a stderr redirect (`kleborate`), aligned stub blocks with their script blocks (`spatyper`, `plasmidfinder`), and collapsed multi-line version output (`trimmomatic`, `clair3`, `filtlong`) (#499)
+- Reverted `TBDB_COMMIT` to `4907915` to match the tb-profiler 6.3.0 container; the earlier tb-profiler revert left the tbdb pinned to the 6.7.0-era commit, causing "tb-profiler is too old to use this version of the database"
 
 ### Changed
 

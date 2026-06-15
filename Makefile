@@ -199,7 +199,8 @@ POINTFINDER_VERSION := 4.1.1
 VIRULENCEFINDER_VERSION := 2.0.1
 SEROTYPEFINDER_VERSION := 1.1.0
 PLASMIDFINDER_DB_VERSION := 2.2.0
-TBDB_COMMIT := 618cf0ff5f22886971bd437929d2c49defa6c7bf
+# Must match the tb-profiler container version in containers/Makefile (618cf0ff requires tb-profiler 6.7.0; 4907915 pairs with 6.3.0)
+TBDB_COMMIT := 4907915526b52ac2f20f1324613f5d4dc951e0bd
 
 download_databases: download_resfinder_db \
 	download_pointfinder_db \
