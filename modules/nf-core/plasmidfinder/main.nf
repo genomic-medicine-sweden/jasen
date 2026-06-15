@@ -72,6 +72,9 @@ END_VERSIONS
      plasmidfinder:
       version: stub
       container: ${task.container}
+     plasmidfinder_db:
+      version: stub
+      container: ${task.container}
 END_VERSIONS
     """
 }

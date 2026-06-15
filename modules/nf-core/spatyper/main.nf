@@ -21,7 +21,7 @@ process spatyper {
     cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      spatyper:
-      version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //p')
+      version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //')
       container: ${task.container}
 END_VERSIONS
     """
@@ -34,7 +34,7 @@ END_VERSIONS
     cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      spatyper:
-      version: \$(echo \$(spatyper --version 2>&1) | sed 's/spaTyper //p')
+      version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //')
       container: ${task.container}
 END_VERSIONS
     """
