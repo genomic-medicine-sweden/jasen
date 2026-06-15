@@ -32,12 +32,12 @@ process hostile {
         --airplane \\
         --output ${output_dir}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     hostile:
-      version: \$(echo \$(hostile --version 2>&1) )
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 hostile:
+	  version: \$(echo \$(hostile --version 2>&1) )
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -47,11 +47,11 @@ END_VERSIONS
     touch ${output_dir}/${sample_id}_R1.fastq.gz
     touch ${output_dir}/${sample_id}_R2.fastq.gz
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     hostile:
-      version: \$(echo \$(hostile --version 2>&1) )
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 hostile:
+	  version: \$(echo \$(hostile --version 2>&1) )
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

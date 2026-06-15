@@ -29,12 +29,12 @@ process snippy {
 
     cp ${sample_id}/snps.vcf ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     snippy:
-      version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 snippy:
+	  version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -44,11 +44,11 @@ END_VERSIONS
     touch ${output}
     touch ${sample_id}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     snippy:
-      version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 snippy:
+	  version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

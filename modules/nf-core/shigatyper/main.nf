@@ -30,23 +30,23 @@ process shigatyper {
         ${reads_arg} \\
         --name ${sample_id}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     shigatyper:
-      version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 shigatyper:
+	  version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
     """
     touch ${sample_id}.tsv
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     shigatyper:
-      version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 shigatyper:
+	  version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

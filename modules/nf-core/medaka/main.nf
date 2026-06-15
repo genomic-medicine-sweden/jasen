@@ -22,12 +22,12 @@ process medaka {
     medaka_consensus -i ${reads} -d medaka_tmp/consensus.fasta -o ${output_dir} ${args}
     mv ${output_dir}/consensus.fasta ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     medaka:
-      version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 medaka:
+	  version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -35,11 +35,11 @@ END_VERSIONS
     """
     touch ${output}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     medaka:
-      version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 medaka:
+	  version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
+	  container: ${task.container}
+	END_VERSIONS
     """
 }

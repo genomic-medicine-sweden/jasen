@@ -20,12 +20,12 @@ process nanoplot {
     """
     NanoPlot ${args} --threads ${task.cpus} --prefix ${sample_id}_ --fastq ${reads}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     nanoplot:
-      version: \$(echo \$(NanoPlot --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 nanoplot:
+	  version: \$(echo \$(NanoPlot --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 
     stub:
@@ -34,11 +34,11 @@ END_VERSIONS
     """
     touch ${output_html} ${output_txt}
 
-    cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-    ${task.process}:
-     nanoplot:
-      version: \$(echo \$(NanoPlot --version 2>&1))
-      container: ${task.container}
-END_VERSIONS
+    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
+	${task.process}:
+	 nanoplot:
+	  version: \$(echo \$(NanoPlot --version 2>&1))
+	  container: ${task.container}
+	END_VERSIONS
     """
 }
