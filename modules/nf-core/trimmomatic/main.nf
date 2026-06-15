@@ -33,7 +33,7 @@ process trimmomatic {
         cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
-          version: \$(trimmomatic -version 2>&1)
+          version: \$(echo \$(trimmomatic -version 2>&1))
           container: ${task.container}
 END_VERSIONS
         """
@@ -51,7 +51,7 @@ END_VERSIONS
         cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
-          version: \$(trimmomatic -version 2>&1)
+          version: \$(echo \$(trimmomatic -version 2>&1))
           container: ${task.container}
 END_VERSIONS
         """
@@ -72,7 +72,7 @@ END_VERSIONS
         cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
-          version: \$(trimmomatic -version 2>&1)
+          version: \$(echo \$(trimmomatic -version 2>&1))
           container: ${task.container}
 END_VERSIONS
         """
@@ -85,7 +85,7 @@ END_VERSIONS
         cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
         ${task.process}:
          trimmomatic:
-          version: \$(trimmomatic -version 2>&1)
+          version: \$(echo \$(trimmomatic -version 2>&1))
           container: ${task.container}
 END_VERSIONS
         """

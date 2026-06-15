@@ -25,7 +25,7 @@ process filtlong {
     cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      filtlong:
-      version: \$(filtlong --version | sed 's/Filtlong v//')
+      version: \$(echo \$(filtlong --version 2>&1) | sed 's/Filtlong v//')
       container: ${task.container}
 END_VERSIONS
     """
@@ -38,7 +38,7 @@ END_VERSIONS
     cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      filtlong:
-      version: \$(filtlong --version | sed 's/Filtlong v//')
+      version: \$(echo \$(filtlong --version 2>&1) | sed 's/Filtlong v//')
       container: ${task.container}
 END_VERSIONS
     """

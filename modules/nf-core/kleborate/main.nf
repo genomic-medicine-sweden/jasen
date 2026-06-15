@@ -32,7 +32,7 @@ process kleborate {
     cat <<END_VERSIONS > ${sample_id}_${task.process}_versions.yml
     ${task.process}:
      kleborate:
-      version: \$(echo \$(kleborate --version 3>&1 | sed "s/.*v//") )
+      version: \$(echo \$(kleborate --version 2>&1 | sed "s/.*v//") )
       container: ${task.container}
 END_VERSIONS
     """
