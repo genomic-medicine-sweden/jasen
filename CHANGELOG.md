@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed malformed `versions.yml` across all modules — `<<-END_VERSIONS` heredocs with space-indented terminators leaked the terminator into the file and broke `concatenate_files` YAML parsing (#499)
 - Fixed `versions.yml` version extraction so `concatenate_files` can parse every file — dropped a duplicating `sed` flag (`spatyper`), corrected a stderr redirect (`kleborate`), aligned stub blocks with their script blocks (`spatyper`, `plasmidfinder`), and collapsed multi-line version output (`trimmomatic`, `clair3`, `filtlong`) (#499)
 - Reverted `TBDB_COMMIT` to `4907915` to match the tb-profiler 6.3.0 container; the earlier tb-profiler revert left the tbdb pinned to the 6.7.0-era commit, causing "tb-profiler is too old to use this version of the database"
+- Populated missing software versions so `prp parse jasen` validation passes for every analysis tool — mixed `gambitcore` and `quast` versions into the collected `versions.yml`, renamed the `chewbbaca` (`chewBBACA`) and `tb-profiler` (`tbprofiler`) version keys to match the lookup, and added a `serotypefinder` tool version entry
+- Pinned `plasmidfinder` `2.1.6` (its `--version` prints usage, not a version), `serotypefinder` `2.0.2`, and `bracken` `2.8`, since these tools can't report their own version
 
 ### Changed
 

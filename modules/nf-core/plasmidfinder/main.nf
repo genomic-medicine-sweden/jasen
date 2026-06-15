@@ -50,7 +50,7 @@ process plasmidfinder {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 plasmidfinder:
-	  version: \$(echo \$(plasmidfinder.py --version 2>&1) | sed 's/^.*plasmidfinder.py //; s/ .*\$//')
+	  version: 2.1.6
 	  container: ${task.container}
 	 plasmidfinder_db:
 	  version: \$(echo \$DB_VERSION)
@@ -62,6 +62,13 @@ process plasmidfinder {
     output = "${sample_id}_plasmidfinder.json"
     meta_output = "${sample_id}_plasmidfinder_meta.json"
     """
+    # Get db version
+    if [ -f "${plasmidfinder_db}/VERSION" ]; then
+        DB_VERSION=\$(tr -d '\r\n' < ${plasmidfinder_db}/VERSION)
+    else
+        DB_VERSION=\$(cd ${plasmidfinder_db} && (git rev-parse --short HEAD 2>/dev/null || echo "unknown"))
+    fi
+
     touch ${output}
     touch ${meta_output}
     touch ${sample_id}_plasmidfinder_hit_in_genome_seq.fsa
@@ -70,10 +77,10 @@ process plasmidfinder {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 plasmidfinder:
-	  version: stub
+	  version: 2.1.6
 	  container: ${task.container}
 	 plasmidfinder_db:
-	  version: stub
+	  version: \$(echo \$DB_VERSION)
 	  container: ${task.container}
 	END_VERSIONS
     """

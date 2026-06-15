@@ -28,7 +28,7 @@ process chewbbaca_allelecall {
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
 	${task.process}:
-	 chewBBACA:
+	 chewbbaca:
 	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
 	  container: ${task.container}
 	END_VERSIONS
@@ -41,7 +41,7 @@ process chewbbaca_allelecall {
 
     cat <<-END_VERSIONS > ${task.process}_versions.yml
 	${task.process}:
-	 chewBBACA:
+	 chewbbaca:
 	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
 	  container: ${task.container}
 	END_VERSIONS
