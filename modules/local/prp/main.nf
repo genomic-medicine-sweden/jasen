@@ -12,9 +12,9 @@ process format_jasen {
     script:
     output = "${sample_id}_result.json"
     """
-    prp format-jasen \\
-      --sample ${yaml} \\
-      --output ${output}
+    prp parse jasen \\
+      --output ${output} \\
+      ${yaml}
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
@@ -51,9 +51,9 @@ process format_cdm {
     script:
     output = "${sample_id}_qc_result.json"
     """
-    prp format-cdm \\
-      --sample ${yaml} \\
-      --output ${output}
+    prp parse format-cdm \\
+      --output ${output} \\
+      ${yaml}
     """
 
     stub:
