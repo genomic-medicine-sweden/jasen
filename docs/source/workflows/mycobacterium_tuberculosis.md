@@ -2,7 +2,7 @@
 
 ## Usage
 
-A workflow intended for analysis of species that are part of the *Mycobacterium tuberculosis* complex.
+The workflow intended for analysis of species that are part of the *Mycobacterium tuberculosis* complex.
 
 ## Supported analysis
 
