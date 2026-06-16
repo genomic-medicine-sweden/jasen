@@ -767,7 +767,7 @@ $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip:
 	$(call log_message,"Downloading E. faecium cgMLST schema ...")
 	mkdir -p $(EFAECIUM_CGMLST_DIR)/alleles \
 	&& cd $(EFAECIUM_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/Efaecium5736/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/989332/alleles/ \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)

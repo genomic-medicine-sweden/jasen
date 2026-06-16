@@ -14,7 +14,7 @@
 ### Copy code locally
 
 ```bash
-git clone --branch master              \\ 
+git clone --branch master              \\
     https://github.com/genomic-medicine-sweden/jasen.git && \\
 cd jasen
 ```
@@ -29,7 +29,7 @@ gcc
 zlib
 ```
 
-### Create Apptainer images. 
+### Create Apptainer images.
 
 The containers will be attempted to be built and downloaded as part of the main Makefile (that is, when running `make install` in the main repo folder).
 
@@ -37,7 +37,7 @@ The containers will be attempted to be built and downloaded as part of the main 
 cd containers && make
 ```
 
-### Download references and databases using Apptainer. 
+### Download references and databases using Apptainer.
 
 First, make sure your current working directory is in the main jasen folder (so if you cd:ed into the `container` folder before, you need to cd back to the main folder with `cd ..`). Then run the `install` make rule:
 
@@ -62,6 +62,7 @@ The following species are able be installed independently as to save time and di
  * ecoli
  * klebsiella
  * mtuberculosis
+ * efaecium
 
 This is done by executing the following:
 
@@ -74,7 +75,7 @@ make update_databases && make ${ORG}_all
 
 ## Configuration and test data
 
-### Config 
+### Config
 
 Source: `nextflow.config`
 
