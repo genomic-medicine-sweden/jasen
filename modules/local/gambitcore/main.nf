@@ -23,7 +23,7 @@ process gambitcore {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 gambitcore:
-	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
+	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //')
 	  container: ${task.container}
 	END_VERSIONS
     """
@@ -36,7 +36,7 @@ process gambitcore {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 gambitcore:
-	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/gambit, version // ; s/ .*//')
+	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //')
 	  container: ${task.container}
 	END_VERSIONS
     """

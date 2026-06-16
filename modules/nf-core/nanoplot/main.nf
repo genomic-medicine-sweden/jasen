@@ -23,7 +23,7 @@ process nanoplot {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 nanoplot:
-	  version: \$(echo \$(NanoPlot --version 2>&1))
+	  version: \$(echo \$(NanoPlot --version 2>&1) | sed 's/^NanoPlot //')
 	  container: ${task.container}
 	END_VERSIONS
     """
@@ -37,7 +37,7 @@ process nanoplot {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 nanoplot:
-	  version: \$(echo \$(NanoPlot --version 2>&1))
+	  version: \$(echo \$(NanoPlot --version 2>&1) | sed 's/^NanoPlot //')
 	  container: ${task.container}
 	END_VERSIONS
     """
