@@ -713,10 +713,10 @@ efaecium_download_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fast
 
 $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. faecium genome ...")
-	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(EFAECIUM_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bonsai-prp.sif \
-		python3 bin/download_ncbi.py \
+	&& cd $(SCRIPT_DIR) \
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-ncbi \
 		-i $(EFAECIUM_REFSEQ_ACC) \
 		-o $(EFAECIUM_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
 
