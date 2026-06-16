@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Populated missing software versions so `prp parse jasen` validation passes for every analysis tool — mixed `gambitcore` and `quast` versions into the collected `versions.yml`, renamed the `chewbbaca` (`chewBBACA`) and `tb-profiler` (`tbprofiler`) version keys to match the lookup, and added a `serotypefinder` tool version entry
 - Pinned `plasmidfinder` `2.1.6` (its `--version` prints usage, not a version), `serotypefinder` `2.0.2`, and `bracken` `2.8`, since these tools can't report their own version
 - Fixed `gambitcore` and `nanoplot` version strings to strip the tool-name prefix so they are valid versions `prp parse jasen` can parse (the old `gambitcore` `sed` left the literal `gambitcore`, and `nanoplot` kept `NanoPlot`)
+- Switched `virulencefinder` output to the standardized `--out_json` format (matching `resfinder`) instead of the classic `data.json`, so `prp parse jasen` can parse it (the classic format has no `seq_regions`)
 
 ### Changed
 

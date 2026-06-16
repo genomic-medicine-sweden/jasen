@@ -27,12 +27,13 @@ process virulencefinder {
     printf "\$JSON_FMT" "virulencefinder" "\$DB_VERSION" "database" > ${meta_output}
 
     # Run virulencefinder
-    python -m virulencefinder       \\
-    --inputfastq ${reads.join(' ')} \\
-    ${databases_arg}                \\
-    ${nanopore_arg}                 \\
-    --databasePath ${virulencefinder_db}
-    cp data.json ${output}
+    python -m virulencefinder            \\
+    --inputfastq ${reads.join(' ')}      \\
+    ${databases_arg}                     \\
+    ${nanopore_arg}                      \\
+    --databasePath ${virulencefinder_db} \\
+    --out_json ${output} \\
+    --outputPath .
 
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:

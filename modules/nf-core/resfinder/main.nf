@@ -44,10 +44,9 @@ process resfinder {
     ${resfinder_arg}                              \\
     ${pointfinder_arg}                            \\
     ${nanopore_arg}                               \\
-    --out_json std_format_under_development.json  \\
+    --out_json ${output} \\
     --outputPath .
 
-    cp std_format_under_development.json ${output}
     cp pheno_table.txt ${output_gene}
     if [ -f 'PointFinder_results.txt' ]; then
       cp PointFinder_results.txt ${output_point}
