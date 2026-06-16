@@ -102,7 +102,7 @@ URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af
 URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd78af_0
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_spatyper := https://depot.galaxyproject.org/singularity/spatyper:0.3.3--pyhdfd78af_3
-URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.3.0--pyhdfd78af_0
+URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.7.0--pyhdfd78af_0
 URL_trimmomatic := https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0
 URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:3.2.0--pyhdfd78af_0
 
@@ -135,7 +135,7 @@ $(remote_containers):
 	$(eval sanitized_url := $(shell echo ${container_url} | sed -e 's/%3A/:/g'))
 	output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& wget -O $${output_file} ${sanitized_url} --no-check-certificate \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $@
 
 
 # ----------------------------------------------------------------
@@ -150,4 +150,4 @@ $(local_containers):
 	@chmod o+w $(INSTALL_LOG) \
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& apptainer build --force $${output_file} ${container_url} \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $@
