@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
 - Added `shigatyper` (v2.0.5, `https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0`) as the *Shigella* discrimination tool on the *E. coli* workflow, replacing ShigaPass; uses raw reads, no separate DB (refs are bundled in the container) (#505)
 - Added `--shigatyper` input to `create_yaml`
->>>>>>> dev
 
 ### Fixed
 
