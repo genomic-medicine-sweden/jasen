@@ -402,6 +402,7 @@ PUBMLST_SCHEMA_ECOLI_ACHTMAN := pubmlst_ecoli_achtman_seqdef
 PUBMLST_SCHEMA_ECOLI_PASTEUR := pubmlst_ecoli_seqdef
 PUBMLST_SCHEMA_KLEBSIELLA    := pubmlst_klebsiella_seqdef
 PUBMLST_SCHEMA_SPYOGENES     := pubmlst_spyogenes_seqdef
+PUBMLST_SCHEMA_EFAECIUM      := pubmlst_efaecium_seqdef
 
 setup_saureus_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SAUREUS)...")
@@ -500,6 +501,26 @@ update_spyogenes_mlstdb:
 		bactopia-pubmlst-build \
 		--force \
 		-d spyogenes \
+		-t $(TOKEN_DIR) \
+		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
+
+
+update_efaecium_mlstdb_token:
+	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_EFAECIUM)...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-setup \
+		--force \
+		--client-id $(PUBMLST_CLIENT_ID) \
+		--client-secret $(PUBMLST_CLIENT_SECRET) \
+		-d $(PUBMLST_SCHEMA_EFAECIUM) \
+		-sd $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
+
+update_efaecium_mlstdb:
+	$(call log_message,"Building PubMLST MLST database for E. faecium...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+		bactopia-pubmlst-build \
+		--force \
+		-d efaecium \
 		-t $(TOKEN_DIR) \
 		-o $(ASSETS_DIR) |& tee -a $(INSTALL_LOG)
 
@@ -1282,7 +1303,8 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: download_tbdb $(MTUBE_
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/tb-profiler.sif \
 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) \
 		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv \
-	&& tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
+	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/tb-profiler.sif \
+	tb-profiler load_library converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 
