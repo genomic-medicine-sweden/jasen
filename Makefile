@@ -713,7 +713,7 @@ efaecium_download_reference: $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fast
 
 $(EFAECIUM_GENOMES_DIR)/$(EFAECIUM_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. faecium genome ...")
-	&& mkdir -p $(EFAECIUM_GENOMES_DIR) \
+	mkdir -p $(EFAECIUM_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
