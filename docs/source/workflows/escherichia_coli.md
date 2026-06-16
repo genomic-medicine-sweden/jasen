@@ -1,9 +1,8 @@
 # *Escherichia coli*
 
 ## Usage
- 
-This workflow is designed for analysis of *Escherichia coli* (including ETEC,
-EIEC, and EPEC) and *Shigella* spp.
+
+The workflow is designed for analysis of *Escherichia coli* (including ETEC, EIEC, and EPEC) and *Shigella* spp.
 
 ## Supported analysis
 
@@ -12,6 +11,7 @@ The workflow includes the following analysis in addition to species prediction a
 - Antibiotic resistance prediction
 - Disinfectant resistance
 - Prediction of virulence factors
+- Plasmid detection
 - STX typing
 - Serotyping
 - Discrimination between ETEC, EIEC, EPEC, and *Shigella*

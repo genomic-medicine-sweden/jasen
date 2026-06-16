@@ -3,8 +3,7 @@ process medaka {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), path(reads)
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(reads), path(assembly)
 
     output:
     tuple val(sample_id), path(output), emit: fasta

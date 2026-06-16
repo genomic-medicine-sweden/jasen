@@ -9,17 +9,140 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `--nanopore` option to VirulenceFinder for analysing ONT data
-- Added pulling of `.tar.gz` db files to `Makefile`
-- Added a profile for Enterococcus faecium, including MLST, cgMLST and
-  resistance and virulence testing.
+- Added a profile for Enterococcus faecium, including MLST, cgMLST and resistance and virulence testing (#303)
+- Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
+- Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
+- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
+- Added optional `trimmomatic` (v0.40, `https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0`) preprocessing module for Illumina adapter/quality trimming; off by default (`use_trimmomatic = false`) (#280)
+- Added `use_trimmomatic` and `trimmomatic_args` parameters
+- Added `shigatyper` (v2.0.5, `https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0`) as the *Shigella* discrimination tool on the *E. coli* workflow, replacing ShigaPass; uses raw reads, no separate DB (refs are bundled in the container) (#505)
+- Added `--shigatyper` input to `create_yaml`
+>>>>>>> dev
 
 ### Fixed
 
+- Pipeline now fails loudly when any input sample does not produce a result JSON (previously the run could finish successfully with missing results) (#466)
+
 ### Changed
 
+- Bumped `clinicalgenomicslund/jasentool` container from `1.0.0` to `1.1.0` to add `--plasmidfinder` and `--shigatyper` support in `create-yaml`
+
+### Removed
+
+- Removed `shigapass` module, `--shigapass` `create_yaml` input, `shigapass_db` parameter, and the `download_shigapass` / `update_shigapass_db` Makefile targets — superseded by `shigatyper`
+
+## [1.3.0]
+
+### Added
+
+- Added `free-disk-space` to CI GA workflow
+- Added `jasentool` container (`clinicalgenomicslund/jasentool:1.0.0`) for read counting, QC, YAML creation, and NCBI downloads
+- Added `count_reads` process to general workflows to report read counts
+- Added `concatenate_files` process config for version tracking
+- Added per-species MLST database `make` targets (`setup_<species>_mlstdb_token`, `update_<species>_mlstdb`) for S. aureus, E. coli, Klebsiella, and S. pyogenes
+- Added `download_klebsiella_pasteur_cgmlstdb` Makefile target for downloading Klebsiella Pasteur cgMLST scheme
+- Added `log_file_dir` parameter and `workflow.onComplete` handler writing pipeline completion logs to a configurable directory
+- Added `log_file_dir` to cluster profiles in `cmd.config`
+- Added `kraken_batch` process to run Kraken2 over all samples in a single job by loading the database into shared memory (`/dev/shm`) once, avoiding repeated DB loading overhead
+- Added `use_kraken_batch` parameter (default: `false`) to enable batch Kraken2 classification
+- Added `update_emmtyper_db` target to `Makefile`
+- Added flowchart of the pipeline to the first page
+- Added details to results section of the docs
+- Added `clair3` (v2.0.0, `docker://hkubal/clair3:v2.0.0`) as the nanopore variant caller in `subworkflows/variant_calling.nf`, replacing freebayes for the nanopore platform; default model `r1041_e82_400bps_sup_v430_bacteria_finetuned`
+- Added `clair3_assembly` process to `subworkflows/typing.nf` for nanopore assembly-based variant calling when `use_masking` is enabled
+- Added `params.reference_genome_fai` to all species profiles in `nextflow.config` for explicit FAI path configuration
+- Added `samtools_faidx` process support for per-sample assembly FAI generation
+
+### Fixed
+
+- Fixed legend in the flowchart (swapped ONT and Ion Torrent)
+- Fixed `reads*.toRealPath()` spread operator in `kraken_batch` `collectFile` closure — previously called `toRealPath()` directly on a list, causing a `MissingMethodException` at runtime
+- Fixed `parmas.ci` typo in `mlst` `ext.when` condition in `modules.config`
+- Fixed `count_reads` output channel binding (`json` emit) in `quality_control.nf` to resolve `join` error on profiles without a reference genome (e.g. `streptococcus`)
+- Fixed `error_corr_assembly.pl` to handle gzipped VCF input (`.vcf.gz`) via `gzip -dc` pipe, enabling compatibility with clair3 output
+
+### Changed
+
+- Renamed `clair3` import to `clair3_ref` and `freebayes` import to `freebayes_ref` in `subworkflows/variant_calling.nf` to distinguish reference-based variant calling
+- Renamed `freebayes` import to `freebayes_assembly` in `subworkflows/typing.nf` to distinguish assembly-based variant calling
+- Updated `bacterial_general.nf` to load `reference_genome_faidx` from `params.reference_genome_fai` instead of deriving it from the genome path
+- Changed `skesa`, `spades_illumina`, `spades_iontorrent`, `flye`, and `medaka` to publish to a unified `fasta/` output directory
+- Updated chewBBACA to v3.5.3 to enable use of unrestricted length of sample names
+- Updated resources in processes that read bam files
+- Removed unnecessary scripts from `bin/`
+- Moved `create_yaml` process from `modules/local/yaml/main.nf` to `modules/local/jasentool/main.nf`
+- Moved `post_align_qc` process from `modules/local/prp/main.nf` to `modules/local/jasentool/main.nf`
+- Updated `post_align_qc` signature to remove `reference_genome` argument
+- Updated `create_yaml`, `post_align_qc`, and NCBI genome download commands to use `jasentool` container instead of `bonsai-prp`
+- Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
+- Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
+- Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
+- Updated AMRFinderPlus to v4.2.7
+- Updated kraken2 container to mulled image (kraken2=2.17.1 + coreutils=9.5) to provide GNU dd with iflag=nocache support
+- Updated bonsai-prp to v1.6.1
+- Reverted TBProfiler to v6.3.0
+- Updated emmtyper `ext.args` flag from `--db` to `--blast_db`
+- Updated `count_reads` publishDir from `read_counts` to `postalignqc`
+- Replaced `curl` with `wget` for emmtyper database download to avoid SSL issues
+- Updated Nextflow version in CI
+- Changed kraken2 singularity image to fetch `kraken2` + `coreutils` container from `multi-package-containers`
+- Moved variant calling for masking polymorphisms before cgmlst typing to `subworkflows/typing.nf`
+- Updated flowchart with variant calling step
+
+## [1.2.0]
+
+### Added
+
+- Added `kleborate` pipeline for K. pneumoniae and E. coli analysis
+- Added `--nanopore` option to VirulenceFinder for analysing ONT data
+- Added pulling of `.tar.gz` db files to `Makefile`
+- Added `NanoStats.txt` file to output from NanoPlot for easier parsing in prp
+- Added `bactopia-py` for updating mlstdb
+- Added genome size used by Flye as a parameter `reference_size` to profiles of all the species
+- Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
+- Added information about ONT workflow, input and output files to documentation
+- Added ONT test data with 10k reads for _S. aureus_
+- Added `filtlong` to long-read workflows
+
+### Fixed
+
+- Updated wgmlst schema name for E. coli due to change in species ID for chewie-NS
+- Updated names of cgmlst schemas for all organisms to match changes at www.cgmlst.org
+- Fixed general profile `reference_size` in config
+- Fixed channel and spelling errors and mlstdb paths in `cmd.config`
+- Fixed reporting of qc stats for ONT data in final json file
+- Fixed documentation describing sample sheet format
+- Fixed pipeline if `platform = iontorrent` is set
+- Fixed medaka input channel
+- Fixed config calling specific versions of bonsai-prp when running offline
+
+### Changed
+
+- Updated Chewbbaca to v3.4.0 because of problems with _E. coli_ schema preparation
+- Updated bonsai-prp to v1.5.0
 - Removed finder, ShigaPass & tbdb submodules
 - Neatened up mlst db updating scripts
+- Updated documentation regarding updating mlstdb
+- Changed `mlst_db` dir to `mlstdb` to match `bactopia-py` output
+- Removed blast db creation from `Makefile` as `bactopia-py` does it
+- Removed deprecated scripts for downloading mlst db
+- Removed `_bonsai` from yaml filename
+- Updated `mlst` to run if not CI run
+- Removed tb profiler instructions that are not longer relevant from docs
+- Removed the execution of `update_mlstdb` & `update_blast_db` from `update_databases`
+- Changed mapping settings in minimap2 from `-x map-ont` to `-x lr:hq` as quality of the data has improved
+- Updated Flye 2.9.3 to version 2.9.6
+- Updated minimap2 2.28 to version 2.30
+- Updated Medaka 2.0.1 to version 2.2.0
+- Updated NanoPlot 1.43.0 to 1.46.2
+- Changed container for Medaka, it includes the models, so they don't need to be downloaded while running analysis
+- Changed preset for masking of the assembly before cgMLST analysis for ONT data (default: false, as it is not tested and optimised for ONT data)
+- Changed `ch_empty` to `ch_sample_id`
+- Changed Klebsiella pneumoniae workflow to general Klebsiella workflow
+- Change Kpneumoniae cgmlst.org schema to Pasteur scgMLST629_S Klebsiella schema
+- Changed mask process to run with perl container
+- Changed flowchart in documentation to include recent updates
+- Changed hostile to explicitly call aligner to avoid ambiguity errors
 
 ## [1.1.2]
 
@@ -97,7 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `cmd` module name to `cdm`
 - Updated bonsai-prp to v1.3.1
 - Changed indentation structure
-- Moved `platform` to config via `params.platform` 
+- Moved `platform` to config via `params.platform`
 - Changed `hostile` io
 - Updated docs regarding restructuring
 - Changed `prp` sub commands
@@ -177,7 +300,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
 - Moved all `when` commands to configs
 - Updated `fastqc` & `sccmec` mem settings
-- Changed model that is used in `medaka_consensus` to bacterial model (using `--bacteria` argument) 
+- Changed model that is used in `medaka_consensus` to bacterial model (using `--bacteria` argument)
 
 ## [0.9.0]
 
@@ -185,7 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added long-read test data (S. aureus)
 - Added `samplelist_nanopore.csv` for running long-read test data
-- Added location of documentation to `README` 
+- Added location of documentation to `README`
 - Added `cdmDir` to config
 - Added NanoPlot module
 - Added process for adding IGV annotation tracks with PRP.
@@ -210,7 +333,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added ShigaPass
 - Added mlstBlastDb to mlst
-- Added full path for bam and vcf filepaths 
+- Added full path for bam and vcf filepaths
 - Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
 - Added `bamDir` and `vcfDir` to config params
 - Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`

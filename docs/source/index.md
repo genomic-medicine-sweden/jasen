@@ -48,7 +48,7 @@ workflows/staphylococcus_aureus
 workflows/enterococcus_faecium
 workflows/escherichia_coli
 workflows/mycobacterium_tuberculosis
-workflows/klebsiella_pneumoniae
+workflows/klebsiella
 workflows/streptococcus_pyogenes
 workflows/streptococcus
 ```

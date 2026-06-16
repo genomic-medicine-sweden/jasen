@@ -3,16 +3,20 @@
 nextflow.enable.dsl=2
 
 include { amrfinderplus     } from '../modules/nf-core/amrfinderplus/main.nf'
+include { plasmidfinder     } from '../modules/nf-core/plasmidfinder/main.nf'
 include { resfinder         } from '../modules/nf-core/resfinder/main.nf'
 include { virulencefinder   } from '../modules/nf-core/virulencefinder/main.nf'
+include { kleborate         } from '../modules/nf-core/kleborate/main.nf'
 
 workflow CALL_SCREENING {
     take:
     amrfinder_db
+    plasmidfinder_db
     pointfinder_db
     resfinder_db
     virulencefinder_db
     ch_assembly
+    ch_sample_id
     ch_reads
 
     main:
@@ -27,7 +31,28 @@ workflow CALL_SCREENING {
     resfinder(ch_reads, params.species, resfinder_db, pointfinder_db)
     virulencefinder(ch_reads, params.use_virulence_dbs, virulencefinder_db)
 
+    // plasmid detection
+    plasmidfinder(ch_assembly, plasmidfinder_db)
+    ch_versions = ch_versions.mix(plasmidfinder.out.versions)
+
+    // klebsiella and esherichia analysis pipeline
+    if ( params.use_kleborate ) {
+        kleborate(ch_assembly)
+        kleborate.out.general.set{ ch_kleborate_general }
+        kleborate.out.hamronization.set{ ch_kleborate_hamronization }
+        ch_versions = ch_versions.mix(kleborate.out.versions)
+    } else {
+        ch_sample_id.set{ ch_kleborate_general }
+        ch_sample_id.set{ ch_kleborate_hamronization }
+    }
+
     amrfinderplus.out.tsv
+        .join(ch_kleborate_general)
+        .join(ch_kleborate_hamronization)
+        .join(plasmidfinder.out.json)
+        .join(plasmidfinder.out.meta)
+        .join(plasmidfinder.out.genome_hits)
+        .join(plasmidfinder.out.plasmid_seqs)
         .join(resfinder.out.json)
         .join(resfinder.out.meta)
         .join(virulencefinder.out.json)
@@ -39,11 +64,17 @@ workflow CALL_SCREENING {
     ch_versions = ch_versions.mix(virulencefinder.out.versions)
 
     emit:
-    amrfinderplus           = amrfinderplus.out.tsv     // channel: [ val(meta), path(tsv) ]
-    combined_output         = ch_combined_output        // channel: [ val(meta), path(tsv) ]
-    resfinder_json          = resfinder.out.json        // channel: [ val(meta), path(json) ]
-    resfinder_meta          = resfinder.out.meta        // channel: [ val(meta), path(meta) ]
-    virulencefinder_json    = virulencefinder.out.json  // channel: [ val(meta), path(json) ]
-    virulencefinder_meta    = virulencefinder.out.meta  // channel: [ val(meta), path(meta) ]
-    versions                = ch_versions               // channel: [ versions.yml ]
+    amrfinderplus              = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
+    combined_output            = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(fsa), path(fsa), path(json), path(meta), path(json), path(meta) ]
+    kleborate_general          = ch_kleborate_general          // channel: [ val(meta), path(general) ]
+    kleborate_hamronization    = ch_kleborate_hamronization    // channel: [ val(meta), path(hamronization) ]
+    plasmidfinder_json         = plasmidfinder.out.json        // channel: [ val(meta), path(json) ]
+    plasmidfinder_meta         = plasmidfinder.out.meta        // channel: [ val(meta), path(meta) ]
+    plasmidfinder_genome_hits  = plasmidfinder.out.genome_hits // channel: [ val(meta), path(fsa) ]
+    plasmidfinder_plasmid_seqs = plasmidfinder.out.plasmid_seqs// channel: [ val(meta), path(fsa) ]
+    resfinder_json             = resfinder.out.json            // channel: [ val(meta), path(json) ]
+    resfinder_meta             = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
+    virulencefinder_json       = virulencefinder.out.json      // channel: [ val(meta), path(json) ]
+    virulencefinder_meta       = virulencefinder.out.meta      // channel: [ val(meta), path(meta) ]
+    versions                   = ch_versions                   // channel: [ versions.yml ]
 }

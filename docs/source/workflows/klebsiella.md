@@ -1,0 +1,23 @@
+# *Klebsiella*
+
+## Usage
+
+The workflow is designed for analysis of *Klebsiella*.
+
+## Supported analysis
+
+The workflow includes the following analysis in addition to species prediction and various methods for assessing the sequencing quality,
+
+- Antibiotic resistance prediction
+- Disinfectant resistance
+- Prediction of virulence factors
+- Plasmid detection
+- MLST
+- cgMLST
+
+## Software & database versions
+
+```{csv-table} Versions of softwares and containers used by the *Klebsiella* workflow.
+:file: klebsiella_sw.csv
+
+```

@@ -15,27 +15,33 @@ all: \
 # These are containers that will be built locally using the definition files in
 # the current folder
 local_containers := bonsai-prp.sif \
-					gambitcore.sif
+					clair3.sif \
+					gambitcore.sif \
+					jasentool.sif \
+					medaka.sif
 
 # These containers will be downloaded remotely
 remote_containers := ncbi-amrfinderplus.sif \
+					bactopia-py.sif \
 					blast.sif \
 					bracken.sif \
 					bwakit.sif \
 					chewbbaca.sif \
 					emmtyper.sif \
 					fastqc.sif \
+					filtlong.sif \
 					flye.sif \
 					freebayes.sif \
 					hostile.sif \
 					htslib.sif \
+					kleborate.sif \
 					kraken2.sif \
-					medaka.sif \
 					minimap2.sif \
 					mlst.sif \
 					mykrobe.sif \
 					nanoplot.sif \
 					perl-json.sif \
+					plasmidfinder.sif \
 					prodigal.sif \
 					quast.sif \
 					resfinder.sif \
@@ -43,7 +49,7 @@ remote_containers := ncbi-amrfinderplus.sif \
 					sccmec.sif \
 					seqtk.sif \
 					serotypefinder.sif \
-					shigapass.sif \
+					shigatyper.sif \
 					ska2.sif \
 					skesa.sif \
 					snippy.sif \
@@ -51,31 +57,37 @@ remote_containers := ncbi-amrfinderplus.sif \
 					spades.sif \
 					spatyper.sif \
 					tb-profiler.sif \
+					trimmomatic.sif \
 					virulencefinder.sif
 
 # URLs to Docker containers
-DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.3.3
+DOCKER_bonsai-prp := docker://clinicalgenomicslund/bonsai-prp:1.6.1
+DOCKER_clair3 := docker://hkubal/clair3:v2.0.0
 DOCKER_gambitcore := docker://clinicalgenomicslund/gambitcore:0.0.2
-
+DOCKER_jasentool := docker://clinicalgenomicslund/jasentool:1.1.0
+DOCKER_medaka := docker://ontresearch/medaka:shacf8338462607b17b1d68dbce212cb93daea50bad
 # URLs to remote containers
-URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.11--h6e70893_0
+URL_ncbi-amrfinderplus := https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0
+URL_bactopia-py := https://depot.galaxyproject.org/singularity/bactopia-py:1.6.1--pyhdfd78af_0
 URL_blast := https://depot.galaxyproject.org/singularity/blast:2.14.0--hf3cf87c_0
 URL_bracken := https://depot.galaxyproject.org/singularity/bracken:2.8--py39hc16433a_0
 URL_bwakit := https://depot.galaxyproject.org/singularity/bwakit:0.7.17.dev1--hdfd78af_1
-URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.3.2--pyhdfd78af_0
+URL_chewbbaca := https://depot.galaxyproject.org/singularity/chewbbaca:3.5.3--pyh106432d_1
 URL_emmtyper := https://depot.galaxyproject.org/singularity/emmtyper:0.2.0--py_0
 URL_fastqc := https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0
-URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.3--py39hd65a603_0
+URL_filtlong := https://depot.galaxyproject.org/singularity/filtlong:0.3.1--h077b44d_0
+URL_flye := https://depot.galaxyproject.org/singularity/flye:2.9.6--py39h475c85d_0
 URL_freebayes := https://depot.galaxyproject.org/singularity/freebayes:1.3.6--hbfe0e7f_2
 URL_hostile := https://depot.galaxyproject.org/singularity/hostile:2.0.0--pyhdfd78af_0
 URL_htslib := https://depot.galaxyproject.org/singularity/htslib:1.21--h566b1c6_1
-URL_kraken2 := https://depot.galaxyproject.org/singularity/kraken2:2.1.2--pl5321h9f5acd7_3
-URL_medaka := https://depot.galaxyproject.org/singularity/medaka:2.0.1--py39hf77f13f_0
-URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.28--h577a1d6_4
+URL_kleborate := https://depot.galaxyproject.org/singularity/kleborate:3.2.4--pyhdfd78af_0
+URL_kraken2 := https://depot.galaxyproject.org/singularity/mulled-v2-f8c4015c836dd3ce5c118cfed97ec8259bab9e9d:41404a18634d1ec6fe2a8a0dc54df6925d57fdbf-0
+URL_minimap2 := https://depot.galaxyproject.org/singularity/minimap2:2.30--h577a1d6_0
 URL_mlst := https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_1
 URL_mykrobe := https://depot.galaxyproject.org/singularity/mykrobe:0.12.2--py39h70e0db4_0
-URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.43.0--pyhdfd78af_1
+URL_nanoplot := https://depot.galaxyproject.org/singularity/nanoplot:1.46.2--pyhdfd78af_0
 URL_perl-json := https://depot.galaxyproject.org/singularity/perl-json:4.10--pl5321hdfd78af_0
+URL_plasmidfinder := https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2
 URL_prodigal := https://depot.galaxyproject.org/singularity/prodigal:2.6.3--h7b50bb2_10
 URL_quast := https://depot.galaxyproject.org/singularity/quast:5.2.0--py310pl5321hc8f18ef_2
 URL_resfinder := https://depot.galaxyproject.org/singularity/resfinder:4.7.2--pyhdfd78af_0
@@ -83,7 +95,7 @@ URL_samtools := https://depot.galaxyproject.org/singularity/samtools:1.17--h00cd
 URL_sccmec := https://depot.galaxyproject.org/singularity/sccmec:1.2.0--hdfd78af_0
 URL_seqtk := https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_2
 URL_serotypefinder := https://depot.galaxyproject.org/singularity/serotypefinder:2.0.2--py312hdfd78af_1
-URL_shigapass := https://depot.galaxyproject.org/singularity/shigapass:1.5.0--hdfd78af_0
+URL_shigatyper := https://depot.galaxyproject.org/singularity/shigatyper:2.0.5--pyhdfd78af_0
 URL_ska2 := https://depot.galaxyproject.org/singularity/ska2:0.3.10--h4349ce8_0
 URL_skesa := https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0
 URL_snippy := https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_2
@@ -91,6 +103,7 @@ URL_sourmash := https://depot.galaxyproject.org/singularity/sourmash:4.8.2--hdfd
 URL_spades := https://depot.galaxyproject.org/singularity/spades:3.15.5--h95f258a_1
 URL_spatyper := https://depot.galaxyproject.org/singularity/spatyper:0.3.3--pyhdfd78af_3
 URL_tb-profiler := https://depot.galaxyproject.org/singularity/tb-profiler:6.3.0--pyhdfd78af_0
+URL_trimmomatic := https://depot.galaxyproject.org/singularity/trimmomatic:0.40--hdfd78af_0
 URL_virulencefinder := https://depot.galaxyproject.org/singularity/virulencefinder:3.2.0--pyhdfd78af_0
 
 define log_message

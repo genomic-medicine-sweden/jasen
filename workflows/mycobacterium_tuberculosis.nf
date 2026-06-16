@@ -2,52 +2,52 @@
 
 nextflow.enable.dsl=2
 
-include { post_align_qc         } from '../modules/local/prp/main.nf'
-include { CALL_ASSEMBLY         } from '../subworkflows/assembly.nf'
-include { CALL_POSTPROCESSING   } from '../subworkflows/postprocessing.nf'
-include { CALL_PREPROCESSING    } from '../subworkflows/preprocessing.nf'
-include { CALL_PROFILING        } from '../subworkflows/profiling.nf'
-include { CALL_QUALITY_CONTROL  } from '../subworkflows/quality_control.nf'
-include { CALL_RELATEDNESS      } from '../subworkflows/relatedness.nf'
+include { post_align_qc                                 } from '../modules/local/jasentool/main.nf'
+include { samtools_coverage as samtools_coverage_ref    } from '../modules/nf-core/samtools/main.nf'
+include { CALL_ASSEMBLY                                 } from '../subworkflows/assembly.nf'
+include { CALL_POSTPROCESSING                           } from '../subworkflows/postprocessing.nf'
+include { CALL_PREPROCESSING                            } from '../subworkflows/preprocessing.nf'
+include { CALL_PROFILING                                } from '../subworkflows/profiling.nf'
+include { CALL_QUALITY_CONTROL                          } from '../subworkflows/quality_control.nf'
+include { CALL_RELATEDNESS                              } from '../subworkflows/relatedness.nf'
 
 workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     // set input data
     input_samples           = file(params.csv, checkIfExists: true)
 
     // load references 
-    reference_genome        = params.reference_genome ? file(params.reference_genome, checkIfExists: true) : Channel.value([])
-    reference_genome_dir    = params.reference_genome ? file(reference_genome.getParent(), checkIfExists: true) : Channel.value([])
-    reference_genome_gff    = params.reference_genome_gff ? file(params.reference_genome_gff, checkIfExists: true) : Channel.value([])
-    reference_genome_idx    = params.reference_genome_idx ? file(params.reference_genome_idx, checkIfExists: true) : Channel.value([])
+    reference_genome        = params.reference_genome       ? file(params.reference_genome, checkIfExists: true)        : Channel.value([])
+    reference_genome_dir    = params.reference_genome       ? file(reference_genome.getParent(), checkIfExists: true)   : Channel.value([])
+    reference_genome_gff    = params.reference_genome_gff   ? file(params.reference_genome_gff, checkIfExists: true)    : Channel.value([])
+    reference_genome_idx    = params.reference_genome_idx   ? file(params.reference_genome_idx, checkIfExists: true)    : Channel.value([])
 
     // databases
-    amrfinder_db            = params.amrfinder_db ? file(params.amrfinder_db, checkIfExists: true) : Channel.value([])
-    chewbbaca_db            = params.chewbbaca_db ? file(params.chewbbaca_db, checkIfExists: true) : Channel.value([])
-    core_loci_bed           = params.core_loci_bed ? file(params.core_loci_bed, checkIfExists: true) : Channel.value([])
-    gambit_db               = params.gambit_db ? file(params.gambit_db, checkIfExists: true) : Channel.value([])
-    kraken_db               = params.kraken_db ? file(params.kraken_db, checkIfExists: true) : Channel.value([])
-    mlst_blast_db           = params.mlst_blast_db ? file(params.mlst_blast_db, checkIfExists: true) : Channel.value([])
-    pointfinder_db          = params.pointfinder_db ? file(params.pointfinder_db, checkIfExists: true) : Channel.value([])
-    pubmlst_db              = params.pubmlst_db ? file(params.pubmlst_db, checkIfExists: true) : Channel.value([])
-    resfinder_db            = params.resfinder_db ? file(params.resfinder_db, checkIfExists: true) : Channel.value([])
-    serotypefinder_db       = params.serotypefinder_db ? file(params.serotypefinder_db, checkIfExists: true) : Channel.value([])
-    shigapass_db            = params.shigapass_db ? file(params.shigapass_db, checkIfExists: true) : Channel.value([])
-    tb_grading_rules_bed    = params.tb_grading_rules_bed ? file(params.tb_grading_rules_bed, checkIfExists: true) : Channel.value([])
-    tbdb_bed                = params.tbdb_bed ? file(params.tbdb_bed, checkIfExists: true) : Channel.value([])
-    tbdb_bed_idx            = params.tbdb_bed_idx ? file(params.tbdb_bed_idx, checkIfExists: true) : Channel.value([])
-    training_file           = params.training_file ? file(params.training_file, checkIfExists: true) : Channel.value([])
-    virulencefinder_db      = params.virulencefinder_db ? file(params.virulencefinder_db, checkIfExists: true) : Channel.value([])
+    amrfinder_db            = params.amrfinder_db           ? file(params.amrfinder_db, checkIfExists: true)            : Channel.value([])
+    chewbbaca_db            = params.chewbbaca_db           ? file(params.chewbbaca_db, checkIfExists: true)            : Channel.value([])
+    core_loci_bed           = params.core_loci_bed          ? file(params.core_loci_bed, checkIfExists: true)           : Channel.value([])
+    gambit_db               = params.gambit_db              ? file(params.gambit_db, checkIfExists: true)               : Channel.value([])
+    kraken_db               = params.kraken_db              ? file(params.kraken_db, checkIfExists: true)               : Channel.value([])
+    mlst_blast_db           = params.mlst_blast_db          ? file(params.mlst_blast_db, checkIfExists: true)           : Channel.value([])
+    pointfinder_db          = params.pointfinder_db         ? file(params.pointfinder_db, checkIfExists: true)          : Channel.value([])
+    pubmlst_db              = params.pubmlst_db             ? file(params.pubmlst_db, checkIfExists: true)              : Channel.value([])
+    resfinder_db            = params.resfinder_db           ? file(params.resfinder_db, checkIfExists: true)            : Channel.value([])
+    serotypefinder_db       = params.serotypefinder_db      ? file(params.serotypefinder_db, checkIfExists: true)       : Channel.value([])
+    tb_grading_rules_bed    = params.tb_grading_rules_bed   ? file(params.tb_grading_rules_bed, checkIfExists: true)    : Channel.value([])
+    tbdb_bed                = params.tbdb_bed               ? file(params.tbdb_bed, checkIfExists: true)                : Channel.value([])
+    tbdb_bed_idx            = params.tbdb_bed_idx           ? file(params.tbdb_bed_idx, checkIfExists: true)            : Channel.value([])
+    training_file           = params.training_file          ? file(params.training_file, checkIfExists: true)           : Channel.value([])
+    virulencefinder_db      = params.virulencefinder_db     ? file(params.virulencefinder_db, checkIfExists: true)      : Channel.value([])
 
     // schemas and values
-    assay                   = params.assay ? params.assay : Channel.value([])
-    hostile_dir             = params.hostile_dir ? file(params.hostile_dir, checkIfExists: true) : Channel.value([])
-    hostile_idx             = params.hostile_idx ? params.hostile_idx : Channel.value([])
-    mlst_scheme             = params.mlst_scheme ? params.mlst_scheme : Channel.value([])
-    platform                = params.platform ? params.platform : Channel.value([])
-    release_life_cycle      = params.release_life_cycle ? params.release_life_cycle : Channel.value([])
-    species                 = params.species ? params.species : Channel.value([])
-    species_dir             = params.species_dir ? params.species_dir : Channel.value([])
-    target_sample_size      = params.target_sample_size ? params.target_sample_size : Channel.value([])
+    assay                   = params.assay                  ? params.assay                                              : Channel.value([])
+    hostile_dir             = params.hostile_dir            ? file(params.hostile_dir, checkIfExists: true)             : Channel.value([])
+    hostile_idx             = params.hostile_idx            ? params.hostile_idx                                        : Channel.value([])
+    mlst_scheme             = params.mlst_scheme            ? params.mlst_scheme                                        : Channel.value([])
+    platform                = params.platform               ? params.platform                                           : Channel.value([])
+    release_life_cycle      = params.release_life_cycle     ? params.release_life_cycle                                 : Channel.value([])
+    species                 = params.species                ? params.species                                            : Channel.value([])
+    species_dir             = params.species_dir            ? params.species_dir                                        : Channel.value([])
+    target_sample_size      = params.target_sample_size     ? params.target_sample_size                                 : Channel.value([])
 
     main:
     ch_versions = Channel.empty()
@@ -73,7 +73,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         reference_genome_dir,
         reference_genome_idx,
         CALL_ASSEMBLY.out.assembly,
-        CALL_PREPROCESSING.out.empty,
+        CALL_PREPROCESSING.out.sample_id,
         CALL_PREPROCESSING.out.reads
     )
 
@@ -91,7 +91,8 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         CALL_PREPROCESSING.out.reads
     )
 
-    post_align_qc(CALL_PROFILING.out.bam, reference_genome, core_loci_bed)
+    post_align_qc(CALL_PROFILING.out.bam, core_loci_bed)
+    samtools_coverage_ref(CALL_PROFILING.out.bam)
 
     CALL_PROFILING.out.bam
         .join(CALL_PROFILING.out.bai)
@@ -99,13 +100,15 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .join(CALL_QUALITY_CONTROL.out.kraken)
         .join(post_align_qc.out.json)
         .join(CALL_QUALITY_CONTROL.out.quast)
+        .join(CALL_QUALITY_CONTROL.out.nanoplot_txt)
+        .join(samtools_coverage_ref.out.txt)
         .set{ ch_qc_combined_output }
 
-    CALL_PREPROCESSING.out.empty
-        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty ] }
+    CALL_PREPROCESSING.out.sample_id
+        .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_screening_combined_output }
     
-    CALL_PREPROCESSING.out.empty
+    CALL_PREPROCESSING.out.sample_id
         .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_typing_combined_output }
 
@@ -133,9 +136,38 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
     ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
 
-    emit: 
+    emit:
     pipeline_result = CALL_POSTPROCESSING.out.pipeline_result   // channel: [ path(json) ]
     cdm             = CALL_POSTPROCESSING.out.cdm               // channel: [ path(txt) ]
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
     versions        = ch_versions                               // channel: [ versions.yml ]
+}
+
+workflow.onComplete {
+
+    def msg = """\
+        Pipeline execution summary
+        ---------------------------
+        Completed at: ${workflow.complete}
+        Duration    : ${workflow.duration}
+        Success     : ${workflow.success}
+        scriptFile  : ${workflow.scriptFile}
+        workDir     : ${workflow.workDir}
+        csv         : ${params.csv}
+        exit status : ${workflow.exitStatus}
+        errorMessage: ${workflow.errorMessage}
+        errorReport :
+        """
+        .stripIndent()
+    def error = """\
+        ${workflow.errorReport}
+        """
+        .stripIndent()
+
+    if (params.log_file_dir) {
+        def base = file(params.csv).getBaseName()
+        def logFile = file(params.log_file_dir + base + ".complete")
+        logFile.text = msg
+        logFile.append(error)
+    }
 }

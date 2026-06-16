@@ -2,7 +2,7 @@
 
 ## Usage
 
-A workflow designed for analyzing of *Staphylococcus aureus*.
+The workflow is designed for analyzing of *Staphylococcus aureus*.
 
 ## Supported analysis
 
@@ -11,8 +11,11 @@ The workflow includes the following analysis in addition to species prediction a
 - Antibiotic resistance prediction
 - Disinfectant resistance
 - Prediction of virulence factors
+- Plasmid detection
 - MLST
 - cgMLST
+- SCCmec type
+- spa type (for ONT workflow)
 
 ## Software versions
 

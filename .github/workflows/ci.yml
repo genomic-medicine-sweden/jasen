@@ -27,13 +27,24 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "23.10.1"
+          - "25.10.4"
         organism:
           - "staphylococcus_aureus"
          #- "mycobacterium_tuberculosis"
-         #- "klebsiella_pneumoniae"
+         #- "klebsiella"
          #- "escherichia_coli"
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Install Nextflow
         # For running (locally) with ACT, we use a docker image with Nextflow pre-installed
         if: "${{ ! github.event.act }}"

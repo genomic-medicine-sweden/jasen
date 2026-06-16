@@ -7,9 +7,11 @@ include { bwa_mem as bwa_mem_ref                     } from '../modules/nf-core/
 include { fastqc                                     } from '../modules/nf-core/fastqc/main.nf'
 include { gambitcore                                 } from '../modules/local/gambitcore/main.nf'
 include { kraken                                     } from '../modules/nf-core/kraken/main.nf'
+include { kraken_batch                               } from '../modules/nf-core/kraken/main.nf'
 include { minimap2_align as minimap2_align_ref       } from '../modules/nf-core/minimap2/main.nf'       
 include { nanoplot                                   } from '../modules/nf-core/nanoplot/main.nf'
-include { post_align_qc                              } from '../modules/local/prp/main.nf'
+include { count_reads                                } from '../modules/local/jasentool/main.nf'
+include { post_align_qc                              } from '../modules/local/jasentool/main.nf'
 include { quast                                      } from '../modules/nf-core/quast/main.nf'
 include { samtools_coverage as samtools_coverage_ref } from '../modules/nf-core/samtools/main.nf'
 include { samtools_index as samtools_index_ref       } from '../modules/nf-core/samtools/main.nf'
@@ -24,7 +26,7 @@ workflow CALL_QUALITY_CONTROL {
     reference_genome_dir
     reference_genome_idx
     ch_assembly
-    ch_empty
+    ch_sample_id
     ch_reads
 
     main:
@@ -43,7 +45,15 @@ workflow CALL_QUALITY_CONTROL {
     bwa_mem_ref(ch_reads, reference_genome_dir)
 
     // qc processing - long read
-    nanoplot(ch_reads)
+    if (params.platform == "nanopore") {
+        nanoplot(ch_reads)
+        nanoplot.out.txt.set{ ch_nanoplot_txt }
+        nanoplot.out.html.set{ ch_nanoplot_html }
+        ch_versions = ch_versions.mix(nanoplot.out.versions)
+    } else {
+        ch_sample_id.set{ ch_nanoplot_txt }
+        ch_sample_id.set{ ch_nanoplot_html }
+    }
 
     minimap2_align_ref(ch_reads, reference_genome_idx)
     samtools_sort_ref(minimap2_align_ref.out.sam)
@@ -51,26 +61,44 @@ workflow CALL_QUALITY_CONTROL {
     if (params.reference_genome) {
         samtools_sort_ref.out.bam.mix(bwa_mem_ref.out.bam).set{ ch_ref_bam }
         samtools_index_ref(ch_ref_bam).bai.set{ ch_ref_bai }
-        post_align_qc(ch_ref_bam, reference_genome, core_loci_bed).json.set{ ch_post_align_qc }
-        samtools_coverage_ref(samtools_sort_ref.out.bam).txt.set{ ch_samtools_cov_ref }
+        post_align_qc(ch_ref_bam, core_loci_bed).json.set{ ch_post_align_qc }
+        samtools_coverage_ref(ch_ref_bam).txt.set{ ch_samtools_cov_ref }
         ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
     } else {
-        ch_empty.set{ ch_ref_bam }
-        ch_empty.set{ ch_ref_bai }
-        ch_empty.set{ ch_post_align_qc }
-        ch_empty.set{ ch_samtools_cov_ref }
+        count_reads(ch_reads).json.set{ ch_post_align_qc }
+        ch_sample_id.set{ ch_ref_bam }
+        ch_sample_id.set{ ch_ref_bai }
+        ch_sample_id.set{ ch_samtools_cov_ref }
+        ch_versions = ch_versions.mix(count_reads.out.versions)
     }
 
     if ( params.use_kraken ) {
-        kraken(ch_reads, kraken_db)
-        bracken(kraken.out.report, kraken_db)
+        if ( params.use_kraken_batch ) {
+            ch_reads
+                .collectFile(name: 'kraken_batch_input.list', newLine: true) { sample_id, reads ->
+                    def paths = reads*.toRealPath().join('\t')
+                    "${sample_id}\t${paths}"
+                }
+                .set { batch_list }
+            kraken_batch(batch_list, kraken_db)
+            kraken_batch.out.reports
+                .flatten()
+                .map { kraken_report -> [kraken_report.name.replaceAll('_kraken\\.report$', ''), kraken_report] }
+                .set { ch_kraken_reports }
+            ch_versions = ch_versions.mix(kraken_batch.out.versions)
+        } else {
+            kraken(ch_reads, kraken_db)
+            kraken.out.report.set { ch_kraken_reports }
+            ch_versions = ch_versions.mix(kraken.out.versions)
+        }
+
+        bracken(ch_kraken_reports, kraken_db)
         bracken.out.output.set{ ch_kraken }
-        ch_versions = ch_versions.mix(kraken.out.versions)
         ch_versions = ch_versions.mix(bracken.out.versions)
     } else {
-        ch_empty.set{ ch_kraken }
+        ch_sample_id.set{ ch_kraken }
     }
 
     ch_ref_bam
@@ -79,21 +107,23 @@ workflow CALL_QUALITY_CONTROL {
         .join(ch_kraken)
         .join(ch_post_align_qc)
         .join(quast.out.tsv)
+        .join(ch_nanoplot_txt)
+        .join(ch_samtools_cov_ref)
         .set { ch_combined_output }
 
     ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
     ch_versions = ch_versions.mix(fastqc.out.versions)
     ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
-    ch_versions = ch_versions.mix(nanoplot.out.versions)
 
     emit:
-    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv) ]
+    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(txt), path(json), path(tsv), path(txt), path(txt) ]
     bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
     bai                 = ch_ref_bai                    // channel: [ val(meta), path(bai) ]
     fastqc              = fastqc.out.output             // channel: [ val(meta), path(txt) ]
     gambitcore          = gambitcore.out.tsv            // channel: [ val(meta), path(tsv) ]
     kraken              = ch_kraken                     // channel: [ val(meta), path(fasta) ]
-    nanoplot_html       = nanoplot.out.html             // channel: [ val(meta), path(html) ]
+    nanoplot_html       = ch_nanoplot_html              // channel: [ val(meta), path(html) ]
+    nanoplot_txt        = ch_nanoplot_txt               // channel: [ val(meta), path(txt) ]
     post_align_qc       = ch_post_align_qc              // channel: [ val(meta), path(fasta) ]
     quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
     samtools_cov_ref    = ch_samtools_cov_ref           // channel: [ val(meta), path(txt) ]

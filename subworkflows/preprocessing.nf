@@ -5,9 +5,11 @@ nextflow.enable.dsl=2
 include { get_reads                 } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta           } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean       } from '../modules/local/clean/main.nf'
+include { filtlong                  } from '../modules/nf-core/filtlong/main.nf'
 include { hostile                   } from '../modules/nf-core/hostile/main.nf'
 include { save_analysis_metadata    } from '../modules/local/meta/main.nf'
 include { seqtk_sample              } from '../modules/nf-core/seqtk/main.nf'
+include { trimmomatic               } from '../modules/nf-core/trimmomatic/main.nf'
 
 workflow CALL_PREPROCESSING {
     take:
@@ -46,11 +48,18 @@ workflow CALL_PREPROCESSING {
         ch_depleted_reads.set{ ch_depleted_sampled_reads }
     }
 
-    // reads trim and clean and recreate reads channel if the reads were filtered or downsampled
-    assembly_trim_clean(ch_depleted_sampled_reads).set { ch_clean_reads }
-    Channel.empty()
-        .mix( ch_depleted_sampled_reads, ch_clean_reads )  // if samples are filtered or downsampled
-        .set{ ch_reads }                                   // create reads channel
+    // platform-specific read filtering/trimming
+    if (params.platform == "iontorrent") {
+        assembly_trim_clean(ch_depleted_sampled_reads).set { ch_reads }
+    } else if (params.platform == "nanopore" && params.use_filtlong) {
+        filtlong(ch_depleted_sampled_reads).reads.set { ch_reads }
+        ch_versions = ch_versions.mix(filtlong.out.versions)
+    } else if (params.platform == "illumina" && params.use_trimmomatic) {
+        trimmomatic(ch_depleted_sampled_reads).reads.set { ch_reads }
+        ch_versions = ch_versions.mix(trimmomatic.out.versions)
+    } else {
+        ch_depleted_sampled_reads.set{ ch_reads }
+    }
 
     Channel.fromPath(input_samples).splitCsv(header:true)
         .map{ row -> get_seqrun_meta(row) }
@@ -59,7 +68,7 @@ workflow CALL_PREPROCESSING {
         .set{ ch_id_meta }
 
     // create empty channel containing only sample_id
-    ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_empty }
+    ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_sample_id }
 
     // analysis metadata
     save_analysis_metadata(ch_reads.join(ch_seqrun_meta), assay, platform, release_life_cycle)
@@ -67,11 +76,11 @@ workflow CALL_PREPROCESSING {
     ch_id_meta.join(save_analysis_metadata.out.json).set{ ch_combined_output }
 
     emit:
-    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), path(json) ]
-    empty               = ch_empty                          // channel: [ val(meta) ]
+    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), val(meta), path(json) ]
+    sample_id           = ch_sample_id                      // channel: [ val(meta) ]
     id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
-    reads               = ch_reads                          // channel: [ val(meta), path(json) ]
+    reads               = ch_reads                          // channel: [ val(meta), path(fastq) ]
     seqrun_meta         = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
     versions            = ch_versions                       // channel: [ versions.yml ]
 }

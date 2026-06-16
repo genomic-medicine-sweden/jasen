@@ -1,48 +1,33 @@
 # Updating
 
-## Submodules
-
-### Simultaneously update all submodules to expected commit
-```
-git submodule update --init --recursive
-```
-
-### Check that everything worked
-**NOTE**: Submodules should not appear when running the following
-```
-git status
-```
-
-### Troubleshooting
-Git submodule update not working
-```
-cd assets/{submodule_dir}
-git pull origin master
-git checkout commit_id
-cd ../..
-git status
-```
+## Updating databases
 
 ### Rerun PointFinder database creation
 ```
 rm assets/pointfinder_db/*/*.{b,name}
-make
+make update_pointfinder_db
 ```
 
 ### Rerun SerotypeFinder database creation
 ```
 rm assets/serotypefinder_db/*.{b,name}
-make
+make update_serotypefinder_db
 ```
 
 ### Rerun ResFinder database creation
 ```
 rm assets/resfinder_db/*.{b,name}
-make
+make update_resfinder_db
 ```
 
 ### Rerun VirulenceFinder database creation
 ```
 rm assets/virulencefinder_db/*.{b,name}
-make
+make update_virulencefinder_db
+```
+
+### Update AMRFinder database
+```
+rm assets/amrfinder_db/*.{b,name}
+make update_amrfinderplus
 ```
