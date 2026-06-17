@@ -61,7 +61,8 @@ workflow CALL_POSTPROCESSING {
     ch_preprocessing_combined_output
         .map { it[0] }
         .collect()
-        .combine(format_jasen.out.json.map { it[0] }.collect())
+        .map { [it] }
+        .combine(format_jasen.out.json.map { it[0] }.collect().map { [it] })
         .subscribe { expected, actual ->
             def missing = expected - actual
             if (missing) {
