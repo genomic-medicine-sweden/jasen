@@ -37,7 +37,7 @@ process tbprofiler {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 tb-profiler:
-	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')
+	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//')
 	  container: ${task.container}
 	END_VERSIONS
     """
@@ -57,7 +57,7 @@ process tbprofiler {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 tb-profiler:
-	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*TBProfiler version // ; s/ .*//')
+	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//')
 	  container: ${task.container}
 	END_VERSIONS
     """
