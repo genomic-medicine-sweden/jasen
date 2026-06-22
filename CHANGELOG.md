@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bumped `jasentool` to `1.2.0` and `bonsai-prp` to `2.0.0`
+- Bumped `chewbbaca` to v3.5.4
 - Removed `shigapass` (module, `--shigapass` input, `shigapass_db` parameter, `download_shigapass` / `update_shigapass_db` targets), replaced by `shigatyper`
 - Removed `jasentool post-align-qc` (process, `withName: post_align_qc` config, `--postalnqc` flag), replaced by `samtools_stats` + `samtools_bedcov` (#499)
 
