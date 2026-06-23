@@ -778,17 +778,17 @@ $(PRODIGAL_TRAINING_DIR)/Enterococcus_faecium.trn:
 	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Enterococcus_faecium.trn \
 		-O $@ \
 		--no-verbose \
-		--no-check-certificate |& tee -a $(INSTALL_LOG)
+		--no-check-certificate |& tee -a $(INSTALL_LOG)q
 
 
 # Download Enterococcus faecium cgmlst cgmlst.org schema
-efaecium_download_cgmlst_schema: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip
+efaecium_download_cgmlst_schema: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium_989332.zip
 
-$(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip:
+$(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium_989332.zip:
 	$(call log_message,"Downloading E. faecium cgMLST schema ...")
 	mkdir -p $(EFAECIUM_CGMLST_DIR)/alleles \
 	&& cd $(EFAECIUM_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/989332/alleles/ \
+	&& wget https://www.cgmlst.org/ncs/schema/989332/alleles \
 		-O $$(basename $@) \
 		--no-verbose \
 		--no-check-certificate |& tee -a $(INSTALL_LOG)
@@ -796,7 +796,7 @@ $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip:
 
 efaecium_unpack_cgmlst_schema: $(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done
 
-$(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium5736.zip
+$(EFAECIUM_CGMLST_DIR)/alleles/unpacking.done: $(EFAECIUM_CGMLST_DIR)/alleles/cgmlst_schema_Efaecium_989332.zip
 	$(call log_message,"Unpacking E. faecium cgMLST schema ...")
 	cd $(EFAECIUM_CGMLST_DIR)/alleles \
 	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
