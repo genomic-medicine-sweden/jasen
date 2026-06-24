@@ -17,21 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `shigatyper` (v2.0.5) for *Shigella* typing on the *E. coli* workflow, replacing ShigaPass (#505)
 - Added `--shigatyper` input to `create_yaml`
 - Added `samtools_stats` and `samtools_bedcov` processes, replacing `jasentool post-align-qc`; both feed `create_yaml` via `--samtools-stats` and `--samtools-bedcov` (#499)
-- Wired `concatenate_files` into `CALL_POSTPROCESSING` to merge each subworkflow's `versions.yml` into one file, passed to `create_yaml` via `--versions` (#499)
+- Added `concatenate_files` to `CALL_POSTPROCESSING` to merge each subworkflow's `versions.yml` into one file (#499)
 
 ### Fixed
 
 - The pipeline now fails when an input sample produces no result JSON instead of finishing successfully (#466)
 - Fixed `resfinder` `versions.yml`: the heredoc terminator no longer leaks into the file and the `resfinder_db` / `pointfinder_db` versions now read from `$RES_DB_VERSION` / `$POINT_DB_VERSION` (#512)
 - Switched the `make download_tbdb` sentinel to `assets/tbdb/variables.json` so a stale `assets/tbdb/` directory no longer satisfies the rule and breaks `tb-profiler create_db` (#514)
+- Removed the redundant `tb-profiler load_library` step from the `mtuberculosis_converged_who_fohm_tbdb` Makefile target (#514)
 - Fixed malformed `versions.yml` across all modules — `<<-END_VERSIONS` heredocs with space-indented terminators leaked the terminator into the file and broke `concatenate_files` YAML parsing (#499)
 - Fixed `versions.yml` version extraction so `concatenate_files` can parse every file — dropped a duplicating `sed` flag (`spatyper`), corrected a stderr redirect (`kleborate`), aligned stub blocks with their script blocks (`spatyper`, `plasmidfinder`), and collapsed multi-line version output (`trimmomatic`, `clair3`, `filtlong`) (#499)
 - Reverted `TBDB_COMMIT` to `4907915` to match the tb-profiler 6.3.0 container; the earlier tb-profiler revert left the tbdb pinned to the 6.7.0-era commit, causing "tb-profiler is too old to use this version of the database"
-- Populated missing software versions so `prp parse jasen` validation passes for every analysis tool — mixed `gambitcore` and `quast` versions into the collected `versions.yml`, renamed the `chewbbaca` (`chewBBACA`) and `tb-profiler` (`tbprofiler`) version keys to match the lookup, and added a `serotypefinder` tool version entry
+- Populated missing software versions so `prp parse jasen` validation passes for every analysis tool — mixed `gambitcore` and `quast` versions into the collected `versions.yml`, renamed the `chewbbaca` and `tb-profiler` version keys to match the lookup, and added a `serotypefinder` tool version entry
 - Pinned `plasmidfinder` `2.1.6` (its `--version` prints usage, not a version), `serotypefinder` `2.0.2`, and `bracken` `2.8`, since these tools can't report their own version
 - Fixed `gambitcore`, `nanoplot`, and `tbprofiler` version strings so they are valid versions `prp parse jasen` can parse (the seds left the literal tool name — `gambitcore`/`NanoPlot`, and `tbprofiler` matched a wrong-case `TBProfiler version` that never matched `tb-profiler version`)
-- Switched `virulencefinder` output to the standardized `--out_json` format (matching `resfinder`) instead of the classic `data.json`, so `prp parse jasen` can parse it (the classic format has no `seq_regions`)
-- Changed the `diagnostic` profile (and default) `release_life_cycle` to `production` so it matches bonsai-prp's accepted values; `development` and `validation` are unchanged
 
 ### Changed
 
@@ -39,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `chewbbaca` to v3.5.4
 - Removed `shigapass` (module, `--shigapass` input, `shigapass_db` parameter, `download_shigapass` / `update_shigapass_db` targets), replaced by `shigatyper`
 - Removed `jasentool post-align-qc` (process, `withName: post_align_qc` config, `--postalnqc` flag), replaced by `samtools_stats` + `samtools_bedcov` (#499)
+- Changed `virulencefinder` output to the standardized `--out_json` format instead of the classic `data.json`
+- Changed the `diagnostic` profile (and default) `release_life_cycle` to `production` so it matches bonsai-prp's accepted values; `development` and `validation` are unchanged
 
 ## [1.3.0]
 
