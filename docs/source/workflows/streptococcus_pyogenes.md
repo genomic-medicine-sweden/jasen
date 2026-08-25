@@ -16,10 +16,8 @@ The workflow includes the following analysis in addition to species prediction a
 - MLST
 - cgMLST
 
-
 ## Software versions
 
 ```{csv-table} Versions of softwares and containers used by the *Streptococcus pyogenes* workflow.
 :file: streptococcus_pyogenes_sw.csv
-
 ```

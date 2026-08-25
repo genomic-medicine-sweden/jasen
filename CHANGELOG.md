@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a profile for Enterococcus faecium, including MLST and cgMLST typing as well as resistance and virulence testing (#303)
 - Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
 - Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
@@ -75,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced `assets/mlstdb/update_mlstdb.sh` with per-species `Makefile` targets for MLST database updates
 - Removed dead `add_igv_track` process from `modules/local/prp/main.nf` and its config block
 - Changed cgmlst.org schema to `schema_id` as `name_id` (`Saur48`) changes often
-- Updated AMRFinderPlus to v4.2.7 
+- Updated AMRFinderPlus to v4.2.7
 - Updated kraken2 container to mulled image (kraken2=2.17.1 + coreutils=9.5) to provide GNU dd with iflag=nocache support
 - Updated bonsai-prp to v1.6.1
 - Reverted TBProfiler to v6.3.0
@@ -100,7 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added option to turn off masking of the assembly before cgMLST analysis (default: true, if `nanopore` profile is used, default is false)
 - Added information about ONT workflow, input and output files to documentation
 - Added ONT test data with 10k reads for _S. aureus_
-- Added `filtlong` to long-read workflows 
+- Added `filtlong` to long-read workflows
 
 ### Fixed
 
@@ -218,7 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `cmd` module name to `cdm`
 - Updated bonsai-prp to v1.3.1
 - Changed indentation structure
-- Moved `platform` to config via `params.platform` 
+- Moved `platform` to config via `params.platform`
 - Changed `hostile` io
 - Updated docs regarding restructuring
 - Changed `prp` sub commands
@@ -298,7 +299,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `staphylococcus_aureus_all` to `saureus_all` in `Makefile`
 - Moved all `when` commands to configs
 - Updated `fastqc` & `sccmec` mem settings
-- Changed model that is used in `medaka_consensus` to bacterial model (using `--bacteria` argument) 
+- Changed model that is used in `medaka_consensus` to bacterial model (using `--bacteria` argument)
 
 ## [0.9.0]
 
@@ -306,7 +307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added long-read test data (S. aureus)
 - Added `samplelist_nanopore.csv` for running long-read test data
-- Added location of documentation to `README` 
+- Added location of documentation to `README`
 - Added `cdmDir` to config
 - Added NanoPlot module
 - Added process for adding IGV annotation tracks with PRP.
@@ -331,7 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added ShigaPass
 - Added mlstBlastDb to mlst
-- Added full path for bam and vcf filepaths 
+- Added full path for bam and vcf filepaths
 - Added bam and bai to bonsai input for `staphylococcus_aureus`, `escherichia_coli` & `klebsiella_pneumoniae`
 - Added `bamDir` and `vcfDir` to config params
 - Added run `bwa_mem` from only when profile is not `mycobacterium_tuberculosis`

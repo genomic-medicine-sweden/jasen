@@ -135,7 +135,7 @@ $(remote_containers):
 	$(eval sanitized_url := $(shell echo ${container_url} | sed -e 's/%3A/:/g'))
 	output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& wget -O $${output_file} ${sanitized_url} --no-check-certificate \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $@
 
 
 # ----------------------------------------------------------------
@@ -150,4 +150,4 @@ $(local_containers):
 	@chmod o+w $(INSTALL_LOG) \
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& apptainer build --force $${output_file} ${container_url} \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $@

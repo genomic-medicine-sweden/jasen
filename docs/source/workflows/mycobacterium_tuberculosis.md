@@ -14,5 +14,4 @@ The workflow includes the following analysis in addition to species prediction a
 
 ```{csv-table} Versions of softwares and containers used by the *Mycobacterium tuberculosis* workflow.
 :file: mycobacterium_tuberculosis_sw.csv
-
 ```

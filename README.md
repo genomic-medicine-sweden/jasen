@@ -23,7 +23,7 @@ The pipeline currently support a small set of microbiota and the support are in 
 | *Klebsiella*                 | Draft                        | Draft                   |
 | *Streptococcus pyogenes*     | Stable                       |                         |
 | *Streptococcus*              | Stable                       |                         |
-
+| *Enterococcus faecium*       | Development                  |                         |
 
 ## Installation
 

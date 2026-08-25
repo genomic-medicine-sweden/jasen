@@ -17,10 +17,8 @@ The workflow includes the following analysis in addition to species prediction a
 - SCCmec type
 - spa type (for ONT workflow)
 
-
 ## Software versions
 
 ```{csv-table} Versions of softwares and containers used by the *Staphylococcus aureus* workflow.
 :file: staphylococcus_aureus_sw.csv
-
 ```
