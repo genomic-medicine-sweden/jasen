@@ -6,7 +6,7 @@ The workflow is designed for analysis of *Enterococcus faecium*.
 
 ## Supported analysis
 
-The workflow includes the following analysis in addition to species prediction and various methods for assessing the sequencing quality,
+The workflow includes the following analyses in addition to species prediction and various methods for assessing the sequencing quality:
 
 - Antibiotic resistance prediction
 - Disinfectant resistance
