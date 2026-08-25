@@ -13,7 +13,7 @@ The workflow includes the following analyses in addition to species prediction a
 - Prediction of virulence factors
 - Plasmid detection
 - MLST typing
-- cgMLST
+- cgMLST typing
 
 ## Software & database versions
 
