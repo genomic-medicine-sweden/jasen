@@ -17,6 +17,6 @@ The workflow includes the following analyses in addition to species prediction a
 
 ## Software & database versions
 
-```{csv-table} Versions of softwares and containers used by the *Enterococcus faecium** workflow.
+```{csv-table} Versions of softwares and containers used by the *Enterococcus faecium* workflow.
 :file: enterococcus_faecium_sw.csv
 ```
