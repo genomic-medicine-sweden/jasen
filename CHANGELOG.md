@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added a profile for Enterococcus faecium, including MLST, cgMLST and resistance and virulence testing (#303)
+- Added a profile for Enterococcus faecium, including MLST and cgMLST typing as well as resistance and virulence testing (#303)
 - Added `plasmidfinder` (v2.1.6, `https://depot.galaxyproject.org/singularity/plasmidfinder:2.1.6--py314hdfd78af_2`) as a screening process for plasmid detection on assemblies; runs by default for all bacterial workflows except *Mycobacterium tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
 - Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs`, and `--software-info` (plasmidfinder meta) inputs to `create_yaml`; the `Hit_in_genome_seq.fsa` and `Plasmid_seqs.fsa` paths are now emitted in the analysis YAML
