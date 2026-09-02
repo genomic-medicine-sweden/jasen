@@ -821,12 +821,10 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 klebsiella_all: kpneumoniae_download_reference \
 	kpneumoniae_faidx_reference \
 	kpneumoniae_bwaidx_reference \
-	kpneumoniae_minimap2idx_reference \
-	kpneumoniae_download_prodigal_training_file
+	kpneumoniae_minimap2idx_reference
 
 
 KPNEU_GENOMES_DIR := $(ASSETS_DIR)/genomes/klebsiella_pneumoniae
-KPNEU_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/klebsiella_pneumoniae
 KLEB_CGMLST_DIR := $(ASSETS_DIR)/cgmlst/klebsiella
 KPNEU_REFSEQ_ACC := GCF_000240185.1
 
@@ -867,58 +865,6 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSE
 	cd $(KPNEU_GENOMES_DIR) \
 	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
-
-
-kpneumoniae_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn
-
-$(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn:
-	$(call log_message,"Downloading K. pneumonia prodigal training file ...")
-	mkdir -p $(PRODIGAL_TRAINING_DIR) \
-	&& cd $(PRODIGAL_TRAINING_DIR) \
-	&& wget https://raw.githubusercontent.com/B-UMMI/chewBBACA/master/CHEWBBACA/prodigal_training_files/Klebsiella_pneumoniae.trn \
-		-O $@ \
-		--no-verbose \
-		--no-check-certificate |& tee -a $(INSTALL_LOG)
-
-
-# Download Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_download_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae_2187931.zip
-
-$(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae_2187931.zip:
-	$(call log_message,"Downloading K. pneumoniae cgMLST schema ...")
-	mkdir -p $(KPNEU_CGMLST_DIR)/alleles \
-	&& cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& wget https://www.cgmlst.org/ncs/schema/2187931/alleles \
-		-O $$(basename $@) \
-		--no-verbose \
-		--no-check-certificate |& tee -a $(INSTALL_LOG)
-
-
-kpneumoniae_unpack_cgmlst_schema: $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
-
-$(KPNEU_CGMLST_DIR)/alleles/unpacking.done: $(KPNEU_CGMLST_DIR)/alleles/cgmlst_schema_Kpneumoniae_2187931.zip
-	$(call log_message,"Unpacking K. pneumoniae cgMLST schema ...")
-	cd $(KPNEU_CGMLST_DIR)/alleles \
-	&& unzip -DDq $$(basename $<) |& tee -a $(INSTALL_LOG) \
-	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done unpacking zip file: " $< > $@
-
-
-# Prep Kpneumoniae cgmlst cgmlst.org schema
-kpneumoniae_prep_cgmlst_schema: | $(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn
-
-$(KPNEU_CGMLST_DIR)/alleles_rereffed/Klebsiella_pneumoniae.trn: $(KPNEU_CGMLST_DIR)/alleles_rereffed
-
-$(KPNEU_CGMLST_DIR)/alleles_rereffed: | $(KPNEU_CGMLST_DIR)/alleles/unpacking.done
-	$(call log_message,"Prepping K. pneumoniae cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
-	cd $(KPNEU_CGMLST_DIR) \
-	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
-		chewie PrepExternalSchema \
-		-g $(KPNEU_CGMLST_DIR)/alleles \
-		-o $(KPNEU_CGMLST_DIR)/alleles_rereffed \
-		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Klebsiella_pneumoniae.trn \
-	&& find $(KPNEU_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 
 # Download Klebsiella cgmlst schema from BIGSdb Pasteur
@@ -1200,14 +1146,14 @@ check_chewbbaca:
 	@cd $(SCRIPT_DIR) \
 	&& saureus=$(SAUR_CGMLST_DIR)/alleles_rereffed \
 	&& ecoli=$(ECOLI_CGMLST_DIR)/alleles_rereffed \
-	&& kpneumoniae=$(KPNEU_CGMLST_DIR)/alleles_rereffed \
+	&& klebsiella=$(KLEB_CGMLST_DIR)/alleles_rereffed \
 	&& spyogenes=$(SPYO_CGMLST_DIR)/alleles_rereffed \
 	&& streptococcus=$(STREP_CGMLST_DIR)/alleles_rereffed \
-	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$kpneumoniae" && -d "$$spyogenes" && -d "$$streptococcus" ]]; then \
+	&& if [[ -d "$$saureus" && -d "$$ecoli" && -d "$$klebsiella" && -d "$$spyogenes" && -d "$$streptococcus" ]]; then \
 		echo "[✓] PASSED check for chewBBACA: Directories exist:" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$saureus" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$ecoli" |& tee -a $(INSTALL_LOG) \
-		&& echo "- $$kpneumoniae" |& tee -a $(INSTALL_LOG) \
+		&& echo "- $$klebsiella" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$spyogenes" |& tee -a $(INSTALL_LOG) \
 		&& echo "- $$streptococcus" |& tee -a $(INSTALL_LOG); \
 	else \
@@ -1218,8 +1164,9 @@ check_chewbbaca:
 		if [[ ! -d $$ecoli ]]; then \
 			echo "    Missing directory: $$ecoli" |& tee -a $(INSTALL_LOG);  \
 		fi; \
-		if [[ ! -d $$kpneumoniae ]]; then \
-			echo "    Missing directory: $$kpneumoniae" |& tee -a $(INSTALL_LOG);  \
+		if [[ ! -d $$klebsiella ]]; then \
+			echo "    Missing directory: $$klebsiella" |& tee -a $(INSTALL_LOG);  \
+			echo "    The Klebsiella cgMLST schema is not part of make install. Run the klebsiella_download_cgmlst_schema and klebsiella_prep_cgmlst_schema targets manually with BIGSdb Pasteur credentials (see docs/source/install.md)" |& tee -a $(INSTALL_LOG);  \
 		fi; \
 		if [[ ! -d $$spyogenes ]]; then \
 			echo "    Missing directory: $$spyogenes" |& tee -a $(INSTALL_LOG);  \
@@ -1299,4 +1246,5 @@ check_blastdb:
 		echo "[✓] PASSED check for blast: Indexes exist in $(MLST_BLAST_DIR)" |& tee -a $(INSTALL_LOG); \
 	else \
 		echo "[!] FAILED check for blast: Indexes do not exist in $(MLST_BLAST_DIR)" |& tee -a $(INSTALL_LOG); \
+		echo "    The MLST database is not part of make install. Run the setup_*_mlstdb_token and update_*_mlstdb targets manually with PubMLST/Pasteur credentials (see docs/source/install.md)" |& tee -a $(INSTALL_LOG); \
 	fi

@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The pipeline now fails when an input sample produces no result JSON (#466)
+- Changed `check_chewbbaca` to check the supported `cgmlst/klebsiella/alleles_rereffed` schema instead of the optional *K. pneumoniae* one
+- Clarified the failed `check_blastdb` and `check_chewbbaca` messages to point at the manual database targets
 - Fixed `resfinder` `versions.yml` terminator leak and DB version reads (#512)
 - Switched the `make download_tbdb` sentinel to `assets/tbdb/variables.json` (#514)
 - Removed the redundant `tb-profiler load_library` step from the TBDB Makefile target (#514)
@@ -39,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `jasentool post-align-qc`, replaced by `samtools_stats` + `samtools_bedcov` (#499)
 - Changed `virulencefinder` output to the standardized `--out_json` format
 - Changed the `diagnostic` profile `release_life_cycle` to `production` to match bonsai-prp
+- Removed the optional *K. pneumoniae* cgMLST schema and prodigal training file Makefile targets; the BIGSdb Pasteur schema is the supported *Klebsiella* schema
 
 ## [1.3.0]
 
