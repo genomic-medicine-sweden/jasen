@@ -867,6 +867,18 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSE
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
+# Set up BIGSdb Pasteur access token (interactive, one-time only)
+setup_klebsiella_cgmlst_token:
+	$(call log_message,"Setting up BIGSdb Pasteur access token for Klebsiella cgMLST...")
+	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+		jasentool download-bigsdb \
+		--setup \
+		--key-name Pasteur \
+		--site Pasteur \
+		--db pubmlst_klebsiella_seqdef \
+		--token-dir $(TOKEN_DIR) |& tee -a $(INSTALL_LOG)
+
+
 # Download Klebsiella cgmlst schema from BIGSdb Pasteur
 klebsiella_download_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
 
@@ -878,7 +890,7 @@ $(KLEB_CGMLST_DIR)/alleles/downloading.done:
 		--key-name Pasteur \
 		--site Pasteur \
 		--token-dir $(ASSETS_DIR)/.bigsdb_tokens \
-		--url https://bigsdb.pasteur.fr/api \
+		--url https://bigsdb.pasteur.fr/api/db/pubmlst_klebsiella_seqdef/schemes/18 \
 		--output-dir $(KLEB_CGMLST_DIR)/alleles |& tee -a $(INSTALL_LOG) \
 	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done downloading cgMLST schema from BIGSdb Pasteur" > $@ |& tee -a $(INSTALL_LOG)
 

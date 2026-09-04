@@ -154,14 +154,19 @@ cp assets/.bigsdb_tokens/client_credentials.template assets/.bigsdb_tokens/clien
 ```
 [Pasteur]
 client_id = insert_pasteur_client_id
-client_secret = client_id = insert_pasteur_client_secret
+client_secret = insert_pasteur_client_secret
 ```
-4. To download the raw cgMLST alleles from BIGSdb Pasteur, run:
+4. Set up the BIGSdb Pasteur access token (interactive, one-time only):
+```bash
+make setup_klebsiella_cgmlst_token
+```
+Open the printed URL in a browser, log in with your Pasteur account, authorize the client, and paste the verification code back into the prompt. The access token does not expire, and setup is skipped if a token is already set up.
+5. To download the raw cgMLST alleles from BIGSdb Pasteur, run:
 **NOTE**: This target must be run manually and is **not** part of `make install`. It requires OAuth credentials to be configured as described above.
 ```bash
 make klebsiella_download_cgmlst_schema
 ```
-5. After downloading, re-reference the alleles by running:
+6. After downloading, re-reference the alleles by running:
 ```bash
 make klebsiella_prep_cgmlst_schema
 ```
