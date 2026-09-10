@@ -40,6 +40,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     virulencefinder_db      = params.virulencefinder_db     ? file(params.virulencefinder_db, checkIfExists: true)      : Channel.value([])
 
     // schemas and values
+    reference_genome_accession = params.reference_genome_accession ? params.reference_genome_accession : Channel.value([])
     assay                   = params.assay                  ? params.assay                                              : Channel.value([])
     hostile_dir             = params.hostile_dir            ? file(params.hostile_dir, checkIfExists: true)             : Channel.value([])
     hostile_idx             = params.hostile_idx            ? params.hostile_idx                                        : Channel.value([])
@@ -129,6 +130,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         reference_genome,
         reference_genome_idx,
         reference_genome_gff,
+        reference_genome_accession,
         species_dir,
         tb_grading_rules_bed,
         tbdb_bed,
@@ -146,7 +148,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     ch_versions = ch_versions.mix(CALL_POSTPROCESSING.out.versions)
 
     emit:
-    pipeline_result = CALL_POSTPROCESSING.out.pipeline_result   // channel: [ path(json) ]
     cdm             = CALL_POSTPROCESSING.out.cdm               // channel: [ path(txt) ]
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
     versions        = ch_versions                               // channel: [ versions.yml ]
