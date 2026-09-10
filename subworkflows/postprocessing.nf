@@ -2,10 +2,9 @@
 
 nextflow.enable.dsl=2
 
-include { format_jasen        } from '../modules/local/prp/main.nf'
-include { format_cdm          } from '../modules/local/prp/main.nf'
 include { concatenate_files   } from '../modules/local/jasentool/main.nf'
 include { create_yaml         } from '../modules/local/jasentool/main.nf'
+include { format_cdm          } from '../modules/local/jasentool/main.nf'
 include { export_to_cdm       } from '../modules/local/cdm/main.nf'
 
 workflow CALL_POSTPROCESSING {
@@ -13,6 +12,7 @@ workflow CALL_POSTPROCESSING {
     reference_genome
     reference_genome_idx
     reference_genome_gff
+    reference_genome_accession
     species_dir
     tb_grading_rules_bed
     tbdb_bed
@@ -46,32 +46,30 @@ workflow CALL_POSTPROCESSING {
         reference_genome,
         reference_genome_idx,
         reference_genome_gff,
+        reference_genome_accession,
         tb_grading_rules_bed,
         tbdb_bed,
         concatenate_files.out.concatenated
     )
 
-    format_jasen(create_yaml.out.yaml)
-
     format_cdm(create_yaml.out.yaml)
 
     export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
-    // Fail loudly if any input sample was dropped before producing a result JSON.
+    // Fail loudly if any input sample was dropped before producing an analysis YAML.
     ch_preprocessing_combined_output
         .map { it[0] }
-        .collect()
+        .toList()
         .map { [it] }
-        .combine(format_jasen.out.json.map { it[0] }.collect().map { [it] })
+        .combine(create_yaml.out.yaml.map { it[0] }.toList().map { [it] })
         .subscribe { expected, actual ->
             def missing = expected - actual
             if (missing) {
-                error "Result JSON not produced for sample(s): ${missing.sort().join(', ')}"
+                error "Analysis YAML not produced for sample(s): ${missing.sort().join(', ')}"
             }
         }
 
     emit:
-    pipeline_result = format_jasen.out.json             // channel: [ path(json) ]
     cdm             = export_to_cdm.out.cdm             // channel: [ path(txt) ]
     yaml            = create_yaml.out.yaml          // channel: [ path(yaml) ]
     versions        = ch_versions                       // channel: [ versions.yml ]

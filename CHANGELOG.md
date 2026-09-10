@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--shigatyper` input to `create_yaml`
 - Added `samtools_stats` and `samtools_bedcov` processes (#499)
 - Added `concatenate_files` to `CALL_POSTPROCESSING` to merge each subworkflow's `versions.yml` (#499)
+- Added `reference_genome_accession` parameter and `--reference-genome-accession` input to `create_yaml`, so uploaded samples resolve a reference genome in Bonsai
 
 ### Fixed
 
@@ -35,13 +36,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bumped `jasentool` to `1.2.0` and `bonsai-prp` to `2.0.0`
+- Bumped `jasentool` to `1.3.0` and `bonsai-prp` to `2.0.0`
 - Bumped `chewbbaca` to v3.5.4
 - Removed `shigapass`, replaced by `shigatyper`
 - Removed `jasentool post-align-qc`, replaced by `samtools_stats` + `samtools_bedcov` (#499)
 - Changed `virulencefinder` output to the standardized `--out_json` format
 - Changed the `diagnostic` profile `release_life_cycle` to `production` to match bonsai-prp
 - Removed the optional *K. pneumoniae* cgMLST schema and prodigal training file Makefile targets; the BIGSdb Pasteur schema is the supported *Klebsiella* schema
+- Changed `format_cdm` to run `jasentool format-cdm`, replacing `prp parse format-cdm`
+- Changed `save_analysis_metadata` to run on the `jasentool` container; the `bonsai-prp` container is no longer used
+- Removed the `format_jasen` process and its `analysis_result/*_result.json` output; Bonsai upload consumes the manifest YAML directly
+- Removed `modules/local/prp/main.nf`; JASEN no longer invokes the `prp` CLI
 
 ## [1.3.0]
 
