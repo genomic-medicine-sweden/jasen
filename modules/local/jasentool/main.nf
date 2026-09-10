@@ -48,6 +48,7 @@ process create_yaml {
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
+    val reference_genome_accession
     val tb_grading_rules_bed
     val tbdb_bed
     path versions
@@ -83,6 +84,7 @@ process create_yaml {
     def quast_arg                      = quast                      ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg           = reference_genome           ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg       = reference_genome_gff       ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
+    def reference_genome_accession_arg = reference_genome_accession ?  "--reference-genome-accession ${reference_genome_accession}" : ""
     def resfinder_arg                  = resfinder                  ?  "--resfinder ${params.outdir}/${params.species_dir}/resfinder/${resfinder}" : ""
     def resfinder_meta_arg             = resfinder_meta             ?  "--software-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
     def samtools_arg                   = samtools_cov_ref           ?  "--samtools ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""
@@ -123,6 +125,7 @@ process create_yaml {
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\
+        ${reference_genome_accession_arg} \\
         ${resfinder_arg} \\
         ${resfinder_meta_arg} \\
         --sample-id ${sample_id} \\
@@ -200,6 +203,31 @@ process concatenate_files {
 
     stub:
     output = "versions.yml"
+    """
+    touch ${output}
+    """
+}
+
+process format_cdm {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(yaml)
+
+    output:
+    tuple val(sample_id), path(output), emit: json
+
+    script:
+    output = "${sample_id}_qc_result.json"
+    """
+    jasentool format-cdm \\
+        --output-file ${output} \\
+        ${yaml}
+    """
+
+    stub:
+    output = "${sample_id}_qc_result.json"
     """
     touch ${output}
     """
