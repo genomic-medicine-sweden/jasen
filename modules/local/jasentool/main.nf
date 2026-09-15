@@ -58,10 +58,10 @@ process create_yaml {
 
     script:
     output                             = "${sample_id}.yaml"
-    def access_dir                     = params.symlink_dir         ?: params.outdir
+    def symlink_dir                    = params.symlink_dir         ?: params.outdir
     def amrfinder_arg                  = amrfinder                  ?  "--amrfinder ${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}" : ""
-    def bam_arg                        = bam                        ?  "--bam ${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
-    def bai_arg                        = bai                        ?  "--bai ${access_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
+    def bam_arg                        = bam                        ?  "--bam ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
+    def bai_arg                        = bai                        ?  "--bai ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
     def chewbbaca_arg                  = chewbbaca                  ?  "--chewbbaca ${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}" : ""
     def emmtyper_arg                   = emmtyper                   ?  "--emmtyper ${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}" : ""
     def gambitcore_arg                 = gambitcore                 ?  "--gambitcore ${params.outdir}/${params.species_dir}/gambitcore/${gambitcore}" : ""
@@ -92,13 +92,13 @@ process create_yaml {
     def serotypefinder_arg             = serotypefinder             ?  "--serotypefinder ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}" : ""
     def serotypefinder_meta_arg        = serotypefinder_meta        ?  "--software-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
     def shigatyper_arg                 = shigatyper                 ?  "--shigatyper ${params.outdir}/${params.species_dir}/shigatyper/${shigatyper}" : ""
-    def ska_arg                        = ska                        ?  "--ska-index ${access_dir}/${params.species_dir}/ska/${ska}" : ""
-    def sourmash_arg                   = sourmash                   ?  "--sourmash-signature ${access_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
+    def ska_arg                        = ska                        ?  "--ska-index ${symlink_dir}/${params.species_dir}/ska/${ska}" : ""
+    def sourmash_arg                   = sourmash                   ?  "--sourmash-signature ${symlink_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
     def spatyper_arg                   = spatyper                   ?  "--spatyper ${params.outdir}/${params.species_dir}/spatyper/${spatyper}" : ""
     def tb_grading_rules_bed_arg       = tb_grading_rules_bed       ?  "--tb-grading-rules-bed ${tb_grading_rules_bed}" : ""
     def tbdb_bed_arg                   = tbdb_bed                   ?  "--tbdb-bed ${tbdb_bed}" : ""
     def tbprofiler_arg                 = tbprofiler                 ?  "--tbprofiler ${params.outdir}/${params.species_dir}/tbprofiler_mergedb/${tbprofiler}" : ""
-    def vcf_arg                        = vcf                        ?  "--vcf ${access_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}" : ""
+    def vcf_arg                        = vcf                        ?  "--vcf ${symlink_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}" : ""
     def virulencefinder_arg            = virulencefinder            ?  "--virulencefinder ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}" : ""
     def virulencefinder_meta_arg       = virulencefinder_meta       ?  "--software-info ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}" : ""
     """
