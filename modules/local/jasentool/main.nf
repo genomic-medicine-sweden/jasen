@@ -48,6 +48,7 @@ process create_yaml {
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
+    val reference_genome_accession
     val tb_grading_rules_bed
     val tbdb_bed
     path versions
@@ -57,10 +58,10 @@ process create_yaml {
 
     script:
     output                             = "${sample_id}.yaml"
-    def access_dir                     = params.symlink_dir         ?: params.outdir
+    def symlink_dir                    = params.symlink_dir         ?: params.outdir
     def amrfinder_arg                  = amrfinder                  ?  "--amrfinder ${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}" : ""
-    def bam_arg                        = bam                        ?  "--bam ${access_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
-    def bai_arg                        = bai                        ?  "--bai ${access_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
+    def bam_arg                        = bam                        ?  "--bam ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
+    def bai_arg                        = bai                        ?  "--bai ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
     def chewbbaca_arg                  = chewbbaca                  ?  "--chewbbaca ${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}" : ""
     def emmtyper_arg                   = emmtyper                   ?  "--emmtyper ${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}" : ""
     def gambitcore_arg                 = gambitcore                 ?  "--gambitcore ${params.outdir}/${params.species_dir}/gambitcore/${gambitcore}" : ""
@@ -75,7 +76,7 @@ process create_yaml {
     def nextflow_run_info_arg          = nextflow_run_info          ?  "--nextflow-run-info ${params.outdir}/${params.species_dir}/analysis_metadata/${nextflow_run_info}" : ""
     def plasmidfinder_arg              = plasmidfinder              ?  "--plasmidfinder ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder}" : ""
     def plasmidfinder_genome_hits_arg  = plasmidfinder_genome_hits  ?  "--plasmidfinder-genome-hits ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_genome_hits}" : ""
-    def plasmidfinder_meta_arg         = plasmidfinder_meta         ?  "--software-info ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_meta}" : ""
+    def plasmidfinder_meta_arg         = plasmidfinder_meta         ?  "--database-info ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_meta}" : ""
     def plasmidfinder_plasmid_seqs_arg = plasmidfinder_plasmid_seqs ?  "--plasmidfinder-plasmid-seqs ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_plasmid_seqs}" : ""
     def samtools_stats_arg             = samtools_stats             ?  "--samtools-stats ${params.outdir}/${params.species_dir}/samtools_stats/${samtools_stats}" : ""
     def samtools_bedcov_arg            = samtools_bedcov            ?  "--samtools-bedcov ${params.outdir}/${params.species_dir}/samtools_bedcov/${samtools_bedcov}" : ""
@@ -83,22 +84,23 @@ process create_yaml {
     def quast_arg                      = quast                      ?  "--quast ${params.outdir}/${params.species_dir}/quast/${quast}" : ""
     def reference_genome_arg           = reference_genome           ?  "--ref-genome-sequence ${reference_genome}" : ""
     def reference_genome_gff_arg       = reference_genome_gff       ?  "--ref-genome-annotation ${reference_genome_gff}" : ""
+    def reference_genome_accession_arg = reference_genome_accession ?  "--reference-genome-accession ${reference_genome_accession}" : ""
     def resfinder_arg                  = resfinder                  ?  "--resfinder ${params.outdir}/${params.species_dir}/resfinder/${resfinder}" : ""
-    def resfinder_meta_arg             = resfinder_meta             ?  "--software-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
+    def resfinder_meta_arg             = resfinder_meta             ?  "--database-info ${params.outdir}/${params.species_dir}/resfinder/${resfinder_meta}" : ""
     def samtools_arg                   = samtools_cov_ref           ?  "--samtools ${params.outdir}/${params.species_dir}/coverage/${samtools_cov_ref}" : ""
     def sccmec_arg                     = sccmec                     ?  "--sccmec ${params.outdir}/${params.species_dir}/sccmec/${sccmec}" : ""
     def serotypefinder_arg             = serotypefinder             ?  "--serotypefinder ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder}" : ""
-    def serotypefinder_meta_arg        = serotypefinder_meta        ?  "--software-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
+    def serotypefinder_meta_arg        = serotypefinder_meta        ?  "--database-info ${params.outdir}/${params.species_dir}/serotypefinder/${serotypefinder_meta}" : ""
     def shigatyper_arg                 = shigatyper                 ?  "--shigatyper ${params.outdir}/${params.species_dir}/shigatyper/${shigatyper}" : ""
-    def ska_arg                        = ska                        ?  "--ska-index ${access_dir}/${params.species_dir}/ska/${ska}" : ""
-    def sourmash_arg                   = sourmash                   ?  "--sourmash-signature ${access_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
+    def ska_arg                        = ska                        ?  "--ska-index ${symlink_dir}/${params.species_dir}/ska/${ska}" : ""
+    def sourmash_arg                   = sourmash                   ?  "--sourmash-signature ${symlink_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
     def spatyper_arg                   = spatyper                   ?  "--spatyper ${params.outdir}/${params.species_dir}/spatyper/${spatyper}" : ""
     def tb_grading_rules_bed_arg       = tb_grading_rules_bed       ?  "--tb-grading-rules-bed ${tb_grading_rules_bed}" : ""
     def tbdb_bed_arg                   = tbdb_bed                   ?  "--tbdb-bed ${tbdb_bed}" : ""
     def tbprofiler_arg                 = tbprofiler                 ?  "--tbprofiler ${params.outdir}/${params.species_dir}/tbprofiler_mergedb/${tbprofiler}" : ""
-    def vcf_arg                        = vcf                        ?  "--vcf ${access_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}" : ""
+    def vcf_arg                        = vcf                        ?  "--vcf ${symlink_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}" : ""
     def virulencefinder_arg            = virulencefinder            ?  "--virulencefinder ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}" : ""
-    def virulencefinder_meta_arg       = virulencefinder_meta       ?  "--software-info ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}" : ""
+    def virulencefinder_meta_arg       = virulencefinder_meta       ?  "--database-info ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder_meta}" : ""
     """
     jasentool create-yaml \\
         ${amrfinder_arg} \\
@@ -123,6 +125,7 @@ process create_yaml {
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\
+        ${reference_genome_accession_arg} \\
         ${resfinder_arg} \\
         ${resfinder_meta_arg} \\
         --sample-id ${sample_id} \\
@@ -200,6 +203,31 @@ process concatenate_files {
 
     stub:
     output = "versions.yml"
+    """
+    touch ${output}
+    """
+}
+
+process format_cdm {
+    tag "${sample_id}"
+    scratch params.scratch
+
+    input:
+    tuple val(sample_id), path(yaml)
+
+    output:
+    tuple val(sample_id), path(output), emit: json
+
+    script:
+    output = "${sample_id}_qc_result.json"
+    """
+    jasentool format-cdm \\
+        --output-file ${output} \\
+        ${yaml}
+    """
+
+    stub:
+    output = "${sample_id}_qc_result.json"
     """
     touch ${output}
     """
