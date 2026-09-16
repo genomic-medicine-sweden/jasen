@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `plasmidfinder` (v2.1.6) for plasmid detection, on by default except for *M. tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
-- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs` and `--software-info` inputs to `create_yaml`
+- Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs` and `--database-info` inputs to `create_yaml`
 - Added optional `trimmomatic` (v0.40) trimming for Illumina reads, off by default (#280)
 - Added `use_trimmomatic` and `trimmomatic_args` parameters
 - Added `shigatyper` (v2.0.5) for *Shigella* typing on the *E. coli* workflow (#505)
