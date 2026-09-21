@@ -34,10 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Populated missing software versions so `prp parse jasen` validation passes for every tool
 - Pinned `plasmidfinder` `2.1.6`, `serotypefinder` `2.0.2`, and `bracken` `2.8`, which can't report their own version
 - Fixed `gambitcore`, `nanoplot`, and `tbprofiler` version strings so `prp parse jasen` can parse them
+- Fixed the `skesa` container in `conf/modules.config`, which pinned 2.4.0 while `containers/Makefile` pinned 2.5.1
 
 ### Changed
 
-- Bumped `jasentool` to `1.3.0` and `bonsai-prp` to `2.0.0`
+- Bumped `jasentool` to `1.3.0`
 - Bumped `chewbbaca` to v3.5.4
 - Removed `shigapass`, replaced by `shigatyper`
 - Removed `jasentool post-align-qc`, replaced by `samtools_stats` + `samtools_bedcov` (#499)
@@ -48,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `save_analysis_metadata` to run on the `jasentool` container; the `bonsai-prp` container is no longer used
 - Removed the `format_jasen` process and its `analysis_result/*_result.json` output; Bonsai upload consumes the manifest YAML directly
 - Removed `modules/local/prp/main.nf`; JASEN no longer invokes the `prp` CLI
+- Updated the per-species software tables in the docs to match the current container pins
 
 ## [1.3.0]
 
