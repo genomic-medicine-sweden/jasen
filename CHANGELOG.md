@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the `format_jasen` process and its `analysis_result/*_result.json` output; Bonsai upload consumes the manifest YAML directly
 - Removed `modules/local/prp/main.nf`; JASEN no longer invokes the `prp` CLI
 - Updated the per-species software tables in the docs to match the current container pins
+- Changed `create_yaml` to record the kraken report (`--kraken`) and bracken output (`--bracken`) as separate manifest entries
 
 ## [1.3.0]
 
