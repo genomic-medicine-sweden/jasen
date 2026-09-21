@@ -44,7 +44,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(bracken), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -62,6 +62,7 @@ process create_yaml {
     def amrfinder_arg                  = amrfinder                  ?  "--amrfinder ${params.outdir}/${params.species_dir}/amrfinderplus/${amrfinder}" : ""
     def bam_arg                        = bam                        ?  "--bam ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bam}" : ""
     def bai_arg                        = bai                        ?  "--bai ${symlink_dir}/${params.species_dir}/${params.bam_dir}/${bai}" : ""
+    def bracken_arg                    = bracken                    ?  "--bracken ${params.outdir}/${params.species_dir}/bracken/${bracken}" : ""
     def chewbbaca_arg                  = chewbbaca                  ?  "--chewbbaca ${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}" : ""
     def emmtyper_arg                   = emmtyper                   ?  "--emmtyper ${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}" : ""
     def gambitcore_arg                 = gambitcore                 ?  "--gambitcore ${params.outdir}/${params.species_dir}/gambitcore/${gambitcore}" : ""
@@ -106,6 +107,7 @@ process create_yaml {
         ${amrfinder_arg} \\
         ${bam_arg} \\
         ${bai_arg} \\
+        ${bracken_arg} \\
         ${chewbbaca_arg} \\
         ${emmtyper_arg} \\
         ${gambitcore_arg} \\

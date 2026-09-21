@@ -94,23 +94,25 @@ workflow CALL_QUALITY_CONTROL {
             kraken_batch.out.reports
                 .flatten()
                 .map { kraken_report -> [kraken_report.name.replaceAll('_kraken\\.report$', ''), kraken_report] }
-                .set { ch_kraken_reports }
+                .set { ch_kraken }
             ch_versions = ch_versions.mix(kraken_batch.out.versions)
         } else {
             kraken(ch_reads, kraken_db)
-            kraken.out.report.set { ch_kraken_reports }
+            kraken.out.report.set { ch_kraken }
             ch_versions = ch_versions.mix(kraken.out.versions)
         }
 
-        bracken(ch_kraken_reports, kraken_db)
-        bracken.out.output.set{ ch_kraken }
+        bracken(ch_kraken, kraken_db)
+        bracken.out.output.set{ ch_bracken }
         ch_versions = ch_versions.mix(bracken.out.versions)
     } else {
+        ch_sample_id.set{ ch_bracken }
         ch_sample_id.set{ ch_kraken }
     }
 
     ch_ref_bam
         .join(ch_ref_bai)
+        .join(ch_bracken)
         .join(gambitcore.out.tsv)
         .join(ch_kraken)
         .join(ch_samtools_stats)
@@ -125,12 +127,13 @@ workflow CALL_QUALITY_CONTROL {
     ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
 
     emit:
-    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(tsv), path(report), path(stats), path(bedcov), path(tsv), path(txt), path(txt) ]
+    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(out), path(tsv), path(report), path(stats), path(bedcov), path(tsv), path(txt), path(txt) ]
     bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
     bai                 = ch_ref_bai                    // channel: [ val(meta), path(bai) ]
+    bracken             = ch_bracken                    // channel: [ val(meta), path(out) ]
     fastqc              = fastqc.out.output             // channel: [ val(meta), path(txt) ]
     gambitcore          = gambitcore.out.tsv            // channel: [ val(meta), path(tsv) ]
-    kraken              = ch_kraken                     // channel: [ val(meta), path(fasta) ]
+    kraken              = ch_kraken                     // channel: [ val(meta), path(report) ]
     nanoplot_html       = ch_nanoplot_html              // channel: [ val(meta), path(html) ]
     nanoplot_txt        = ch_nanoplot_txt               // channel: [ val(meta), path(txt) ]
     samtools_stats      = ch_samtools_stats             // channel: [ val(meta), path(stats) ]
