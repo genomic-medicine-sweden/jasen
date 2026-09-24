@@ -131,13 +131,33 @@
 SHELL := /bin/bash
 
 # Define path variables
-SCRIPT_DIR := $(shell pwd)
-ASSETS_DIR := $(shell realpath $(SCRIPT_DIR)/assets/)
-CONTAINERS_DIR := $(realpath $(SCRIPT_DIR)/containers/)
+#
+# ASSETS_DIR and CONTAINERS_DIR can be set independently, from the command line
+# or the environment, to install outside the repository:
+#
+#   make install ASSETS_DIR=/data/jasen/assets CONTAINERS_DIR=/fast/containers
+#
+# Run `make print_paths` first to see where things will be written. The same
+# locations must be set as assets_dir and containers_dir in nextflow.config.
+SCRIPT_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+ASSETS_DIR ?= $(SCRIPT_DIR)/assets
+CONTAINERS_DIR ?= $(SCRIPT_DIR)/containers
+# abspath, unlike realpath, does not require the directory to exist, so a new
+# location cannot collapse to an empty path. override keeps the normalisation
+# when the variable is set on the command line.
+override ASSETS_DIR := $(abspath $(ASSETS_DIR))
+override CONTAINERS_DIR := $(abspath $(CONTAINERS_DIR))
+# Assets shipped in the repository are seeded from here when ASSETS_DIR differs.
+REPO_ASSETS_DIR := $(SCRIPT_DIR)/assets
+# The containers Makefile always lives in the repository, its output need not.
+CONTAINERS_SRC_DIR := $(SCRIPT_DIR)/containers
 PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
-# The root folder where the pipeline is currently located. To be mounted into
-# the Singularity containers below.
-MNT_ROOT := /$(shell readlink -f . | cut -d"/" -f2)
+# The top-level directories to mount into the containers below: the repository,
+# the assets and the containers, which may live on separate filesystems.
+mnt_root = /$(word 1,$(subst /, ,$(1)))
+MNT_ROOT := $(call mnt_root,$(SCRIPT_DIR))
+BIND_ROOTS := $(sort $(MNT_ROOT) $(call mnt_root,$(ASSETS_DIR)) $(call mnt_root,$(CONTAINERS_DIR)))
+BIND_ARGS := $(foreach root,$(BIND_ROOTS),--bind $(root))
 INSTALL_LOG := "$(SCRIPT_DIR)/.install.log"
 
 define log_message
@@ -154,9 +174,11 @@ print_paths:
 	@echo "SCRIPT_DIR:" $(SCRIPT_DIR)
 	@echo "ASSETS_DIR:" $(ASSETS_DIR)
 	@echo "CONTAINERS_DIR:" $(CONTAINERS_DIR)
+	@echo "BIND_ROOTS:" $(BIND_ROOTS)
 	@echo "MNT_ROOT:" $(MNT_ROOT)
 
-install: download_or_build_containers \
+install: seed_assets \
+	download_or_build_containers \
 	download_databases \
 	update_databases \
 	update_organisms
@@ -179,15 +201,37 @@ check: check_chewbbaca \
 	check_blastdb
 
 # ==============================================================================
+# Seed assets shipped with the repository
+# ==============================================================================
+# The cgMLST/wgMLST bed files, the TB info tables and the BIGSdb credentials
+# template are version controlled, and are read both by the rules below and by
+# the pipeline. Copy them over when assets are installed outside the repository.
+
+seed_assets:
+ifneq ($(ASSETS_DIR),$(abspath $(REPO_ASSETS_DIR)))
+	$(call log_message,"Seeding version controlled assets into $(ASSETS_DIR) ...")
+	@cd $(REPO_ASSETS_DIR) \
+	&& find cgmlst wgmlst tb_info -type f \( -name '*.bed' -o -name '*.csv' \) -print0 \
+	| while IFS= read -r -d '' asset; do \
+		mkdir -p "$(ASSETS_DIR)/$$(dirname "$$asset")" \
+		&& cp -p "$$asset" "$(ASSETS_DIR)/$$asset"; \
+	done \
+	&& mkdir -p $(TOKEN_DIR) \
+	&& cp -n .bigsdb_tokens/client_credentials.template $(TOKEN_DIR)/ |& tee -a $(INSTALL_LOG)
+
+# Rules below take version controlled assets as prerequisites, so they are also
+# copied on demand rather than only by seed_assets.
+$(ASSETS_DIR)/%: $(REPO_ASSETS_DIR)/%
+	@mkdir -p $(dir $@) && cp -p $< $@
+endif
+
+# ==============================================================================
 # Build containers
 # ==============================================================================
 
 download_or_build_containers:
 	$(call log_message,"Checking if any containers need to be built ...")
-	@set -euo \
-	&& cd $(CONTAINERS_DIR) \
-	&& make all; \
-	cd -
+	@$(MAKE) -C $(CONTAINERS_SRC_DIR) CONTAINERS_DIR=$(CONTAINERS_DIR) all
 
 # ==============================================================================
 # Download database repositories as .tar.gz archives (using version tags)
@@ -366,7 +410,7 @@ clean_emmtyper_fasta_headers:
 build_emmtyper_blast_db:
 	$(call log_message,"Building emmtyper blast db ...")
 	cd $(EMMTYPER_DB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/blast.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/blast.sif \
 		makeblastdb \
 		-dbtype nucl \
 		-in $(EMMTYPER_DB_DIR)/clean_headers_alltrimmed.fasta \
@@ -385,7 +429,7 @@ update_amrfinderplus: $(AMRFINDERDB_DIR)/latest
 $(AMRFINDERDB_DIR)/latest:
 	$(call log_message,"Starting update of AMRFinderPlus database ...")
 	apptainer exec \
-		--bind $(MNT_ROOT) \
+		$(BIND_ARGS) \
 		$(CONTAINERS_DIR)/ncbi-amrfinderplus.sif \
 		amrfinder_update \
 		--database $(AMRFINDERDB_DIR) |& tee -a $(INSTALL_LOG)
@@ -405,7 +449,7 @@ PUBMLST_SCHEMA_SPYOGENES     := pubmlst_spyogenes_seqdef
 
 setup_saureus_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SAUREUS)...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		--client-id $(PUBMLST_CLIENT_ID) \
@@ -415,7 +459,7 @@ setup_saureus_mlstdb_token:
 
 update_saureus_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for S. aureus...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
 		-d saureus \
@@ -424,7 +468,7 @@ update_saureus_mlstdb:
 
 setup_ecoli_achtman_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI_ACHTMAN)...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		--client-id $(PUBMLST_CLIENT_ID) \
@@ -434,7 +478,7 @@ setup_ecoli_achtman_mlstdb_token:
 
 update_ecoli_achtman_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for E. coli...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
 		-d escherichia \
@@ -444,7 +488,7 @@ update_ecoli_achtman_mlstdb:
 
 setup_ecoli_pasteur_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_ECOLI_PASTEUR)...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		-s pasteur \
@@ -455,7 +499,7 @@ setup_ecoli_pasteur_mlstdb_token:
 
 update_ecoli_pasteur_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for E. coli...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
 		-d ecoli \
@@ -465,7 +509,7 @@ update_ecoli_pasteur_mlstdb:
 
 setup_klebsiella_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_KLEBSIELLA)...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		-s pasteur \
@@ -476,7 +520,7 @@ setup_klebsiella_mlstdb_token:
 
 update_klebsiella_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for Klebsiella...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
 		-d klebsiella \
@@ -486,7 +530,7 @@ update_klebsiella_mlstdb:
 
 setup_spyogenes_mlstdb_token:
 	$(call log_message,"Setting up PubMLST token for $(PUBMLST_SCHEMA_SPYOGENES)...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-setup \
 		--force \
 		--client-id $(PUBMLST_CLIENT_ID) \
@@ -496,7 +540,7 @@ setup_spyogenes_mlstdb_token:
 
 update_spyogenes_mlstdb:
 	$(call log_message,"Building PubMLST MLST database for S. pyogenes...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bactopia-py.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bactopia-py.sif \
 		bactopia-pubmlst-build \
 		--force \
 		-d spyogenes \
@@ -525,7 +569,7 @@ update_virulencefinder_db: download_virulencefinder_db $(VIRULENCEFINDERDB_DIR)/
 $(VIRULENCEFINDERDB_DIR)/s.aureus_hostimm.length.b:
 	$(call log_message,"Starting update of VirulenceFinder database")
 	cd $(VIRULENCEFINDERDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
@@ -545,7 +589,7 @@ update_resfinder_db: download_resfinder_db $(RESFINDERDB_DIR)/all.length.b
 $(RESFINDERDB_DIR)/all.length.b:
 	$(call log_message,"Starting update of ResFinder database")
 	cd $(RESFINDERDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
@@ -555,7 +599,7 @@ update_pointfinder_db: download_pointfinder_db $(POINTFINDERDB_DIR)/staphylococc
 $(POINTFINDERDB_DIR)/staphylococcus_aureus.length.b:
 	$(call log_message,"Starting update of PointFinder database")
 	cd $(POINTFINDERDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
@@ -564,7 +608,7 @@ update_serotypefinder_db: download_serotypefinder_db $(SEROTYPEDFINDERDB_DIR)/H_
 $(SEROTYPEDFINDERDB_DIR)/H_type.length.b:
 	$(call log_message,"Starting update of SerotypeFinder database")
 	cd $(SEROTYPEDFINDERDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
@@ -579,7 +623,7 @@ update_plasmidfinder_db: download_plasmidfinder_db $(PLASMIDFINDERDB_DIR)/Inc18.
 $(PLASMIDFINDERDB_DIR)/Inc18.length.b:
 	$(call log_message,"Starting update of PlasmidFinder database")
 	cd $(PLASMIDFINDERDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/virulencefinder.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/virulencefinder.sif \
 		python3 INSTALL.py \
 		kma_index |& tee -a $(INSTALL_LOG)
 
@@ -611,7 +655,7 @@ $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. aureus reference genome ...")
 	mkdir -p $(SAUR_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
 		-i $(SAUR_REFSEQ_ACC) \
 		-o $(SAUR_GENOMES_DIR) |& tee -a $(INSTALL_LOG) \
@@ -622,7 +666,7 @@ saureus_faidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.fai: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using samtools...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -631,7 +675,7 @@ saureus_bwaidx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta.bwt: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using bwa...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 saureus_minimap2idx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi
@@ -639,7 +683,7 @@ saureus_minimap2idx_reference: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi
 $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).mmi: $(SAUR_GENOMES_DIR)/$(SAUR_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. aureus reference genome using minimap2...")
 	cd $(SAUR_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 saureus_download_prodigal_training_file: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
@@ -682,7 +726,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
@@ -715,7 +759,7 @@ $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading E. coli genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
 		-i $(ECOLI_REFSEQ_ACC) \
 		-o $(ECOLI_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -726,7 +770,7 @@ ecoli_faidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.fai: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using samtools...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -735,7 +779,7 @@ ecoli_bwaidx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta.bwt: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using bwa...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -744,7 +788,7 @@ ecoli_minimap2idx_reference: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi
 $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).mmi: $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing E. coli genome using minimap2...")
 	cd $(ECOLI_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -754,7 +798,7 @@ $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn:
 	$(call log_message,"Generating E. coli prodigal training file ...")
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/prodigal.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/prodigal.sif \
 		prodigal -i $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta -t $@ -p single |& tee -a $(INSTALL_LOG)
 
 
@@ -766,7 +810,7 @@ $(ECOLI_WGMLST_DIR)/alleles/ecoli_INNUENDO_wgMLST/Escherichia_coli.trn:
 	rm -rf $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& mkdir -p $(ECOLI_WGMLST_DIR)/alleles &> /dev/null \
 	&& cd $(ECOLI_WGMLST_DIR)/alleles \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie DownloadSchema \
 		-sp 10 \
 		-sc 1 \
@@ -805,7 +849,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/a
 $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
@@ -835,7 +879,7 @@ $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading K. pneumoniae genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
 		-i $(KPNEU_REFSEQ_ACC) \
 		-o $(KPNEU_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -846,7 +890,7 @@ kpneumoniae_faidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.fai: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using samtools...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -855,7 +899,7 @@ kpneumoniae_bwaidx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta.bwt: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using bwa...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 kpneumoniae_minimap2idx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi
@@ -863,14 +907,14 @@ kpneumoniae_minimap2idx_reference: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi
 $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).mmi: $(KPNEU_GENOMES_DIR)/$(KPNEU_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing K. pneumoniae genome using minimap2...")
 	cd $(KPNEU_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
 # Set up BIGSdb Pasteur access token (interactive, one-time only)
 setup_klebsiella_cgmlst_token:
 	$(call log_message,"Setting up BIGSdb Pasteur access token for Klebsiella cgMLST...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-bigsdb \
 		--setup \
 		--key-name Pasteur \
@@ -884,12 +928,12 @@ klebsiella_download_cgmlst_schema: | $(KLEB_CGMLST_DIR)/alleles/downloading.done
 
 $(KLEB_CGMLST_DIR)/alleles/downloading.done:
 	$(call log_message,"Downloading Klebsiella cgMLST schema from BIGSdb Pasteur ...")
-	apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-bigsdb \
 		--download-scheme \
 		--key-name Pasteur \
 		--site Pasteur \
-		--token-dir $(ASSETS_DIR)/.bigsdb_tokens \
+		--token-dir $(TOKEN_DIR) \
 		--url https://bigsdb.pasteur.fr/api/db/pubmlst_klebsiella_seqdef/schemes/18 \
 		--output-dir $(KLEB_CGMLST_DIR)/alleles |& tee -a $(INSTALL_LOG) \
 	&& echo $$(date "+%Y%m%d %H:%M:%S")": Done downloading cgMLST schema from BIGSdb Pasteur" > $@ |& tee -a $(INSTALL_LOG)
@@ -903,7 +947,7 @@ $(KLEB_CGMLST_DIR)/alleles_rereffed: | $(KLEB_CGMLST_DIR)/alleles/downloading.do
 	$(call log_message,"Prepping Klebsiella cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(KLEB_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(KLEB_CGMLST_DIR)/alleles \
 		-o $(KLEB_CGMLST_DIR)/alleles_rereffed \
@@ -936,7 +980,7 @@ $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading S. pyogenes genome ...")
 	cd $(SCRIPT_DIR) \
 	&& mkdir -p $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
 		-i $(SPYO_REFSEQ_ACC) \
 		-o $(SPYO_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -947,7 +991,7 @@ spyogenes_faidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.fai: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using samtools...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -956,7 +1000,7 @@ spyogenes_bwaidx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta.bwt: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using bwa...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 
@@ -965,7 +1009,7 @@ spyogenes_minimap2idx_reference: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi
 $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).mmi: $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing S. pyogenes genome using minimap2...")
 	cd $(SPYO_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -975,7 +1019,7 @@ $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn:
 	$(call log_message,"Generating S. pyogenes prodigal training file ...")
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/prodigal.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/prodigal.sif \
 		prodigal -i $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta -t $@ -p single |& tee -a $(INSTALL_LOG)
 
 
@@ -1010,7 +1054,7 @@ $(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(SPYO_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(SPYO_CGMLST_DIR)/alleles \
 		-o $(SPYO_CGMLST_DIR)/alleles_rereffed \
@@ -1061,7 +1105,7 @@ $(STREP_CGMLST_DIR)/alleles_rereffed: | $(STREP_CGMLST_DIR)/alleles/index.html
 	$(call log_message,"Prepping Streptococcus cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(STREP_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/chewbbaca.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
 		chewie PrepExternalSchema \
 		-g $(STREP_CGMLST_DIR)/alleles \
 		-o $(STREP_CGMLST_DIR)/alleles_rereffed \
@@ -1092,7 +1136,7 @@ $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta:
 	$(call log_message,"Downloading M. tuberculosis genome ...")
 	mkdir -p $(MTUBE_GENOMES_DIR) \
 	&& cd $(SCRIPT_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/jasentool.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/jasentool.sif \
 		jasentool download-ncbi \
 		-i $(MTUBE_REFSEQ_ACC) \
 		-o $(MTUBE_GENOMES_DIR) |& tee -a $(INSTALL_LOG)
@@ -1102,7 +1146,7 @@ mtuberculosis_faidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fa
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.fai: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using samtools...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/samtools.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/samtools.sif \
 		samtools faidx $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt
@@ -1110,7 +1154,7 @@ mtuberculosis_bwaidx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.b
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta.bwt: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using bwa...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/bwakit.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/bwakit.sif \
 		bwa index $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_minimap2idx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi
@@ -1118,7 +1162,7 @@ mtuberculosis_minimap2idx_reference: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mm
 $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).mmi: $(MTUBE_GENOMES_DIR)/$(MTUBE_REFSEQ_ACC).fasta
 	$(call log_message,"Indexing M. tuberculosis genome using minimap2...")
 	cd $(MTUBE_GENOMES_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/minimap2.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/minimap2.sif \
 		minimap2 -d $@ $< |& tee -a $(INSTALL_LOG)
 
 
@@ -1128,7 +1172,7 @@ $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.variables.json: download_tbdb $(MTUBE_
 	$(call log_message,"Creating WHO FoHM TBDB ...")
 	cd $(MTUBE_TBDB_DIR) \
 	&& cp $(MTUBE_TB_INFO_DIR)/csv/converged_who_fohm_tbdb.csv $(MTUBE_TBDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/tb-profiler.sif \
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/tb-profiler.sif \
 		tb-profiler create_db --prefix converged_who_fohm_tbdb --dir $(MTUBE_TBDB_DIR) \
 		--match_ref $(MTUBE_GENOMES_DIR)/GCF_000195955.2.fasta --csv converged_who_fohm_tbdb.csv |& tee -a $(INSTALL_LOG)
 
@@ -1137,14 +1181,14 @@ mtuberculosis_bgzip_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed
 	$(call log_message,"Bgzipping converged WHO + FoHM + TBDB bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/htslib.sif bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/htslib.sif bgzip $$(basename $<) -o converged_who_fohm_tbdb.bed.gz |& tee -a $(INSTALL_LOG)
 
 mtuberculosis_index_bed: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi
 
 $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz.tbi: $(MTUBE_TBDB_DIR)/converged_who_fohm_tbdb.bed.gz
 	$(call log_message,"Indexing converged WHO + FoHM + TBDB bgzipped bed file ...")
 	cd $(MTUBE_TBDB_DIR) \
-	&& apptainer exec --bind $(MNT_ROOT) $(CONTAINERS_DIR)/htslib.sif tabix -p bed $$(basename $<) |& tee -a $(INSTALL_LOG)
+	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/htslib.sif tabix -p bed $$(basename $<) |& tee -a $(INSTALL_LOG)
 
 # ==============================================================================
 # Perform checks

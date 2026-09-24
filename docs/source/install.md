@@ -55,6 +55,30 @@ make check
 
 Any errors produced during this step will hinder pipeline execution in unexpected ways.
 
+### Installing outside the repository
+
+Databases and containers can be installed elsewhere, independently of each other, by setting `ASSETS_DIR` and `CONTAINERS_DIR`. Both accept a command line or an environment variable, and both default to the `assets` and `containers` folders of the repository:
+
+```bash
+make install ASSETS_DIR=/data/jasen/assets CONTAINERS_DIR=/fast/containers
+```
+
+Check where files will be written before starting:
+
+```bash
+make print_paths
+```
+
+The variables are not remembered between runs, so pass them to every `make` invocation, including `make check` and the species-specific rules. Assets that are version controlled, such as the cgMLST bed files and the TB tables, are copied into `ASSETS_DIR` as part of the installation.
+
+The containers can also be built on their own:
+
+```bash
+cd containers && make all CONTAINERS_DIR=/fast/containers
+```
+
+The pipeline is told about these locations by editing `assets_dir` and `containers_dir` in `nextflow.config`, which must match the directories used above. Every database path is derived from them when the config is read, so `--assets_dir` on the command line does not work.
+
 ### Species-specific installation
 
 The following species are able be installed independently as to save time and disk usage:
@@ -78,7 +102,7 @@ make update_databases && make ${ORG}_all
 
 Source: `nextflow.config`
 
-* Edit the `root` parameter
+* Edit the `assets_dir` and `containers_dir` parameters to match the `ASSETS_DIR` and `CONTAINERS_DIR` used during installation
 * Edit the `workDir` and `outdir` parameters
 * Edit the `use_kraken` parameter (default: false) and `kraken_db` to specify path to the database
 * Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads (default: false)

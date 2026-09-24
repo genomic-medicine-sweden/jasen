@@ -6,7 +6,15 @@
 # Make sure bash is used as shell, for consistency and to make some more
 # advanced scripting possible than with /bin/sh
 SHELL := /bin/bash
-INSTALL_LOG := .install.log
+
+# Where the .sif symlinks and their .img files are written. Defaults to this
+# directory, so running make from here behaves as before. Override with:
+#
+#   make all CONTAINERS_DIR=/fast/containers
+SRC_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+CONTAINERS_DIR ?= $(SRC_DIR)
+override CONTAINERS_DIR := $(abspath $(CONTAINERS_DIR))
+INSTALL_LOG := $(CONTAINERS_DIR)/.install.log
 
 all: \
 	build_local_containers \
@@ -58,6 +66,10 @@ remote_containers := ncbi-amrfinderplus.sif \
 					tb-profiler.sif \
 					trimmomatic.sif \
 					virulencefinder.sif
+
+# The same containers as absolute paths, which is what the rules below build.
+local_container_sifs := $(addprefix $(CONTAINERS_DIR)/,$(local_containers))
+remote_container_sifs := $(addprefix $(CONTAINERS_DIR)/,$(remote_containers))
 
 # URLs to Docker containers
 DOCKER_clair3 := docker://hkubal/clair3:v2.0.0
@@ -124,28 +136,36 @@ print_remote_containers:
 # ----------------------------------------------------------------
 # Download containers stored remotely
 # ----------------------------------------------------------------
-download_remote_containers: $(remote_containers)
+download_remote_containers: $(remote_container_sifs)
 
-$(remote_containers):
-	$(call log_message,"Downloading remote container $@ ...")
-	$(eval tool := $(basename $@))
+$(remote_container_sifs):
+	$(call log_message,"Downloading remote container $(notdir $@) ...")
+	$(eval tool := $(basename $(notdir $@)))
 	$(eval container_url := ${URL_${tool}})
 	$(eval sanitized_url := $(shell echo ${container_url} | sed -e 's/%3A/:/g'))
-	output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
+	@mkdir -p $(CONTAINERS_DIR) \
+	&& cd $(CONTAINERS_DIR) \
+	&& output_file=$$(echo ${sanitized_url} | sed -e 's#https://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& wget -O $${output_file} ${sanitized_url} --no-check-certificate \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $(notdir $@)
 
 
 # ----------------------------------------------------------------
 # Build some containers locally (which are not available remotely)
 # ----------------------------------------------------------------
-build_local_containers: $(local_containers)
+build_local_containers: $(local_container_sifs)
 
-$(local_containers):
-	$(call log_message,"Building local container $@ ...")
-	$(eval tool := $(basename $@))
+$(local_container_sifs): | $(INSTALL_LOG)
+	$(call log_message,"Building local container $(notdir $@) ...")
+	$(eval tool := $(basename $(notdir $@)))
 	$(eval container_url := ${DOCKER_${tool}})
 	@chmod o+w $(INSTALL_LOG) \
+	&& cd $(CONTAINERS_DIR) \
 	&& output_file=$$(echo ${container_url} | sed -e 's#docker://##' -e 's#/#-#g' -e 's#:#-#g').img \
 	&& apptainer build --force $${output_file} ${container_url} \
-	&& ln -sf $${output_file} $@ 
+	&& ln -sf $${output_file} $(notdir $@)
+
+# chmod above runs before log_message has necessarily created the log, so that
+# a later unprivileged make can still append to a log written under sudo.
+$(INSTALL_LOG):
+	@mkdir -p $(dir $@) && touch $@

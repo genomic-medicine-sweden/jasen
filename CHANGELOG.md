@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `concatenate_files` to `CALL_POSTPROCESSING` to merge each subworkflow's `versions.yml` (#499)
 - Added `reference_genome_accession` parameter and `--reference-genome-accession` input to `create_yaml`, so uploaded samples resolve a reference genome in Bonsai
 - Added `publishDir` to `kraken` and `kraken_batch` so kraken output and report files are published to `kraken/`
+- Added `ASSETS_DIR` and `CONTAINERS_DIR` make variables for installing databases and containers outside the repository
+- Added the `assets_dir` parameter, which every database path is derived from
 
 ### Fixed
 
