@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `publishDir` to `kraken` and `kraken_batch` so kraken output and report files are published to `kraken/`
 - Added `ASSETS_DIR` and `CONTAINERS_DIR` make variables for installing databases and containers outside the repository
 - Added the `assets_dir` parameter, which every database path is derived from
+- Added the `cron_dir` parameter, which the cron publish paths and `log_file_dir` are derived from
 
 ### Fixed
 
