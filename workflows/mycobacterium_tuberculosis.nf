@@ -177,7 +177,7 @@ workflow.onComplete {
 
     if (params.log_file_dir) {
         def base = file(params.csv).getBaseName()
-        def logFile = file(params.log_file_dir + base + ".complete")
+        def logFile = file(params.log_file_dir).resolve(base + ".complete")
         logFile.text = msg
         logFile.append(error)
     }

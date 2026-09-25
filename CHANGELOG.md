@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `publishDir` to `kraken` and `kraken_batch` so kraken output and report files are published to `kraken/`
 - Added `ASSETS_DIR` and `CONTAINERS_DIR` make variables for installing databases and containers outside the repository
 - Added the `assets_dir` parameter, which every database path is derived from
+- Added the `cron_dir` parameter, which the cron publish paths are derived from and which enables them when set
 
 ### Fixed
 
@@ -53,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `modules/local/prp/main.nf`; JASEN no longer invokes the `prp` CLI
 - Updated the per-species software tables in the docs to match the current container pins
 - Changed `create_yaml` to record the kraken report (`--kraken`) and bracken output (`--bracken`) as separate manifest entries
+- Removed the `copy_to_cron` parameter, replaced by setting `cron_dir`
 
 ## [1.3.0]
 
