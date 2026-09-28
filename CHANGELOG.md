@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned `plasmidfinder` `2.1.6`, `serotypefinder` `2.0.2`, and `bracken` `2.8`, which can't report their own version
 - Fixed `gambitcore`, `nanoplot`, and `tbprofiler` version strings so `prp parse jasen` can parse them
 - Fixed the `skesa` container in `conf/modules.config`, which pinned 2.4.0 while `containers/Makefile` pinned 2.5.1
+- Fixed the `apptainer` and `singularity` profiles replacing a site's `runOptions`, which dropped its bind paths
 
 ### Changed
 
