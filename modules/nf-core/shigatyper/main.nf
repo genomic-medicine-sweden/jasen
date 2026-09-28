@@ -33,7 +33,7 @@ process shigatyper {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 shigatyper:
-	  version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
+	  version: \$(echo \$(shigatyper --version 2>&1) | sed 's/^.*ShigaTyper //')
 	  container: ${task.container}
 	END_VERSIONS
     """
@@ -45,7 +45,7 @@ process shigatyper {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 shigatyper:
-	  version: \$(echo \$(shigatyper --version 2>&1) | sed -n 's/.*ShigaTyper v\\. \\([^,]*\\),.*/\\1/p')
+	  version: \$(echo \$(shigatyper --version 2>&1) | sed 's/^.*ShigaTyper //')
 	  container: ${task.container}
 	END_VERSIONS
     """
