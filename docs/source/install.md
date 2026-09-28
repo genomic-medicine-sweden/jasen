@@ -79,6 +79,8 @@ cd containers && make all CONTAINERS_DIR=/fast/containers
 
 The pipeline is told about these locations by editing `assets_dir` and `containers_dir` in `nextflow.config`, which must match the directories used above. Every database path is derived from them when the config is read, so `--assets_dir` on the command line does not work.
 
+Directories outside the repository also have to be mounted into the containers, see `runOptions` below.
+
 ### Species-specific installation
 
 The following species are able be installed independently as to save time and disk usage:
@@ -108,7 +110,7 @@ Source: `nextflow.config`
 * Edit the `use_hostile` parameter in `nextflow.config` in order to filter out human reads (default: false)
 * Edit the `use_skesa` parameter (default: true) if you would like to use SPAdes instead of Skesa for assembly of short reads
 * Edit the `target_sample_size` parameter in order to downsample reads
-* Add  `runOptions` to apptainer/singularity profile in order to mount directories to your run, e.g. output folder, workdir (Example: `apptainer.runOptions = "--bind ${params.outdir} --bind ${params.workDir}"`)
+* Add  `runOptions` to apptainer/singularity profile in order to mount directories to your run, e.g. output folder, workdir, and the assets and containers when they are installed outside the repository (Example: `apptainer.runOptions = "--bind ${params.outdir} --bind ${params.workDir} --bind ${params.assets_dir}"`). List every directory the run needs, as the last `runOptions` assignment replaces earlier ones rather than adding to them
 
 When analysing Nanopore data:
 * Edit the `ext.seqmethod` in `conf/modules.config` for Flye in case you are using older ONT data (default: --nano-hq, suitable for ONT data generated with R10 chemistry)
