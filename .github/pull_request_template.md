@@ -13,8 +13,18 @@ _Summary of the changes made:_
 - [ ] Backward-breaking functionality
 
 # Testing
-_Either describe a procedure, or add data; that confirms that the PR resolves what it sets out to do_
-
-# Sign-offs
-- [ ] Code reviewed by @octocat
-- [ ] Code tested by @octocat
+- [ ] Illumina
+  - [ ] Mtuberculosis
+  - [ ] Saureus
+  - [ ] Ecoli
+  - [ ] Spyogenes
+  - [ ] Streptococcus
+  - [ ] Staphylococcus
+- [ ] Nanopore
+  - [ ] Mtuberculosis `-stub-run`
+  - [ ] Saureus (@Emkago)
+  - [ ] Ecoli `-stub-run`
+  - [ ] Spyogenes `-stub-run`
+  - [ ] Streptococcus `-stub-run`
+- [ ] Iontorrent
+  - [ ] Saureus
