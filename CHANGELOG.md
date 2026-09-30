@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Fixed
+
+### Changed
+
+## [1.4.0]
+
+### Added
+
 - Added `plasmidfinder` (v2.1.6) for plasmid detection, on by default except for *M. tuberculosis* (#281)
 - Added `download_plasmidfinder_db` Makefile target and `plasmidfinder_db` parameter
 - Added `--plasmidfinder`, `--plasmidfinder-genome-hits`, `--plasmidfinder-plasmid-seqs` and `--database-info` inputs to `create_yaml`
