@@ -7,7 +7,7 @@ process freebayes {
 
     output:
     tuple val(sample_id), path(output), emit: vcf
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('freebayes'), eval("echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:[[:space:]]+v// ; s/ .*//'"), topic: versions, emit: versions_freebayes
 
     when:
     task.ext.when
@@ -17,25 +17,11 @@ process freebayes {
     output = "${sample_id}_freebayes.vcf"
     """
     freebayes ${args} -f ${assembly} ${bam} > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 freebayes:
-	  version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_freebayes.vcf"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 freebayes:
-	  version: \$(echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:\s+v// ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

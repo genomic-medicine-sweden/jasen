@@ -8,7 +8,7 @@ process seqtk_sample {
 
     output:
     tuple val(sample_id), path("*.fastq.gz"), emit: reads
-    path "*versions.yml"                    , emit: versions
+    tuple val("${task.process}"), val('seqtk'), eval("echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//'"), topic: versions, emit: versions_seqtk
 
     when:
     task.ext.when
@@ -31,25 +31,11 @@ process seqtk_sample {
             ${sample_size} \\
             | gzip --no-name > \${output_name}
     done
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 seqtk:
-	  version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_seqtk.fastq.gz"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 seqtk:
-	  version: \$(echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

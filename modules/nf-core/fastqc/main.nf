@@ -10,7 +10,7 @@ process fastqc {
     tuple val(sample_id), path("${sample_id}*_fastqc/fastqc_data.txt")  , emit: output
     tuple val(sample_id), path("*.zip")                                 , emit: zip
     tuple val(sample_id), path("*.html")                                , emit: html
-    path "*versions.yml"                                                , emit: versions
+    tuple val("${task.process}"), val('fastqc'), eval("echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//'"), topic: versions, emit: versions_fastqc
 
     when:
     task.ext.when
@@ -34,13 +34,6 @@ process fastqc {
         --memory ${fastqc_memory} \\
         --outdir . \\
         ${renamed_files}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 fastqc:
-	  version: \$(echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -51,12 +44,5 @@ process fastqc {
     touch ${sample_id}_fastqc/fastqc_data.txt
     touch ${sample_id}.zip
     touch ${sample_id}.html
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 fastqc:
-	  version: \$(echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

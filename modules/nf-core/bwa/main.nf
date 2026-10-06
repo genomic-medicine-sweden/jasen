@@ -7,7 +7,7 @@ process bwa_index {
 
     output:
     tuple val(sample_id), path("bwa"), emit: index
-    path "*versions.yml"             , emit: versions
+    tuple val("${task.process}"), val('bwa'), eval("echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//'"), topic: versions, emit: versions_bwa
 
     when:
     task.ext.when
@@ -16,13 +16,6 @@ process bwa_index {
     """
     mkdir bwa
     bwa index -p bwa/${fasta.baseName} ${fasta}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bwa:
-	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -33,13 +26,6 @@ process bwa_index {
     touch bwa/${fasta}.bwt
     touch bwa/${fasta}.pac
     touch bwa/${fasta}.sa
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bwa:
-	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -53,7 +39,8 @@ process bwa_mem {
 
     output:
     tuple val(sample_id), path(output), emit: bam
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('bwa'), eval("echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//'"), topic: versions, emit: versions_bwa
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -71,31 +58,11 @@ process bwa_mem {
         \$INDEX \\
         ${reads.join(' ')} \\
         | samtools sort ${args2} --threads ${task.cpus} -o ${output} -
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bwa:
-	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-	  container: ${task.container}
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_bwa.bam"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bwa:
-	  version: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-	  container: ${task.container}
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

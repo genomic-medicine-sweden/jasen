@@ -7,7 +7,7 @@ process spatyper {
 
     output:
     tuple val(sample_id), path(output), emit: tsv 
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('spatyper'), eval("echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //'"), topic: versions, emit: versions_spatyper
 
     when:
     task.ext.when
@@ -17,25 +17,11 @@ process spatyper {
     output = "${sample_id}_spatyper.tsv"
     """
     spaTyper -f ${assembly} --output ${output} ${args}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 spatyper:
-	  version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_spatyper.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 spatyper:
-	  version: \$(echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

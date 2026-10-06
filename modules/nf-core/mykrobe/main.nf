@@ -7,7 +7,7 @@ process mykrobe {
 
     output:
     tuple val(sample_id), path(output), emit: csv
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('mykrobe'), eval("echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//'"), topic: versions, emit: versions_mykrobe
 
     when:
     task.ext.when
@@ -23,25 +23,11 @@ process mykrobe {
       --seq ${input_reads_arg} \\
       --threads ${task.cpus} \\
       --output ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 mykrobe:
-	  version: \$(echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_mykrobe.csv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 mykrobe:
-	  version: \$(echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

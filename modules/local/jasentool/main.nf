@@ -7,7 +7,7 @@ process count_reads {
 
     output:
     tuple val(sample_id), path(output), emit: json
-    path "*versions.yml",               emit: versions
+    tuple val("${task.process}"), val('jasentool'), eval("echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_jasentool
 
     script:
     output = "${sample_id}_qc.json"
@@ -17,25 +17,12 @@ process count_reads {
         ${input_reads_arg} \\
         --sample-id ${sample_id} \\
         --output-file ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 jasentool:
-	  version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_qc.json"
     """
     touch ${output}
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 jasentool:
-	  version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -44,14 +31,13 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(bracken), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(bracken), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf), path(versions)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
     val reference_genome_accession
     val tb_grading_rules_bed
     val tbdb_bed
-    path versions
 
     output:
     tuple val(sample_id), path(output), emit: yaml
@@ -182,29 +168,6 @@ process annotate_delly {
 
     stub:
     output = "${sample_id}_annotated_delly.vcf"
-    """
-    touch ${output}
-    """
-}
-
-process concatenate_files {
-    input:
-    path(input_files)
-
-    output:
-    path(output), emit: concatenated
-
-    script:
-    output = "versions.yml"
-    def version_args = [input_files].flatten().collect { "-i ${it}" }.join(' ')
-    """
-    jasentool concatenate-files \\
-        ${version_args} \\
-        --output-file ${output}
-    """
-
-    stub:
-    output = "versions.yml"
     """
     touch ${output}
     """

@@ -9,7 +9,7 @@ process samtools_view {
     output:
     path('*.bam'), optional: true , emit: bam
     path('*.cram'), optional: true, emit: cram
-    path "*versions.yml"          , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
   
     when:
     task.ext.when
@@ -20,26 +20,12 @@ process samtools_view {
     def file_ext = input.getExtension()
     """
     samtools view ${reference_arg} ${input} > ${prefix}.${file_ext}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     """
     touch ${sample_id}.bam
     touch ${sample_id}.cram
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -52,7 +38,7 @@ process samtools_sort {
 
     output:
     tuple val(sample_id), path(output), emit: bam
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -61,26 +47,12 @@ process samtools_sort {
     output = "${input.baseName}.bam"
     """
     samtools sort -@ ${task.cpus} -O bam -o ${output} ${input}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${input.baseName}.bam"
     """
     touch "${output}"
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -93,7 +65,7 @@ process samtools_index {
 
     output:
     tuple val(sample_id), path(output), emit: bai
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -102,26 +74,12 @@ process samtools_index {
     output = "${input}.bai"
     """
     samtools index -@ ${task.cpus} ${input}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${input}.bai"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -134,32 +92,18 @@ process samtools_faidx {
 
     output:
     tuple val(sample_id), path(output), emit: fai
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
 
     script:
     output = "${fasta}.fai"
     """
     samtools faidx ${fasta}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${fasta}.fai"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -172,33 +116,19 @@ process samtools_coverage {
 
     output:
     tuple val(sample_id), path(output), emit: txt
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
 
     script:
     def args = task.ext.args ?: ''
     output = "${input.baseName}_mapcoverage.txt"
     """
     samtools coverage -o ${output} ${args} ${input}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${input.baseName}_mapcoverage.txt"
     """
     touch "${output}"
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -211,7 +141,7 @@ process samtools_stats {
 
     output:
     tuple val(sample_id), path(output), emit: stats
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -221,26 +151,12 @@ process samtools_stats {
     output = "${sample_id}.stats"
     """
     samtools stats --threads ${task.cpus} ${args} ${bam} > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}.stats"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -254,7 +170,7 @@ process samtools_bedcov {
 
     output:
     tuple val(sample_id), path(output), emit: coverage
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('samtools'), eval("echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -264,25 +180,11 @@ process samtools_bedcov {
     output = "${sample_id}.bedcov.tsv"
     """
     samtools bedcov ${args} ${bed} ${bam} > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}.bedcov.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 samtools:
-	  version: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

@@ -7,7 +7,7 @@ process emmtyper {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('emmtyper'), eval("echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//'"), topic: versions, emit: versions_emmtyper
 
     when:
     task.ext.when
@@ -17,25 +17,11 @@ process emmtyper {
     output = "${sample_id}_emmtyper.tsv"
     """
     emmtyper ${args} --output ${output} ${assembly}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 emmtyper:
-	  version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_emmtyper.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 emmtyper:
-	  version: \$(echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
