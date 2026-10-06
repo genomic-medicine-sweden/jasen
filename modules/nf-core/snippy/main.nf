@@ -10,7 +10,7 @@ process snippy {
     tuple val(sample_id), path(output)                 , emit: vcf
     tuple val(sample_id), path("${sample_id}/snps.bam"), emit: bam
     tuple val(sample_id), path("${sample_id}/snps.csv"), emit: csv
-    path "*versions.yml"                               , emit: versions
+    tuple val("${task.process}"), val('snippy'), eval("echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//'"), topic: versions, emit: versions_snippy
 
     when:
     task.ext.when
@@ -28,13 +28,6 @@ process snippy {
       --outdir ${sample_id}
 
     cp ${sample_id}/snps.vcf ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 snippy:
-	  version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -43,12 +36,5 @@ process snippy {
     mkdir ${sample_id}
     touch ${output}
     touch ${sample_id}/snps.{vcf,bed,gff,csv,tab,html,bam,txt}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 snippy:
-	  version: \$(echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

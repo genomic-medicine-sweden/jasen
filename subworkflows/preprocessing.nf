@@ -22,8 +22,6 @@ workflow CALL_PREPROCESSING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // PREPROCESSING
     // Create channel for reads
     Channel.fromPath(input_samples)
@@ -35,7 +33,6 @@ workflow CALL_PREPROCESSING {
     if ( params.use_hostile ) {
         // remove human reads
         hostile( ch_raw_reads, hostile_dir, hostile_idx ).reads.set{ ch_depleted_reads }
-        ch_versions = ch_versions.mix(hostile.out.versions)
     } else {
         ch_raw_reads.set{ ch_depleted_reads }
     }
@@ -43,7 +40,6 @@ workflow CALL_PREPROCESSING {
     if ( params.target_sample_size ) {
         // downsample reads
         seqtk_sample( ch_depleted_reads, target_sample_size ).reads.set{ ch_depleted_sampled_reads }
-        ch_versions = ch_versions.mix(seqtk_sample.out.versions)
     } else {
         ch_depleted_reads.set{ ch_depleted_sampled_reads }
     }
@@ -53,10 +49,8 @@ workflow CALL_PREPROCESSING {
         assembly_trim_clean(ch_depleted_sampled_reads).set { ch_reads }
     } else if (params.platform == "nanopore" && params.use_filtlong) {
         filtlong(ch_depleted_sampled_reads).reads.set { ch_reads }
-        ch_versions = ch_versions.mix(filtlong.out.versions)
     } else if (params.platform == "illumina" && params.use_trimmomatic) {
         trimmomatic(ch_depleted_sampled_reads).reads.set { ch_reads }
-        ch_versions = ch_versions.mix(trimmomatic.out.versions)
     } else {
         ch_depleted_sampled_reads.set{ ch_reads }
     }
@@ -82,5 +76,4 @@ workflow CALL_PREPROCESSING {
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
     reads               = ch_reads                          // channel: [ val(meta), path(fastq) ]
     seqrun_meta         = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
-    versions            = ch_versions                       // channel: [ versions.yml ]
 }

@@ -8,7 +8,7 @@ process minimap2_align {
 
     output:
     tuple val(sample_id), path(output), emit: sam
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('minimap2'), eval("echo \$(minimap2 --version 2>&1)"), topic: versions, emit: versions_minimap2
 
     when:
     task.ext.when
@@ -19,13 +19,6 @@ process minimap2_align {
     output = "${sample_id}_${process}.sam"
     """
     minimap2 ${args} ${referenceGenomeMmi} ${reads} > ${output}
-    
-    cat <<-END_VERSIONS > ${sample_id}_${process}_versions.yml
-	${task.process}:
-	 minimap2:
-	  version: \$(echo \$(minimap2 --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -33,13 +26,6 @@ process minimap2_align {
     output = "${sample_id}_${process}.sam"
     """
     touch "${output}"
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 minimap2:
-	  version: \$(echo \$(minimap2 --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -52,7 +38,7 @@ process minimap2_index {
 
     output:
     tuple val(sample_id), path("*.mmi"), emit: index
-    path "*versions.yml"               , emit: versions
+    tuple val("${task.process}"), val('minimap2'), eval("echo \$(minimap2 --version 2>&1)"), topic: versions, emit: versions_minimap2
 
     when:
     task.ext.when
@@ -65,24 +51,10 @@ process minimap2_index {
         -d ${fasta.baseName}.mmi \\
         ${args} \\
         ${fasta}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 minimap2:
-	  version: \$(echo \$(minimap2 --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     """
     touch ${fasta.baseName}.mmi
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 minimap2:
-	  version: \$(echo \$(minimap2 --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

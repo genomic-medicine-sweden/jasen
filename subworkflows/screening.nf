@@ -21,8 +21,6 @@ workflow CALL_SCREENING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // SCREENING
     // antimicrobial detection (amrfinderplus)
     amrfinderplus(ch_assembly, params.species, amrfinder_db)
@@ -33,14 +31,12 @@ workflow CALL_SCREENING {
 
     // plasmid detection
     plasmidfinder(ch_assembly, plasmidfinder_db)
-    ch_versions = ch_versions.mix(plasmidfinder.out.versions)
 
     // klebsiella and esherichia analysis pipeline
     if ( params.use_kleborate ) {
         kleborate(ch_assembly)
         kleborate.out.general.set{ ch_kleborate_general }
         kleborate.out.hamronization.set{ ch_kleborate_hamronization }
-        ch_versions = ch_versions.mix(kleborate.out.versions)
     } else {
         ch_sample_id.set{ ch_kleborate_general }
         ch_sample_id.set{ ch_kleborate_hamronization }
@@ -59,10 +55,6 @@ workflow CALL_SCREENING {
         .join(virulencefinder.out.meta)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(amrfinderplus.out.versions)
-    ch_versions = ch_versions.mix(resfinder.out.versions)
-    ch_versions = ch_versions.mix(virulencefinder.out.versions)
-
     emit:
     amrfinderplus              = amrfinderplus.out.tsv         // channel: [ val(meta), path(tsv) ]
     combined_output            = ch_combined_output            // channel: [ val(meta), path(tsv), path(txt), path(txt), path(json), path(meta), path(fsa), path(fsa), path(json), path(meta), path(json), path(meta) ]
@@ -76,5 +68,4 @@ workflow CALL_SCREENING {
     resfinder_meta             = resfinder.out.meta            // channel: [ val(meta), path(meta) ]
     virulencefinder_json       = virulencefinder.out.json      // channel: [ val(meta), path(json) ]
     virulencefinder_meta       = virulencefinder.out.meta      // channel: [ val(meta), path(meta) ]
-    versions                   = ch_versions                   // channel: [ versions.yml ]
 }

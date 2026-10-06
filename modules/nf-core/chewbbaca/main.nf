@@ -9,7 +9,7 @@ process chewbbaca_allelecall {
 
     output:
     path('output_dir/results_alleles.tsv'), emit: calls
-    path "*versions.yml"                  , emit: versions
+    tuple val("${task.process}"), val('chewbbaca'), eval("echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //'"), topic: versions, emit: versions_chewbbaca
 
     when:
     task.ext.when
@@ -25,25 +25,11 @@ process chewbbaca_allelecall {
     --output-directory output_dir \\
     ${training_file_arg} \\
     --schema-directory ${schema_dir}
-
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
-	${task.process}:
-	 chewbbaca:
-	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     """
     mkdir output_dir
     touch output_dir/results_alleles.tsv
-
-    cat <<-END_VERSIONS > ${task.process}_versions.yml
-	${task.process}:
-	 chewbbaca:
-	  version: \$(echo \$(chewie --version 2>&1) | sed 's/^.*chewBBACA version: //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
