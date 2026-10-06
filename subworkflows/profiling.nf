@@ -18,8 +18,6 @@ workflow CALL_PROFILING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // PROFILING
     mykrobe(ch_reads)
 
@@ -33,10 +31,6 @@ workflow CALL_PROFILING {
         .join(tbprofiler_mergedb.out.json)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(mykrobe.out.versions)
-    ch_versions = ch_versions.mix(snippy.out.versions)
-    ch_versions = ch_versions.mix(tbprofiler_mergedb.out.versions)
-
     emit:
     bam             = tbprofiler_mergedb.out.bam    // channel: [ val(meta), path(bam) ]
     bai             = tbprofiler_mergedb.out.bai    // channel: [ val(meta), path(bai) ]
@@ -44,5 +38,4 @@ workflow CALL_PROFILING {
     mykrobe         = mykrobe.out.csv               // channel: [ val(meta), path(csv) ]
     tbprofiler      = tbprofiler_mergedb.out.json   // channel: [ val(meta), path(json) ]
     vcf             = annotate_delly.out.vcf        // channel: [ val(meta), path(json) ]
-    versions        = ch_versions                   // channel: [ versions.yml ]
 }

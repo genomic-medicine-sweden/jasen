@@ -8,7 +8,7 @@ process nanoplot {
     output:
     tuple val(sample_id), path(output_html), emit: html
     tuple val(sample_id), path(output_txt),  emit: txt
-    path "*versions.yml",                    emit: versions
+    tuple val("${task.process}"), val('nanoplot'), eval("echo \$(NanoPlot --version 2>/dev/null) | sed 's/^.*NanoPlot //'"), topic: versions, emit: versions_nanoplot
 
     when:
     task.ext.when
@@ -19,13 +19,6 @@ process nanoplot {
     output_txt = "${sample_id}_NanoStats.txt"
     """
     NanoPlot ${args} --threads ${task.cpus} --prefix ${sample_id}_ --fastq ${reads}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 nanoplot:
-	  version: \$(echo \$(NanoPlot --version 2>/dev/null) | sed 's/^.*NanoPlot //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -33,12 +26,5 @@ process nanoplot {
     output_txt = "${sample_id}_NanoStats.txt"
     """
     touch ${output_html} ${output_txt}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 nanoplot:
-	  version: \$(echo \$(NanoPlot --version 2>/dev/null) | sed 's/^.*NanoPlot //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

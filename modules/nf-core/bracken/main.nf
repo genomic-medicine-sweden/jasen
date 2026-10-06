@@ -9,7 +9,7 @@ process bracken {
     output:
     tuple val(sample_id), path(output)       , emit: output
     tuple val(sample_id), path(output_report), emit: report
-    path "*versions.yml"                     , emit: versions
+    tuple val("${task.process}"), val('bracken'), val('2.8'), topic: versions, emit: versions_bracken
 
     when:
     task.ext.when
@@ -25,13 +25,6 @@ process bracken {
     -i ${report} \\
     -o ${output} \\
     -w ${output_report}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bracken:
-	  version: 2.8
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -40,12 +33,5 @@ process bracken {
     """
     touch ${output}
     touch ${output_report}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 bracken:
-	  version: 2.8
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

@@ -10,7 +10,7 @@ process tbprofiler {
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(bam_output) , emit: bam
     tuple val(sample_id), path(bai_output) , emit: bai
-    path "*versions.yml"                   , emit: versions
+    tuple val("${task.process}"), val('tb-profiler'), eval("echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//'"), topic: versions, emit: versions_tb_profiler
 
     when:
     task.ext.when
@@ -33,13 +33,6 @@ process tbprofiler {
     cp vcf/${sample_id}.targets.vcf.gz ${vcf_output}
     cp bam/${sample_id}.bam ${bam_output}
     cp bam/${sample_id}.bam.bai ${bai_output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 tb-profiler:
-	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -53,12 +46,5 @@ process tbprofiler {
     touch ${vcf_output}
     touch ${bam_output}
     touch ${bai_output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 tb-profiler:
-	  version: \$(echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

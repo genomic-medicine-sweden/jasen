@@ -14,8 +14,6 @@ workflow CALL_ASSEMBLY {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // ASSEMBLY
     skesa(ch_reads)
     spades_illumina(ch_reads)
@@ -29,13 +27,6 @@ workflow CALL_ASSEMBLY {
             spades_iontorrent.out.fasta, medaka.out.fasta
         ).set{ ch_assembly }
 
-    ch_versions = ch_versions.mix(flye.out.versions)
-    ch_versions = ch_versions.mix(medaka.out.versions)
-    ch_versions = ch_versions.mix(skesa.out.versions)
-    ch_versions = ch_versions.mix(spades_illumina.out.versions)
-    ch_versions = ch_versions.mix(spades_iontorrent.out.versions)
-
     emit:
     assembly    = ch_assembly   // channel: [ val(meta), path(fasta) ]
-    versions    = ch_versions   // channel: [ versions.yml ]
 }

@@ -8,7 +8,7 @@ process quast {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('quast'), eval("echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//'"), topic: versions, emit: versions_quast
 
     script:
     def args = task.ext.args ?: ''
@@ -18,25 +18,11 @@ process quast {
     """
     quast.py ${args} ${assembly} ${reference_command} -o ${output_dir} -t ${task.cpus}
     cp ${output_dir}/transposed_report.tsv ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 quast:
-	  version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_quast.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 quast:
-	  version: \$(echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

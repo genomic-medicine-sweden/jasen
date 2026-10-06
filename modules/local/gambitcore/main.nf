@@ -8,7 +8,7 @@ process gambitcore {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('gambitcore'), eval("echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //'"), topic: versions, emit: versions_gambitcore
 
     script:
     def args = task.ext.args ?: ''
@@ -19,25 +19,11 @@ process gambitcore {
         ${fasta} \\
         ${args} \\
         > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 gambitcore:
-	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_gambitcore.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 gambitcore:
-	  version: \$(echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

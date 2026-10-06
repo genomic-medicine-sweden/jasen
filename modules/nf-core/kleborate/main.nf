@@ -8,7 +8,7 @@ process kleborate {
     output:
     tuple val(sample_id), path("*_kleborate.txt")                  , emit: general
     tuple val(sample_id), path("*_kleborate_hAMRonization.txt")    , emit: hamronization
-    path "*versions.yml"                                           , emit: versions
+    tuple val("${task.process}"), val('kleborate'), eval("echo \$(kleborate --version 2>&1 | sed \"s/.*v//\")"), topic: versions, emit: versions_kleborate
 
 
     when:
@@ -28,24 +28,10 @@ process kleborate {
     # Move results to cwd
     mv results/*hAMRonization_output.txt "${sample_id}_kleborate_hAMRonization.txt"
     mv results/*_complex_output.txt "${sample_id}_kleborate.txt"
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 kleborate:
-	  version: \$(echo \$(kleborate --version 2>&1 | sed "s/.*v//") )
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     """
     touch results_kleborate.txt results_kleborate_hAMRonization.txt
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 kleborate:
-	  version: \$(echo \$(kleborate --version 2>&1 | sed "s/.*v//") )
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

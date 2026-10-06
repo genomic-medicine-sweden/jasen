@@ -11,7 +11,7 @@ process amrfinderplus {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('amrfinderplus'), eval("echo \$(amrfinder --version 2>&1)"), topic: versions, emit: versions_amrfinderplus
 
     when:
     task.ext.when
@@ -29,25 +29,11 @@ process amrfinderplus {
     ${args} \\
     ${taxon_arg} \\
     --output ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 amrfinderplus:
-	  version: \$(echo \$(amrfinder --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_amrfinder.tsv"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 amrfinderplus:
-	  version: \$(echo \$(amrfinder --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

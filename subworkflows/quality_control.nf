@@ -32,15 +32,11 @@ workflow CALL_QUALITY_CONTROL {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // evaluate assembly completeness
     gambitcore(ch_assembly, gambit_db)
-    ch_versions = ch_versions.mix(gambitcore.out.versions)
 
     // evaluate assembly quality
     quast(ch_assembly, reference_genome)
-    ch_versions = ch_versions.mix(quast.out.versions)
 
     // qc processing - short read
     fastqc(ch_reads)
@@ -52,7 +48,6 @@ workflow CALL_QUALITY_CONTROL {
         nanoplot(ch_reads)
         nanoplot.out.txt.set{ ch_nanoplot_txt }
         nanoplot.out.html.set{ ch_nanoplot_html }
-        ch_versions = ch_versions.mix(nanoplot.out.versions)
     } else {
         ch_sample_id.set{ ch_nanoplot_txt }
         ch_sample_id.set{ ch_nanoplot_html }
@@ -69,11 +64,6 @@ workflow CALL_QUALITY_CONTROL {
         samtools_bedcov_ref(ch_ref_bam_bai, core_loci_bed).coverage.set{ ch_samtools_bedcov }
         samtools_coverage_ref(ch_ref_bam).txt.set{ ch_samtools_cov_ref }
         ch_sample_id.set{ ch_postalignqc }
-        ch_versions = ch_versions.mix(samtools_bedcov_ref.out.versions)
-        ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
-        ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
-        ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
-        ch_versions = ch_versions.mix(samtools_stats_ref.out.versions)
     } else {
         count_reads(ch_reads).json.set{ ch_postalignqc }
         ch_sample_id.set{ ch_samtools_stats }
@@ -81,7 +71,6 @@ workflow CALL_QUALITY_CONTROL {
         ch_sample_id.set{ ch_ref_bam }
         ch_sample_id.set{ ch_ref_bai }
         ch_sample_id.set{ ch_samtools_cov_ref }
-        ch_versions = ch_versions.mix(count_reads.out.versions)
     }
 
     if ( params.use_kraken ) {
@@ -97,16 +86,13 @@ workflow CALL_QUALITY_CONTROL {
                 .flatten()
                 .map { kraken_report -> [kraken_report.name.replaceAll('_kraken\\.report$', ''), kraken_report] }
                 .set { ch_kraken }
-            ch_versions = ch_versions.mix(kraken_batch.out.versions)
         } else {
             kraken(ch_reads, kraken_db)
             kraken.out.report.set { ch_kraken }
-            ch_versions = ch_versions.mix(kraken.out.versions)
         }
 
         bracken(ch_kraken, kraken_db)
         bracken.out.output.set{ ch_bracken }
-        ch_versions = ch_versions.mix(bracken.out.versions)
     } else {
         ch_sample_id.set{ ch_bracken }
         ch_sample_id.set{ ch_kraken }
@@ -125,10 +111,6 @@ workflow CALL_QUALITY_CONTROL {
         .join(ch_samtools_cov_ref)
         .set { ch_combined_output }
 
-    ch_versions = ch_versions.mix(bwa_mem_ref.out.versions)
-    ch_versions = ch_versions.mix(fastqc.out.versions)
-    ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
-
     emit:
     combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(out), path(tsv), path(report), path(json), path(stats), path(bedcov), path(tsv), path(txt), path(txt) ]
     bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
@@ -144,5 +126,4 @@ workflow CALL_QUALITY_CONTROL {
     samtools_bedcov     = ch_samtools_bedcov            // channel: [ val(meta), path(tsv) ]
     quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
     samtools_cov_ref    = ch_samtools_cov_ref           // channel: [ val(meta), path(txt) ]
-    versions            = ch_versions                   // channel: [ versions.yml ]
 }
