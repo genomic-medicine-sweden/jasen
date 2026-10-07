@@ -11,7 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Removed the duplicate prodigal training files left in `assets/prodigal_training_files` after cgMLST schema prep (#279)
+
 ### Changed
+
+- Removed the `saureus_download_prodigal_training_file`, `ecoli_generate_prodigal_training_file` and `spyogenes_generate_prodigal_training_file` make targets; schema prep now creates the training file it needs (#279)
 
 ## [1.4.0]
 
