@@ -52,6 +52,20 @@ sample01,nanopore,seqrun0123,path_to_reads/sample01.fastq.gz
 
 As input for long reads we recommend fastq files that were obtained by basecalling using SUP model.
 
+The samplesheet can contain the following columns:
+
+| Column              | Required | Description                                                            |
+| ------------------- | -------- | ---------------------------------------------------------------------- |
+| `id`                | Yes      | Unique sample id, without spaces                                       |
+| `platform`          | Yes      | One of `illumina`, `nanopore`, `pacbio` or `iontorrent`                |
+| `sequencing_run`    | Yes      | Sequencing run name                                                    |
+| `read1`             | Yes      | Path to the (forward) fastq file                                       |
+| `read2`             | No       | Path to the reverse fastq file, for paired-end reads                   |
+| `clarity_sample_id` | No       | LIMS sample id; defaults to `id`                                       |
+| `sample_name`       | No       | Sample name; defaults to `id`                                          |
+
+The samplesheet is validated against `assets/schema_input.json` before any analysis starts. The run stops with an error if a column is unknown, a row has a different number of fields than the header, a required value is missing, a sample id is repeated, the platform is not recognised, or a read file does not exist. Leading and trailing whitespace around values is removed.
+
 ## Downsampling reads
 
 There are an option to use [seqtk](https://github.com/lh3/seqtk) downsample the number of for a sample as a preprocessing step before all other analyses. This can be useful if a sample was sequenced too deeply, as extreme sequencing depth can causes issues with *de-novo* assemblies.

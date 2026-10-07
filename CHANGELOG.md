@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added samplesheet validation with the `nf-schema` plugin (#441)
+
 ### Fixed
 
+- Duplicate sample ids now stop the run at startup instead of crashing it later (#59)
+- Missing read files and rows with the wrong number of fields now stop the run at startup (#161, #441)
+
 ### Changed
+
+- Raised the minimum Nextflow version to 24.10.0, required by `nf-schema` (#441)
 
 ## [1.4.0]
 
