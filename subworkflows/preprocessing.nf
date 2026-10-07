@@ -2,6 +2,8 @@
 
 nextflow.enable.dsl=2
 
+include { samplesheetToList         } from 'plugin/nf-schema'
+include { check_samplesheet_fields  } from '../methods/get_sample_data.nf'
 include { get_reads                 } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta           } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean       } from '../modules/local/clean/main.nf'
@@ -26,9 +28,15 @@ workflow CALL_PREPROCESSING {
 
     // PREPROCESSING
     // Create channel for reads
-    Channel.fromPath(input_samples)
-        .splitCsv(header:true)
-        .tap{ ch_raw_input }
+    check_samplesheet_fields(input_samples)
+
+    Channel.fromList(samplesheetToList(input_samples, "${projectDir}/assets/schema_input.json"))
+        .map{ id, seq_platform, sequencing_run, clarity_sample_id, sample_name, read1, read2 ->
+            [ id: id, platform: seq_platform, sequencing_run: sequencing_run, clarity_sample_id: clarity_sample_id, sample_name: sample_name, read1: read1, read2: read2 ]
+        }
+        .set{ ch_samplesheet }
+
+    ch_samplesheet
         .map{ row -> get_reads(row) }
         .set{ ch_raw_reads }
 
@@ -61,7 +69,7 @@ workflow CALL_PREPROCESSING {
         ch_depleted_sampled_reads.set{ ch_reads }
     }
 
-    Channel.fromPath(input_samples).splitCsv(header:true)
+    ch_samplesheet
         .map{ row -> get_seqrun_meta(row) }
         .tap{ ch_seqrun_meta }
         .map{ id, sequencing_run, lims_id, sample_name -> [ id, lims_id, sample_name ]}
