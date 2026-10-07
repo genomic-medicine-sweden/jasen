@@ -22,3 +22,14 @@ def get_reads(LinkedHashMap row) {
     }
     return reads
 }
+
+def check_samplesheet_fields(samplesheet) {
+    def lines = file(samplesheet).readLines().findAll { it.trim() }
+    def header_size = lines[0].split(',', -1).size()
+    lines.drop(1).eachWithIndex { line, idx ->
+        def row_size = line.split(',', -1).size()
+        if (row_size != header_size) {
+            exit 1, "ERROR: Please check input samplesheet -> Entry ${idx + 1} has ${row_size} fields but the header has ${header_size}"
+        }
+    }
+}

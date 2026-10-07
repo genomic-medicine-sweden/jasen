@@ -3,11 +3,24 @@
 ## Requirements
 
 * Apptainer
-* Nextflow (`curl -s https://get.nextflow.io | bash`)
+* Nextflow 24.10.0 or later (`curl -s https://get.nextflow.io | bash`)
 
 **Recommended**
 
 * Conda
+
+### Nextflow plugins
+
+JASEN validates the samplesheet with the [nf-schema](https://github.com/nextflow-io/nf-schema) plugin, pinned to version 2.4.2 in `nextflow.config`. Nextflow downloads it automatically the first time the pipeline runs.
+
+On machines without internet access, install the plugin beforehand and run Nextflow in offline mode:
+
+```bash
+nextflow plugin install nf-schema@2.4.2
+export NXF_OFFLINE=true
+```
+
+Plugins are installed into `~/.nextflow/plugins` by default; set `NXF_PLUGINS_DIR` to use a shared location instead.
 
 ## Development deployment (self-contained)
 
