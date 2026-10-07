@@ -1,0 +1,53 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/genomic-medicine-sweden/jasen/master/assets/schema_input.json",
+    "title": "JASEN samplesheet",
+    "description": "Schema for the samplesheet passed with --csv",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample id must be provided and cannot contain spaces"
+            },
+            "platform": {
+                "type": "string",
+                "enum": ["illumina", "nanopore", "pacbio", "iontorrent"],
+                "errorMessage": "Platform must be one of: illumina, nanopore, pacbio, iontorrent"
+            },
+            "sequencing_run": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sequencing run must be provided and cannot contain spaces"
+            },
+            "clarity_sample_id": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Clarity sample id cannot contain spaces"
+            },
+            "sample_name": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name cannot contain spaces"
+            },
+            "read1": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
+                "errorMessage": "read1 must be an existing fastq file (.fq, .fastq, .fq.gz or .fastq.gz) without spaces in the path"
+            },
+            "read2": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
+                "errorMessage": "read2 must be an existing fastq file (.fq, .fastq, .fq.gz or .fastq.gz) without spaces in the path"
+            }
+        },
+        "required": ["id", "platform", "sequencing_run", "read1"]
+    },
+    "uniqueEntries": ["id"]
+}

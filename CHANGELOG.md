@@ -9,14 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added samplesheet validation with the `nf-schema` plugin (#441)
+
 ### Fixed
 
 - Pinned the CI runner to `ubuntu-24.04`, as Apptainer 1.3.6 can't be installed on `ubuntu-latest` (26.04)
 - Removed the duplicate prodigal training files left in `assets/prodigal_training_files` after cgMLST schema prep; copies from earlier installs can be deleted (#279)
+- Duplicate sample ids now stop the run at startup instead of crashing it later (#59)
+- Missing read files and rows with the wrong number of fields now stop the run at startup (#161, #441)
 
 ### Changed
 
 - Removed the `saureus_download_prodigal_training_file`, `ecoli_generate_prodigal_training_file` and `spyogenes_generate_prodigal_training_file` make targets; schema prep now creates the training file it needs (#279)
+- Raised the minimum Nextflow version to 24.10.0, required by `nf-schema` (#441)
 
 ## [1.4.1]
 
