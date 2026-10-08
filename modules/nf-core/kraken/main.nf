@@ -9,7 +9,7 @@ process kraken_batch {
     output:
     path("*_kraken.out"),    emit: outputs
     path("*_kraken.report"), emit: reports
-    path("*versions.yml"),   emit: versions
+    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | head -1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
 
     when:
     task.ext.when
@@ -51,13 +51,6 @@ process kraken_batch {
         --report \${sample_id}_kraken.report \\
         \${reads_arg}
     done < ${batch_input}
-
-    cat <<-END_VERSIONS > kraken_batch_versions.yml
-	${task.process}:
-	 kraken2:
-	  version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -66,13 +59,6 @@ process kraken_batch {
         touch \${sample_id}_kraken.out
         touch \${sample_id}_kraken.report
     done < ${batch_input}
-
-    cat <<-END_VERSIONS > kraken_batch_versions.yml
-	${task.process}:
-	 kraken2:
-	  version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
 
@@ -87,7 +73,7 @@ process kraken {
     output:
     tuple val(sample_id), path(output), emit: output
     tuple val(sample_id), path(report), emit: report
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | head -1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
 
     when:
     task.ext.when
@@ -105,13 +91,6 @@ process kraken {
     --output ${output} \\
     --report ${report} \\
     ${input_reads_arg}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 kraken2:
-	  version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -120,12 +99,5 @@ process kraken {
     """
     touch ${output}
     touch ${report}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 kraken2:
-	  version: \$(echo \$(kraken2 --version 2>&1) | sed 's/^.*Kraken version // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

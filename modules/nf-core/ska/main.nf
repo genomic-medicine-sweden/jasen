@@ -7,7 +7,7 @@ process ska_build {
 
     output:
     tuple val(sample_id), path(output), emit: skf
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('ska2'), eval("ska --version 2>&1 | sed 's/^.*ska // ; s/ .*//'"), topic: versions, emit: versions_ska2
 
     script:
     def args = task.ext.args ?: ''
@@ -17,13 +17,6 @@ process ska_build {
     """
     echo ${input_reads_arg} > ${sample_id}_input.txt
     ska build ${args} --threads ${task.cpus} -o ${output_basename} -f ${sample_id}_input.txt
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 ska2:
-	  version: \$(echo \$(ska --version 2>&1) | sed 's/^.*ska // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -31,12 +24,5 @@ process ska_build {
     """
     mkdir ${sample_id}
     touch $output
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 ska2:
-	  version: \$(echo \$(ska --version 2>&1) | sed 's/^.*ska // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

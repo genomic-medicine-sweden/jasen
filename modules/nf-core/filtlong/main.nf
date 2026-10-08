@@ -7,7 +7,7 @@ process filtlong {
 
     output:
     tuple val(sample_id), path(output), emit: reads
-    path "*versions.yml",               emit: versions
+    tuple val("${task.process}"), val('filtlong'), eval("filtlong --version 2>&1 | sed 's/Filtlong v//'"), topic: versions, emit: versions_filtlong
 
     when:
     task.ext.when
@@ -21,25 +21,11 @@ process filtlong {
         ${reads} \\
         2>| >(tee ${sample_id}_filtlong.log >&2) \\
         | gzip -n > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 filtlong:
-	  version: \$(echo \$(filtlong --version 2>&1) | sed 's/Filtlong v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_filtered.fastq.gz"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 filtlong:
-	  version: \$(echo \$(filtlong --version 2>&1) | sed 's/Filtlong v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

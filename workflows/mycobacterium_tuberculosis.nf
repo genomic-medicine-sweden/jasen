@@ -52,7 +52,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     target_sample_size      = params.target_sample_size     ? params.target_sample_size                                 : Channel.value([])
 
     main:
-    ch_versions = Channel.empty()
 
     CALL_PREPROCESSING (
         assay,
@@ -118,15 +117,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .map{ sample_id, empty -> [ sample_id, empty, empty, empty, empty, empty, empty, empty, empty ] }
         .set{ ch_typing_combined_output }
 
-    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
-    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
-    ch_versions = ch_versions.mix(CALL_PROFILING.out.versions)
-    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
-    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
-    ch_versions = ch_versions.mix(samtools_bedcov_ref.out.versions)
-    ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
-    ch_versions = ch_versions.mix(samtools_stats_ref.out.versions)
-
     CALL_POSTPROCESSING (
         reference_genome,
         reference_genome_idx,
@@ -142,16 +132,12 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         ch_screening_combined_output,
         CALL_PREPROCESSING.out.seqrun_meta,
         ch_typing_combined_output,
-        CALL_PROFILING.out.vcf,
-        ch_versions
+        CALL_PROFILING.out.vcf
     )
-
-    ch_versions = ch_versions.mix(CALL_POSTPROCESSING.out.versions)
 
     emit:
     cdm             = CALL_POSTPROCESSING.out.cdm               // channel: [ path(txt) ]
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
-    versions        = ch_versions                               // channel: [ versions.yml ]
 }
 
 workflow.onComplete {

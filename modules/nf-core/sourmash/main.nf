@@ -7,32 +7,18 @@ process sourmash {
 
     output:
     tuple val(sample_id), path(output), emit: signature
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('sourmash'), eval("sourmash --version 2>&1 | sed 's/^.*sourmash // ; s/ .*//'"), topic: versions, emit: versions_sourmash
 
     script:
     def args = task.ext.args ?: ''
     output = "${sample_id}.sig"
     """
     sourmash sketch dna ${args} ${assembly} -o ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 sourmash:
-	  version: \$(echo \$(sourmash --version 2>&1) | sed 's/^.*sourmash // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}.sig"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 sourmash:
-	  version: \$(echo \$(sourmash --version 2>&1) | sed 's/^.*sourmash // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

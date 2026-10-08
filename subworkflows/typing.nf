@@ -37,13 +37,10 @@ workflow CALL_TYPING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // TYPING
     if ( !params.ci ) {
         mlst(ch_assembly, mlst_scheme, pubmlst_db, mlst_blast_db)
         mlst.out.json.set{ ch_mlst }
-        ch_versions = ch_versions.mix(mlst.out.versions)
     } else {
         ch_sample_id.set{ ch_mlst }
     }
@@ -80,16 +77,8 @@ workflow CALL_TYPING {
             .join(samtools_index_assembly.out.bai)
             .set{ ch_assembly_bam_bai }
 
-        ch_versions = ch_versions.mix(bwa_index.out.versions)
-        ch_versions = ch_versions.mix(bwa_mem_assembly.out.versions)
-        ch_versions = ch_versions.mix(minimap2_align_assembly.out.versions)
-        ch_versions = ch_versions.mix(minimap2_index.out.versions)
-        ch_versions = ch_versions.mix(samtools_index_assembly.out.versions)
-        ch_versions = ch_versions.mix(samtools_sort_assembly.out.versions)
-
         if ( params.platform == "nanopore" ) {
             samtools_faidx_assembly(ch_assembly)
-            ch_versions = ch_versions.mix(samtools_faidx_assembly.out.versions)
 
             ch_assembly_bam_bai
                 .join(ch_assembly)
@@ -101,10 +90,8 @@ workflow CALL_TYPING {
                 }
                 .set { ch_clair3_assembly_in }
             clair3_assembly(ch_clair3_assembly_in.bam_bai, ch_clair3_assembly_in.fasta, ch_clair3_assembly_in.fasta_fai, clair3_model).vcf.set{ ch_polymorph_vcf }
-            ch_versions = ch_versions.mix(clair3_assembly.out.versions)
         } else {
             freebayes_assembly(ch_assembly.join(ch_assembly_bam_bai)).vcf.set{ ch_polymorph_vcf }
-            ch_versions = ch_versions.mix(freebayes_assembly.out.versions)
         }
 
         mask_polymorph_assembly(ch_assembly.join(ch_polymorph_vcf))
@@ -139,8 +126,6 @@ workflow CALL_TYPING {
         serotypefinder.out.json.set{ ch_serotypefinder }
         serotypefinder.out.meta.set{ ch_serotypefinder_meta }
         shigatyper(ch_reads).tsv.set{ ch_shigatyper }
-        ch_versions = ch_versions.mix(serotypefinder.out.versions)
-        ch_versions = ch_versions.mix(shigatyper.out.versions)
     } else {
         ch_sample_id.set{ ch_serotypefinder }
         ch_sample_id.set{ ch_serotypefinder_meta }
@@ -151,8 +136,6 @@ workflow CALL_TYPING {
     if (params.species == "staphylococcus aureus") {
         sccmec(ch_assembly).tsv.set{ ch_sccmec }
         spatyper(ch_assembly).tsv.set{ ch_spatyper }
-        ch_versions = ch_versions.mix(sccmec.out.versions)
-        ch_versions = ch_versions.mix(spatyper.out.versions)
     } else {
         ch_sample_id.set{ ch_sccmec }
         ch_sample_id.set{ ch_spatyper }
@@ -161,7 +144,6 @@ workflow CALL_TYPING {
     // streptococcus & spyogenes
     if (params.species in ["streptococcus", "streptococcus pyogenes"]) {
         emmtyper(ch_assembly).tsv.set{ ch_emmtyper }
-        ch_versions = ch_versions.mix(emmtyper.out.versions)
     } else {
         ch_sample_id.set{ ch_emmtyper }
     }
@@ -176,8 +158,6 @@ workflow CALL_TYPING {
         .join(ch_spatyper)
         .set{ ch_combined_output }
 
-    ch_versions = ch_versions.mix(chewbbaca_allelecall.out.versions)
-
     emit:
     chewbbaca       = chewbbaca_split_results.out.tsv     // channel: [ val(meta), path(tsv) ]
     combined_output = ch_combined_output                  // channel: [ val(meta), path(tsv), path(tsv), path(json), path(tsv), path(json), path(json), path(csv), path(tsv) ]
@@ -188,5 +168,4 @@ workflow CALL_TYPING {
     serotypefinder  = ch_serotypefinder_meta              // channel: [ val(meta), path(json) ]
     shigatyper      = ch_shigatyper                       // channel: [ val(meta), path(tsv) ]
     spatyper        = ch_spatyper                         // channel: [ val(meta), path(tsv) ]
-    versions        = ch_versions                         // channel: [ versions.yml ]
 }

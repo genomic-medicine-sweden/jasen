@@ -7,7 +7,7 @@ process flye {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('flye'), eval("flye --version 2>&1"), topic: versions, emit: versions_flye
 
     when:
     task.ext.when
@@ -27,25 +27,11 @@ process flye {
         --out-dir ${output_dir}
 
     mv ${output_dir}/assembly.fasta ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 flye:
-	  version: \$(echo \$(flye --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_flye.fasta"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 flye:
-	  version: \$(echo \$(flye --version 2>&1))
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
