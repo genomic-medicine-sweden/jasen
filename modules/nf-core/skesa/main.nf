@@ -7,7 +7,7 @@ process skesa {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    tuple val("${task.process}"), val('skesa'), eval("skesa --version 2>&1 | sed 's/^.*SKESA // ; s/ .*//'"), topic: versions, emit: versions_skesa
+    tuple val("${task.process}"), val('skesa'), eval("skesa --version 2>/dev/null | sed 's/^.*SKESA // ; s/ .*//'"), topic: versions, emit: versions_skesa
 
     when:
     task.ext.when

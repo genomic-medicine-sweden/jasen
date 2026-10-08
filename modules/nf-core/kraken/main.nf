@@ -9,7 +9,7 @@ process kraken_batch {
     output:
     path("*_kraken.out"),    emit: outputs
     path("*_kraken.report"), emit: reports
-    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
+    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | head -1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
 
     when:
     task.ext.when
@@ -73,7 +73,7 @@ process kraken {
     output:
     tuple val(sample_id), path(output), emit: output
     tuple val(sample_id), path(report), emit: report
-    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
+    tuple val("${task.process}"), val('kraken2'), eval("kraken2 --version 2>&1 | head -1 | sed 's/^.*Kraken version // ; s/ .*//'"), topic: versions, emit: versions_kraken2
 
     when:
     task.ext.when
