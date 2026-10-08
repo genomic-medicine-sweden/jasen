@@ -8,7 +8,7 @@ process seqtk_sample {
 
     output:
     tuple val(sample_id), path("*.fastq.gz"), emit: reads
-    tuple val("${task.process}"), val('seqtk'), eval("echo \$(seqtk 2>&1) | sed 's/^.*Version: //; s/ .*\$//'"), topic: versions, emit: versions_seqtk
+    tuple val("${task.process}"), val('seqtk'), eval("seqtk 2>&1 | sed 's/^.*Version: //; s/ .*\$//'"), topic: versions, emit: versions_seqtk
 
     when:
     task.ext.when

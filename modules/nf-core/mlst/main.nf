@@ -15,7 +15,7 @@ process mlst {
     tuple val(sample_id), path('*.tsv')  , optional: true, emit: tsv
     tuple val(sample_id), path('*.json') , optional: true, emit: json
     tuple val(sample_id), path('*.novel'), optional: true, emit: novel
-    tuple val("${task.process}"), val('mlst'), eval("echo \$(mlst --version 2>&1) | sed 's/^.*mlst //'"), topic: versions, emit: versions_mlst
+    tuple val("${task.process}"), val('mlst'), eval("mlst --version 2>&1 | sed 's/^.*mlst //'"), topic: versions, emit: versions_mlst
 
     script:
     def args = task.ext.args ?: ''

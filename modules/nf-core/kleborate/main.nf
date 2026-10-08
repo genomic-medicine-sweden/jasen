@@ -8,7 +8,7 @@ process kleborate {
     output:
     tuple val(sample_id), path("*_kleborate.txt")                  , emit: general
     tuple val(sample_id), path("*_kleborate_hAMRonization.txt")    , emit: hamronization
-    tuple val("${task.process}"), val('kleborate'), eval("echo \$(kleborate --version 2>&1 | sed \"s/.*v//\")"), topic: versions, emit: versions_kleborate
+    tuple val("${task.process}"), val('kleborate'), eval("kleborate --version 2>&1 | sed \"s/.*v//\""), topic: versions, emit: versions_kleborate
 
 
     when:

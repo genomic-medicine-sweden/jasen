@@ -7,7 +7,7 @@ process mykrobe {
 
     output:
     tuple val(sample_id), path(output), emit: csv
-    tuple val("${task.process}"), val('mykrobe'), eval("echo \$(mykrobe --version 2>&1) | sed 's/^.*mykrobe v// ; s/ .*//'"), topic: versions, emit: versions_mykrobe
+    tuple val("${task.process}"), val('mykrobe'), eval("mykrobe --version 2>&1 | sed 's/^.*mykrobe v// ; s/ .*//'"), topic: versions, emit: versions_mykrobe
 
     when:
     task.ext.when

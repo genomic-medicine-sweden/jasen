@@ -7,7 +7,7 @@ process spatyper {
 
     output:
     tuple val(sample_id), path(output), emit: tsv 
-    tuple val("${task.process}"), val('spatyper'), eval("echo \$(spaTyper --version 2>&1) | sed 's/spaTyper //'"), topic: versions, emit: versions_spatyper
+    tuple val("${task.process}"), val('spatyper'), eval("spaTyper --version 2>&1 | sed 's/spaTyper //'"), topic: versions, emit: versions_spatyper
 
     when:
     task.ext.when

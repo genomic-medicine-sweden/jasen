@@ -11,7 +11,7 @@ process virulencefinder {
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(meta_output), emit: meta
     tuple val("${task.process}"), val('virulencefinder_db'), eval("echo \$DB_VERSION"), topic: versions, emit: versions_virulencefinder_db
-    tuple val("${task.process}"), val('virulencefinder'), eval("echo \$(python -m virulencefinder --version 2>&1)"), topic: versions, emit: versions_virulencefinder
+    tuple val("${task.process}"), val('virulencefinder'), eval("python -m virulencefinder --version 2>&1"), topic: versions, emit: versions_virulencefinder
 
     when:
     task.ext.when

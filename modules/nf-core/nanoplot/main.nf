@@ -8,7 +8,7 @@ process nanoplot {
     output:
     tuple val(sample_id), path(output_html), emit: html
     tuple val(sample_id), path(output_txt),  emit: txt
-    tuple val("${task.process}"), val('nanoplot'), eval("echo \$(NanoPlot --version 2>/dev/null) | sed 's/^.*NanoPlot //'"), topic: versions, emit: versions_nanoplot
+    tuple val("${task.process}"), val('nanoplot'), eval("NanoPlot --version 2>/dev/null | sed 's/^.*NanoPlot //'"), topic: versions, emit: versions_nanoplot
 
     when:
     task.ext.when

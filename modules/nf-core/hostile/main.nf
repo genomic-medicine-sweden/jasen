@@ -9,7 +9,7 @@ process hostile {
 
     output:
     tuple val(sample_id), path("${output_dir}/*.fastq.gz"), emit: reads
-    tuple val("${task.process}"), val('hostile'), eval("echo \$(hostile --version 2>&1)"), topic: versions, emit: versions_hostile
+    tuple val("${task.process}"), val('hostile'), eval("hostile --version 2>&1"), topic: versions, emit: versions_hostile
 
     when:
     task.ext.when

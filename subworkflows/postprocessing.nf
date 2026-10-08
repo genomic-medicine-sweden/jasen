@@ -28,7 +28,7 @@ workflow CALL_POSTPROCESSING {
 
     Channel.topic('versions')
         .unique()
-        .map { process, tool, version -> [ process.tokenize(':').last(), "  ${tool}:\n    version: '${version.toString().replace("'", "''")}'" ] }
+        .map { process, tool, version -> [ process.tokenize(':').last(), "  ${tool}:\n    version: '${version.toString().trim().replace("'", "''")}'" ] }
         .groupTuple()
         .map { process, tools -> "${process}:\n${tools.unique().sort().join('\n')}" }
         .collect(sort: true)
