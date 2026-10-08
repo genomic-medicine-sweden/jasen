@@ -7,7 +7,7 @@ process flye {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    tuple val("${task.process}"), val('flye'), eval("echo \$(flye --version 2>&1)"), topic: versions, emit: versions_flye
+    tuple val("${task.process}"), val('flye'), eval("flye --version 2>&1"), topic: versions, emit: versions_flye
 
     when:
     task.ext.when

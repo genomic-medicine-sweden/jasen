@@ -7,7 +7,7 @@ process sccmec {
 
     output:
     tuple val(sample_id), path(output), emit: tsv 
-    tuple val("${task.process}"), val('sccmec'), eval("echo \$(sccmec --version 2>&1) | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//'"), topic: versions, emit: versions_sccmec
+    tuple val("${task.process}"), val('sccmec'), eval("sccmec --version 2>&1 | sed -n 's/.*sccmec_targets, version //p' | sed 's/ .*//'"), topic: versions, emit: versions_sccmec
 
     when:
     task.ext.when

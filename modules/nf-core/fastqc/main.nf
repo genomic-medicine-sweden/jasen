@@ -10,7 +10,7 @@ process fastqc {
     tuple val(sample_id), path("${sample_id}*_fastqc/fastqc_data.txt")  , emit: output
     tuple val(sample_id), path("*.zip")                                 , emit: zip
     tuple val(sample_id), path("*.html")                                , emit: html
-    tuple val("${task.process}"), val('fastqc'), eval("echo \$(fastqc --version 2>&1) | sed -r 's/^.*FastQC v//'"), topic: versions, emit: versions_fastqc
+    tuple val("${task.process}"), val('fastqc'), eval("fastqc --version 2>&1 | sed -r 's/^.*FastQC v//'"), topic: versions, emit: versions_fastqc
 
     when:
     task.ext.when

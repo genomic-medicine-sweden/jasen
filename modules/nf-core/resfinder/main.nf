@@ -15,7 +15,7 @@ process resfinder {
     tuple val(sample_id), path(meta_output), emit: meta
     path output_gene                       , emit: gene_table
     path output_point                      , optional: true, emit: point_table
-    tuple val("${task.process}"), val('resfinder'), eval("echo \$(python -m resfinder --version 2>&1)"), topic: versions, emit: versions_resfinder
+    tuple val("${task.process}"), val('resfinder'), eval("python -m resfinder --version 2>&1"), topic: versions, emit: versions_resfinder
     tuple val("${task.process}"), val('resfinder_db'), eval("echo \$RES_DB_VERSION"), topic: versions, emit: versions_resfinder_db
     tuple val("${task.process}"), val('pointfinder_db'), eval("echo \$POINT_DB_VERSION"), topic: versions, emit: versions_pointfinder_db
 

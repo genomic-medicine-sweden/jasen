@@ -7,7 +7,7 @@ process ska_build {
 
     output:
     tuple val(sample_id), path(output), emit: skf
-    tuple val("${task.process}"), val('ska2'), eval("echo \$(ska --version 2>&1) | sed 's/^.*ska // ; s/ .*//'"), topic: versions, emit: versions_ska2
+    tuple val("${task.process}"), val('ska2'), eval("ska --version 2>&1 | sed 's/^.*ska // ; s/ .*//'"), topic: versions, emit: versions_ska2
 
     script:
     def args = task.ext.args ?: ''

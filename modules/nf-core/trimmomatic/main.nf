@@ -7,7 +7,7 @@ process trimmomatic {
 
     output:
     tuple val(sample_id), path(output), emit: reads
-    tuple val("${task.process}"), val('trimmomatic'), eval("echo \$(trimmomatic -version 2>&1)"), topic: versions, emit: versions_trimmomatic
+    tuple val("${task.process}"), val('trimmomatic'), eval("trimmomatic -version 2>&1"), topic: versions, emit: versions_trimmomatic
     path "*.log"                      , emit: log
 
     when:

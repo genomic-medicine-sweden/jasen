@@ -8,7 +8,7 @@ process shigatyper {
     output:
     tuple val(sample_id), path("${sample_id}.tsv")     , emit: tsv
     tuple val(sample_id), path("${sample_id}-hits.tsv"), optional: true, emit: hits
-    tuple val("${task.process}"), val('shigatyper'), eval("echo \$(shigatyper --version 2>&1) | sed 's/^.*ShigaTyper //'"), topic: versions, emit: versions_shigatyper
+    tuple val("${task.process}"), val('shigatyper'), eval("shigatyper --version 2>&1 | sed 's/^.*ShigaTyper //'"), topic: versions, emit: versions_shigatyper
 
     when:
     task.ext.when

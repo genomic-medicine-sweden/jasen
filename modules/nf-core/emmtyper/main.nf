@@ -7,7 +7,7 @@ process emmtyper {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    tuple val("${task.process}"), val('emmtyper'), eval("echo \$(emmtyper --version 2>&1) | sed -r 's/^.*emmtyper // ; s/ .*//'"), topic: versions, emit: versions_emmtyper
+    tuple val("${task.process}"), val('emmtyper'), eval("emmtyper --version 2>&1 | sed -r 's/^.*emmtyper // ; s/ .*//'"), topic: versions, emit: versions_emmtyper
 
     when:
     task.ext.when

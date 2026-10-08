@@ -8,7 +8,7 @@ process quast {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    tuple val("${task.process}"), val('quast'), eval("echo \$(quast.py --version 2>&1) | sed 's/^.*QUAST v//'"), topic: versions, emit: versions_quast
+    tuple val("${task.process}"), val('quast'), eval("quast.py --version 2>&1 | sed 's/^.*QUAST v//'"), topic: versions, emit: versions_quast
 
     script:
     def args = task.ext.args ?: ''

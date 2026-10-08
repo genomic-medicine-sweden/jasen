@@ -7,7 +7,7 @@ process medaka {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    tuple val("${task.process}"), val('medaka'), eval("echo \$(medaka --version 2>&1) | sed 's/medaka //'"), topic: versions, emit: versions_medaka
+    tuple val("${task.process}"), val('medaka'), eval("medaka --version 2>&1 | sed 's/medaka //'"), topic: versions, emit: versions_medaka
 
     when:
     task.ext.when

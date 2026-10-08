@@ -10,7 +10,7 @@ process snippy {
     tuple val(sample_id), path(output)                 , emit: vcf
     tuple val(sample_id), path("${sample_id}/snps.bam"), emit: bam
     tuple val(sample_id), path("${sample_id}/snps.csv"), emit: csv
-    tuple val("${task.process}"), val('snippy'), eval("echo \$(snippy --version 2>&1) | sed 's/^.*snippy // ; s/ .*//'"), topic: versions, emit: versions_snippy
+    tuple val("${task.process}"), val('snippy'), eval("snippy --version 2>&1 | sed 's/^.*snippy // ; s/ .*//'"), topic: versions, emit: versions_snippy
 
     when:
     task.ext.when

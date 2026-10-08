@@ -7,7 +7,7 @@ process freebayes {
 
     output:
     tuple val(sample_id), path(output), emit: vcf
-    tuple val("${task.process}"), val('freebayes'), eval("echo \$(freebayes --version 2>&1) | sed -r 's/^.*version:[[:space:]]+v// ; s/ .*//'"), topic: versions, emit: versions_freebayes
+    tuple val("${task.process}"), val('freebayes'), eval("freebayes --version 2>&1 | sed -r 's/^.*version:[[:space:]]+v// ; s/ .*//'"), topic: versions, emit: versions_freebayes
 
     when:
     task.ext.when

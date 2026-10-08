@@ -11,7 +11,7 @@ process amrfinderplus {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    tuple val("${task.process}"), val('amrfinderplus'), eval("echo \$(amrfinder --version 2>&1)"), topic: versions, emit: versions_amrfinderplus
+    tuple val("${task.process}"), val('amrfinderplus'), eval("amrfinder --version 2>&1"), topic: versions, emit: versions_amrfinderplus
 
     when:
     task.ext.when

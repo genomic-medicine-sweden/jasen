@@ -8,7 +8,7 @@ process gambitcore {
 
     output:
     tuple val(sample_id), path(output), emit: tsv
-    tuple val("${task.process}"), val('gambitcore'), eval("echo \$(gambitcore --version 2>&1) | sed 's/^gambitcore //'"), topic: versions, emit: versions_gambitcore
+    tuple val("${task.process}"), val('gambitcore'), eval("gambitcore --version 2>&1 | sed 's/^gambitcore //'"), topic: versions, emit: versions_gambitcore
 
     script:
     def args = task.ext.args ?: ''

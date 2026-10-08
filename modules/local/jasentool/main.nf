@@ -7,8 +7,8 @@ process count_reads {
 
     output:
     tuple val(sample_id), path(output), emit: json
-    tuple val("${task.process}"), val('jasentool'), eval("echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_jasentool
-    tuple val("${task.process}"), val('postalignqc'), eval("echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_postalignqc
+    tuple val("${task.process}"), val('jasentool'), eval("jasentool --version 2>&1 | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_jasentool
+    tuple val("${task.process}"), val('postalignqc'), eval("jasentool --version 2>&1 | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_postalignqc
 
     script:
     output = "${sample_id}_qc.json"
