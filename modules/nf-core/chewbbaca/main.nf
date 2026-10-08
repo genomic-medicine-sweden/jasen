@@ -18,7 +18,7 @@ process chewbbaca_allelecall {
     def args = task.ext.args ?: ''
     training_file_arg = training_file ? "--ptf ${training_file}" : "" 
     """
-    chewie AlleleCall \\
+    flock ${schema_dir}/.allelecall.lock chewie AlleleCall \\
     -i ${batch_input} \\
     ${args} \\
     --cpu ${task.cpus} \\

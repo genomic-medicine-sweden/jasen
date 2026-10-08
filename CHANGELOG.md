@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Locked the chewBBACA schema during `chewbbaca_allelecall` so simultaneous runs can't write to it at the same time (#191)
+
 ### Changed
 
 ## [1.4.0]
