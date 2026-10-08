@@ -9,7 +9,7 @@ process samtools_view {
     output:
     path('*.bam'), optional: true , emit: bam
     path('*.cram'), optional: true, emit: cram
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
   
     when:
     task.ext.when
@@ -38,7 +38,7 @@ process samtools_sort {
 
     output:
     tuple val(sample_id), path(output), emit: bam
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -65,7 +65,7 @@ process samtools_index {
 
     output:
     tuple val(sample_id), path(output), emit: bai
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -92,7 +92,7 @@ process samtools_faidx {
 
     output:
     tuple val(sample_id), path(output), emit: fai
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools // ; s/ .*//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     script:
     output = "${fasta}.fai"
@@ -116,7 +116,7 @@ process samtools_coverage {
 
     output:
     tuple val(sample_id), path(output), emit: txt
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     script:
     def args = task.ext.args ?: ''
@@ -141,7 +141,7 @@ process samtools_stats {
 
     output:
     tuple val(sample_id), path(output), emit: stats
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
@@ -170,7 +170,7 @@ process samtools_bedcov {
 
     output:
     tuple val(sample_id), path(output), emit: coverage
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when

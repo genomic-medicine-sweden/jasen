@@ -7,7 +7,7 @@ process bwa_index {
 
     output:
     tuple val(sample_id), path("bwa"), emit: index
-    tuple val("${task.process}"), val('bwa'), eval("bwa 2>&1 | sed 's/^.*Version: //; s/Contact:.*\$//'"), topic: versions, emit: versions_bwa
+    tuple val("${task.process}"), val('bwa'), eval("bwa 2>&1 | sed -n 's/^Version: //p'"), topic: versions, emit: versions_bwa
 
     when:
     task.ext.when
@@ -39,8 +39,8 @@ process bwa_mem {
 
     output:
     tuple val(sample_id), path(output), emit: bam
-    tuple val("${task.process}"), val('bwa'), eval("bwa 2>&1 | sed 's/^.*Version: //; s/Contact:.*\$//'"), topic: versions, emit: versions_bwa
-    tuple val("${task.process}"), val('samtools'), eval("samtools --version 2>&1 | sed 's/^.*samtools //; s/Using.*\$//'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('bwa'), eval("bwa 2>&1 | sed -n 's/^Version: //p'"), topic: versions, emit: versions_bwa
+    tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
     when:
     task.ext.when
