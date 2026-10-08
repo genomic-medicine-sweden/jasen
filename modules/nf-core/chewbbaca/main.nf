@@ -9,7 +9,7 @@ process chewbbaca_allelecall {
 
     output:
     path('output_dir/results_alleles.tsv'), emit: calls
-    tuple val("${task.process}"), val('chewbbaca'), eval("chewie --version 2>&1 | sed 's/^.*chewBBACA version: //'"), topic: versions, emit: versions_chewbbaca
+    tuple val("${task.process}"), val('chewbbaca'), eval("chewie --version 2>/dev/null | sed 's/^.*chewBBACA version: //'"), topic: versions, emit: versions_chewbbaca
 
     when:
     task.ext.when
