@@ -8,7 +8,7 @@ process minimap2_align {
 
     output:
     tuple val(sample_id), path(output), emit: sam
-    tuple val("${task.process}"), val('minimap2'), eval("echo \$(minimap2 --version 2>&1)"), topic: versions, emit: versions_minimap2
+    tuple val("${task.process}"), val('minimap2'), eval("minimap2 --version 2>&1"), topic: versions, emit: versions_minimap2
 
     when:
     task.ext.when
@@ -38,7 +38,7 @@ process minimap2_index {
 
     output:
     tuple val(sample_id), path("*.mmi"), emit: index
-    tuple val("${task.process}"), val('minimap2'), eval("echo \$(minimap2 --version 2>&1)"), topic: versions, emit: versions_minimap2
+    tuple val("${task.process}"), val('minimap2'), eval("minimap2 --version 2>&1"), topic: versions, emit: versions_minimap2
 
     when:
     task.ext.when

@@ -10,7 +10,7 @@ process clair3 {
 
     output:
     tuple val(sample_id), path("${sample_id}_clair3.vcf.gz"), emit: vcf
-    tuple val("${task.process}"), val('clair3'), eval("echo \$(run_clair3.sh --version 2>&1) | sed 's/Clair3 v//'"), topic: versions, emit: versions_clair3
+    tuple val("${task.process}"), val('clair3'), eval("run_clair3.sh --version 2>&1 | sed 's/Clair3 v//'"), topic: versions, emit: versions_clair3
 
     when:
     task.ext.when

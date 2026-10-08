@@ -7,7 +7,7 @@ process spades {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    tuple val("${task.process}"), val('spades'), eval("echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//'"), topic: versions, emit: versions_spades
+    tuple val("${task.process}"), val('spades'), eval("spades.py --version 2>&1 | sed 's/^.*SPAdes genome assembler v//'"), topic: versions, emit: versions_spades
 
     when:
     task.ext.when

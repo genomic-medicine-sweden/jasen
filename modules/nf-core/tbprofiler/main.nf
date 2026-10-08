@@ -10,7 +10,7 @@ process tbprofiler {
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(bam_output) , emit: bam
     tuple val(sample_id), path(bai_output) , emit: bai
-    tuple val("${task.process}"), val('tb-profiler'), eval("echo \$(tb-profiler version 2>&1) | sed 's/^.*tb-profiler version // ; s/ .*//'"), topic: versions, emit: versions_tb_profiler
+    tuple val("${task.process}"), val('tb-profiler'), eval("tb-profiler version 2>&1 | sed 's/^.*tb-profiler version // ; s/ .*//'"), topic: versions, emit: versions_tb_profiler
 
     when:
     task.ext.when

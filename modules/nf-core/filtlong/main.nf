@@ -7,7 +7,7 @@ process filtlong {
 
     output:
     tuple val(sample_id), path(output), emit: reads
-    tuple val("${task.process}"), val('filtlong'), eval("echo \$(filtlong --version 2>&1) | sed 's/Filtlong v//'"), topic: versions, emit: versions_filtlong
+    tuple val("${task.process}"), val('filtlong'), eval("filtlong --version 2>&1 | sed 's/Filtlong v//'"), topic: versions, emit: versions_filtlong
 
     when:
     task.ext.when
