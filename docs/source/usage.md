@@ -56,7 +56,7 @@ The samplesheet can contain the following columns:
 
 | Column              | Required | Description                                                            |
 | ------------------- | -------- | ---------------------------------------------------------------------- |
-| `id`                | Yes      | Unique sample id, without spaces                                       |
+| `id`                | Yes      | Unique sample id, 3-100 letters, digits, `.`, `_` or `-`               |
 | `platform`          | Yes      | One of `illumina`, `nanopore`, `pacbio` or `iontorrent`                |
 | `sequencing_run`    | Yes      | Sequencing run name                                                    |
 | `read1`             | Yes      | Path to the (forward) fastq file                                       |
@@ -64,7 +64,7 @@ The samplesheet can contain the following columns:
 | `clarity_sample_id` | No       | LIMS sample id; defaults to `id`                                       |
 | `sample_name`       | No       | Sample name; defaults to `id`                                          |
 
-The samplesheet is validated against `assets/schema_input.json` before any analysis starts. The run stops with an error if a column is unknown, a row has a different number of fields than the header, a required value is missing, a sample id is repeated, the platform is not recognised, or a read file does not exist. Leading and trailing whitespace around values is removed.
+The samplesheet is validated against `assets/schema_input.json` before any analysis starts. The run stops with an error if a column is unknown, a row has a different number of fields than the header, a required value is missing, a sample id is repeated or invalid, the platform is not recognised, or a read file does not exist. Leading and trailing whitespace around values is removed.
 
 ## Downsampling reads
 
