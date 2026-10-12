@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { get_reads                 } from '../methods/get_sample_data.nf'
 include { get_seqrun_meta           } from '../methods/get_seqrun_meta.nf'
 include { assembly_trim_clean       } from '../modules/local/clean/main.nf'
+include { count_reads               } from '../modules/local/jasentool/main.nf'
 include { filtlong                  } from '../modules/nf-core/filtlong/main.nf'
 include { hostile                   } from '../modules/nf-core/hostile/main.nf'
 include { save_analysis_metadata    } from '../modules/local/meta/main.nf'
@@ -22,8 +23,6 @@ workflow CALL_PREPROCESSING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     // PREPROCESSING
     // Create channel for reads
     Channel.fromPath(input_samples)
@@ -35,7 +34,6 @@ workflow CALL_PREPROCESSING {
     if ( params.use_hostile ) {
         // remove human reads
         hostile( ch_raw_reads, hostile_dir, hostile_idx ).reads.set{ ch_depleted_reads }
-        ch_versions = ch_versions.mix(hostile.out.versions)
     } else {
         ch_raw_reads.set{ ch_depleted_reads }
     }
@@ -43,7 +41,6 @@ workflow CALL_PREPROCESSING {
     if ( params.target_sample_size ) {
         // downsample reads
         seqtk_sample( ch_depleted_reads, target_sample_size ).reads.set{ ch_depleted_sampled_reads }
-        ch_versions = ch_versions.mix(seqtk_sample.out.versions)
     } else {
         ch_depleted_reads.set{ ch_depleted_sampled_reads }
     }
@@ -53,12 +50,33 @@ workflow CALL_PREPROCESSING {
         assembly_trim_clean(ch_depleted_sampled_reads).set { ch_reads }
     } else if (params.platform == "nanopore" && params.use_filtlong) {
         filtlong(ch_depleted_sampled_reads).reads.set { ch_reads }
-        ch_versions = ch_versions.mix(filtlong.out.versions)
     } else if (params.platform == "illumina" && params.use_trimmomatic) {
         trimmomatic(ch_depleted_sampled_reads).reads.set { ch_reads }
-        ch_versions = ch_versions.mix(trimmomatic.out.versions)
     } else {
         ch_depleted_sampled_reads.set{ ch_reads }
+    }
+
+    if ( params.min_reads || !params.reference_genome ) {
+        count_reads(ch_reads).json.set{ ch_postalignqc }
+    } else {
+        ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_postalignqc }
+    }
+
+    if ( params.min_reads ) {
+        ch_reads
+            .join(count_reads.out.n_reads)
+            .branch { sample_id, reads, n_reads ->
+                low: n_reads.toLong() < params.min_reads
+                pass: true
+                    return [ sample_id, reads ]
+            }
+            .set{ ch_read_count }
+        ch_read_count.pass.set{ ch_passed_reads }
+        ch_read_count.low.subscribe { sample_id, reads, n_reads ->
+            log.warn "${sample_id} has ${n_reads} reads (min_reads = ${params.min_reads}); skipping analysis"
+        }
+    } else {
+        ch_reads.set{ ch_passed_reads }
     }
 
     Channel.fromPath(input_samples).splitCsv(header:true)
@@ -68,19 +86,18 @@ workflow CALL_PREPROCESSING {
         .set{ ch_id_meta }
 
     // create empty channel containing only sample_id
-    ch_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_sample_id }
+    ch_passed_reads.map{ sample_id, reads -> [ sample_id, [] ] }.set{ ch_sample_id }
 
     // analysis metadata
     save_analysis_metadata(ch_reads.join(ch_seqrun_meta), assay, platform, release_life_cycle)
 
-    ch_id_meta.join(save_analysis_metadata.out.json).set{ ch_combined_output }
+    ch_id_meta.join(save_analysis_metadata.out.json).join(ch_postalignqc).set{ ch_combined_output }
 
     emit:
-    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), val(meta), path(json) ]
+    combined_output     = ch_combined_output                // channel: [ val(meta), val(meta), val(meta), path(json), path(json) ]
     sample_id           = ch_sample_id                      // channel: [ val(meta) ]
     id_meta             = ch_id_meta                        // channel: [ val(meta), val(meta), val(meta), val(meta) ]
     nextflow_run_info   = save_analysis_metadata.out.json   // channel: [ val(meta), path(json) ]
-    reads               = ch_reads                          // channel: [ val(meta), path(fastq) ]
+    reads               = ch_passed_reads                   // channel: [ val(meta), path(fastq) ]
     seqrun_meta         = ch_seqrun_meta                    // channel: [ val(meta), val(json), val(json) ]
-    versions            = ch_versions                       // channel: [ versions.yml ]
 }

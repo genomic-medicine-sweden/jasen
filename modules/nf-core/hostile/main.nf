@@ -9,7 +9,7 @@ process hostile {
 
     output:
     tuple val(sample_id), path("${output_dir}/*.fastq.gz"), emit: reads
-    path "*versions.yml"                                  , emit: versions
+    tuple val("${task.process}"), val('hostile'), eval("hostile --version 2>&1"), topic: versions, emit: versions_hostile
 
     when:
     task.ext.when
@@ -31,13 +31,6 @@ process hostile {
         --reorder \\
         --airplane \\
         --output ${output_dir}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 hostile:
-	  version: \$(echo \$(hostile --version 2>&1) )
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -46,12 +39,5 @@ process hostile {
     mkdir ${output_dir}
     touch ${output_dir}/${sample_id}_R1.fastq.gz
     touch ${output_dir}/${sample_id}_R2.fastq.gz
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 hostile:
-	  version: \$(echo \$(hostile --version 2>&1) )
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

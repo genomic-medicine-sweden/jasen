@@ -54,7 +54,6 @@ workflow CALL_BACTERIAL_GENERAL {
     target_sample_size      = params.target_sample_size     ? params.target_sample_size                                 : Channel.value([])
 
     main:
-    ch_versions = Channel.empty()
 
     CALL_PREPROCESSING (
         assay,
@@ -124,14 +123,6 @@ workflow CALL_BACTERIAL_GENERAL {
         .map{ sample_id, empty -> [ sample_id, empty, empty ] }
         .set{ ch_profiling_combined_output }
 
-    ch_versions = ch_versions.mix(CALL_ASSEMBLY.out.versions)
-    ch_versions = ch_versions.mix(CALL_PREPROCESSING.out.versions)
-    ch_versions = ch_versions.mix(CALL_QUALITY_CONTROL.out.versions)
-    ch_versions = ch_versions.mix(CALL_RELATEDNESS.out.versions)
-    ch_versions = ch_versions.mix(CALL_SCREENING.out.versions)
-    ch_versions = ch_versions.mix(CALL_TYPING.out.versions)
-    ch_versions = ch_versions.mix(CALL_VARIANT_CALLING.out.versions)
-
     CALL_POSTPROCESSING (
         reference_genome,
         reference_genome_idx,
@@ -147,16 +138,12 @@ workflow CALL_BACTERIAL_GENERAL {
         CALL_SCREENING.out.combined_output,
         CALL_PREPROCESSING.out.seqrun_meta,
         CALL_TYPING.out.combined_output,
-        CALL_VARIANT_CALLING.out.vcf,
-        ch_versions
+        CALL_VARIANT_CALLING.out.vcf
     )
-
-    ch_versions = ch_versions.mix(CALL_POSTPROCESSING.out.versions)
 
     emit:
     cdm             = CALL_POSTPROCESSING.out.cdm               // channel: [ path(txt) ]
     yaml            = CALL_POSTPROCESSING.out.yaml              // channel: [ path(yaml) ]
-    versions        = ch_versions                               // channel: [ versions.yml ]
 }
 
 workflow.onComplete {

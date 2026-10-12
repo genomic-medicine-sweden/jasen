@@ -15,7 +15,9 @@ process resfinder {
     tuple val(sample_id), path(meta_output), emit: meta
     path output_gene                       , emit: gene_table
     path output_point                      , optional: true, emit: point_table
-    path "*versions.yml"                   , emit: versions
+    tuple val("${task.process}"), val('resfinder'), eval("python -m resfinder --version 2>&1"), topic: versions, emit: versions_resfinder
+    tuple val("${task.process}"), val('resfinder_db'), eval("echo \$RES_DB_VERSION"), topic: versions, emit: versions_resfinder_db
+    tuple val("${task.process}"), val('pointfinder_db'), eval("echo \$POINT_DB_VERSION"), topic: versions, emit: versions_pointfinder_db
 
     when:
     task.ext.when
@@ -51,19 +53,6 @@ process resfinder {
     if [ -f 'PointFinder_results.txt' ]; then
       cp PointFinder_results.txt ${output_point}
     fi
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 resfinder:
-	  version: \$(echo \$(python -m resfinder --version 2>&1) )
-	  container: ${task.container}
-	 resfinder_db:
-	  version: \$(echo \$RES_DB_VERSION)
-	  container: ${task.container}
-	 pointfinder_db:
-	  version: \$(echo \$POINT_DB_VERSION)
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
@@ -79,18 +68,5 @@ process resfinder {
     touch ${output}
     touch ${output_gene}
     touch ${output_point}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 resfinder:
-	  version: \$(echo \$(python -m resfinder --version 2>&1) )
-	  container: ${task.container}
-	 resfinder_db:
-	  version: \$(echo \$RES_DB_VERSION)
-	  container: ${task.container}
-	 pointfinder_db:
-	  version: \$(echo \$POINT_DB_VERSION)
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `min_reads`: samples with fewer reads skip analysis but still get a YAML with their metadata and read count (#161)
+
 ### Fixed
 
+- Fixed `count_reads` results being passed to `create_yaml` as samtools stats instead of postalignqc
+
 ### Changed
+
+- Switched module version reporting from `versions.yml` heredocs to `eval()` outputs on a `versions` topic channel (#516)
+- Changed versions output to one `versions/<sample_id>_versions.yml` per sample, passed to `create_yaml` (#516)
+- Removed `concatenate_files` and the per-process `*_versions.yml` outputs (#516)
+- Raised the minimum Nextflow version to 24.10.0 (#516)
 
 ## [1.4.0]
 

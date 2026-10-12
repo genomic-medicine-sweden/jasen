@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl=2
 
-include { concatenate_files   } from '../modules/local/jasentool/main.nf'
 include { create_yaml         } from '../modules/local/jasentool/main.nf'
 include { format_cdm          } from '../modules/local/jasentool/main.nf'
 include { export_to_cdm       } from '../modules/local/cdm/main.nf'
@@ -24,13 +23,24 @@ workflow CALL_POSTPROCESSING {
     ch_seqrun_meta
     ch_typing_combined_output
     ch_variant_calling_combined_output
-    ch_versions_files
 
     main:
 
-    ch_versions = Channel.empty()
+    Channel.topic('versions')
+        .unique()
+        .map { process, tool, version -> [ process.tokenize(':').last(), "  ${tool}:\n    version: '${version.toString().trim().replace("'", "''")}'" ] }
+        .groupTuple()
+        .map { process, tools -> "${process}:\n${tools.unique().sort().join('\n')}" }
+        .collect(sort: true)
+        .map { it.join('\n') + '\n' }
+        .set{ ch_versions_yaml }
 
-    concatenate_files(ch_versions_files.collect())
+    ch_preprocessing_combined_output
+        .map { it[0] }
+        .combine(ch_versions_yaml)
+        .collectFile(storeDir: "${params.outdir}/${params.species_dir}/versions") { sample_id, versions_yaml -> [ "${sample_id}_versions.yml", versions_yaml ] }
+        .map { versions -> [ versions.name - '_versions.yml', versions ] }
+        .set{ ch_sample_versions }
 
     ch_preprocessing_combined_output
         .join(ch_profiling_combined_output)
@@ -39,20 +49,30 @@ workflow CALL_POSTPROCESSING {
         .join(ch_screening_combined_output)
         .join(ch_typing_combined_output)
         .join(ch_variant_calling_combined_output)
+        .join(ch_sample_versions)
         .set{ ch_combined_output}
 
+    ch_preprocessing_combined_output
+        .join(ch_combined_output.map { [ it[0], true ] }, remainder: true)
+        .filter { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, analysed -> !analysed }
+        .map { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, analysed -> [ sample_id, lims_id, sample_name, nextflow_run_info, postalignqc ] }
+        .join(ch_sample_versions)
+        .map { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, versions ->
+            [ sample_id, lims_id, sample_name, nextflow_run_info, postalignqc ] + [ [] ] * 34 + [ versions ]
+        }
+        .set{ ch_low_read_output }
+
     create_yaml(
-        ch_combined_output,
+        ch_combined_output.mix(ch_low_read_output),
         reference_genome,
         reference_genome_idx,
         reference_genome_gff,
         reference_genome_accession,
         tb_grading_rules_bed,
-        tbdb_bed,
-        concatenate_files.out.concatenated
+        tbdb_bed
     )
 
-    format_cdm(create_yaml.out.yaml)
+    format_cdm(create_yaml.out.yaml.join(ch_combined_output.map { [ it[0] ] }))
 
     export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 
@@ -72,5 +92,4 @@ workflow CALL_POSTPROCESSING {
     emit:
     cdm             = export_to_cdm.out.cdm             // channel: [ path(txt) ]
     yaml            = create_yaml.out.yaml          // channel: [ path(yaml) ]
-    versions        = ch_versions                       // channel: [ versions.yml ]
 }

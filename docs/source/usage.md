@@ -58,6 +58,10 @@ There are an option to use [seqtk](https://github.com/lh3/seqtk) downsample the 
 
 Activate downsampling by setting the parameter `target_sample_size` to the either the desired number of reads or the fraction of reads to include in the config.
 
+## Minimum read count
+
+Samples with too few reads, typically failed sequencing, can make tools such as SKESA crash the whole batch. Set the parameter `min_reads` to the minimum number of reads a sample needs after preprocessing, counting both reads of a pair. Samples below it skip analysis but still get a Bonsai YAML with their metadata and read count, so they can be uploaded to Bonsai and sent for resequencing. They are not exported to CDM. The default `0` disables the check.
+
 ## Removing Human reads
 
 There are an option to use [hostile](https://github.com/bede/hostile) to filter human reads from further analyses. This can be useful if a sample has been contaminated, which could cause issues with *de-novo* assemblies.

@@ -7,7 +7,7 @@ process skesa {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('skesa'), eval("skesa --version 2>/dev/null | sed 's/^.*SKESA // ; s/ .*//'"), topic: versions, emit: versions_skesa
 
     when:
     task.ext.when
@@ -18,25 +18,11 @@ process skesa {
     output = "${sample_id}_skesa.fasta"
     """
     skesa --cores ${task.cpus} --memory ${task.memory} --reads ${input_reads_arg} ${args} > ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 skesa:
-	  version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_skesa.fasta"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 skesa:
-	  version: \$(echo \$(skesa --version 2>&1) | sed 's/^.*SKESA // ; s/ .*//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
