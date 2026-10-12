@@ -7,7 +7,9 @@ process count_reads {
 
     output:
     tuple val(sample_id), path(output), emit: json
+    tuple val(sample_id), eval("grep -o '\"n_reads\": [0-9]*' ${output} | tr -dc 0-9"), emit: n_reads
     tuple val("${task.process}"), val('jasentool'), eval("jasentool --version 2>/dev/null | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_jasentool
+    tuple val("${task.process}"), val('postalignqc'), eval("jasentool --version 2>/dev/null | sed 's/jasentool, version // ; s/ .*//'"), topic: versions, emit: versions_postalignqc
 
     script:
     output = "${sample_id}_qc.json"
@@ -22,7 +24,7 @@ process count_reads {
     stub:
     output = "${sample_id}_qc.json"
     """
-    touch ${output}
+    echo '{"sample_id": "${sample_id}", "n_reads": 0, "n_read_pairs": 0}' > ${output}
     """
 }
 
@@ -31,7 +33,7 @@ process create_yaml {
     scratch params.scratch
 
     input:
-    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(bracken), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf), path(versions)
+    tuple val(sample_id), val(lims_id), val(sample_name), path(nextflow_run_info), path(postalignqc), path(mykrobe), path(tbprofiler), path(bam), path(bai), path(bracken), path(gambitcore), path(kraken), path(samtools_stats), path(samtools_bedcov), path(quast), path(nanoplot_txt), path(samtools_cov_ref), path(ska), path(sourmash), path(amrfinder), path(kleborate_general), path(kleborate_hamronization), path(plasmidfinder), path(plasmidfinder_meta), path(plasmidfinder_genome_hits), path(plasmidfinder_plasmid_seqs), path(resfinder), path(resfinder_meta), path(virulencefinder), path(virulencefinder_meta), path(chewbbaca), path(emmtyper), path(mlst), path(sccmec), path(serotypefinder), path(serotypefinder_meta), path(shigatyper), path(spatyper), path(vcf), path(versions)
     val reference_genome
     val reference_genome_idx
     val reference_genome_gff
@@ -65,6 +67,7 @@ process create_yaml {
     def plasmidfinder_genome_hits_arg  = plasmidfinder_genome_hits  ?  "--plasmidfinder-genome-hits ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_genome_hits}" : ""
     def plasmidfinder_meta_arg         = plasmidfinder_meta         ?  "--database-info ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_meta}" : ""
     def plasmidfinder_plasmid_seqs_arg = plasmidfinder_plasmid_seqs ?  "--plasmidfinder-plasmid-seqs ${params.outdir}/${params.species_dir}/plasmidfinder/${plasmidfinder_plasmid_seqs}" : ""
+    def postalignqc_arg                = postalignqc                ?  "--postalignqc ${params.outdir}/${params.species_dir}/postalignqc/${postalignqc}" : ""
     def samtools_stats_arg             = samtools_stats             ?  "--samtools-stats ${params.outdir}/${params.species_dir}/samtools_stats/${samtools_stats}" : ""
     def samtools_bedcov_arg            = samtools_bedcov            ?  "--samtools-bedcov ${params.outdir}/${params.species_dir}/samtools_bedcov/${samtools_bedcov}" : ""
     def versions_arg                   = versions                   ?  "--versions ${versions}" : ""
@@ -110,6 +113,7 @@ process create_yaml {
         ${plasmidfinder_genome_hits_arg} \\
         ${plasmidfinder_meta_arg} \\
         ${plasmidfinder_plasmid_seqs_arg} \\
+        ${postalignqc_arg} \\
         ${quast_arg} \\
         ${reference_genome_arg} \\
         ${reference_genome_gff_arg} \\

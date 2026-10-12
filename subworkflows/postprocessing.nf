@@ -52,8 +52,18 @@ workflow CALL_POSTPROCESSING {
         .join(ch_sample_versions)
         .set{ ch_combined_output}
 
+    ch_preprocessing_combined_output
+        .join(ch_combined_output.map { [ it[0], true ] }, remainder: true)
+        .filter { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, analysed -> !analysed }
+        .map { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, analysed -> [ sample_id, lims_id, sample_name, nextflow_run_info, postalignqc ] }
+        .join(ch_sample_versions)
+        .map { sample_id, lims_id, sample_name, nextflow_run_info, postalignqc, versions ->
+            [ sample_id, lims_id, sample_name, nextflow_run_info, postalignqc ] + [ [] ] * 34 + [ versions ]
+        }
+        .set{ ch_low_read_output }
+
     create_yaml(
-        ch_combined_output,
+        ch_combined_output.mix(ch_low_read_output),
         reference_genome,
         reference_genome_idx,
         reference_genome_gff,
@@ -62,7 +72,7 @@ workflow CALL_POSTPROCESSING {
         tbdb_bed
     )
 
-    format_cdm(create_yaml.out.yaml)
+    format_cdm(create_yaml.out.yaml.join(ch_combined_output.map { [ it[0] ] }))
 
     export_to_cdm(format_cdm.out.json.join(ch_seqrun_meta), species_dir)
 

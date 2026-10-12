@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `min_reads`: samples with fewer reads skip analysis but still get a YAML with their metadata and read count (#161)
+
 ### Fixed
+
+- Fixed `count_reads` results being passed to `create_yaml` as samtools stats instead of postalignqc
 
 ### Changed
 
