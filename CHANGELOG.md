@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Duplicate sample ids now stop the run at startup instead of crashing it later (#59)
+- Duplicate sample ids and ids with characters other than letters, digits, `.`, `_` and `-`, or outside 3-100 characters, now stop the run at startup (#59)
 - Missing read files and rows with the wrong number of fields now stop the run at startup (#161, #441)
 
 ### Changed
