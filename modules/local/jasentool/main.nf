@@ -21,10 +21,10 @@ process count_reads {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 jasentool:
-	  version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
+	  version: \$(echo \$(jasentool --version 2>/dev/null) | sed 's/jasentool, version // ; s/ .*//')
 	  container: ${task.container}
 	 postalignqc:
-	  version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
+	  version: \$(echo \$(jasentool --version 2>/dev/null) | sed 's/jasentool, version // ; s/ .*//')
 	  container: ${task.container}
 	END_VERSIONS
     """
@@ -36,7 +36,10 @@ process count_reads {
     cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
 	${task.process}:
 	 jasentool:
-	  version: \$(echo \$(jasentool --version 2>&1) | sed 's/jasentool, version // ; s/ .*//')
+	  version: \$(echo \$(jasentool --version 2>/dev/null) | sed 's/jasentool, version // ; s/ .*//')
+	  container: ${task.container}
+	 postalignqc:
+	  version: \$(echo \$(jasentool --version 2>/dev/null) | sed 's/jasentool, version // ; s/ .*//')
 	  container: ${task.container}
 	END_VERSIONS
     """
