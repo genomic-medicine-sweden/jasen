@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed read counts for profiles without a reference genome (e.g. `streptococcus`) being passed to `create_yaml` as samtools stats instead of postalignqc
+
 ### Changed
 
 ## [1.4.0]
