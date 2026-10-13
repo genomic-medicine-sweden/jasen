@@ -103,6 +103,7 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         .join(CALL_QUALITY_CONTROL.out.bracken)
         .join(CALL_QUALITY_CONTROL.out.gambitcore)
         .join(CALL_QUALITY_CONTROL.out.kraken)
+        .join(CALL_QUALITY_CONTROL.out.postalignqc)
         .join(samtools_stats_ref.out.stats)
         .join(samtools_bedcov_ref.out.coverage)
         .join(CALL_QUALITY_CONTROL.out.quast)

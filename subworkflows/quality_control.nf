@@ -68,13 +68,15 @@ workflow CALL_QUALITY_CONTROL {
         samtools_stats_ref(ch_ref_bam_bai).stats.set{ ch_samtools_stats }
         samtools_bedcov_ref(ch_ref_bam_bai, core_loci_bed).coverage.set{ ch_samtools_bedcov }
         samtools_coverage_ref(ch_ref_bam).txt.set{ ch_samtools_cov_ref }
+        ch_sample_id.set{ ch_postalignqc }
         ch_versions = ch_versions.mix(samtools_bedcov_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_coverage_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_index_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_sort_ref.out.versions)
         ch_versions = ch_versions.mix(samtools_stats_ref.out.versions)
     } else {
-        count_reads(ch_reads).json.set{ ch_samtools_stats }
+        count_reads(ch_reads).json.set{ ch_postalignqc }
+        ch_sample_id.set{ ch_samtools_stats }
         ch_sample_id.set{ ch_samtools_bedcov }
         ch_sample_id.set{ ch_ref_bam }
         ch_sample_id.set{ ch_ref_bai }
@@ -115,6 +117,7 @@ workflow CALL_QUALITY_CONTROL {
         .join(ch_bracken)
         .join(gambitcore.out.tsv)
         .join(ch_kraken)
+        .join(ch_postalignqc)
         .join(ch_samtools_stats)
         .join(ch_samtools_bedcov)
         .join(quast.out.tsv)
@@ -127,7 +130,7 @@ workflow CALL_QUALITY_CONTROL {
     ch_versions = ch_versions.mix(minimap2_align_ref.out.versions)
 
     emit:
-    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(out), path(tsv), path(report), path(stats), path(bedcov), path(tsv), path(txt), path(txt) ]
+    combined_output     = ch_combined_output            // channel: [ val(meta), val(bam), val(bai), path(out), path(tsv), path(report), path(json), path(stats), path(bedcov), path(tsv), path(txt), path(txt) ]
     bam                 = ch_ref_bam                    // channel: [ val(meta), path(bam) ]
     bai                 = ch_ref_bai                    // channel: [ val(meta), path(bai) ]
     bracken             = ch_bracken                    // channel: [ val(meta), path(out) ]
@@ -136,6 +139,7 @@ workflow CALL_QUALITY_CONTROL {
     kraken              = ch_kraken                     // channel: [ val(meta), path(report) ]
     nanoplot_html       = ch_nanoplot_html              // channel: [ val(meta), path(html) ]
     nanoplot_txt        = ch_nanoplot_txt               // channel: [ val(meta), path(txt) ]
+    postalignqc         = ch_postalignqc                // channel: [ val(meta), path(json) ]
     samtools_stats      = ch_samtools_stats             // channel: [ val(meta), path(stats) ]
     samtools_bedcov     = ch_samtools_bedcov            // channel: [ val(meta), path(tsv) ]
     quast               = quast.out.tsv                 // channel: [ val(meta), path(tsv) ]
