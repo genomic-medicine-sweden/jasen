@@ -11,7 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Changed
+
+## [1.4.1]
+
+### Added
+
+### Fixed
+
 - Fixed read counts for profiles without a reference genome (e.g. `streptococcus`) being passed to `create_yaml` as samtools stats instead of postalignqc
+- Fixed the `count_reads` jasentool version picking up stderr warnings (e.g. `mkdir`) in read-only containers
 
 ### Changed
 
