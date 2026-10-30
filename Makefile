@@ -152,7 +152,10 @@ REPO_ASSETS_DIR := $(SCRIPT_DIR)/assets
 # The containers Makefile always lives in the repository, its output need not.
 CONTAINERS_SRC_DIR := $(SCRIPT_DIR)/containers
 PRODIGAL_TRAINING_DIR := $(ASSETS_DIR)/prodigal_training_files
-# PrepExternalSchema copies each training file into its schema, so make deletes these after use.
+# PrepExternalSchema copies each training file into its schema, so make deletes these
+# after use.
+# Note: .INTERMEDIATE is a GNU Make built-in special target that marks files
+# as intermediate, allowing Make to delete them after they are no longer needed.
 .INTERMEDIATE: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn \
 	$(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn \
 	$(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
@@ -723,7 +726,7 @@ saureus_prep_cgmlst_schema: | $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus
 
 $(SAUR_CGMLST_DIR)/alleles_rereffed/Staphylococcus_aureus.trn: $(SAUR_CGMLST_DIR)/alleles_rereffed
 
-$(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn
+$(SAUR_CGMLST_DIR)/alleles_rereffed: $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. aureus cgMLST schema ...")
 	cd $(SAUR_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -732,7 +735,7 @@ $(SAUR_CGMLST_DIR)/alleles_rereffed: | $(SAUR_CGMLST_DIR)/alleles/unpacking.done
 		-g $(SAUR_CGMLST_DIR)/alleles \
 		-o $(SAUR_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Staphylococcus_aureus.trn \
+		--ptf $< \
 	&& find $(SAUR_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 # -----------------------------
@@ -797,7 +800,7 @@ $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn: | $(ECOLI_GENOMES_DIR)/$(ECOLI_RE
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/prodigal.sif \
-		prodigal -i $(ECOLI_GENOMES_DIR)/$(ECOLI_REFSEQ_ACC).fasta -t $@ -p single |& tee -a $(INSTALL_LOG)
+		prodigal -i $| -t $@ -p single |& tee -a $(INSTALL_LOG)
 
 
 # Download Ecoli wgmlst INNUENDO schema
@@ -844,7 +847,7 @@ ecoli_prep_cgmlst_schema: $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.
 
 $(ECOLI_CGMLST_DIR)/alleles_rereffed/Escherichia_coli.trn: $(ECOLI_CGMLST_DIR)/alleles_rereffed
 
-$(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn
+$(ECOLI_CGMLST_DIR)/alleles_rereffed: $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn | $(ECOLI_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping E. coli cgMLST schema ... WARNING: This takes a looong time. Put on some coffee")
 	cd $(ECOLI_CGMLST_DIR) \
 	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/chewbbaca.sif \
@@ -852,7 +855,7 @@ $(ECOLI_CGMLST_DIR)/alleles_rereffed: | $(ECOLI_CGMLST_DIR)/alleles/unpacking.do
 		-g $(ECOLI_CGMLST_DIR)/alleles \
 		-o $(ECOLI_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Escherichia_coli.trn \
+		--ptf $< \
 	&& find $(ECOLI_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 
 
@@ -1015,7 +1018,7 @@ $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn: | $(SPYO_GENOMES_DIR)/$(SPY
 	mkdir -p $(PRODIGAL_TRAINING_DIR) \
 	&& cd $(PRODIGAL_TRAINING_DIR) \
 	&& apptainer exec $(BIND_ARGS) $(CONTAINERS_DIR)/prodigal.sif \
-		prodigal -i $(SPYO_GENOMES_DIR)/$(SPYO_REFSEQ_ACC).fasta -t $@ -p single |& tee -a $(INSTALL_LOG)
+		prodigal -i $| -t $@ -p single |& tee -a $(INSTALL_LOG)
 
 
 # Download Streptococcus pyogenes cgmlst cgmlst.org schema
@@ -1045,7 +1048,7 @@ spyogenes_prep_cgmlst_schema: | $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcu
 
 $(SPYO_CGMLST_DIR)/alleles_rereffed/Streptococcus_pyogenes.trn: $(SPYO_CGMLST_DIR)/alleles_rereffed
 
-$(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn
+$(SPYO_CGMLST_DIR)/alleles_rereffed: $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 	$(call log_message,"Prepping S. pyogenes cgMLST schema ... Warning: This takes a looong time. Put on some coffee!")
 	cd $(SPYO_CGMLST_DIR) \
 	&& echo "WARNING! Prepping cgMLST schema. This takes a looong time. Put on some coffee" \
@@ -1054,7 +1057,7 @@ $(SPYO_CGMLST_DIR)/alleles_rereffed: | $(SPYO_CGMLST_DIR)/alleles/unpacking.done
 		-g $(SPYO_CGMLST_DIR)/alleles \
 		-o $(SPYO_CGMLST_DIR)/alleles_rereffed \
 		--cpu 2 \
-		--ptf $(PRODIGAL_TRAINING_DIR)/Streptococcus_pyogenes.trn \
+		--ptf $< \
 	&& find $(SPYO_CGMLST_DIR)/alleles -type f ! -name 'unpacking.done' -delete |& tee -a $(INSTALL_LOG)
 	
 
