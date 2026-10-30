@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Removed the duplicate prodigal training files left in `assets/prodigal_training_files` after cgMLST schema prep (#279)
+- Removed the duplicate prodigal training files left in `assets/prodigal_training_files` after cgMLST schema prep; copies from earlier installs can be deleted (#279)
 
 ### Changed
 
