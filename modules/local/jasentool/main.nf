@@ -72,6 +72,7 @@ process create_yaml {
     def chewbbaca_arg                  = chewbbaca                  ?  "--chewbbaca ${params.outdir}/${params.species_dir}/chewbbaca/${chewbbaca}" : ""
     def emmtyper_arg                   = emmtyper                   ?  "--emmtyper ${params.outdir}/${params.species_dir}/emmtyper/${emmtyper}" : ""
     def gambitcore_arg                 = gambitcore                 ?  "--gambitcore ${params.outdir}/${params.species_dir}/gambitcore/${gambitcore}" : ""
+    def sample_name_arg = "'" + sample_name.replace("'", "'\"'\"'") + "'"
     def groups_arg                     = params.groups              ?  "--groups ${params.groups.join(' --groups ')}" : ""
     def kleborate_arg                  = kleborate_general          ?  "--kleborate ${params.outdir}/${params.species_dir}/kleborate/${kleborate_general}" : ""
     def kleborate_hamronization_arg    = kleborate_hamronization    ?  "--kleborate-hamronization ${params.outdir}/${params.species_dir}/kleborate/${kleborate_hamronization}" : ""
@@ -139,7 +140,7 @@ process create_yaml {
         ${resfinder_arg} \\
         ${resfinder_meta_arg} \\
         --sample-id ${sample_id} \\
-        --sample-name ${sample_name} \\
+        --sample-name ${sample_name_arg} \\
         ${samtools_arg} \\
         ${samtools_bedcov_arg} \\
         ${samtools_stats_arg} \\

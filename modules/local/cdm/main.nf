@@ -13,12 +13,11 @@ process export_to_cdm {
     output = "${sample_id}.cdmpy"
     sequencing_run = sequencing_run ? "--sequencing-run ${sequencing_run}" : ""
     lims_id = lims_id ? "--lims-id ${lims_id}" : ""
+    def sample_name_arg = "'" + sample_name.replace("'", "'\"'\"'") + "'"
     """
-    echo ${sequencing_run} \\
-         --sample-id ${sample_name} \\
-         --assay ${species} \\
-         --qc ${params.outdir}/${params.species_dir}/${params.cdm_dir}/${qc} \\
-         ${lims_id} > ${output}
+    cat <<'END_CDM' > ${output}
+${sequencing_run} --sample-id ${sample_name_arg} --assay ${species} --qc ${params.outdir}/${params.species_dir}/${params.cdm_dir}/${qc} ${lims_id}
+END_CDM
     """
 
     stub:
