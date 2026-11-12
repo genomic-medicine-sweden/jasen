@@ -32,7 +32,15 @@ workflow CALL_PREPROCESSING {
 
     Channel.fromList(samplesheetToList(input_samples, "${projectDir}/assets/schema_input.json"))
         .map{ id, seq_platform, sequencing_run, clarity_sample_id, sample_name, read1, read2 ->
-            [ id: id, platform: seq_platform, sequencing_run: sequencing_run, clarity_sample_id: clarity_sample_id, sample_name: sample_name, read1: read1, read2: read2 ]
+            [
+                id: id,
+                platform: seq_platform,
+                sequencing_run: sequencing_run,
+                clarity_sample_id: clarity_sample_id,
+                sample_name: sample_name,
+                read1: read1,
+                read2: read2
+            ]
         }
         .set{ ch_samplesheet }
 
