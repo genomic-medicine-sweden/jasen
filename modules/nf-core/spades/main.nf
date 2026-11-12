@@ -7,7 +7,7 @@ process spades {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('spades'), eval("spades.py --version 2>&1 | sed 's/^.*SPAdes genome assembler v//'"), topic: versions, emit: versions_spades
 
     when:
     task.ext.when
@@ -20,25 +20,11 @@ process spades {
     """
     spades.py ${args} ${input_reads_arg} -t ${task.cpus} -o ${output_dir}
     mv ${output_dir}/contigs.fasta ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 spades:
-	  version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_spades.fasta"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 spades:
-	  version: \$(echo \$(spades.py --version 2>&1) | sed 's/^.*SPAdes genome assembler v//')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

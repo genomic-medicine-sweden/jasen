@@ -10,7 +10,8 @@ process serotypefinder {
     output:
     tuple val(sample_id), path(output)     , emit: json
     tuple val(sample_id), path(meta_output), emit: meta
-    path "*versions.yml"                   , emit: versions
+    tuple val("${task.process}"), val('serotypefinder'), val('2.0.2'), topic: versions, emit: versions_serotypefinder
+    tuple val("${task.process}"), val('serotypefinder_db'), eval("echo \$DB_VERSION"), topic: versions, emit: versions_serotypefinder_db
 
     when:
     task.ext.when
@@ -31,16 +32,6 @@ process serotypefinder {
     ${databases_arg}         \\
     --databasePath ${serotypefinder_db}
     cp data.json ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 serotypefinder:
-	  version: 2.0.2
-	  container: ${task.container}
-	 serotypefinder_db:
-	  version: \$(echo \$DB_VERSION)
-	  container: ${task.container}
-	END_VERSIONS
     """
 
  stub:
@@ -50,15 +41,5 @@ process serotypefinder {
     DB_VERSION=\$(tr -d '\r\n' < ${serotypefinder_db}/VERSION)
     touch ${output}
     touch ${meta_output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 serotypefinder:
-	  version: 2.0.2
-	  container: ${task.container}
-	 serotypefinder_db:
-	  version: \$(echo \$DB_VERSION)
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

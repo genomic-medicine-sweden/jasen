@@ -16,8 +16,6 @@ workflow CALL_VARIANT_CALLING {
 
     main:
 
-    ch_versions = Channel.empty()
-
     if (params.reference_genome) {
         ch_ref_bam
             .join(ch_ref_bai)
@@ -26,13 +24,11 @@ workflow CALL_VARIANT_CALLING {
         if ( params.platform == "nanopore" ) {
             clair3_ref(ch_ref_bam_bai, reference_genome, reference_genome_faidx, clair3_model)
             ch_vcf = clair3_ref.out.vcf
-            ch_versions = ch_versions.mix(clair3_ref.out.versions)
         } else {
             freebayes_ref(
                 ch_ref_bam_bai.map { id, bam, bai -> tuple(id, reference_genome, bam, bai) }
             )
             ch_vcf = freebayes_ref.out.vcf
-            ch_versions = ch_versions.mix(freebayes_ref.out.versions)
         }
     } else {
         ch_sample_id.set{ ch_vcf }
@@ -40,5 +36,4 @@ workflow CALL_VARIANT_CALLING {
 
     emit:
     vcf         = ch_vcf        // channel: [ val(meta), path(vcf) ]
-    versions    = ch_versions   // channel: [ versions.yml ]
 }

@@ -8,7 +8,7 @@ process shigatyper {
     output:
     tuple val(sample_id), path("${sample_id}.tsv")     , emit: tsv
     tuple val(sample_id), path("${sample_id}-hits.tsv"), optional: true, emit: hits
-    path "*versions.yml"                               , emit: versions
+    tuple val("${task.process}"), val('shigatyper'), eval("shigatyper --version 2>&1 | sed 's/^.*ShigaTyper //'"), topic: versions, emit: versions_shigatyper
 
     when:
     task.ext.when
@@ -29,24 +29,10 @@ process shigatyper {
     shigatyper \\
         ${reads_arg} \\
         --name ${sample_id}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 shigatyper:
-	  version: \$(echo \$(shigatyper --version 2>&1) | sed 's/^.*ShigaTyper //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     """
     touch ${sample_id}.tsv
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 shigatyper:
-	  version: \$(echo \$(shigatyper --version 2>&1) | sed 's/^.*ShigaTyper //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }

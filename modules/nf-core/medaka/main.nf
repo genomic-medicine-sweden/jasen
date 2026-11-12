@@ -7,7 +7,7 @@ process medaka {
 
     output:
     tuple val(sample_id), path(output), emit: fasta
-    path "*versions.yml"              , emit: versions
+    tuple val("${task.process}"), val('medaka'), eval("medaka --version 2>&1 | sed 's/medaka //'"), topic: versions, emit: versions_medaka
 
     when:
     task.ext.when
@@ -21,25 +21,11 @@ process medaka {
 
     medaka_consensus -i ${reads} -d medaka_tmp/consensus.fasta -o ${output_dir} ${args}
     mv ${output_dir}/consensus.fasta ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 medaka:
-	  version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 
     stub:
     output = "${sample_id}_medaka.fasta"
     """
     touch ${output}
-
-    cat <<-END_VERSIONS > ${sample_id}_${task.process}_versions.yml
-	${task.process}:
-	 medaka:
-	  version: \$(echo \$(medaka --version 2>&1) | sed 's/medaka //')
-	  container: ${task.container}
-	END_VERSIONS
     """
 }
