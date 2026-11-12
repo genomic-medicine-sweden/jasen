@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Pinned the CI runner to `ubuntu-24.04`, as Apptainer 1.3.6 can't be installed on `ubuntu-latest` (26.04)
 - Removed the duplicate prodigal training files left in `assets/prodigal_training_files` after cgMLST schema prep; copies from earlier installs can be deleted (#279)
 
 ### Changed
