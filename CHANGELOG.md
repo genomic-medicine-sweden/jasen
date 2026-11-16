@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Stopped passing the tbdb grading rules and tbdb BED files to `create_yaml` (reference data, not sample IGV tracks) and removed the `tb_grading_rules_bed` param
 - Removed the `saureus_download_prodigal_training_file`, `ecoli_generate_prodigal_training_file` and `spyogenes_generate_prodigal_training_file` make targets; schema prep now creates the training file it needs (#279)
 - Switched module version reporting from `versions.yml` heredocs to `eval()` outputs on a `versions` topic channel (#516)
 - Changed versions output to one `versions/<sample_id>_versions.yml` per sample, passed to `create_yaml` (#516)

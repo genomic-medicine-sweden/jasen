@@ -33,7 +33,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
     pubmlst_db              = params.pubmlst_db             ? file(params.pubmlst_db, checkIfExists: true)              : Channel.value([])
     resfinder_db            = params.resfinder_db           ? file(params.resfinder_db, checkIfExists: true)            : Channel.value([])
     serotypefinder_db       = params.serotypefinder_db      ? file(params.serotypefinder_db, checkIfExists: true)       : Channel.value([])
-    tb_grading_rules_bed    = params.tb_grading_rules_bed   ? file(params.tb_grading_rules_bed, checkIfExists: true)    : Channel.value([])
     tbdb_bed                = params.tbdb_bed               ? file(params.tbdb_bed, checkIfExists: true)                : Channel.value([])
     tbdb_bed_idx            = params.tbdb_bed_idx           ? file(params.tbdb_bed_idx, checkIfExists: true)            : Channel.value([])
     training_file           = params.training_file          ? file(params.training_file, checkIfExists: true)           : Channel.value([])
@@ -124,8 +123,6 @@ workflow CALL_MYCOBACTERIUM_TUBERCULOSIS {
         reference_genome_gff,
         reference_genome_accession,
         species_dir,
-        tb_grading_rules_bed,
-        tbdb_bed,
         CALL_PREPROCESSING.out.combined_output,
         CALL_PROFILING.out.combined_output,
         ch_qc_combined_output,
