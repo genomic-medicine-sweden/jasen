@@ -13,8 +13,6 @@ workflow CALL_POSTPROCESSING {
     reference_genome_gff
     reference_genome_accession
     species_dir
-    tb_grading_rules_bed
-    tbdb_bed
     ch_preprocessing_combined_output
     ch_profiling_combined_output
     ch_qc_combined_output
@@ -57,9 +55,7 @@ workflow CALL_POSTPROCESSING {
         reference_genome,
         reference_genome_idx,
         reference_genome_gff,
-        reference_genome_accession,
-        tb_grading_rules_bed,
-        tbdb_bed
+        reference_genome_accession
     )
 
     format_cdm(create_yaml.out.yaml)

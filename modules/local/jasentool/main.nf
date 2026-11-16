@@ -37,8 +37,6 @@ process create_yaml {
     val reference_genome_idx
     val reference_genome_gff
     val reference_genome_accession
-    val tb_grading_rules_bed
-    val tbdb_bed
 
     output:
     tuple val(sample_id), path(output), emit: yaml
@@ -84,8 +82,6 @@ process create_yaml {
     def ska_arg                        = ska                        ?  "--ska-index ${symlink_dir}/${params.species_dir}/ska/${ska}" : ""
     def sourmash_arg                   = sourmash                   ?  "--sourmash-signature ${symlink_dir}/${params.species_dir}/sourmash/${sourmash}" : ""
     def spatyper_arg                   = spatyper                   ?  "--spatyper ${params.outdir}/${params.species_dir}/spatyper/${spatyper}" : ""
-    def tb_grading_rules_bed_arg       = tb_grading_rules_bed       ?  "--tb-grading-rules-bed ${tb_grading_rules_bed}" : ""
-    def tbdb_bed_arg                   = tbdb_bed                   ?  "--tbdb-bed ${tbdb_bed}" : ""
     def tbprofiler_arg                 = tbprofiler                 ?  "--tbprofiler ${params.outdir}/${params.species_dir}/tbprofiler_mergedb/${tbprofiler}" : ""
     def vcf_arg                        = vcf                        ?  "--vcf ${symlink_dir}/${params.species_dir}/${params.vcf_dir}/${vcf}" : ""
     def virulencefinder_arg            = virulencefinder            ?  "--virulencefinder ${params.outdir}/${params.species_dir}/virulencefinder/${virulencefinder}" : ""
@@ -131,8 +127,6 @@ process create_yaml {
         ${ska_arg} \\
         ${sourmash_arg} \\
         ${spatyper_arg} \\
-        ${tb_grading_rules_bed_arg} \\
-        ${tbdb_bed_arg} \\
         ${tbprofiler_arg} \\
         ${vcf_arg} \\
         ${versions_arg} \\
